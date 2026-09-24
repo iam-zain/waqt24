@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="ur-Latn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Namaz Timer</title>
+<style>
+:root{
+  --bg:#0d1420; --bg2:#131c2b; --card:#16202f; --card2:#1b2635;
+  --text:#e9edf3; --sub:#7c8ba0; --line:#232f42; --dotBorder:#3d4c68;
+  --fard:#3a9bd9; --fardText:#06131f;
+  --nafil:#8b7fd6; --special:#c99a4a; --meal:#3fa8a0;
+  --green:#3fae6a; --yellow:#d4a72c; --red:#c85a4a; --roza:#c3b6ea;
+  --accent:#3a9bd9;
+  --meterBg:#1e293a;
+  --tabbar:#0f1826;
+  transition:background .6s ease, color .6s ease;
+}
+[data-theme="light"]{
+  --bg:#f6f7f9; --bg2:#ffffff; --card:#ffffff; --card2:#f0f2f5;
+  --text:#1c2530; --sub:#67748a; --line:#e3e7ed; --dotBorder:#b6c0cc;
+  --fard:#256fa8; --fardText:#ffffff;
+  --nafil:#6c5ec4; --special:#a8762a; --meal:#1f8f83; --roza:#8a6fcf;
+  --meterBg:#e7eaef;
+  --tabbar:#ffffff;
+}
+
+/* ---------- WAQTI (prayer-time ambient) THEMES ---------- */
+[data-theme="waqt-morning"]{ /* Fajr - soft dawn light */
+  --bg:#eef1f7; --bg2:#ffffff; --card:#ffffff; --card2:#f2f4f9;
+  --text:#26314a; --sub:#697490; --line:#dde2ee; --dotBorder:#b3bdd4;
+  --fard:#3f6fbf; --nafil:#7d6ec9; --special:#b8813f; --meal:#2f8f8a; --roza:#8a6fcf;
+  --meterBg:#e2e6f1; --tabbar:#ffffff; --accent:#3f6fbf;
+}
+[data-theme="waqt-bright"]{ /* Zuhr / midday - bright */
+  --bg:#fbfaf5; --bg2:#ffffff; --card:#ffffff; --card2:#f7f4ea;
+  --text:#2a2718; --sub:#847c60; --line:#ece5cf; --dotBorder:#cabb8c;
+  --fard:#b98a26; --nafil:#8267c2; --special:#b0602a; --meal:#2f8f8a; --roza:#8a6fcf;
+  --meterBg:#f0ead6; --tabbar:#ffffff; --accent:#b98a26;
+}
+[data-theme="waqt-dim"]{ /* Asr - soft dimming afternoon */
+  --bg:#eee8df; --bg2:#f8f4ec; --card:#f8f4ec; --card2:#efe7d9;
+  --text:#362e23; --sub:#867a67; --line:#ded2bd; --dotBorder:#b7a37e;
+  --fard:#a3612f; --nafil:#7c5f9c; --special:#b06229; --meal:#2f8f8a; --roza:#7d64ba;
+  --meterBg:#e4d9c5; --tabbar:#f8f4ec; --accent:#a3612f;
+}
+[data-theme="waqt-grey"]{ /* Maghrib approach / dusk grey */
+  --bg:#565b62; --bg2:#61666d; --card:#61666d; --card2:#54595f;
+  --text:#f1efec; --sub:#c3c5c9; --line:#727782; --dotBorder:#9198a3;
+  --fard:#cf8158; --nafil:#b892d1; --special:#d3a655; --meal:#5dc4b8; --roza:#c9b8f0;
+  --meterBg:#4a4f55; --tabbar:#4a4f55; --accent:#cf8158;
+}
+[data-theme="waqt-dark"]{ /* Isha - dark blue night */
+  --bg:#121a2c; --bg2:#182236; --card:#182236; --card2:#1d2940;
+  --text:#e2e6f2; --sub:#8791ac; --line:#293450; --dotBorder:#48587f;
+  --fard:#5182cf; --nafil:#9878d9; --special:#c99349; --meal:#4bbcae; --roza:#b9a8e8;
+  --meterBg:#212b45; --tabbar:#0e1526; --accent:#5182cf;
+}
+[data-theme="waqt-darkest"]{ /* Tahajjud / last third - deep night */
+  --bg:#050810; --bg2:#0a0e1a; --card:#0a0e1a; --card2:#0e1524;
+  --text:#d5daea; --sub:#5b6482; --line:#161d2f; --dotBorder:#333f5c;
+  --fard:#3d63b3; --nafil:#7256b0; --special:#ac7d3a; --meal:#3f9d92; --roza:#a892e0;
+  --meterBg:#131a2a; --tabbar:#03050b; --accent:#3d63b3;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%; overflow:hidden;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--text);
+  display:flex; justify-content:center;
+}
+#app{
+  width:100%; max-width:480px; height:100dvh; display:flex; flex-direction:column;
+  background:var(--bg); position:relative;
+}
+.screen{ flex:1; min-height:0; display:none; }
+.screen.active{ display:flex; flex-direction:column; }
+#tab-home.active{ display:flex; }
+.scrollable{ overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.scrollable::-webkit-scrollbar{width:0px;}
+
+/* ---------- HOME (non-scrollable) ---------- */
+#tab-home{ padding:10px 14px 6px; justify-content:flex-start; gap:6px; }
+.date-bar{
+  display:flex; justify-content:space-between; align-items:center; gap:8px;
+  padding:8px 4px 10px; border-bottom:1px solid var(--line);
+}
+.date-bar .greg{ font-size:13px; color:var(--sub); }
+.date-bar .hijri{ font-size:12px; color:var(--accent); font-weight:600; margin-top:2px; }
+.dateNav{
+  width:28px; height:28px; flex:0 0 auto; border-radius:8px; border:1px solid var(--line);
+  background:var(--card); color:var(--text); font-size:15px; cursor:pointer;
+}
+.dateCenter{ flex:1; text-align:center; cursor:pointer; }
+.cityLabel{ font-size:10.5px; color:var(--sub); margin-top:2px; }
+.controlBar{
+  display:flex; align-items:stretch;
+  padding:4px 2px; margin-top:2px; border-bottom:1px solid var(--line);
+}
+.controlCol{ flex:1; display:flex; align-items:center; justify-content:center; padding:2px 6px; gap:8px; }
+.controlDivider{ width:1px; background:var(--line); margin:2px 0; }
+.bulkLabel{ font-size:10.5px; color:var(--sub); font-weight:600; white-space:nowrap; }
+.bulkBtns{ display:flex; gap:5px; transition:opacity .2s; }
+.bulkBtns.disabled{ opacity:0.3; pointer-events:none; filter:grayscale(0.6); }
+.bulk-btn{
+  width:24px; height:24px; border-radius:50%; border:1.5px solid transparent; cursor:pointer;
+  font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; color:#fff;
+}
+.bulk-green{ background:var(--green); }
+.bulk-yellow{ background:var(--yellow); color:#2b2100; }
+.bulk-red{ background:var(--red); }
+.bulk-clear{ background:transparent; border-color:var(--dotBorder, var(--line)); color:var(--sub); font-size:13px; }
+.roza-mini{
+  width:34px; height:20px; border-radius:11px; background:var(--meterBg);
+  position:relative; cursor:pointer; border:1px solid var(--line); flex:0 0 auto;
+}
+.roza-mini.on{ background:var(--roza); border-color:var(--roza); }
+.roza-mini-knob{ width:14px; height:14px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:left .15s; }
+.roza-mini.on .roza-mini-knob{ left:17px; }
+.dateCenter .todayTag{ display:inline-block; margin-left:6px; padding:1px 7px; border-radius:8px; background:var(--accent); color:var(--fardText); font-size:9.5px; font-weight:700; vertical-align:middle; }
+
+.times-list{ flex:1; display:flex; flex-direction:column; justify-content:space-between; padding:4px 0; min-height:0; }
+.time-row{
+  display:flex; flex-direction:column; gap:2px;
+  padding:3px 6px; border-radius:8px; position:relative;
+}
+.time-row .rowMain{ display:flex; align-items:center; gap:8px; }
+.time-row .remainText{ font-size:10px; text-align:right; padding-right:2px; }
+.time-row .remainLabel{ color:var(--sub); font-weight:400; opacity:0.75; }
+.time-row .remainValue{ color:var(--text); font-weight:800; }
+.time-row .name{ font-size:12px; font-weight:600; flex:0 0 76px; display:flex; align-items:center; gap:4px; cursor:pointer; }
+.pIcon{ font-size:13px; line-height:1; }
+.time-row .clock{ font-size:10px; font-variant-numeric:tabular-nums; flex:0 0 118px; color:var(--sub); letter-spacing:-0.2px; white-space:nowrap; }
+.time-row .clock .arrow{ opacity:0.5; margin:0 2px; font-size:9px; }
+.time-row.current .clock{ color:var(--text); font-weight:600; }
+.time-row .meterWrap{ flex:1; height:6px; background:var(--meterBg); border-radius:4px; overflow:hidden; position:relative; display:flex; justify-content:flex-end; }
+.time-row .meterFill{ height:100%; border-radius:4px; width:0%; background:var(--accent); }
+.time-row.fard .name{ color:var(--fard); }
+.time-row.nafil .name{ color:var(--nafil); }
+.time-row.special .name{ color:var(--special); }
+.time-row.meal .name{ color:var(--meal); }
+.time-row.current{ background:var(--card2); box-shadow:0 0 0 1.5px var(--accent) inset, 0 2px 10px rgba(0,0,0,0.10); padding-top:6px; padding-bottom:6px; }
+.time-row.current .name{ font-weight:800; font-size:14.5px; flex-basis:88px; }
+.time-row.current .pIcon{ font-size:16px; }
+.time-row.past{ opacity:0.4; }
+.time-row.past .name{ color:var(--sub) !important; font-weight:500; }
+.time-row.past .clock{ color:var(--sub); }
+.time-row.future{ opacity:0.62; }
+.time-row.future .name{ font-weight:500; }
+.time-row.status-green{ background:color-mix(in srgb, var(--green) 16%, transparent); }
+.time-row.status-yellow{ background:color-mix(in srgb, var(--yellow) 18%, transparent); }
+.time-row.status-red{ background:color-mix(in srgb, var(--red) 16%, transparent); }
+.time-row.status-green.past{ opacity:0.6; }
+.time-row.status-yellow.past{ opacity:0.6; }
+.time-row.status-red.past{ opacity:0.6; }
+#timesList.namaz-mode{ justify-content:flex-start; gap:12px; padding-top:8px; }
+#timesList.namaz-mode .time-row{
+  background:var(--card); box-shadow:0 0 0 1px var(--line) inset;
+  padding:11px 10px; border-radius:12px;
+}
+#timesList.namaz-mode .time-row .name{ font-size:15px; font-weight:700; flex-basis:96px; }
+#timesList.namaz-mode .pIcon{ font-size:17px; }
+#timesList.namaz-mode .time-row .clock{ font-size:12px; }
+#timesList.namaz-mode .time-row.current{ background:var(--card2); box-shadow:0 0 0 2px var(--accent) inset, 0 3px 14px rgba(0,0,0,0.14); padding:14px 10px; }
+#timesList.namaz-mode .time-row.current .name{ font-size:17.5px; font-weight:800; flex-basis:100px; }
+#timesList.namaz-mode .time-row.current .pIcon{ font-size:21px; }
+#timesList.namaz-mode .time-row.future{ opacity:0.6; box-shadow:none; }
+#timesList.namaz-mode .time-row.past{ box-shadow:none; }
+#timesList.namaz-mode .dot-btn{ width:19px; height:19px; }
+#timesList.namaz-mode .meterWrap{ height:8px; }
+#timesList.namaz-mode .remainText{ font-size:11.5px; }
+.status-dots{ flex:0 0 auto; display:flex; gap:3px; }
+.dot-btn{
+  width:16px; height:16px; border-radius:50%; border:1.5px solid var(--dotBorder, var(--line)); background:transparent; cursor:pointer; padding:0;
+}
+.dot-btn.on-green{ background:var(--green); border-color:var(--green); }
+.dot-btn.on-yellow{ background:var(--yellow); border-color:var(--yellow); }
+.dot-btn.on-red{ background:var(--red); border-color:var(--red); }
+
+/* ---------- TAB BAR ---------- */
+#tabbar{
+  flex:0 0 auto; display:flex; background:var(--tabbar); border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tab-btn{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:2px; padding:8px 0 6px; background:none; border:none; color:var(--sub); cursor:pointer;
+}
+.tab-btn.active{ color:var(--accent); }
+.tab-btn .ic{ font-size:19px; line-height:1; }
+.tab-btn .lb{ font-size:10.5px; font-weight:600; }
+
+/* ---------- generic screen padding ---------- */
+.pad{ padding:14px; }
+.section-title{ font-size:15px; font-weight:700; margin:16px 0 8px; color:var(--text); }
+.section-title:first-child{ margin-top:2px; }
+
+/* ---------- CALENDAR TAB ---------- */
+.cal-header{ display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--line);}
+.cal-header button{ background:var(--card); border:1px solid var(--line); color:var(--text); width:32px; height:32px; border-radius:8px; font-size:16px; }
+.cal-header .month-label{ font-weight:700; font-size:15px; text-align:center; }
+.cal-header .month-label .sub{ display:block; font-size:11px; color:var(--sub); font-weight:500; }
+.cal-toggle{ display:flex; justify-content:center; gap:6px; padding:8px 14px 0; }
+.cal-toggle button{ flex:1; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--sub); font-size:12px; font-weight:600; }
+.cal-toggle button.active{ background:var(--accent); color:#08131c; border-color:var(--accent); }
+.cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; padding:10px 14px; }
+.cal-dow{ text-align:center; font-size:10px; color:var(--sub); font-weight:700; }
+.cal-cell{
+  aspect-ratio:1; border-radius:8px; background:var(--card); border:1px solid var(--line);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  font-size:12px; cursor:pointer; position:relative;
+}
+.cal-cell.today{ border-color:var(--accent); }
+.cal-cell.empty{ background:none; border:none; }
+.cal-cell.roza{ background:color-mix(in srgb, var(--roza) 16%, var(--card)); border-color:color-mix(in srgb, var(--roza) 45%, var(--line)); }
+.cal-roza-mark{ position:absolute; top:2px; right:3px; font-size:8px; line-height:1; }
+.cal-dots{ display:flex; gap:2px; }
+.cal-dots span{ width:5px; height:5px; border-radius:50%; background:var(--line); }
+.cal-detail{ margin:10px 14px 20px; padding:12px; background:var(--card); border-radius:12px; border:1px solid var(--line); }
+.cal-detail .row{ display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line); font-size:13px; }
+.cal-detail .row:last-child{ border-bottom:none; }
+.cal-detail .tag{ padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700; }
+
+/* ---------- RAMZAN TAB ---------- */
+.ramzan-card{ margin:0 14px 14px; padding:14px; background:var(--card); border-radius:14px; border:1px solid var(--line); }
+.ramzan-card h3{ font-size:14px; margin-bottom:10px; }
+.chip-row{ display:flex; gap:8px; flex-wrap:wrap; }
+.chip{ padding:8px 12px; border-radius:20px; border:1px solid var(--line); background:var(--card2); font-size:12.5px; font-weight:600; color:var(--sub); cursor:pointer; }
+.chip.prayed{ background:var(--green); color:#06210f; border-color:var(--green); }
+.chip.qaza{ background:var(--yellow); color:#2b2100; border-color:var(--yellow); }
+.chip.pending{ background:var(--red); color:#2b0808; border-color:var(--red); }
+.roza-toggle{ display:flex; align-items:center; justify-content:space-between; padding:10px 0; }
+.switch{ width:46px; height:26px; border-radius:14px; background:var(--meterBg); position:relative; cursor:pointer; border:1px solid var(--line); }
+.switch.on{ background:var(--roza); }
+.switch .knob{ width:20px; height:20px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:left .15s; }
+.switch.on .knob{ left:22px; }
+
+/* ---------- MORE TAB ---------- */
+.more-list{ padding:6px 14px 20px; }
+.more-item{ display:flex; align-items:center; gap:12px; padding:14px 6px; border-bottom:1px solid var(--line); cursor:pointer; }
+.more-item .ic{ font-size:20px; width:26px; text-align:center; }
+.more-item .lbl{ font-size:14.5px; font-weight:600; flex:1; }
+.more-item .chev{ color:var(--sub); }
+.theme-row{ display:flex; gap:8px; padding:0 6px 16px; }
+.theme-row button{ flex:1; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12.5px; font-weight:600; }
+.theme-row button.active{ background:var(--accent); color:#08131c; border-color:var(--accent); }
+
+.search-bar{ margin:10px 14px; }
+.search-bar input{
+  width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--line);
+  background:var(--card); color:var(--text); font-size:13.5px;
+}
+.view-toggle{ display:flex; gap:6px; margin:0 14px 10px; }
+.view-toggle button{ padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--sub); font-size:12px; }
+.view-toggle button.active{ background:var(--accent); color:#08131c; border-color:var(--accent); }
+
+.dua-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 14px 20px; }
+.dua-grid.list{ grid-template-columns:1fr; }
+.dua-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; cursor:pointer; }
+.dua-card .cat{ font-size:10.5px; color:var(--accent); font-weight:700; text-transform:uppercase; margin-bottom:4px; }
+.dua-card .title{ font-size:13.5px; font-weight:700; margin-bottom:4px; }
+.dua-card .prev{ font-size:11.5px; color:var(--sub); line-height:1.4; }
+
+.hadees-cat{ padding:0 14px 6px; }
+.hadees-cat .chip-row{ margin-bottom:10px; }
+.hadees-item{ margin:0 14px 10px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+.hadees-item .src{ font-size:11px; color:var(--accent); font-weight:700; margin-bottom:6px; }
+.hadees-item .txt{ font-size:13px; line-height:1.5; }
+
+/* quiz */
+.quiz-progress{ height:6px; background:var(--meterBg); border-radius:4px; overflow:hidden; margin:0 0 20px; }
+.quiz-progress-fill{ height:100%; background:var(--accent); border-radius:4px; transition:width .2s; }
+.quiz-q{ font-size:15.5px; font-weight:700; line-height:1.5; margin-bottom:18px; }
+.quiz-opts{ display:flex; flex-direction:column; gap:10px; }
+.quiz-opt{
+  text-align:left; padding:13px 14px; border-radius:12px; border:1px solid var(--line);
+  background:var(--card); color:var(--text); font-size:13.5px; font-weight:600; cursor:pointer;
+}
+.quiz-opt.correct{ background:color-mix(in srgb, var(--green) 22%, var(--card)); border-color:var(--green); color:var(--green); }
+.quiz-opt.wrong{ background:color-mix(in srgb, var(--red) 22%, var(--card)); border-color:var(--red); color:var(--red); }
+.quiz-reveal{ margin-top:12px; padding:10px 12px; border-radius:10px; background:color-mix(in srgb, var(--green) 14%, var(--card)); border:1px solid var(--green); font-size:13px; color:var(--text); }
+.quiz-count-btn{
+  padding:14px 22px; border-radius:12px; border:1px solid var(--line); background:var(--card);
+  color:var(--text); font-size:14px; font-weight:700; cursor:pointer;
+}
+.quiz-cat-btn{
+  display:flex; align-items:center; gap:10px; width:calc(100% - 28px); margin:0 14px 10px;
+  padding:13px 14px; border-radius:12px; border:1px solid var(--line); background:var(--card);
+  color:var(--text); cursor:pointer; text-align:left;
+}
+.quiz-cat-ic{ font-size:20px; }
+.quiz-cat-name{ flex:1; font-size:13.5px; font-weight:700; }
+.quiz-cat-count{ font-size:11px; color:var(--sub); font-weight:600; }
+
+/* detail overlay */
+#detailOverlay{
+  position:absolute; inset:0; background:var(--bg); z-index:50; display:none;
+  flex-direction:column;
+}
+#detailOverlay.active{ display:flex; }
+.detail-header{ display:flex; align-items:center; gap:10px; padding:14px; border-bottom:1px solid var(--line); }
+.detail-header button{ background:var(--card); border:1px solid var(--line); color:var(--text); width:34px; height:34px; border-radius:8px; font-size:16px; }
+.detail-header .t{ font-weight:700; font-size:15px; }
+.detail-body{ flex:1; overflow-y:auto; padding:20px; }
+.detail-body .arabic{ font-size:22px; text-align:right; line-height:2; margin-bottom:16px; direction:rtl; color:var(--text); }
+.detail-body .translit{ font-size:13.5px; color:var(--sub); font-style:italic; margin-bottom:10px; line-height:1.6; }
+.detail-body .meaning{ font-size:14px; line-height:1.6; }
+.detail-body .ref{ margin-top:16px; font-size:12px; color:var(--accent); }
+
+/* info modal */
+#infoModal{
+  position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200;
+  display:none; align-items:center; justify-content:center; padding:24px;
+}
+#infoModal.active{ display:flex; }
+.info-card{
+  background:var(--card); border:1px solid var(--line); border-radius:16px;
+  padding:22px 20px 20px; max-width:360px; width:100%; position:relative;
+  box-shadow:0 12px 40px rgba(0,0,0,0.35);
+}
+.info-close{
+  position:absolute; top:10px; right:10px; width:30px; height:30px; border-radius:9px;
+  border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:16px; cursor:pointer;
+}
+.info-title{ font-size:17px; font-weight:800; margin-bottom:2px; display:flex; align-items:center; gap:8px; padding-right:30px; }
+.info-time{ font-size:12.5px; color:var(--accent); font-weight:700; margin-bottom:12px; }
+.info-text{ font-size:13.5px; line-height:1.65; color:var(--text); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME TAB -->
+  <div class="screen active" id="tab-home">
+    <div class="date-bar">
+      <button class="dateNav" id="dateBack">‹</button>
+      <div class="dateCenter" id="dateCenterBtn">
+        <div class="greg" id="gregDate">--</div>
+        <div class="hijri" id="hijriDate">--</div>
+        <div class="cityLabel" id="cityLabel">--</div>
+      </div>
+      <button class="dateNav" id="dateFwd">›</button>
+    </div>
+    <div class="controlBar">
+      <div class="controlCol">
+        <span class="bulkLabel">Namaz Mode</span>
+        <div class="roza-mini" id="namazModeBtn"><div class="roza-mini-knob"></div></div>
+      </div>
+      <div class="controlDivider"></div>
+      <div class="controlCol">
+        <span class="bulkLabel">Farz Namaz Padh Chuke?</span>
+        <div class="bulkBtns" id="bulkBtns">
+          <button class="bulk-btn bulk-green" id="bulkGreen" title="Sab Padh Li">✓</button>
+          <button class="bulk-btn bulk-yellow" id="bulkYellow" title="Sab Qaza Padhi">~</button>
+          <button class="bulk-btn bulk-red" id="bulkRed" title="Sab Baaki Hai">⏳</button>
+          <button class="bulk-btn bulk-clear" id="bulkClear" title="Sab Clear Karein">↺</button>
+        </div>
+      </div>
+    </div>
+    <div class="times-list" id="timesList"></div>
+  </div>
+
+  <!-- CALENDAR TAB -->
+  <div class="screen scrollable" id="tab-calendar">
+    <div class="cal-toggle">
+      <button id="calGregBtn" class="active">Gregorian</button>
+      <button id="calHijriBtn">Hijri</button>
+    </div>
+    <div class="cal-header">
+      <button id="calPrev">‹</button>
+      <div class="month-label" id="calMonthLabel">--<span class="sub" id="calMonthSub">--</span></div>
+      <button id="calNext">›</button>
+    </div>
+    <div class="cal-grid" id="calDow"></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-detail" id="calDetail" style="display:none;"></div>
+  </div>
+
+  <!-- RAMZAN TAB -->
+  <div class="screen scrollable" id="tab-ramzan">
+    <div class="pad" style="padding-bottom:0;">
+      <div class="section-title" style="margin-top:6px;">Aaj ka Roza</div>
+    </div>
+    <div class="ramzan-card">
+      <div class="roza-toggle">
+        <span style="font-size:13.5px; font-weight:600;" id="rozaLabel">Roza Rakha</span>
+        <div class="switch" id="rozaSwitch"><div class="knob"></div></div>
+      </div>
+    </div>
+    <div class="pad" style="padding-top:0; padding-bottom:0;">
+      <div class="section-title">Aaj ki 5 Namaz</div>
+    </div>
+    <div id="ramzanNamazList"></div>
+    <div style="height:20px;"></div>
+  </div>
+
+  <!-- MORE TAB -->
+  <div class="screen scrollable" id="tab-more">
+    <div class="pad" style="padding-bottom:0;">
+      <div class="section-title" style="margin-top:6px;">Theme</div>
+      <div class="theme-row">
+        <button id="themeLight">☀ Light</button>
+        <button id="themeDark">🌙 Dark</button>
+        <button id="themeAuto">🌓 Auto</button>
+        <button id="themeWaqti">🕋 Waqti</button>
+      </div>
+      <div class="section-title">Time Format</div>
+      <div class="theme-row">
+        <button id="fmt24">24 Ghante</button>
+        <button id="fmt12">12 Ghante (AM/PM)</button>
+      </div>
+      <div class="section-title">Explore</div>
+    </div>
+    <div class="more-list" style="padding-top:0;">
+      <div class="more-item" data-open="dua"><div class="ic">🤲</div><div class="lbl">Du'a Padhiye</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="hadees"><div class="ic">📖</div><div class="lbl">Hadees Dekhiye</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="quiz"><div class="ic">🧠</div><div class="lbl">Quiz Kheliye</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="settings"><div class="ic">⚙️</div><div class="lbl">Settings</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="about"><div class="ic">ℹ️</div><div class="lbl">Iske Baare Mein</div><div class="chev">›</div></div>
+    </div>
+  </div>
+
+  <div id="tabbar">
+    <button class="tab-btn active" data-tab="home"><div class="ic">🕌</div><div class="lb">Home</div></button>
+    <button class="tab-btn" data-tab="calendar"><div class="ic">📅</div><div class="lb">Calendar</div></button>
+    <button class="tab-btn" data-tab="ramzan"><div class="ic">🌙</div><div class="lb">Ramzan</div></button>
+    <button class="tab-btn" data-tab="more"><div class="ic">☰</div><div class="lb">More</div></button>
+  </div>
+
+  <div id="detailOverlay">
+    <div class="detail-header">
+      <button id="detailBack">‹</button>
+      <div class="t" id="detailTitle">--</div>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+
+  <div id="infoModal">
+    <div class="info-card">
+      <button class="info-close" id="infoClose">✕</button>
+      <div class="info-title" id="infoTitle">--</div>
+      <div class="info-time" id="infoTime">--</div>
+      <div class="info-text" id="infoText">--</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
+   ============================================================ */
+const TZ = 5.5; // India Standard Time
+const PRIORITY_CITIES = [
+  {name:'Chittaranjan', state:'West Bengal', lat:23.8315, lon:86.8908},
+  {name:'Gaya', state:'Bihar', lat:24.7955, lon:85.0002},
+  {name:'Gondia', state:'Maharashtra', lat:21.4602, lon:80.1961},
+  {name:'Hyderabad', state:'Telangana', lat:17.3850, lon:78.4867},
+  {name:'Jehanabad', state:'Bihar', lat:25.2131, lon:84.9909},
+  {name:'Koraput', state:'Odisha', lat:18.8117, lon:82.7126},
+  {name:'Pune', state:'Maharashtra', lat:18.5204, lon:73.8567},
+  {name:'Ranchi', state:'Jharkhand', lat:23.3441, lon:85.3096},
+].sort((a,b)=>a.name.localeCompare(b.name));
+
+const OTHER_CITIES = [
+  {name:'Agra', lat:27.1767, lon:78.0081},
+  {name:'Ahmedabad', lat:23.0225, lon:72.5714},
+  {name:'Ajmer', lat:26.4499, lon:74.6399},
+  {name:'Aligarh', lat:27.8974, lon:78.0880},
+  {name:'Amritsar', lat:31.6340, lon:74.8723},
+  {name:'Bareilly', lat:28.3670, lon:79.4304},
+  {name:'Bengaluru', lat:12.9716, lon:77.5946},
+  {name:'Bhopal', lat:23.2599, lon:77.4126},
+  {name:'Bhubaneswar', lat:20.2961, lon:85.8245},
+  {name:'Chennai', lat:13.0827, lon:80.2707},
+  {name:'Delhi', lat:28.6139, lon:77.2090},
+  {name:'Gorakhpur', lat:26.7606, lon:83.3732},
+  {name:'Guwahati', lat:26.1445, lon:91.7362},
+  {name:'Hubli', lat:15.3647, lon:75.1240},
+  {name:'Indore', lat:22.7196, lon:75.8577},
+  {name:'Jaipur', lat:26.9124, lon:75.7873},
+  {name:'Jodhpur', lat:26.2389, lon:73.0243},
+  {name:'Kanpur', lat:26.4499, lon:80.3319},
+  {name:'Kochi', lat:9.9312, lon:76.2673},
+  {name:'Kolhapur', lat:16.7050, lon:74.2433},
+  {name:'Kolkata', lat:22.5726, lon:88.3639},
+  {name:'Kozhikode', lat:11.2588, lon:75.7804},
+  {name:'Lucknow', lat:26.8467, lon:80.9462},
+  {name:'Ludhiana', lat:30.9010, lon:75.8573},
+  {name:'Malappuram', lat:11.0510, lon:76.0711},
+  {name:'Meerut', lat:28.9845, lon:77.7064},
+  {name:'Moradabad', lat:28.8386, lon:78.7733},
+  {name:'Mumbai', lat:19.0760, lon:72.8777},
+  {name:'Nagpur', lat:21.1458, lon:79.0882},
+  {name:'Nashik', lat:19.9975, lon:73.7898},
+  {name:'Patna', lat:25.5941, lon:85.1376},
+  {name:'Raipur', lat:21.2514, lon:81.6296},
+  {name:'Srinagar', lat:34.0837, lon:74.7973},
+  {name:'Surat', lat:21.1702, lon:72.8311},
+  {name:'Varanasi', lat:25.3176, lon:82.9739},
+].sort((a,b)=>a.name.localeCompare(b.name));
+
+const CITIES = [...PRIORITY_CITIES, ...OTHER_CITIES];
+const FAJR_ANGLE = 18, ISHA_ANGLE = 17; // MWL (Muslim World League) - common for India
+
+function julianDate(y,m,d){
+  if(m<=2){ y-=1; m+=12; }
+  const A=Math.floor(y/100), B=2-A+Math.floor(A/4);
+  return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;
+}
+function sunPosition(jd){
+  const D = jd - 2451545.0;
+  const g = fixAngle(357.529 + 0.98560028*D);
+  const q = fixAngle(280.459 + 0.98564736*D);
+  const L = fixAngle(q + 1.915*dsin(g) + 0.020*dsin(2*g));
+  const e = 23.439 - 0.00000036*D;
+  const dec = darcsin(dsin(e)*dsin(L));
+  let RA = darctan2(dcos(e)*dsin(L), dcos(L))/15;
+  RA = fixHour(RA);
+  const eqt = q/15 - RA;
+  return {declination:dec, eqt:eqt};
+}
+function fixAngle(a){ a=a-360*Math.floor(a/360); return a<0?a+360:a; }
+function fixHour(a){ a=a-24*Math.floor(a/24); return a<0?a+24:a; }
+function dsin(d){return Math.sin(d*Math.PI/180);}
+function dcos(d){return Math.cos(d*Math.PI/180);}
+function dtan(d){return Math.tan(d*Math.PI/180);}
+function darcsin(x){return Math.asin(x)*180/Math.PI;}
+function darccos(x){return Math.acos(x)*180/Math.PI;}
+function darctan2(y,x){return Math.atan2(y,x)*180/Math.PI;}
+
+function computeTime(jd, angleOrMin, isAngle, isAfter, lat, lon, tz){
+  const sp = sunPosition(jd + (isAfter? 0.5 : -0.5 + 0.5)); // approximation, refined below with iteration
+  return sp;
+}
+
+function sunAngleTime(jd, angle, lat, direction){
+  const sp = sunPosition(jd);
+  const dec = sp.declination;
+  const num = -dsin(angle) - dsin(dec)*dsin(lat);
+  const den = dcos(dec)*dcos(lat);
+  let ratio = num/den;
+  ratio = Math.max(-1, Math.min(1, ratio));
+  const t = darccos(ratio)/15;
+  return direction==='ccw' ? -t : t;
+}
+
+function computeDayTimes(date, lat, lon, tz){
+  const jd = julianDate(date.getFullYear(), date.getMonth()+1, date.getDate()) - lon/(15*24);
+  const noonBase = 12 - lon/15 + tz - 0; // approx
+
+  function timeFor(angle, isMorning){
+    let T = 12; // start guess (hours, local solar-ish)
+    for(let i=0;i<2;i++){
+      const jdT = jd + T/24;
+      const sp = sunPosition(jdT);
+      const dec = sp.declination, eqt = sp.eqt;
+      const noon = fixHour(12 - eqt);
+      const num = -dsin(angle) - dsin(dec)*dsin(lat);
+      const den = dcos(dec)*dcos(lat);
+      let ratio = Math.max(-1, Math.min(1, num/den));
+      const H = darccos(ratio)/15;
+      T = isMorning ? noon - H : noon + H;
+    }
+    return fixHour(T + tz - lon/15);
+  }
+  function solarNoon(){
+    let T=12;
+    const jdT = jd + T/24;
+    const sp = sunPosition(jdT);
+    const noon = fixHour(12 - sp.eqt);
+    return fixHour(noon + tz - lon/15);
+  }
+  function darccot(x){ return darctan2(1,x); }
+  function asrTime(shadowFactor){
+    let T = 13;
+    for(let i=0;i<2;i++){
+      const jdT = jd + T/24;
+      const sp = sunPosition(jdT);
+      const dec = sp.declination, eqt = sp.eqt;
+      const noon = fixHour(12 - eqt);
+      const angle = -darccot(shadowFactor + dtan(Math.abs(lat-dec)));
+      const num = -dsin(angle) - dsin(dec)*dsin(lat);
+      const den = dcos(dec)*dcos(lat);
+      const ratio = Math.max(-1, Math.min(1, num/den));
+      const H = darccos(ratio)/15;
+      T = noon + H;
+    }
+    return fixHour(T + tz - lon/15);
+  }
+
+  const fajr = timeFor(FAJR_ANGLE, true);
+  const sunrise = timeFor(0.833, true);
+  const dhuhr = fixHour(solarNoon() + (1/60)); // +1 min safety after zawal
+  const zawalEnd = solarNoon(); // moment of zawal (istawa) - zuhr starts right after
+  const asr = asrTime(2); // Hanafi factor 2 (standard for India)
+  const maghrib = timeFor(0.833, false);
+  const isha = timeFor(ISHA_ANGLE, false);
+
+  return { fajr, sunrise, dhuhr, zawal: zawalEnd, asr, maghrib, isha, jd };
+}
+
+function toDate(baseDate, hourFloat){
+  const d = new Date(baseDate);
+  d.setHours(0,0,0,0);
+  const h = Math.floor(hourFloat);
+  const m = Math.round((hourFloat-h)*60);
+  d.setHours(h, m, 0, 0);
+  return d;
+}
+function fmtTime(d){
+  const m = String(d.getMinutes()).padStart(2,'0');
+  if(state.timeFormat==='12'){
+    let h = d.getHours();
+    const ap = h>=12?'PM':'AM';
+    h = h%12; if(h===0) h=12;
+    return h + ':' + m + ' ' + ap;
+  }
+  return String(d.getHours()).padStart(2,'0') + ':' + m;
+}
+function fmtTimeCompact(d){
+  const m = String(d.getMinutes()).padStart(2,'0');
+  if(state.timeFormat==='12'){
+    let h = d.getHours();
+    const ap = h>=12?'PM':'AM';
+    h = h%12; if(h===0) h=12;
+    return h + ':' + m + ' ' + ap;
+  }
+  return String(d.getHours()).padStart(2,'0') + ':' + m;
+}
+function fmtRange(p){
+  if(p.key==='sehri') return 'Khatm ' + fmtTimeCompact(p.end);
+  if(p.key==='iftar') return 'Shuru ' + fmtTimeCompact(p.start);
+  return fmtTimeCompact(p.start) + '<span class="arrow">–</span>' + fmtTimeCompact(p.end);
+}
+function addMin(d, mins){ return new Date(d.getTime() + mins*60000); }
+function fmtRemain(ms){
+  const totalMin = Math.max(0, Math.ceil(ms/60000));
+  if(totalMin >= 60){
+    const h = Math.floor(totalMin/60), m = totalMin%60;
+    return h+' Ghante'+(m>0 ? ' '+m+' Minute' : '');
+  }
+  return totalMin+' Minute'+(totalMin===1?'':'s');
+}
+
+/* Build full schedule for a given date */
+function buildSchedule(date){
+  const loc = (typeof state!=='undefined' && state.location) ? state.location : CITIES[0];
+  const t = computeDayTimes(date, loc.lat, loc.lon, TZ);
+  const fajr = toDate(date, t.fajr);
+  const sunrise = toDate(date, t.sunrise);
+  const zawal = toDate(date, t.zawal);
+  const dhuhr = addMin(zawal, 3); // zuhr begins shortly after zawal ends
+  const asr = toDate(date, t.asr);
+  const maghrib = toDate(date, t.maghrib);
+  const isha = toDate(date, t.isha);
+
+  const sehriEnd = addMin(fajr, -1); // sehri ends 1 min before fajr
+  const sehriStart = addMin(fajr, -90);
+  const ishraq = addMin(sunrise, 20);
+  const chaast = addMin(sunrise, 90);
+  const zawalStart = addMin(zawal, -15); // makrooh window before zawal
+  const iftar = new Date(maghrib);
+  const awwabin = addMin(maghrib, 20);
+  const nightLen = (fajr.getTime()+24*3600000 - maghrib.getTime());
+  const tahajjudStart = new Date(maghrib.getTime() + nightLen*0.5); // half the night
+  const tihaiStart = new Date(maghrib.getTime() + nightLen*(2/3)); // last third of the night
+  const ishaEnd = addMin(fajr,-1);
+
+  return [
+    {key:'sehri', name:'Sehri', type:'meal', start:sehriStart, end:sehriEnd},
+    {key:'fajr', name:'Fajr', type:'fard', start:fajr, end:sunrise},
+    {key:'tulu', name:'Tulu Aftab', type:'special', start:sunrise, end:ishraq},
+    {key:'ishraq', name:'Ishraq', type:'nafil', start:ishraq, end:chaast},
+    {key:'chaast', name:'Chaast', type:'nafil', start:chaast, end:zawalStart},
+    {key:'zawal', name:'Zawal', type:'special', start:zawalStart, end:dhuhr},
+    {key:'zuhr', name:'Zuhr', type:'fard', start:dhuhr, end:asr},
+    {key:'asr', name:'Asr', type:'fard', start:asr, end:maghrib},
+    {key:'ghurub', name:'Ghurub Aftab', type:'special', start:addMin(maghrib,-20), end:maghrib},
+    {key:'iftar', name:'Iftar', type:'meal', start:maghrib, end:addMin(maghrib,10)},
+    {key:'maghrib', name:'Maghrib', type:'fard', start:maghrib, end:isha},
+    {key:'awwabin', name:'Awwabin', type:'nafil', start:awwabin, end:isha},
+    {key:'isha', name:'Isha', type:'fard', start:isha, end:addMin(fajr,24*60-1)},
+    {key:'tahajjud', name:'Tahajjud', type:'nafil', start:tahajjudStart, end:addMin(fajr,24*60)},
+    {key:'tihai', name:"Du'a Qubooliyat", type:'special', start:tihaiStart, end:addMin(fajr,24*60)},
+  ];
+}
+
+/* icon + ambient-theme-category per prayer key */
+const PRAYER_META = {
+  sehri:   {icon:'🍽️', waqt:'waqt-darkest'},
+  fajr:    {icon:'🌅', waqt:'waqt-morning'},
+  tulu:    {icon:'🌄', waqt:'waqt-morning'},
+  ishraq:  {icon:'☀️', waqt:'waqt-bright'},
+  chaast:  {icon:'🌤️', waqt:'waqt-bright'},
+  zawal:   {icon:'⏸️', waqt:'waqt-dim'},
+  zuhr:    {icon:'🔆', waqt:'waqt-bright'},
+  asr:     {icon:'🌇', waqt:'waqt-dim'},
+  ghurub:  {icon:'🌆', waqt:'waqt-grey'},
+  iftar:   {icon:'🍲', waqt:'waqt-grey'},
+  maghrib: {icon:'🕌', waqt:'waqt-grey'},
+  awwabin: {icon:'🌌', waqt:'waqt-dark'},
+  isha:    {icon:'🌃', waqt:'waqt-dark'},
+  tahajjud:{icon:'🌗', waqt:'waqt-darkest'},
+  tihai:   {icon:'🤲', waqt:'waqt-darkest'},
+};
+
+/* ============================================================
+   INFO MODAL — meaning + timing of each entry
+   ============================================================ */
+const INFO_TEXT = {
+  sehri:   {time:'Fajr se pehle', text:"Subah sadiq (Fajr) se pehle khaya jaane wala aakhri khana, roze ki niyyat ke saath. Sehri ka waqt Fajr shuru hote hi khatam ho jaata hai."},
+  fajr:    {time:'Subah sadiq se Suraj nikalne tak', text:'Din ki pehli farz namaz. Subah sadiq (pau phatna) se shuru hoke suraj nikalne tak ka waqt hota hai.'},
+  tulu:    {time:'Suraj nikalne ka lamha', text:'Suraj nikalne (Tulu Aftab) ka waqt. Is waqt namaz padhna mana hai, yeh sirf waqt ki nishani ke taur par dikhaya gaya hai.'},
+  ishraq:  {time:'Suraj nikalne ke ~20 min baad', text:'Suraj nikalne ke thodi der baad padhi jaane wali nafil namaz, jiska bohot sawaab bataya gaya hai, poori Hajj-Umrah jaisa ajar milta hai.'},
+  chaast:  {time:'Din chadhne par, Zawal se pehle', text:"Din chadhne par padhi jaane wali nafil namaz, jise Duha (Chaast) ki namaz kehte hain. Har jodh (jism ke joint) ka sadqa is namaz se ada ho jaata hai."},
+  zawal:   {time:'Zuhr se thodi der pehle', text:'Suraj apne sabse oonche point (istawa) par pahunchne ka waqt. Is thodi der ke waqt mein namaz padhna makrooh hai, isliye intezar kijiye.'},
+  zuhr:    {time:'Zawal ke baad se Asr tak', text:'Din ki doosri farz namaz, jo zawal khatam hone ke foran baad se Asr shuru hone tak padhi jaati hai.'},
+  asr:     {time:'Saaye lambe hone se Maghrib tak', text:'Din ki teesri farz namaz. Jab cheezon ke saaye lambe hone lagte hain, tab se Maghrib se thodi der pehle tak ka waqt hota hai.'},
+  ghurub:  {time:'Suraj doobne se pehle', text:'Suraj doobne se thodi der pehle ka waqt. Is waqt bhi namaz padhna makrooh hai, isliye Maghrib ka intezar kijiye.'},
+  iftar:   {time:'Maghrib ki azan ke saath', text:'Roza kholne ka waqt, jo Maghrib ki azan hote hi shuru ho jaata hai. Roza jald kholna sunnat hai.'},
+  maghrib: {time:'Suraj doobte hi se Isha tak', text:'Din ki chauthi farz namaz, suraj doobte hi shuru hoti hai aur Isha ka waqt shuru hone tak rehti hai.'},
+  awwabin: {time:'Maghrib ke faraiz ke baad', text:"Maghrib ke baad padhi jaane wali nafil namaz (6 raka'at), jinhe Awwabin kehte hain, taubah karne walon ki namaz."},
+  isha:    {time:'Raat ke andhere se Subah Sadiq tak', text:'Din ki paanchvi aur aakhri farz namaz, raat ke andhere mein shuru hoke subah sadiq (Fajr) tak ka waqt hota hai.'},
+  tahajjud:{time:'Aadhi raat se Fajr tak', text:'Raat ki nafil namaz jo raat ke aadhe hisse ke baad shuru hoke Fajr tak padhi jaa sakti hai, Allah se sabse zyada qareeb hone ka waqt maana jaata hai.'},
+  tihai:   {time:'Raat ke aakhri teesre hisse mein', text:"Raat ke aakhri teesre hisse ka waqt (Fajr tak), jab Allah aasmaan-e-duniya par nuzool farmata hai aur du'a qubool hone ki sabse zyada ummeed hoti hai."},
+};
+function showInfoModal(key){
+  const info = INFO_TEXT[key];
+  const meta = PRAYER_META[key];
+  const name = (buildSchedule(new Date()).find(p=>p.key===key) || {}).name || key;
+  if(!info) return;
+  document.getElementById('infoTitle').innerHTML = `<span class="pIcon">${meta?meta.icon:''}</span>${name}`;
+  document.getElementById('infoTime').textContent = info.time;
+  document.getElementById('infoText').textContent = info.text;
+  document.getElementById('infoModal').classList.add('active');
+}
+document.getElementById('infoClose').onclick = ()=> document.getElementById('infoModal').classList.remove('active');
+document.getElementById('infoModal').onclick = (e)=>{ if(e.target.id==='infoModal') document.getElementById('infoModal').classList.remove('active'); };
+
+/* ============================================================
+   HIJRI DATE (arithmetic / tabular Islamic calendar approximation)
+   ============================================================ */
+const HIJRI_MONTHS = ["Muharram","Safar","Rabi-ul-Awwal","Rabi-ul-Aakhir","Jamadi-ul-Awwal","Jamadi-ul-Aakhir","Rajab","Sha'ban","Ramzan","Shawwal","Zul-Qa'dah","Zul-Hijjah"];
+function gregorianToHijri(date){
+  const jd = Math.floor(julianDate(date.getFullYear(), date.getMonth()+1, date.getDate())) + 1;
+  let l = jd - 1948440 + 10632;
+  const n = Math.floor((l-1)/10631);
+  l = l - 10631*n + 354;
+  const j = (Math.floor((10985-l)/5316))*(Math.floor((50*l)/17719)) + (Math.floor(l/5670))*(Math.floor((43*l)/15238));
+  l = l - (Math.floor((30-j)/15))*(Math.floor((17719*j)/50)) - (Math.floor(j/16))*(Math.floor((15238*j)/43)) + 29;
+  const month = Math.floor((24*l)/709);
+  const day = l - Math.floor((709*month)/24);
+  const year = 30*n + j - 30;
+  return { day, month, year, monthName: HIJRI_MONTHS[month-1] };
+}
+function hijriOffset(){
+  try{ return parseInt(localStorage.getItem('hijriOffset')||'0'); }catch(e){ return 0; }
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  theme: 'waqti',
+  timeFormat: '24',
+  location: {name:'Delhi', lat:28.6139, lon:77.2090, source:'manual'},
+  status: {}, // key: date+prayer -> 'green'|'yellow'|'red'
+  roza: {},
+  tarabih: {},
+  namazMode: false,
+};
+function loadState(){
+  try{ const s = JSON.parse(localStorage.getItem('namazState')||'{}'); state = Object.assign(state, s); }catch(e){}
+}
+function saveState(){
+  try{ localStorage.setItem('namazState', JSON.stringify(state)); }catch(e){}
+}
+loadState();
+
+function dayKey(d){ return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function statusKey(d, prayer){ return dayKey(d)+'_'+prayer; }
+function cycleStatus(d, prayer){
+  const k = statusKey(d, prayer);
+  const cur = state.status[k];
+  const next = cur===undefined ? 'green' : cur==='green' ? 'yellow' : cur==='yellow' ? 'red' : undefined;
+  if(next===undefined) delete state.status[k]; else state.status[k]=next;
+  saveState();
+}
+function getStatus(d, prayer){ return state.status[statusKey(d,prayer)]; }
+
+/* ============================================================
+   THEME
+   ============================================================ */
+function currentPrayerKey(){
+  const now = new Date();
+  const sched = buildSchedule(now);
+  for(let i=0;i<sched.length;i++){
+    if(now >= sched[i].start && now < sched[i].end) return sched[i].key;
+  }
+  return 'isha';
+}
+function applyTheme(){
+  const root = document.documentElement;
+  if(state.theme==='auto'){
+    const h = new Date().getHours();
+    root.setAttribute('data-theme', (h>=6 && h<18) ? 'light':'dark');
+  } else if(state.theme==='waqti'){
+    const key = currentPrayerKey();
+    const waqt = (PRAYER_META[key] && PRAYER_META[key].waqt) || 'waqt-dark';
+    root.setAttribute('data-theme', waqt);
+  } else {
+    root.setAttribute('data-theme', state.theme);
+  }
+  document.querySelectorAll('.theme-row button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('theme'+state.theme.charAt(0).toUpperCase()+state.theme.slice(1)).classList.add('active');
+}
+document.getElementById('themeLight').onclick=()=>{state.theme='light';saveState();applyTheme();};
+document.getElementById('themeDark').onclick=()=>{state.theme='dark';saveState();applyTheme();};
+document.getElementById('themeAuto').onclick=()=>{state.theme='auto';saveState();applyTheme();};
+document.getElementById('themeWaqti').onclick=()=>{state.theme='waqti';saveState();applyTheme();};
+applyTheme();
+setInterval(applyTheme, 30000);
+
+function applyTimeFormat(){
+  document.getElementById('fmt24').classList.toggle('active', state.timeFormat==='24');
+  document.getElementById('fmt12').classList.toggle('active', state.timeFormat==='12');
+}
+document.getElementById('fmt24').onclick=()=>{state.timeFormat='24';saveState();applyTimeFormat();renderHome();renderCalendar();};
+document.getElementById('fmt12').onclick=()=>{state.timeFormat='12';saveState();applyTimeFormat();renderHome();renderCalendar();};
+applyTimeFormat();
+
+/* ============================================================
+   TAB NAVIGATION
+   ============================================================ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='calendar') renderCalendar();
+    if(btn.dataset.tab==='ramzan') renderRamzan();
+  };
+});
+
+/* ============================================================
+   HOME TAB RENDER
+   ============================================================ */
+const FIVE = ['fajr','zuhr','asr','maghrib','isha'];
+const DOW = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let homeViewDate = new Date();
+function isSameDay(a,b){ return dayKey(a)===dayKey(b); }
+
+function renderHome(){
+  const now = new Date();
+  const viewDate = homeViewDate;
+  const isToday = isSameDay(viewDate, now);
+  const isPastDate = !isToday && viewDate < now;
+  const isFutureDate = !isToday && !isPastDate;
+  document.getElementById('bulkBtns').classList.toggle('disabled', isFutureDate);
+
+  document.getElementById('gregDate').innerHTML = DOW[viewDate.getDay()]+', '+viewDate.getDate()+' '+MON[viewDate.getMonth()]+' '+viewDate.getFullYear() + (isToday ? '<span class="todayTag">Aaj</span>' : '');
+  const hd = gregorianToHijri(viewDate);
+  document.getElementById('hijriDate').textContent = hd.day+' '+hd.monthName+' '+hd.year+' AH';
+  document.getElementById('cityLabel').textContent = '📍 ' + state.location.name + (state.location.state ? ', '+state.location.state : '');
+  document.getElementById('namazModeBtn').classList.toggle('on', state.namazMode);
+
+  const sched = buildSchedule(viewDate);
+  const listEl = document.getElementById('timesList');
+  listEl.innerHTML = '';
+  listEl.classList.toggle('namaz-mode', state.namazMode);
+
+  let currentIdx = -1;
+  if(isToday){
+    for(let i=0;i<sched.length;i++){
+      if(sched[i].key==='iftar' || sched[i].key==='ghurub') continue; // overlap with Maghrib/Asr; handled separately below
+      if(now >= sched[i].start && now < sched[i].end){ currentIdx = i; break; }
+    }
+  }
+  const maghribRow = sched.find(x=>x.key==='maghrib');
+  const ishaRow = sched.find(x=>x.key==='isha');
+  const fajrRow = sched.find(x=>x.key==='fajr');
+  const ghurubRow = sched.find(x=>x.key==='ghurub');
+  const isIftarActive = isToday && now>=maghribRow.start && now<ishaRow.start;
+  const isAsrWarning = isToday && now>=ghurubRow.start && now<maghribRow.start;
+  const isGhurubActive = isAsrWarning;
+
+  const displaySched = state.namazMode ? sched.filter(p=>FIVE.includes(p.key)) : sched;
+  displaySched.forEach((p)=>{
+    const idx = sched.indexOf(p);
+    const row = document.createElement('div');
+    let isPast, isFuture, isLive = false;
+    if(p.key==='iftar'){
+      isLive = isIftarActive;
+      isPast = isToday ? now>=ishaRow.start : isPastDate;
+      isFuture = isToday ? now<maghribRow.start : !isPastDate;
+    } else if(p.key==='ghurub'){
+      isLive = isGhurubActive;
+      isPast = isToday ? now>=maghribRow.start : isPastDate;
+      isFuture = isToday ? now<ghurubRow.start : !isPastDate;
+    } else if(isToday){
+      isPast = idx!==currentIdx && now>=p.end;
+      isFuture = idx!==currentIdx && now<p.start;
+      isLive = idx===currentIdx;
+    } else {
+      isPast = isPastDate;
+      isFuture = !isPastDate;
+    }
+    const stateClass = isLive ? 'current' : isPast ? 'past' : 'future';
+    const rowStatus = FIVE.includes(p.key) ? getStatus(viewDate, p.key) : undefined;
+    const statusClass = rowStatus ? ' status-'+rowStatus : '';
+    row.className = 'time-row '+p.type+' '+stateClass+statusClass;
+
+    let dotsHtml = '';
+    if(FIVE.includes(p.key) && !isFuture){
+      const st = rowStatus;
+      dotsHtml = `<div class="status-dots">
+        <button class="dot-btn ${st==='green'?'on-green':''}" data-prayer="${p.key}" data-set="green" title="Padh Li"></button>
+        <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-prayer="${p.key}" data-set="yellow" title="Qaza Padhi"></button>
+        <button class="dot-btn ${st==='red'?'on-red':''}" data-prayer="${p.key}" data-set="red" title="Baaki Hai"></button>
+      </div>`;
+    } else if(p.key==='sehri' && !isFutureDate){
+      const rozaOn = !!state.roza[dayKey(viewDate)];
+      dotsHtml = `<div style="display:flex; align-items:center; gap:5px;">
+        <span style="font-size:10px; color:var(--sub); font-weight:600;">Roza</span>
+        <div class="roza-mini ${rozaOn?'on':''}" id="rozaMiniBtn"><div class="roza-mini-knob"></div></div>
+      </div>`;
+    }
+
+    const icon = (PRAYER_META[p.key] && PRAYER_META[p.key].icon) || '🕐';
+    let meterColor = p.type==='fard'?'var(--fard)':p.type==='nafil'?'var(--nafil)':p.type==='meal'?'var(--meal)':'var(--special)';
+    if(p.key==='asr' && isAsrWarning) meterColor = 'var(--red)';
+
+    let meterHtml = '';
+    let remainHtml = '';
+    if(p.key==='iftar'){
+      if(isLive) meterHtml = `<div class="meterWrap"><div class="meterFill" style="width:100%; background:${meterColor}"></div></div>`;
+    } else if(p.key==='sehri' && isLive){
+      const effStart = new Date(fajrRow.start.getTime() - 60*60000);
+      if(now >= effStart){
+        const pct = Math.min(100, Math.max(0, (now-effStart)/(fajrRow.start-effStart)*100));
+        meterHtml = `<div class="meterWrap"><div class="meterFill" style="width:${100-pct}%; background:${meterColor}"></div></div>`;
+        remainHtml = `<div class="remainText"><span class="remainLabel">Waqt Baki:</span> <span class="remainValue">${fmtRemain(fajrRow.start-now)}</span></div>`;
+      }
+    } else if(isLive){
+      const pct = Math.min(100, Math.max(0, (now-p.start)/(p.end-p.start)*100));
+      meterHtml = `<div class="meterWrap"><div class="meterFill" style="width:${100-pct}%; background:${meterColor}"></div></div>`;
+      remainHtml = `<div class="remainText"><span class="remainLabel">Waqt Baki:</span> <span class="remainValue">${fmtRemain(p.end-now)}</span></div>`;
+    }
+
+    row.innerHTML = `
+      <div class="rowMain">
+        <div class="name"><span class="pIcon">${icon}</span>${p.name}</div>
+        <div class="clock">${fmtRange(p)}</div>
+        ${meterHtml}
+        ${dotsHtml}
+      </div>
+      ${remainHtml}
+    `;
+    if(!meterHtml) row.querySelector('.clock').insertAdjacentHTML('afterend', '<div style="flex:1;"></div>');
+    row.querySelector('.name').onclick = ()=> showInfoModal(p.key);
+    listEl.appendChild(row);
+  });
+
+  listEl.querySelectorAll('.dot-btn').forEach(btn=>{
+    btn.onclick = ()=>{
+      const prayer = btn.dataset.prayer, want = btn.dataset.set;
+      const cur = getStatus(viewDate, prayer);
+      const k = statusKey(viewDate, prayer);
+      if(cur===want){ delete state.status[k]; } else { state.status[k]=want; }
+      saveState();
+      renderHome();
+    };
+  });
+
+  const rozaBtn = document.getElementById('rozaMiniBtn');
+  if(rozaBtn){
+    rozaBtn.onclick = ()=>{
+      const rk = dayKey(viewDate);
+      state.roza[rk] = !state.roza[rk];
+      saveState();
+      renderHome();
+    };
+  }
+  const homeEl = document.getElementById('tab-home');
+  const rozaActive = !!state.roza[dayKey(viewDate)];
+  homeEl.style.background = rozaActive ? 'color-mix(in srgb, var(--roza) 9%, var(--bg))' : '';
+}
+document.getElementById('dateBack').onclick=()=>{ homeViewDate = new Date(homeViewDate.getTime()-24*3600000); renderHome(); };
+document.getElementById('dateFwd').onclick=()=>{ homeViewDate = new Date(homeViewDate.getTime()+24*3600000); renderHome(); };
+document.getElementById('dateCenterBtn').onclick=()=>{ homeViewDate = new Date(); renderHome(); };
+document.getElementById('namazModeBtn').onclick=()=>{ state.namazMode = !state.namazMode; saveState(); renderHome(); };
+
+function bulkSetFive(status){
+  if(!isSameDay(homeViewDate, new Date()) && homeViewDate > new Date()) return; // future days locked
+  FIVE.forEach(p=>{ state.status[statusKey(homeViewDate, p)] = status; });
+  saveState();
+  renderHome();
+}
+document.getElementById('bulkGreen').onclick = ()=> bulkSetFive('green');
+document.getElementById('bulkYellow').onclick = ()=> bulkSetFive('yellow');
+document.getElementById('bulkRed').onclick = ()=> bulkSetFive('red');
+document.getElementById('bulkClear').onclick = ()=>{
+  if(!isSameDay(homeViewDate, new Date()) && homeViewDate > new Date()) return; // future days locked
+  FIVE.forEach(p=>{ delete state.status[statusKey(homeViewDate, p)]; });
+  saveState();
+  renderHome();
+};
+renderHome();
+setInterval(()=>{ if(isSameDay(homeViewDate,new Date())) renderHome(); }, 15000);
+
+/* ============================================================
+   CALENDAR TAB
+   ============================================================ */
+let calMode = 'greg'; // greg | hijri
+let calViewDate = new Date();
+
+document.getElementById('calGregBtn').onclick=()=>{ calMode='greg'; document.getElementById('calGregBtn').classList.add('active'); document.getElementById('calHijriBtn').classList.remove('active'); renderCalendar(); };
+document.getElementById('calHijriBtn').onclick=()=>{ calMode='hijri'; document.getElementById('calHijriBtn').classList.add('active'); document.getElementById('calGregBtn').classList.remove('active'); renderCalendar(); };
+document.getElementById('calPrev').onclick=()=>{ shiftCalMonth(-1); };
+document.getElementById('calNext').onclick=()=>{ shiftCalMonth(1); };
+
+function shiftCalMonth(dir){
+  if(calMode==='greg'){
+    calViewDate = new Date(calViewDate.getFullYear(), calViewDate.getMonth()+dir, 1);
+  } else {
+    calViewDate = new Date(calViewDate.getTime() + dir*29.5*24*3600000);
+  }
+  renderCalendar();
+}
+
+function renderCalendar(){
+  const dowEl = document.getElementById('calDow');
+  dowEl.innerHTML = ['S','M','T','W','T','F','S'].map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  document.getElementById('calDetail').style.display='none';
+
+  if(calMode==='greg'){
+    const y = calViewDate.getFullYear(), m = calViewDate.getMonth();
+    document.getElementById('calMonthLabel').innerHTML = MON[m]+' '+y+'<span class="sub">Gregorian</span>';
+    const first = new Date(y,m,1);
+    const startDow = first.getDay();
+    const daysInMonth = new Date(y,m+1,0).getDate();
+    for(let i=0;i<startDow;i++){ grid.appendChild(emptyCell()); }
+    for(let d=1; d<=daysInMonth; d++){
+      const date = new Date(y,m,d);
+      grid.appendChild(dayCell(date));
+    }
+  } else {
+    const hd = gregorianToHijri(calViewDate);
+    document.getElementById('calMonthLabel').innerHTML = hd.monthName+' '+hd.year+'<span class="sub">Hijri</span>';
+    // find first gregorian date corresponding to day 1 of this hijri month
+    let probe = new Date(calViewDate);
+    let cur = gregorianToHijri(probe);
+    while(cur.day !== 1 || cur.month !== hd.month){
+      probe = new Date(probe.getTime() - 24*3600000);
+      cur = gregorianToHijri(probe);
+      if (cur.month === hd.month && cur.day===1) break;
+    }
+    const monthStart = new Date(probe);
+    const startDow = monthStart.getDay();
+    for(let i=0;i<startDow;i++){ grid.appendChild(emptyCell()); }
+    let d = new Date(monthStart);
+    let count = 0;
+    while(true){
+      const h = gregorianToHijri(d);
+      if(h.month !== hd.month || count>35) break;
+      grid.appendChild(dayCell(new Date(d)));
+      d = new Date(d.getTime()+24*3600000);
+      count++;
+    }
+  }
+}
+function emptyCell(){ const c=document.createElement('div'); c.className='cal-cell empty'; return c; }
+function dayCell(date){
+  const c = document.createElement('div');
+  const isToday = dayKey(date)===dayKey(new Date());
+  const rozaOn = !!state.roza[dayKey(date)];
+  c.className = 'cal-cell'+(isToday?' today':'')+(rozaOn?' roza':'');
+  const label = calMode==='greg' ? date.getDate() : gregorianToHijri(date).day;
+  let dotsHtml = '<div class="cal-dots">';
+  FIVE.forEach(p=>{
+    const st = getStatus(date, p);
+    const color = st==='green'?'var(--green)':st==='yellow'?'var(--yellow)':st==='red'?'var(--red)':'var(--line)';
+    dotsHtml += `<span style="background:${color}"></span>`;
+  });
+  dotsHtml += '</div>';
+  const rozaMark = rozaOn ? '<span class="cal-roza-mark">☪️</span>' : '';
+  c.innerHTML = `${rozaMark}<div>${label}</div>${dotsHtml}`;
+  c.onclick = ()=> showDayDetail(date);
+  return c;
+}
+let calDetailDate = null;
+function showDayDetail(date){
+  calDetailDate = date;
+  const det = document.getElementById('calDetail');
+  det.style.display='block';
+  const hd = gregorianToHijri(date);
+  const icon = (k)=> (PRAYER_META[k] && PRAYER_META[k].icon) || '🕐';
+  let html = `<div style="font-weight:700; margin-bottom:8px; font-size:13.5px;">
+    ${DOW[date.getDay()]}, ${date.getDate()} ${MON[date.getMonth()]} ${date.getFullYear()} &nbsp;•&nbsp; ${hd.day} ${hd.monthName} ${hd.year} AH
+  </div>`;
+  FIVE.forEach(p=>{
+    const st = getStatus(date,p);
+    html += `<div class="row">
+      <span style="text-transform:capitalize">${icon(p)} ${p}</span>
+      <div class="status-dots">
+        <button class="dot-btn ${st==='green'?'on-green':''}" data-prayer="${p}" data-set="green" title="Padh Li"></button>
+        <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-prayer="${p}" data-set="yellow" title="Qaza Padhi"></button>
+        <button class="dot-btn ${st==='red'?'on-red':''}" data-prayer="${p}" data-set="red" title="Baaki Hai"></button>
+      </div>
+    </div>`;
+  });
+  det.innerHTML = html;
+  det.querySelectorAll('.dot-btn').forEach(btn=>{
+    btn.onclick = ()=>{
+      const prayer = btn.dataset.prayer, want = btn.dataset.set;
+      const cur = getStatus(calDetailDate, prayer);
+      const k = statusKey(calDetailDate, prayer);
+      if(cur===want){ delete state.status[k]; } else { state.status[k]=want; }
+      saveState();
+      renderCalendar();
+      showDayDetail(calDetailDate);
+    };
+  });
+}
+
+/* ============================================================
+   RAMZAN TAB
+   ============================================================ */
+function renderRamzan(){
+  const now = new Date();
+  const k = dayKey(now);
+  const rozaOn = !!state.roza[k];
+  document.getElementById('rozaSwitch').className = 'switch'+(rozaOn?' on':'');
+  document.getElementById('rozaLabel').textContent = rozaOn ? 'Roza Rakha ✓' : 'Roza Rakhiye';
+
+  document.getElementById('rozaSwitch').onclick = ()=>{
+    state.roza[k] = !state.roza[k];
+    saveState();
+    renderRamzan();
+  };
+
+  const sched = buildSchedule(now);
+  const listEl = document.getElementById('ramzanNamazList');
+  listEl.innerHTML='';
+  FIVE.forEach(p=>{
+    const row = document.createElement('div');
+    row.className='ramzan-card';
+    row.style.margin='0 14px 8px';
+    row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.padding='10px 14px';
+    const st = getStatus(now,p);
+    const icon = (PRAYER_META[p] && PRAYER_META[p].icon) || '🕐';
+    const pSched = sched.find(x=>x.key===p);
+    const notStarted = pSched && now < pSched.start;
+    const dotsHtml = notStarted ? '' : `<div class="status-dots">
+        <button class="dot-btn ${st==='green'?'on-green':''}" data-p="${p}" data-s="green" title="Padh Li"></button>
+        <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-p="${p}" data-s="yellow" title="Qaza Padhi"></button>
+        <button class="dot-btn ${st==='red'?'on-red':''}" data-p="${p}" data-s="red" title="Baaki Hai"></button>
+      </div>`;
+    row.innerHTML = `<span style="font-weight:700; font-size:13.5px; text-transform:capitalize; cursor:pointer;" data-info="${p}">${icon} ${p}</span>
+      ${dotsHtml}`;
+    row.querySelector('[data-info]').onclick = ()=> showInfoModal(p);
+    listEl.appendChild(row);
+  });
+  const tk = 'tarabih_'+k;
+  const tSt = state.tarabih[tk];
+  const ishaRowR = sched.find(x=>x.key==='isha');
+  const tarabihStarted = ishaRowR && now >= ishaRowR.start;
+  const tDotsHtml = tarabihStarted ? `<div class="status-dots">
+      <button class="dot-btn ${tSt==='prayed'?'on-green':''}" data-t="prayed" title="Padhi Gayi"></button>
+      <button class="dot-btn ${tSt==='qaza'?'on-yellow':''}" data-t="qaza" title="Qaza"></button>
+      <button class="dot-btn ${tSt==='pending'?'on-red':''}" data-t="pending" title="Baaki Hai"></button>
+    </div>` : '';
+  const tRow = document.createElement('div');
+  tRow.className='ramzan-card';
+  tRow.style.margin='0 14px 8px';
+  tRow.style.display='flex'; tRow.style.justifyContent='space-between'; tRow.style.alignItems='center'; tRow.style.padding='10px 14px';
+  tRow.innerHTML = `<span style="font-weight:700; font-size:13.5px;">📿 Taraabih</span>${tDotsHtml}`;
+  listEl.appendChild(tRow);
+
+  listEl.querySelectorAll('.dot-btn').forEach(btn=>{
+    if(btn.dataset.p){
+      btn.onclick=()=>{
+        const p=btn.dataset.p, want=btn.dataset.s;
+        const kk = statusKey(now,p);
+        if(state.status[kk]===want) delete state.status[kk]; else state.status[kk]=want;
+        saveState(); renderRamzan();
+      };
+    } else if(btn.dataset.t){
+      btn.onclick=()=>{
+        const want=btn.dataset.t;
+        state.tarabih[tk] = state.tarabih[tk]===want ? undefined : want;
+        saveState(); renderRamzan();
+      };
+    }
+  });
+}
+
+/* ============================================================
+   MORE TAB - Dua & Hadees data + detail overlay
+   ============================================================ */
+const DUAS = [
+  {cat:'Roz Marra', title:'Sone ki Dua', arabic:'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا', translit:"Bismika Allahumma amutu wa ahya", meaning:'Aapke naam se, Ae Allah, main marta hoon aur jeeta hoon.', ref:'Sahih Bukhari'},
+  {cat:'Roz Marra', title:'Jagne ki Dua', arabic:'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ', translit:'Alhamdu lillahil-lazi ahyana ba\'da ma amatana wa ilaihin-nushur', meaning:'Sab tareef Allah ke liye hai jisne humein maut ke baad zinda kiya, aur usi ki taraf lautna hai.', ref:'Sahih Bukhari'},
+  {cat:'Khana', title:'Khana Shuru Karne ki Dua', arabic:'بِسْمِ اللَّهِ', translit:'Bismillah', meaning:'Allah ke naam se.', ref:'Sahih Bukhari'},
+  {cat:'Khana', title:'Khana Khatam Karne ki Dua', arabic:'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ', translit:'Alhamdu lillahil-lazi at\'amani haza wa razaqanihi min ghairi haulin minni wa la quwwah', meaning:'Sab tareef Allah ke liye hai jisne mujhe yeh khilaya, bagair meri taqat ke.', ref:'Abu Dawood, Tirmidhi'},
+  {cat:'Safar', title:'Safar ki Dua', arabic:'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ', translit:'Subhanal-lazi sakhkhara lana haza wa ma kunna lahu muqrinin', meaning:'Pak hai woh Zaat jisne is sawari ko humare kaabu mein diya.', ref:'Sahih Muslim'},
+  {cat:'Masjid', title:'Masjid Mein Dakhil Hone ki Dua', arabic:'اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ', translit:'Allahummaf-tah li abwaba rahmatik', meaning:'Ae Allah, mere liye apni rehmat ke darwaze khol de.', ref:'Sahih Muslim'},
+  {cat:'Masjid', title:'Masjid Se Nikalne ki Dua', arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ', translit:'Allahumma inni as\'aluka min fadlik', meaning:'Ae Allah, main aapse aapke fazl ka sawal karta hoon.', ref:'Sahih Muslim'},
+  {cat:'Pareshani', title:'Pareshani Ke Waqt ki Dua', arabic:'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ', translit:"Hasbunallahu wa ni'mal wakil", meaning:'Allah humare liye kaafi hai aur woh behtareen kaarsaaz hai.', ref:'Quran 3:173'},
+  {cat:'Ghar', title:'Ghar Mein Dakhil Hone ki Dua', arabic:'بِسْمِ اللَّهِ وَلَجْنَا وَبِسْمِ اللَّهِ خَرَجْنَا وَعَلَى رَبِّنَا تَوَكَّلْنَا', translit:"Bismillahi walajna wa bismillahi kharajna wa 'ala rabbina tawakkalna", meaning:'Allah ke naam se hum andar aaye aur Allah ke naam se nikle, aur apne Rab par bharosa kiya.', ref:'Abu Dawood'},
+  {cat:'Ramzan', title:'Roza Kholne ki Dua', arabic:'ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ', translit:"Zahabaz-zama'u wabtallatil-'uruqu wa thabatal-ajru in sha Allah", meaning:'Pyaas chali gayi, rag-tarein tar ho gayi, aur agar Allah ne chaha to ajar sabit ho gaya.', ref:'Abu Dawood'},
+];
+const HADEES = [
+  {cat:'Namaz', src:'Sahih Bukhari', txt:'Namaz Deen ka sutoon hai. Jisne isko qayam kiya usne Deen ko qayam kiya, aur jisne isko chhod diya usne Deen ko gira diya.'},
+  {cat:'Namaz', src:'Sahih Muslim', txt:'Qayamat ke din banda ke aamaal mein sabse pehle Namaz ka hisaab liya jayega. Agar woh theek hui to baaki sab aamaal theek honge.'},
+  {cat:'Akhlaq', src:'Sahih Bukhari', txt:'Tum mein sabse behtareen woh hai jo apne akhlaq mein sabse achha ho.'},
+  {cat:'Akhlaq', src:'Tirmidhi', txt:'Musalman woh hai jiski zabaan aur haath se doosre Musalman mehfooz rahein.'},
+  {cat:'Ilm', src:'Ibn Majah', txt:'Ilm haasil karna har Musalman mard aur aurat par farz hai.'},
+  {cat:'Sadqa', src:'Sahih Bukhari', txt:'Muskuraana bhi sadqa hai.'},
+  {cat:'Ramzan', src:'Sahih Bukhari', txt:'Jab Ramzan aata hai to Jannat ke darwaze khol diye jaate hain aur Jahannam ke darwaze band kar diye jaate hain.'},
+  {cat:'Ramzan', src:'Sahih Muslim', txt:'Jisne Ramzan ke roze imaan ke saath aur sawaab ki niyyat se rakhe, uske pichhle gunaah maaf kar diye jaate hain.'},
+];
+
+let duaView='grid', duaSearch='';
+let hadeesFilter='All', hadeesSearch='';
+
+function renderMoreDua(){
+  document.getElementById('detailTitle').textContent="Du'a";
+  const body = document.getElementById('detailBody');
+  body.innerHTML = `
+    <div class="search-bar"><input id="duaSearchInput" placeholder="Dua dhoondhiye..." value="${duaSearch}"></div>
+    <div class="view-toggle">
+      <button id="duaGridBtn" class="${duaView==='grid'?'active':''}">Grid</button>
+      <button id="duaListBtn" class="${duaView==='list'?'active':''}">List</button>
+    </div>
+    <div class="dua-grid ${duaView==='list'?'list':''}" id="duaGrid"></div>
+  `;
+  body.querySelector('#duaSearchInput').oninput = (e)=>{ duaSearch=e.target.value; renderMoreDua(); };
+  body.querySelector('#duaGridBtn').onclick = ()=>{ duaView='grid'; renderMoreDua(); };
+  body.querySelector('#duaListBtn').onclick = ()=>{ duaView='list'; renderMoreDua(); };
+  const grid = body.querySelector('#duaGrid');
+  const filtered = DUAS.filter(d=> (d.title+d.cat).toLowerCase().includes(duaSearch.toLowerCase()));
+  filtered.forEach(d=>{
+    const c = document.createElement('div');
+    c.className='dua-card';
+    c.innerHTML = `<div class="cat">${d.cat}</div><div class="title">${d.title}</div><div class="prev">${d.meaning.slice(0,60)}...</div>`;
+    c.onclick = ()=> openDuaDetail(d);
+    grid.appendChild(c);
+  });
+}
+function openDuaDetail(d){
+  document.getElementById('detailTitle').textContent = d.title;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="arabic">${d.arabic}</div>
+    <div class="translit">${d.translit}</div>
+    <div class="meaning">${d.meaning}</div>
+    <div class="ref">Hawala: ${d.ref}</div>
+  `;
+}
+function renderMoreHadees(){
+  document.getElementById('detailTitle').textContent="Hadees";
+  const cats = ['All', ...new Set(HADEES.map(h=>h.cat))];
+  const body = document.getElementById('detailBody');
+  body.innerHTML = `
+    <div class="search-bar"><input id="hSearchInput" placeholder="Hadees dhoondhiye..." value="${hadeesSearch}"></div>
+    <div class="chip-row" style="padding:0 0 10px;" id="hCats"></div>
+    <div id="hList"></div>
+  `;
+  body.querySelector('#hSearchInput').oninput=(e)=>{ hadeesSearch=e.target.value; renderMoreHadees(); };
+  const catsEl = body.querySelector('#hCats');
+  cats.forEach(c=>{
+    const chip = document.createElement('div');
+    chip.className='chip'+(hadeesFilter===c?' prayed':'');
+    chip.textContent=c;
+    chip.onclick=()=>{ hadeesFilter=c; renderMoreHadees(); };
+    catsEl.appendChild(chip);
+  });
+  const list = body.querySelector('#hList');
+  HADEES.filter(h=> (hadeesFilter==='All'||h.cat===hadeesFilter) && h.txt.toLowerCase().includes(hadeesSearch.toLowerCase()))
+    .forEach(h=>{
+      const it = document.createElement('div');
+      it.className='hadees-item';
+      it.style.margin='0 0 10px';
+      it.innerHTML = `<div class="src">${h.cat} • ${h.src}</div><div class="txt">${h.txt}</div>`;
+      list.appendChild(it);
+    });
+}
+/* ============================================================
+   QUIZ
+   ============================================================ */
+const QUIZ_CATEGORIES = ["Namaz","Akhlaq aur Muashira","Quran aur Ibadaat","Seerat-un-Nabi ﷺ","Ambiya-e-Kiram AS","Ahadees aur Sunnat","Sahaba-e-Kiram RA","Akhirat"];
+const QUIZ_BANK = [
+  ["Namaz mein takbeer-e-tahrima kehte waqt haath kahan tak uthaye jate hain?", ["Seene tak","Kaano ki lau tak","Kandhon tak","Naaf tak"], 1, "Namaz"],
+  ["Hanafi fiqh ke mutabiq mardon ke liye Qiyam mein haath kahan bandhna sunnat hai?", ["Seene par","Naaf ke neeche","Naaf ke upar","Kandhon par"], 1, "Namaz"],
+  ["Fajr ki farz namaz mein kitni rakat hoti hain?", ["2","3","4","6"], 0, "Namaz"],
+  ["Zuhr ki farz namaz mein kitni rakat hoti hain?", ["2","3","4","5"], 2, "Namaz"],
+  ["Asr ki farz namaz mein kitni rakat hoti hain?", ["2","3","4","6"], 2, "Namaz"],
+  ["Maghrib ki farz namaz mein kitni rakat hoti hain?", ["2","3","4","5"], 1, "Namaz"],
+  ["Isha ki farz namaz mein kitni rakat hoti hain?", ["2","3","4","6"], 2, "Namaz"],
+  ["Hanafi fiqh mein Witr ki kitni rakat hain?", ["1","2","3","4"], 2, "Namaz"],
+  ["Witr ki teesri rakat mein Dua-e-Qunoot kab padhi jati hai?", ["Ruku se pehle, takbeer keh kar","Ruku ke baad","Sajde mein","Qa'dah mein"], 0, "Namaz"],
+  ["Namaz mein Surah Fatiha ke baad kya padha jata hai?", ["Sirf Dua-e-Qunoot","Koi Surah ya kuch ayaat","Sirf Attahiyyat","Sirf Durood"], 1, "Namaz"],
+  ["Namaz mein ruku mein aam tor par kya tasbeeh padhi jati hai?", ["Subhana Rabbiyal A'la","Subhana Rabbiyal Azim","Rabbighfir Li","Allahumma Salli"], 1, "Namaz"],
+  ["Sajde mein aam tor par kya tasbeeh padhi jati hai?", ["Subhana Rabbiyal Azim","Subhana Rabbiyal A'la","Sami'Allahu Liman Hamidah","Attahiyyat"], 1, "Namaz"],
+  ["Ruku se uthte waqt Imam ya akela namaz padhne wala kya kehta hai?", ["Allahu Akbar","SubhanAllah","Sami'Allahu Liman Hamidah","Rabbana Atina"], 2, "Namaz"],
+  ["Ruku se seedha kharay hone ke baad kya kaha jata hai?", ["Rabbighfir Li","Rabbana Lakal Hamd","Subhana Rabbiyal A'la","Attahiyyat"], 1, "Namaz"],
+  ["Do sajdon ke darmiyan kis halat mein baitha jata hai?", ["Qa'dah","Jalsa","Qiyam","Ruku"], 1, "Namaz"],
+  ["Namaz mein pehla qa'dah kis namaz mein hota hai?", ["Sirf Fajr mein","3 ya 4 rakat wali namaz mein","Sirf Maghrib mein","Sirf Witr mein"], 1, "Namaz"],
+  ["Pehle qa'dah mein Hanafi fiqh ke mutabiq kya padha jata hai?", ["Sirf Surah Fatiha","Attahiyyat","Dua-e-Qunoot","Sirf Durood-e-Ibrahimi"], 1, "Namaz"],
+  ["Aakhri qa'dah mein Attahiyyat ke baad kya padha jata hai?", ["Sirf Surah Fatiha","Durood aur dua","Sirf Tasbeeh","Sirf Takbeer"], 1, "Namaz"],
+  ["Namaz ka ikhtitam kis cheez se hota hai?", ["Sajde se","Ruku se","Salam pherne se","Takbeer se"], 2, "Namaz"],
+  ["Salam mein pehle kis taraf munh pherna sunnat hai?", ["Baayen taraf","Daayen taraf","Seedha upar","Neeche"], 1, "Namaz"],
+  ["Namaz ke liye Wuzu toot jane ki surat mein kya karna zaroori hai?", ["Sirf haath dhona","Dobara Wuzu karna","Sirf chehra dhona","Kuch nahi"], 1, "Namaz"],
+  ["Qibla ki taraf rukh karna namaz ki kis cheez mein shamil hai?", ["Namaz ke faraiz/sharaait mein","Sirf mustahabbat mein","Sirf dua mein","Sirf Witr mein"], 0, "Namaz"],
+  ["Namaz ke liye badan, kapray aur jagah ka paak hona kya hai?", ["Namaz se koi taalluq nahi","Namaz ki aham sharaait mein se hai","Sirf Jumu'ah ke liye zaroori hai","Sirf Eid ke liye zaroori hai"], 1, "Namaz"],
+  ["Hanafi fiqh ke mutabiq mardon ke liye namaz mein Satr-e-Aurat ki had kya hai?", ["Sirf seena","Naaf se ghutnon tak","Sirf sar","Sirf kandhe"], 1, "Namaz"],
+  ["Jamat mein Imam ke peeche Muqtadi ko Qiraat ke bare mein Hanafi fiqh ka kya hukm hai?", ["Har rakat mein buland awaaz se padhna","Imam ke peeche Qiraat na karna","Sirf Surah Fatiha padhna","Sirf pehli rakat mein padhna"], 1, "Namaz"],
+  ["Jumu'ah ki farz namaz kitni rakat hai?", ["2","3","4","6"], 0, "Namaz"],
+  ["Jumu'ah ki namaz se pehle kya hota hai?", ["Sajda-e-Sahw","Khutba","Dua-e-Qunoot","Eid ki takbeerein"], 1, "Namaz"],
+  ["Agar namaz mein wajib bhool se chhoot jaye to Hanafi fiqh mein aam tor par kya kiya jata hai?", ["Namaz foran tod di jati hai","Sajda-e-Sahw kiya jata hai","Sirf dua padhi jati hai","Dobara Wuzu kiya jata hai"], 1, "Namaz"],
+  ["Sajda-e-Sahw aam tor par namaz ke kis hissa mein kiya jata hai?", ["Pehli rakat ke qiyam mein","Aakhri qa'dah mein salam se pehle","Ruku se pehle","Takbeer-e-tahrima se pehle"], 1, "Namaz"],
+  ["Namaz mein Takbeer-e-Tahrima ka kya maqsad hai?", ["Namaz khatam karna","Namaz shuru karna","Sajda-e-Sahw karna","Qiraat khatam karna"], 1, "Namaz"],
+  ["Islam ke bunyadi Arkaan kitne hain?", ["3","4","5","6"], 2, "Akhlaq aur Muashira"],
+  ["Islam ka sabse pehla bunyadi Rukn kya hai?", ["Namaz","Roza","Kalima-e-Shahadat","Zakat"], 2, "Akhlaq aur Muashira"],
+  ["Musalman par din mein kitni martaba farz namaz hai?", ["3","4","5","6"], 2, "Akhlaq aur Muashira"],
+  ["Ramzan ke roze kis mahine mein rakhe jate hain?", ["Muharram","Rajab","Sha'ban","Ramzan"], 3, "Akhlaq aur Muashira"],
+  ["Zakat aam tor par kis cheez par farz hoti hai?", ["Har shakhs ki roz ki aamdani par","Nisab ke barabar maal par, jab shara'i muddat puri ho","Sirf ghar par","Sirf kapron par"], 1, "Akhlaq aur Muashira"],
+  ["Kisi Musalman se mulaqat hone par behtareen Islami tareeqa kya hai?", ["Sirf haath hilana","Salam karna","Khamosh rehna","Sirf muskurana"], 1, "Akhlaq aur Muashira"],
+  ["\"Assalamu Alaikum\" ka matlab kya hai?", ["Allah aapko maal de","Aap par salamati ho","Aap hamesha khush rahen","Allah aapko lambi zindagi de"], 1, "Akhlaq aur Muashira"],
+  ["Salam ka jawab dena Islam mein kya hai?", ["Mana hai","Sirf aadat hai","Salam ka jawab dena chahiye","Sirf buzurgon ko dena chahiye"], 2, "Akhlaq aur Muashira"],
+  ["Islam mein padosi ke saath kaisa sulook karne ki taleem di gayi hai?", ["Sirf zaroorat par baat karein","Achha sulook karein aur uske huqooq ka khayal rakhein","Sirf Eid par milen","Usse door rahen"], 1, "Akhlaq aur Muashira"],
+  ["Padosi ko takleef dena Islam mein kaisa amal hai?", ["Pasandeeda","Mamooli baat","Na-pasandeeda aur gunaah ka sabab","Sirf mazaaq"], 2, "Akhlaq aur Muashira"],
+  ["Agar padosi bhooka ho aur hamare paas khana ho to behtareen rawayya kya hai?", ["Nazarandaz karna","Uski madad karna aur khana dena","Sirf social media par post karna","Usse sawal karna ke bhooka kyun hai"], 1, "Akhlaq aur Muashira"],
+  ["Kisi ki peeth peeche uski aisi burai karna jo usmein maujood ho, kya kehlata hai?", ["Shukr","Gheebat","Sadaqah","Shura"], 1, "Akhlaq aur Muashira"],
+  ["Agar kisi mein koi aib ho aur hum uski ghair-maujoodgi mein uska zikr karein to Islam humein kya sikhata hai?", ["Har jagah batana","Uski izzat aur pardah ka khayal rakhna","Mazeed logon ko batana","Social media par share karna"], 1, "Akhlaq aur Muashira"],
+  ["Jhoot bolne ke bare mein Islam ka kya hukm hai?", ["Har waqt jaiz hai","Sirf mazaaq mein jaiz hai","Jhoot se bachna chahiye","Sirf doston ke saamne jaiz hai"], 2, "Akhlaq aur Muashira"],
+  ["Amanat ke bare mein Islam humein kya sikhata hai?", ["Amanat mein khayanat karna","Amanat ki hifazat karna","Amanat ko bhool jana","Amanat sirf ameer ki hoti hai"], 1, "Akhlaq aur Muashira"],
+  ["Kisi ne humare saath bura sulook kiya ho to Islam kis rawayye ki targheeb deta hai?", ["Badla lene ki","Zulm karne ki","Sabr aur maafi ki","Gheebat ki"], 2, "Akhlaq aur Muashira"],
+  ["Walidain ke saath kaisa sulook karna chahiye?", ["Sakhti ka","Ihsan aur adab ka","Be-rukhi ka","Sirf zaroorat ke waqt baat karna"], 1, "Akhlaq aur Muashira"],
+  ["Walidain se baat karte waqt kis cheez se bachna chahiye?", ["Salam se","Muskurane se","Unhein takleef dene wali sakht baat se","Dua karne se"], 2, "Akhlaq aur Muashira"],
+  ["Chhote bachchon ke saath Islami akhlaaq kya hai?", ["Unhein hamesha daantna","Unke saath shafqat aur mohabbat karna","Unhein nazarandaz karna","Sirf zaroorat par baat karna"], 1, "Akhlaq aur Muashira"],
+  ["Buzurgon ke saath kaisa rawayya hona chahiye?", ["Be-adabi ka","Adab aur ehtram ka","Mazaaq udayne ka","Nazarandaz karne ka"], 1, "Akhlaq aur Muashira"],
+  ["Mehmaan ke saath achha sulook karna Islam mein kaisa amal hai?", ["Achha Islami adab hai","Sirf ameeron ke liye hai","Zaroori nahi","Sirf shaadi mein hota hai"], 0, "Akhlaq aur Muashira"],
+  ["Khane se pehle kya karna Islami adab mein shamil hai?", ["Bismillah kehna","Khana zaya karna","Khade hokar cheekhna","Dusron ka khana lena"], 0, "Akhlaq aur Muashira"],
+  ["Khana khane ke baad kya karna chahiye?", ["Allah ka shukr ada karna","Khana zaya karna","Shikayat karna","Dusron ka khana cheenna"], 0, "Akhlaq aur Muashira"],
+  ["Islam mein sadak ya raaste se takleef dene wali cheez hata dena kaisa amal hai?", ["Be-maqsad amal","Sadaqah ke taur par zikr kiya gaya nek amal","Sirf hukumat ka kaam","Mana hai"], 1, "Akhlaq aur Muashira"],
+  ["Kisi Musalman ki zaroorat puri karne mein madad karna kaisa amal hai?", ["Nek amal","Na-pasandeeda","Sirf ameeron ki zimmedari","Waqt ka zaya"], 0, "Akhlaq aur Muashira"],
+  ["Do logon ke darmiyan sulah karwana Islam mein kaisa amal hai?", ["Pasandeeda nek amal","Mana hai","Sirf Qazi ka kaam","Sirf family mein jaiz hai"], 0, "Akhlaq aur Muashira"],
+  ["Takabbur ka matlab kya hai?", ["Shukr karna","Apne aap ko bada samajhna aur dusron ko haqeer samajhna","Sabr karna","Maafi mangna"], 1, "Akhlaq aur Muashira"],
+  ["Hasad ka matlab kya hai?", ["Dusron ki khushi par khush hona","Dusre ki nemat dekh kar uske zawaal ki tamanna karna","Allah ka shukr karna","Kisi ki madad karna"], 1, "Akhlaq aur Muashira"],
+  ["Achhe akhlaaq ki ek aham nishani kya hai?", ["Sakht zubaan","Takabbur","Narmi, sachai aur logon ke saath husn-e-sulook","Dusron ki burai"], 2, "Akhlaq aur Muashira"],
+  ["Agar hum kisi ko apni zubaan ya haath se nuqsan na pahunchayein to yeh kis Islami sifat ko zahir karta hai?", ["Husn-e-sulook aur aman","Takabbur","Hasad","Gheebat"], 0, "Akhlaq aur Muashira"],
+  ["Islam mein ilm hasil karne ki kya ahmiyat hai?", ["Sirf duniyaavi maal ke liye","Ilm ki koi ahmiyat nahi","Ilm hasil karna badi fazilat wala amal hai","Sirf buzurgon ke liye zaroori hai"], 2, "Quran aur Ibadaat"],
+  ["Quran Majeed kis zubaan mein nazil hua?", ["Farsi","Arabi","Urdu","Ibrani"], 1, "Quran aur Ibadaat"],
+  ["Quran Majeed ki sabse pehli nazil hone wali ayat kis lafz se shuru hoti hai?", ["Qul","Alhamdu","Iqra","Subhan"], 2, "Quran aur Ibadaat"],
+  ["Quran Majeed mein kul kitni Suratein hain?", ["110","112","114","116"], 2, "Quran aur Ibadaat"],
+  ["Quran Majeed ki sabse lambi Surah kaunsi hai?", ["Aal-e-Imran","Al-Baqarah","An-Nisa","Al-Ma'idah"], 1, "Quran aur Ibadaat"],
+  ["Quran Majeed ki sabse chhoti Surah kaunsi hai?", ["Al-Ikhlas","Al-Asr","Al-Kawthar","An-Nasr"], 2, "Quran aur Ibadaat"],
+  ["Ramzan mein Quran ki tilawat karne ki kya ahmiyat hai?", ["Sirf Jumu'ah ke din karni chahiye","Yeh ibadat aur ajr ka sabab hai","Sirf Hafiz ke liye hai","Iski koi khaas ahmiyat nahi"], 1, "Quran aur Ibadaat"],
+  ["Ramzan kis Islami mahine ke baad aata hai?", ["Rajab","Sha'ban","Shawwal","Muharram"], 1, "Quran aur Ibadaat"],
+  ["Roza kab se kab tak hota hai?", ["Fajr se Maghrib tak","Zuhr se Isha tak","Fajr se Isha tak","Sunrise se Asr tak"], 0, "Quran aur Ibadaat"],
+  ["Roze ka bunyadi maqsad kya hai?", ["Sirf bhooka rehna","Taqwa hasil karna","Wazan kam karna","Sirf raat ko ibadat karna"], 1, "Quran aur Ibadaat"],
+  ["Roze ki halat mein jaan-boojh kar khana ya peena kya karta hai?", ["Roze ko koi farq nahi padta","Roza toot jata hai","Sirf sawab kam hota hai","Sirf Wuzu toot jata hai"], 1, "Quran aur Ibadaat"],
+  ["Sehri ke bare mein kya hukm hai?", ["Sehri karna mana hai","Sehri mein barkat hai","Sehri sirf bachchon ke liye hai","Sehri sirf Jumu'ah ko hoti hai"], 1, "Quran aur Ibadaat"],
+  ["Iftar kis waqt kiya jata hai?", ["Fajr ke waqt","Zuhr ke waqt","Maghrib ka waqt shuru hone par","Isha ke baad"], 2, "Quran aur Ibadaat"],
+  ["Roza kholte waqt Allah ka shukr ada karna aur dua karna kaisa amal hai?", ["Nek amal","Mana hai","Sirf Eid par hota hai","Zaroori nahi ke Allah ko yaad karein"], 0, "Quran aur Ibadaat"],
+  ["Roze mein sirf khane peene se bachna hi kaafi hai?", ["Haan, sirf bhooka rehna hi maqsad hai","Nahi, zubaan aur akhlaaq ki bhi hifazat karni chahiye","Sirf neend se bachna zaroori hai","Sirf masjid mein rehna zaroori hai"], 1, "Quran aur Ibadaat"],
+  ["Gheebat kya hai?", ["Kisi ki tareef karna","Kisi ki peeth peeche uski aisi baat kehna jo usse na-gawar ho","Kisi se salam karna","Kisi ki madad karna"], 1, "Quran aur Ibadaat"],
+  ["Gheebat se bachne ka behtareen tareeqa kya hai?", ["Har shakhs ki burai sunna","Majlis mein burai shuru karna","Baat ko rok dena ya mauzu badal dena","Burai ko aage phailana"], 2, "Quran aur Ibadaat"],
+  ["Tijarat mein maal ka aib chhupana kaisa hai?", ["Achhi business strategy","Dhoka aur na-jaiz amal","Har surat mein jaiz","Sirf chhoti cheezon mein jaiz"], 1, "Quran aur Ibadaat"],
+  ["Islam mein business karte waqt kis cheez ki pabandi karni chahiye?", ["Jhoot aur dhoka","Sachai aur amanatdari","Na-jaiz munafa","Maal ka aib chhupana"], 1, "Quran aur Ibadaat"],
+  ["Naap-tol mein kami karna Islam mein kaisa amal hai?", ["Jaiz","Mustahab","Gunah","Sirf bazaar mein jaiz"], 2, "Quran aur Ibadaat"],
+  ["Karz lete waqt Islam humein kya sikhata hai?", ["Karz ko bhool jana","Wapas karne ki niyyat aur zimmedari rakhna","Karz dene wale se jhoot bolna","Jitna mumkin ho karz na lautana"], 1, "Quran aur Ibadaat"],
+  ["Sadaqah dene ka faida kya hai?", ["Sirf duniyaavi shohrat","Allah ki raza aur ajr ka sabab","Sirf tax kam karna","Sirf Ramzan mein sawab"], 1, "Quran aur Ibadaat"],
+  ["Kya sirf paisa dena hi Sadaqah hai?", ["Haan","Nahi, nek amal aur achhi baat bhi Sadaqah ho sakti hai","Sirf sona Sadaqah hai","Sirf khana Sadaqah hai"], 1, "Quran aur Ibadaat"],
+  ["Kisi zarooratmand ko khana khilana kaisa amal hai?", ["Sadaqah aur nek amal","Mana hai","Sirf Eid par jaiz hai","Sirf apne rishtedaron ke liye hai"], 0, "Quran aur Ibadaat"],
+  ["Sadaqah dete waqt niyyat kaisi honi chahiye?", ["Logon ko dikhane ki","Shohrat hasil karne ki","Allah ki raza hasil karne ki","Logon se tareef lene ki"], 2, "Quran aur Ibadaat"],
+  ["Qurbani kis Islami mahine mein ki jati hai?", ["Ramzan","Muharram","Dhul-Hijjah","Rajab"], 2, "Quran aur Ibadaat"],
+  ["Qurbani kis Eid ke mauqe par ki jati hai?", ["Eid-ul-Fitr","Eid-ul-Adha","Jumu'ah","Shab-e-Barat"], 1, "Quran aur Ibadaat"],
+  ["Qurbani ka bunyadi paigham kya hai?", ["Sirf gosht hasil karna","Allah ki raza ke liye ita'at aur qurbani ka jazba","Sirf dawat karna","Sirf riwayat nibhana"], 1, "Quran aur Ibadaat"],
+  ["Qurbani ke gosht ke bare mein aam tor par kya kiya jata hai?", ["Sab kuch khud hi rakh lena","Rishtedaron aur zarooratmandon ko bhi diya ja sakta hai","Gosht dena mana hai","Sirf bazaar mein bechna chahiye"], 1, "Quran aur Ibadaat"],
+  ["Rozmarra zindagi mein ek Musalman ke liye sabse aham rawayya kya hai?", ["Har waqt dusron par tanqeed karna","Allah ke huqooq ke saath bandon ke huqooq ka bhi khayal rakhna","Sirf apni kamyabi ke bare mein sochna","Sirf maal jama karna"], 1, "Quran aur Ibadaat"],
+  ["Hazrat Muhammad ﷺ ki wiladat kis shehar mein hui?", ["Madinah","Makkah","Taif","Jerusalem"], 1, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ ke walid ka naam kya tha?", ["Abu Talib","Abdullah","Abdul Muttalib","Hamzah"], 1, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ ki walida ka naam kya tha?", ["Aaminah","Halimah","Khadijah","Safiyyah"], 0, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ ke dada ka naam kya tha?", ["Abu Sufyan","Abu Talib","Abdul Muttalib","Abdullah"], 2, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ ko bachpan mein kis mashhoor daai ne doodh pilaya?", ["Hazrat Aaminah RA","Hazrat Halimah Sa'diyah RA","Hazrat Khadijah RA","Hazrat Hafsah RA"], 1, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ par pehli wahi kis jagah nazil hui?", ["Ghaar-e-Saur","Ghaar-e-Hira","Masjid-e-Nabawi","Kaaba ke andar"], 1, "Seerat-un-Nabi ﷺ"],
+  ["Pehli wahi kis Farishte ke zariye aayi?", ["Mikaeel AS","Israfeel AS","Jibreel AS","Izraeel AS"], 2, "Seerat-un-Nabi ﷺ"],
+  ["Pehli wahi mein sabse pehla lafz kya tha?", ["Qul","Iqra","Allahu Akbar","Alhamdulillah"], 1, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ ki pehli biwi ka naam kya tha?", ["Hazrat Aishah RA","Hazrat Hafsah RA","Hazrat Khadijah RA","Hazrat Sawdah RA"], 2, "Seerat-un-Nabi ﷺ"],
+  ["Hijrat ke waqt Hazrat Muhammad ﷺ aur Hazrat Abu Bakr RA ne kis ghaar mein panah li?", ["Ghaar-e-Hira","Ghaar-e-Saur","Ghaar-e-Uhud","Ghaar-e-Badr"], 1, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ ne Makkah se kis shehar ki taraf Hijrat farmayi?", ["Taif","Kufa","Madinah","Basra"], 2, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ ko Allah Ta'ala ne kis haisiyat se bheja?", ["Sirf Makkah ke logon ke liye","Sirf Arab ke liye","Tamam jahano ke liye Rasool","Sirf ek qabeelay ke liye"], 2, "Seerat-un-Nabi ﷺ"],
+  ["Mi'raj ke mauqe par ummat ko kaunsi aham ibadat mili?", ["Zakat","Hajj","Panch waqt ki namaz","Qurbani"], 2, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ ka mashhoor laqab \"Al-Ameen\" kis sifat ki wajah se tha?", ["Bahaduri","Amanatdari aur bharosemandi","Tijarat","Ilm"], 1, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ ki zindagi hamare liye kis cheez ka namoona hai?", ["Sirf tijarat ka","Sirf jang ka","Behtareen uswah aur namoona-e-zindagi ka","Sirf safar ka"], 2, "Seerat-un-Nabi ﷺ"],
+  ["Sabse pehle Nabi kaun the?", ["Hazrat Nuh AS","Hazrat Adam AS","Hazrat Ibrahim AS","Hazrat Musa AS"], 1, "Ambiya-e-Kiram AS"],
+  ["Hazrat Nuh AS ki qaum kis cheez mein mubtala thi?", ["Shirk aur but-parasti","Tijarat","Ilm","Safar"], 0, "Ambiya-e-Kiram AS"],
+  ["Hazrat Ibrahim AS ko kis cheez ki wajah se aag mein dala gaya tha?", ["Tijarat ki wajah se","But-parasti ki mukhalifat ki wajah se","Safar ki wajah se","Hukumat ki wajah se"], 1, "Ambiya-e-Kiram AS"],
+  ["Hazrat Ibrahim AS ke bete kaun the jin ke saath Qurbani ka waqia mashhoor hai?", ["Hazrat Yusuf AS","Hazrat Ismail AS","Hazrat Yahya AS","Hazrat Yunus AS"], 1, "Ambiya-e-Kiram AS"],
+  ["Hazrat Musa AS ko Allah Ta'ala ne kis Fir'aun ki taraf bheja?", ["Namrud","Jalut","Fir'aun","Qarun"], 2, "Ambiya-e-Kiram AS"],
+  ["Hazrat Musa AS ka mashhoor mojiza kya tha?", ["Chand ka shaqq hona","Asa ka Allah ke hukm se mojiza dikhana","Murde zinda karna","Kashti banana"], 1, "Ambiya-e-Kiram AS"],
+  ["Hazrat Yunus AS ko kis makhlooq ne nigal liya tha?", ["Sher","Saamp","Machhli","Oont"], 2, "Ambiya-e-Kiram AS"],
+  ["Hazrat Yusuf AS ki zindagi ka ek aham sabaq kya hai?", ["Hasad aur badla","Sabr, paakdamni aur maafi","Duniya ki muhabbat","Takabbur"], 1, "Ambiya-e-Kiram AS"],
+  ["Hazrat Ayyub AS kis sifat ki wajah se mashhoor hain?", ["Sabr","Tijarat","Saltanat","Safar"], 0, "Ambiya-e-Kiram AS"],
+  ["Hazrat Isa AS ki walida ka naam kya tha?", ["Maryam AS","Aaminah RA","Hajra AS","Asiyah RA"], 0, "Ambiya-e-Kiram AS"],
+  ["Mashhoor Hadith \"A'maal ka daromadar niyyat par hai\" kis cheez ki ahmiyat batati hai?", ["Maal","Niyyat","Shohrat","Nasab"], 1, "Ahadees aur Sunnat"],
+  ["Sahih Bukhari kis Imam ne jama ki?", ["Imam Abu Hanifah RH","Imam Malik RH","Imam Bukhari RH","Imam Shafi'i RH"], 2, "Ahadees aur Sunnat"],
+  ["Hadith mein ek Musalman ke liye doosre Musalman ke saath kaisa rawayya sikhaya gaya hai?", ["Zulm aur sakhti","Bhai-chara aur husn-e-sulook","Hasad","Takabbur"], 1, "Ahadees aur Sunnat"],
+  ["Nabi ﷺ ne achhe akhlaaq ke bare mein kya ahmiyat batayi?", ["Achhe akhlaaq ki koi ahmiyat nahi","Achhe akhlaaq Islam ki aham taleemat mein se hain","Sirf ameeron ke liye zaroori hain","Sirf ghar ke andar zaroori hain"], 1, "Ahadees aur Sunnat"],
+  ["Sunnat par amal karne ka bunyadi maqsad kya hai?", ["Sirf riwayat nibhani","Nabi ﷺ ke tareeqe ko apni zindagi mein apnana aur Allah ki raza hasil karna","Logon ko impress karna","Sirf dusron ko dikhana"], 1, "Ahadees aur Sunnat"],
+  ["Hazrat Abu Bakr Siddiq RA ka mashhoor laqab kya hai?", ["Al-Farooq","As-Siddiq","Zul-Noorain","Saifullah"], 1, "Sahaba-e-Kiram RA"],
+  ["Hazrat Umar Farooq RA ka mashhoor laqab kya hai?", ["As-Siddiq","Zul-Noorain","Al-Farooq","Saifullah"], 2, "Sahaba-e-Kiram RA"],
+  ["Hazrat Usman Ghani RA ko \"Zun-Noorain\" kyun kaha jata hai?", ["Unke paas do talwarein thin","Unhon ne do martaba Hijrat ki","Unhon ne Nabi ﷺ ki do sahibzadiyon se nikah kiya","Unhon ne do jangon mein shirkat ki"], 2, "Sahaba-e-Kiram RA"],
+  ["Hazrat Ali RA Nabi ﷺ ke kya lagte the?", ["Sirf dost","Chacha-zad bhai aur damad","Mamoo","Khalazad bhai"], 1, "Sahaba-e-Kiram RA"],
+  ["Muhajireen se murad kaun hain?", ["Madinah ke log","Makkah se Madinah Hijrat karne wale Musalman","Sirf Sahaba-e-Kiram ke bachche","Madinah ke Ansar"], 1, "Sahaba-e-Kiram RA"],
+  ["Ansar se murad kaun hain?", ["Makkah ke tajir","Madinah ke woh Musalman jinhon ne Muhajireen ki madad ki","Sirf Quraysh","Makkah ke mushrik"], 1, "Sahaba-e-Kiram RA"],
+  ["Nabi ﷺ ke Sahaba RA ka adab karna Musalman ke liye kaisa rawayya hai?", ["Be-adabi","Muhabbat aur ehtram","Sirf siyasi rawayya","Koi ahmiyat nahi"], 1, "Sahaba-e-Kiram RA"],
+  ["Hadith ke mutabiq ek doosre ko hadiya dene ka kya asar hota hai?", ["Dushmani badhti hai","Muhabbat badhti hai","Maal kam hota hai","Rishtay khatam hote hain"], 1, "Sahaba-e-Kiram RA"],
+  ["Hadiya dene mein bunyadi taur par kis cheez ka khayal rakhna chahiye?", ["Sirf mehnga hona","Ikhlas aur achhi niyyat","Logon ko dikhana","Badle mein zaroor kuch lena"], 1, "Sahaba-e-Kiram RA"],
+  ["Kisi ko hadiya dene ke baad us par ehsan jatana kaisa rawayya hai?", ["Achha akhlaaq","Pasandeeda","Ehsan jatane se bachna chahiye","Zaroori hai"], 2, "Sahaba-e-Kiram RA"],
+  ["Qayamat ke din tamam log kis jagah jama kiye jayenge?", ["Makkah","Madinah","Maidan-e-Hashr","Ghaar-e-Hira"], 2, "Akhirat"],
+  ["Qayamat ke din dobara zinda kiye jane ko kya kaha jata hai?", ["Hijrat","Ba'th","Zakat","Qurbani"], 1, "Akhirat"],
+  ["Qayamat ke din insaan se uske aamaal ka hisaab liya jayega. Isay kya kehte hain?", ["Hisab","Hijrat","I'tikaf","Tahajjud"], 0, "Akhirat"],
+  ["Qayamat ke din aamaal tolne ke liye kis cheez ka zikr Quran mein hai?", ["Mizan","Mihrab","Mimbar","Maqam"], 0, "Akhirat"],
+  ["Maut ke baad Qayamat tak ki zindagi ko kya kaha jata hai?", ["Duniya","Barzakh","Hijrat","Ibadat"], 1, "Akhirat"],
+  ["Qabr mein insaan se sawalat karne wale Farishton ke naam kya mashhoor hain?", ["Jibreel aur Mikaeel","Munkar aur Nakir","Harut aur Marut","Malik aur Ridwan"], 1, "Akhirat"],
+  ["Qabr ke azaab se bachne ke liye Musalman ko kya karna chahiye?", ["Sirf maal jama karna","Iman, nek aamaal aur Allah se panah mangna","Sirf lambi zindagi ki dua karna","Sirf duniyaavi ilm hasil karna"], 1, "Akhirat"],
+  ["Aakhirat ki zindagi ke bare mein Islam kya sikhata hai?", ["Woh sirf kuch saalon ki hogi","Woh hamesha rehne wali zindagi hai","Woh duniya se chhoti hogi","Uska koi hisaab nahi"], 1, "Akhirat"],
+  ["Jahannam se bachne ke liye sabse bunyadi cheez kya hai?", ["Sirf duniyaavi daulat","Iman aur Allah ki ita'at","Shohrat","Nasab"], 1, "Akhirat"],
+  ["Jahannam ka darwaza rakhne wale Farishte ka naam kya hai?", ["Jibreel AS","Malik","Mikaeel AS","Israfeel AS"], 1, "Akhirat"],
+  ["Jannat ke darwaze ki nigraani karne wale Farishte ko riwayat mein kis naam se jana jata hai?", ["Malik","Ridwan","Jibreel","Munkar"], 1, "Akhirat"],
+  ["Jannat mein sabse buland darja kis naam se mashhoor hai?", ["Adn","Na'eem","Firdaws","Ma'wa"], 2, "Akhirat"],
+  ["Tasneem kya hai?", ["Jahannam ka ek darwaza","Jannat ka ek chashma","Ek Farishta","Qayamat ka ek din"], 1, "Akhirat"],
+  ["Jannat ke bare mein Islam ka bunyadi aqeedah kya hai?", ["Sirf duniya ke ameer log jayenge","Allah ke fazl se iman aur nek aamaal wale log Jannat ke mustahiq honge","Sirf Farishte jayenge","Jannat sirf ek kahani hai"], 1, "Akhirat"],
+  ["Shaitan ka sabse bada maqsad kya hai?", ["Insaan ko nek banana","Insaan ko Allah ki ita'at se door karna","Insaan ko ilm sikhana","Insaan ko sadaqah dena sikhana"], 1, "Akhirat"],
+  ["Shaitan ke waswason se bachne ke liye kya karna chahiye?", ["Allah ko yaad karna aur uski panah mangna","Waswason ko phailana","Gunah ko apnana","Dua chhor dena"], 0, "Akhirat"],
+  ["Nafs se murad aam taur par kya hai?", ["Insaan ka andarooni self ya khwahishat ka pehlu","Ek Farishta","Ek Nabi","Ek kitab"], 0, "Akhirat"],
+  ["Dua karte waqt sabse aham cheezon mein se ek kya hai?", ["Allah par yaqeen aur ikhlas","Sirf buland awaaz","Dusron ko sunana","Sirf lambi dua"], 0, "Akhirat"],
+  ["Dua ke bare mein Hadith ka mashhoor mafhoom kya hai?", ["Dua sirf Anbiya ke liye hai","Dua ibadat hai","Dua sirf Ramzan mein hoti hai","Dua sirf masjid mein ho sakti hai"], 1, "Akhirat"],
+  ["Aakhirat ki kamyabi ke liye Musalman ko kis cheez ki fikr karni chahiye?", ["Sirf duniya ki shohrat","Iman, taqwa, nek aamaal aur Allah ki raza","Sirf maal jama karna","Sirf dusron ki ghaltiyan dhoondhna"], 1, "Akhirat"],
+];
+
+let quizState = null;
+
+function shuffleArr(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+const QUIZ_CAT_ICON = {
+  "Namaz":"🕌", "Akhlaq aur Muashira":"🤝", "Quran aur Ibadaat":"📖",
+  "Seerat-un-Nabi ﷺ":"🌙", "Ambiya-e-Kiram AS":"⭐", "Ahadees aur Sunnat":"📜",
+  "Sahaba-e-Kiram RA":"👥", "Akhirat":"🌌"
+};
+
+function renderMoreQuiz(){
+  quizState = null;
+  document.getElementById('detailTitle').textContent = "Quiz";
+  const body = document.getElementById('detailBody');
+  const catRows = QUIZ_CATEGORIES.map(cat=>{
+    const count = QUIZ_BANK.filter(q=>q[3]===cat).length;
+    return `<button class="quiz-cat-btn" data-cat="${cat}">
+      <span class="quiz-cat-ic">${QUIZ_CAT_ICON[cat]||'❓'}</span>
+      <span class="quiz-cat-name">${cat}</span>
+      <span class="quiz-cat-count">${count} sawal</span>
+    </button>`;
+  }).join('');
+  body.innerHTML = `
+    <div style="text-align:center; padding:16px 10px 6px;">
+      <div style="font-size:40px; margin-bottom:8px;">🧠</div>
+      <div style="font-size:15px; font-weight:700; margin-bottom:4px;">Islami Malumat Ka Quiz</div>
+      <div style="font-size:13px; color:var(--sub); margin-bottom:14px;">Category chuniye</div>
+    </div>
+    <button class="quiz-cat-btn" data-cat="__all__" style="border-color:var(--accent);">
+      <span class="quiz-cat-ic">🌐</span>
+      <span class="quiz-cat-name">Sab Categories (Mix)</span>
+      <span class="quiz-cat-count">${QUIZ_BANK.length} sawal</span>
+    </button>
+    ${catRows}
+  `;
+  body.querySelectorAll('.quiz-cat-btn').forEach(btn=>{
+    btn.onclick = ()=> renderQuizCountSelect(btn.dataset.cat);
+  });
+}
+
+function renderQuizCountSelect(cat){
+  const pool = cat==='__all__' ? QUIZ_BANK : QUIZ_BANK.filter(q=>q[3]===cat);
+  document.getElementById('detailTitle').textContent = "Quiz";
+  const body = document.getElementById('detailBody');
+  const label = cat==='__all__' ? 'Sab Categories' : cat;
+  body.innerHTML = `
+    <div style="text-align:center; padding:30px 10px;">
+      <div style="font-size:40px; margin-bottom:10px;">${cat==='__all__'?'🌐':(QUIZ_CAT_ICON[cat]||'❓')}</div>
+      <div style="font-size:15px; font-weight:700; margin-bottom:6px;">${label}</div>
+      <div style="font-size:13px; color:var(--sub); margin-bottom:24px;">Kitne sawal khelna chahte hain?</div>
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button id="quiz5" class="quiz-count-btn">5 Sawal</button>
+        <button id="quiz10" class="quiz-count-btn">10 Sawal</button>
+      </div>
+      <button id="quizBackToCats" style="margin-top:22px; background:none; border:none; color:var(--sub); font-size:12.5px; text-decoration:underline; cursor:pointer;">‹ Category Badlein</button>
+    </div>
+  `;
+  document.getElementById('quiz5').onclick = ()=> startQuiz(pool, Math.min(5, pool.length));
+  document.getElementById('quiz10').onclick = ()=> startQuiz(pool, Math.min(10, pool.length));
+  document.getElementById('quizBackToCats').onclick = renderMoreQuiz;
+}
+
+function startQuiz(pool, n){
+  const picked = shuffleArr(pool).slice(0, n);
+  quizState = { questions: picked, idx: 0, score: 0, answered: false };
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  const qs = quizState;
+  const [q, opts, correct] = qs.questions[qs.idx];
+  document.getElementById('detailTitle').textContent = `Sawal ${qs.idx+1}/${qs.questions.length}`;
+  const body = document.getElementById('detailBody');
+  body.innerHTML = `
+    <div class="quiz-progress"><div class="quiz-progress-fill" style="width:${(qs.idx/qs.questions.length)*100}%"></div></div>
+    <div class="quiz-q">${q}</div>
+    <div class="quiz-opts" id="quizOpts">
+      ${opts.map((o,i)=>`<button class="quiz-opt" data-i="${i}">${o}</button>`).join('')}
+    </div>
+    <div id="quizRevealWrap"></div>
+    <div id="quizNextWrap" style="margin-top:16px; text-align:center;"></div>
+  `;
+  body.querySelectorAll('.quiz-opt').forEach(btn=>{
+    btn.onclick = ()=>{
+      if(qs.answered) return;
+      qs.answered = true;
+      const chosen = parseInt(btn.dataset.i);
+      body.querySelectorAll('.quiz-opt').forEach(b=>{
+        const bi = parseInt(b.dataset.i);
+        if(bi===correct) b.classList.add('correct');
+        else if(bi===chosen) b.classList.add('wrong');
+      });
+      if(chosen===correct){
+        qs.score++;
+      } else {
+        document.getElementById('quizRevealWrap').innerHTML = `<div class="quiz-reveal">Sahi Jawab: <b>${opts[correct]}</b></div>`;
+      }
+      const isLast = qs.idx===qs.questions.length-1;
+      document.getElementById('quizNextWrap').innerHTML = `<button id="quizNextBtn" style="padding:12px 28px; border-radius:12px; border:none; background:var(--accent); color:var(--fardText); font-size:14px; font-weight:700; cursor:pointer;">${isLast?'Result Dekhiye':'Agla Sawal'}</button>`;
+      document.getElementById('quizNextBtn').onclick = ()=>{
+        if(isLast){ renderQuizResult(); } else { qs.idx++; qs.answered=false; renderQuizQuestion(); }
+      };
+    };
+  });
+}
+
+function renderQuizResult(){
+  const qs = quizState;
+  const pct = Math.round((qs.score/qs.questions.length)*100);
+  const msg = pct>=80 ? 'Zabardast! Mashallah.' : pct>=50 ? 'Achha kiya, aur mehnat kijiye.' : 'Koi baat nahi, dobara koshish kijiye.';
+  document.getElementById('detailTitle').textContent = "Result";
+  document.getElementById('detailBody').innerHTML = `
+    <div style="text-align:center; padding:30px 10px;">
+      <div style="font-size:44px; margin-bottom:10px;">🏆</div>
+      <div style="font-size:26px; font-weight:800; margin-bottom:4px;">${qs.score} / ${qs.questions.length}</div>
+      <div style="font-size:13px; color:var(--sub); margin-bottom:6px;">${pct}% Sahi Jawab</div>
+      <div style="font-size:13.5px; margin-bottom:24px;">${msg}</div>
+      <button id="quizRetry" style="padding:12px 24px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:13.5px; font-weight:700; cursor:pointer;">Dobara Khelein</button>
+    </div>
+  `;
+  document.getElementById('quizRetry').onclick = renderMoreQuiz;
+}
+
+let citySearch = '';
+function renderMoreSettings(){
+  document.getElementById('detailTitle').textContent="Settings";
+  const loc = state.location;
+  const body = document.getElementById('detailBody');
+  body.innerHTML = `
+    <div class="section-title" style="margin-top:0;">Location</div>
+    <div class="ramzan-card" style="margin:0 0 14px;">
+      <div style="font-size:13.5px; font-weight:700; margin-bottom:2px;">📍 ${loc.name}</div>
+      <div style="font-size:11.5px; color:var(--sub); margin-bottom:12px;">${loc.lat.toFixed(4)}, ${loc.lon.toFixed(4)} ${loc.source==='gps' ? '(GPS)' : ''}</div>
+      <button id="gpsBtn" style="width:100%; padding:11px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13px; font-weight:700; cursor:pointer;">📡 GPS Se Location Lein</button>
+      <div id="gpsStatus" style="font-size:11.5px; color:var(--sub); margin-top:8px;"></div>
+    </div>
+    <div class="section-title" style="margin-top:0;">Ya Shehar Chuniye</div>
+    <div class="search-bar" style="margin:0 0 10px;"><input id="citySearchInput" placeholder="Shehar dhoondhiye..." value="${citySearch}"></div>
+    <div id="cityList"></div>
+    <div class="section-title">Calculation</div>
+    <div style="font-size:13px; line-height:1.8; color:var(--sub); padding-bottom:10px;">
+      Fajr Angle: 18 darja &nbsp;|&nbsp; Isha Angle: 17 darja<br>
+      Asr Calculation: Hanafi (standard)<br><br>
+      <span style="color:var(--text)">Note:</span> Shafi Asr aur alag Hijri offset ka option future update mein add kiya jayega.
+    </div>
+  `;
+  const cityListEl = body.querySelector('#cityList');
+  function renderCityRow(c){
+    const isActive = loc.source!=='gps' && loc.name===c.name;
+    const row = document.createElement('div');
+    row.className = 'hadees-item';
+    row.style.margin = '0 0 8px';
+    row.style.cursor = 'pointer';
+    row.style.display = 'flex';
+    row.style.justifyContent = 'space-between';
+    row.style.alignItems = 'center';
+    if(isActive){ row.style.borderColor = 'var(--accent)'; }
+    row.innerHTML = `<span style="font-size:13.5px; font-weight:600;">${c.name}${c.state ? `<span style="color:var(--sub); font-weight:500;"> - ${c.state}</span>` : ''}</span>${isActive ? '<span style="color:var(--accent); font-size:13px;">✓</span>' : ''}`;
+    row.onclick = ()=>{
+      state.location = {name:c.name, lat:c.lat, lon:c.lon, state:c.state, source:'manual'};
+      saveState();
+      renderHome(); renderCalendar();
+      renderMoreSettings();
+    };
+    return row;
+  }
+  function renderCityList(){
+    cityListEl.innerHTML = '';
+    if(citySearch.trim()===''){
+      PRIORITY_CITIES.forEach(c=> cityListEl.appendChild(renderCityRow(c)));
+      const divider = document.createElement('div');
+      divider.textContent = 'Baaki Shehar';
+      divider.style.cssText = 'font-size:11px; font-weight:700; color:var(--sub); margin:10px 0 8px; text-transform:uppercase; letter-spacing:0.3px;';
+      cityListEl.appendChild(divider);
+      OTHER_CITIES.forEach(c=> cityListEl.appendChild(renderCityRow(c)));
+    } else {
+      CITIES.filter(c=>c.name.toLowerCase().includes(citySearch.toLowerCase())).forEach(c=>{
+        cityListEl.appendChild(renderCityRow(c));
+      });
+    }
+  }
+  renderCityList();
+  body.querySelector('#citySearchInput').oninput = (e)=>{ citySearch=e.target.value; renderCityList(); };
+  body.querySelector('#gpsBtn').onclick = ()=>{
+    const statusEl = body.querySelector('#gpsStatus');
+    if(!navigator.geolocation){
+      statusEl.textContent = 'Is browser mein GPS support nahi hai.';
+      return;
+    }
+    statusEl.textContent = 'Location maloom ki jaa rahi hai...';
+    navigator.geolocation.getCurrentPosition(
+      (pos)=>{
+        state.location = {name:'Current Location', lat:pos.coords.latitude, lon:pos.coords.longitude, source:'gps'};
+        saveState();
+        renderHome(); renderCalendar();
+        renderMoreSettings();
+      },
+      (err)=>{
+        statusEl.textContent = 'Location nahi mil saki. Manually shehar chuniye.';
+      },
+      {timeout:10000}
+    );
+  };
+}
+function renderMoreAbout(){
+  document.getElementById('detailTitle').textContent="Iske Baare Mein";
+  document.getElementById('detailBody').innerHTML = `
+    <div style="font-size:13.5px; line-height:1.8; color:var(--sub);">
+      Namaz Timer App: Aapki roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein.<br><br>
+      Banaya gaya hai mohabbat se, taake har Musalman apni namaz waqt par ada kar sake. Allah hum sabko namaz ki hifazat karne ki taufeeq de. Ameen.
+    </div>
+  `;
+}
+
+document.querySelectorAll('.more-item').forEach(item=>{
+  item.onclick = ()=>{
+    const which = item.dataset.open;
+    if(which==='dua') renderMoreDua();
+    else if(which==='hadees') renderMoreHadees();
+    else if(which==='quiz') renderMoreQuiz();
+    else if(which==='settings') renderMoreSettings();
+    else if(which==='about') renderMoreAbout();
+    document.getElementById('detailOverlay').classList.add('active');
+  };
+});
+document.getElementById('detailBack').onclick = ()=>{
+  document.getElementById('detailOverlay').classList.remove('active');
+};
+
+/* init calendar/ramzan lazily on first view already handled by tab click */
+</script>
+</body>
+</html>
