@@ -235,7 +235,8 @@ body{
   gap:4px; padding:13px 0 11px; background:none; border:none; color:var(--sub); cursor:pointer;
 }
 .tab-btn.active{ color:var(--accent); }
-.tab-btn .ic{ font-size:27px; line-height:1; }
+.tab-btn .ic{ font-size:27px; line-height:1; filter:grayscale(1) opacity(0.45); transition:filter .15s ease; }
+.tab-btn.active .ic{ filter:none; }
 .tab-btn .lb{ font-size:13.5px; font-weight:600; }
 
 /* ---------- generic screen padding ---------- */
@@ -808,9 +809,10 @@ function showInfoModal(key){
   document.getElementById('infoTime').textContent = info.time;
   document.getElementById('infoText').textContent = info.text;
   document.getElementById('infoModal').classList.add('active');
+  pushModalState();
 }
-document.getElementById('infoClose').onclick = ()=> document.getElementById('infoModal').classList.remove('active');
-document.getElementById('infoModal').onclick = (e)=>{ if(e.target.id==='infoModal') document.getElementById('infoModal').classList.remove('active'); };
+document.getElementById('infoClose').onclick = closeModal;
+document.getElementById('infoModal').onclick = (e)=>{ if(e.target.id==='infoModal') closeModal(); };
 
 /* ============================================================
    HIJRI DATE (arithmetic / tabular Islamic calendar approximation)
@@ -1193,13 +1195,14 @@ async function shareDayImage(date){
   }, 'image/png');
 }
 function openShareChooser(date){
-  document.getElementById('shareChooserImg').onclick = ()=>{ document.getElementById('shareChooser').classList.remove('active'); shareDayImage(date); };
-  document.getElementById('shareChooserTxt').onclick = ()=>{ document.getElementById('shareChooser').classList.remove('active'); shareDayText(date); };
+  document.getElementById('shareChooserImg').onclick = ()=>{ closeModal(); shareDayImage(date); };
+  document.getElementById('shareChooserTxt').onclick = ()=>{ closeModal(); shareDayText(date); };
   document.getElementById('shareChooser').classList.add('active');
+  pushModalState();
 }
 document.getElementById('shareDayBtn').onclick = ()=> openShareChooser(homeViewDate);
-document.getElementById('shareChooserClose').onclick = ()=> document.getElementById('shareChooser').classList.remove('active');
-document.getElementById('shareChooser').onclick = (e)=>{ if(e.target.id==='shareChooser') document.getElementById('shareChooser').classList.remove('active'); };
+document.getElementById('shareChooserClose').onclick = closeModal;
+document.getElementById('shareChooser').onclick = (e)=>{ if(e.target.id==='shareChooser') closeModal(); };
 
 function bulkSetFive(status, date, onDone){
   const now = new Date();
@@ -2303,6 +2306,26 @@ function updateRamzanLock(){
 }
 updateRamzanLock();
 
+/* ============================================================
+   BACK-BUTTON HANDLING — make the phone/browser back button close
+   overlays instead of exiting the app, by pushing a history entry
+   for each overlay we open and popping it on close.
+   ============================================================ */
+function pushModalState(){ history.pushState({ waqtModal: true }, ''); }
+function closeTopModalUI(){
+  const share = document.getElementById('shareChooser');
+  const info = document.getElementById('infoModal');
+  const detail = document.getElementById('detailOverlay');
+  if(share.classList.contains('active')){ share.classList.remove('active'); return; }
+  if(info.classList.contains('active')){ info.classList.remove('active'); return; }
+  if(detail.classList.contains('active')){ detail.classList.remove('active'); stopQiblaCompass(); return; }
+}
+function closeModal(){
+  if(history.state && history.state.waqtModal){ history.back(); }
+  else{ closeTopModalUI(); }
+}
+window.addEventListener('popstate', ()=>{ closeTopModalUI(); });
+
 document.querySelectorAll('.more-item').forEach(item=>{
   item.onclick = ()=>{
     if(item.classList.contains('disabled')) return;
@@ -2316,12 +2339,10 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='settings') renderMoreSettings();
     else if(which==='about') renderMoreAbout();
     document.getElementById('detailOverlay').classList.add('active');
+    pushModalState();
   };
 });
-document.getElementById('detailBack').onclick = ()=>{
-  document.getElementById('detailOverlay').classList.remove('active');
-  stopQiblaCompass();
-};
+document.getElementById('detailBack').onclick = closeModal;
 
 /* init calendar/ramzan lazily on first view already handled by tab click */
 
