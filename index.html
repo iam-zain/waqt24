@@ -221,10 +221,11 @@ body{
 .dot-btn{
   width:23px; height:23px; border-radius:50%; border:1.5px solid var(--dotBorder, var(--line)); background:transparent; cursor:pointer; padding:0;
   display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; line-height:1; color:var(--dotBorder, var(--sub));
+  filter:grayscale(1) opacity(0.55); /* dulls the hourglass emoji (✓/~ are plain glyphs so `color` already dulls them) */
 }
-.dot-btn.on-green{ background:var(--green); border-color:var(--green); color:#fff; }
-.dot-btn.on-yellow{ background:var(--yellow); border-color:var(--yellow); color:#2b2100; }
-.dot-btn.on-red{ background:var(--red); border-color:var(--red); color:#fff; }
+.dot-btn.on-green{ background:var(--green); border-color:var(--green); color:#fff; filter:none; }
+.dot-btn.on-yellow{ background:var(--yellow); border-color:var(--yellow); color:#2b2100; filter:none; }
+.dot-btn.on-red{ background:var(--red); border-color:var(--red); color:#fff; filter:none; }
 
 /* ---------- TAB BAR ---------- */
 #tabbar{
