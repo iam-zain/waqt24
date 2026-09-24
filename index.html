@@ -1360,7 +1360,7 @@ function dayCell(date){
     dotsHtml += `<span style="background:${color}"></span>`;
   });
   dotsHtml += '</div>';
-  const rozaMark = rozaOn ? '<span class="cal-roza-mark">☪️</span>' : '';
+  const rozaMark = rozaOn ? '<span class="cal-roza-mark">🌙</span>' : '';
   c.innerHTML = `${rozaMark}<div>${label}</div>${dotsHtml}`;
   c.onclick = ()=> showDayDetail(date);
   return c;
