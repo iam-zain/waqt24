@@ -121,7 +121,16 @@ body{
 .roza-mini.on .roza-mini-knob{ left:20px; }
 .dateCenter .todayTag{ display:inline-block; margin-left:6px; padding:2px 8px; border-radius:8px; background:var(--accent); color:var(--fardText); font-size:11px; font-weight:700; vertical-align:middle; }
 
-.times-list{ flex:1; display:flex; flex-direction:column; justify-content:flex-start; gap:clamp(4px, 1.6dvh, 20px); padding:4px 0; min-height:0; overflow-y:auto; }
+.times-list{
+  flex:1; display:flex; flex-direction:column; justify-content:flex-start; gap:clamp(4px, 1.6dvh, 20px);
+  padding:4px 0; min-height:0; overflow-y:auto;
+  scrollbar-width:thin; scrollbar-color:transparent transparent; transition:scrollbar-color .5s ease .5s;
+}
+.times-list.scrolling{ scrollbar-color:var(--dotBorder, var(--line)) transparent; transition:none; }
+.times-list::-webkit-scrollbar{ width:4px; }
+.times-list::-webkit-scrollbar-thumb{ background:transparent; transition:background .5s ease .5s; }
+.times-list.scrolling::-webkit-scrollbar-thumb{ background:var(--dotBorder, var(--line)); transition:none; }
+.times-list::-webkit-scrollbar-track{ background:transparent; }
 .time-row{
   display:flex; flex-direction:column; gap:2px;
   padding:5px 8px; border-radius:9px; position:relative;
@@ -1042,6 +1051,14 @@ document.getElementById('bulkClear').onclick = ()=>{
 };
 renderHome();
 setInterval(()=>{ if(isSameDay(homeViewDate,new Date())) renderHome(); }, 15000);
+
+let scrollHideTimer = null;
+document.getElementById('timesList').addEventListener('scroll', ()=>{
+  const listEl = document.getElementById('timesList');
+  listEl.classList.add('scrolling');
+  clearTimeout(scrollHideTimer);
+  scrollHideTimer = setTimeout(()=> listEl.classList.remove('scrolling'), 1000);
+}, { passive: true });
 
 /* ============================================================
    CALENDAR TAB
