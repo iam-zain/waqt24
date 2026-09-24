@@ -401,7 +401,7 @@ body{
 
 .hadees-cat{ padding:0 14px 6px; }
 .hadees-cat .chip-row{ margin-bottom:10px; }
-.hadees-item{ margin:0 14px 10px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+.hadees-item{ margin:0 14px 10px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:12px; cursor:pointer; }
 .hadees-item .src{ font-size:11px; color:var(--accent); font-weight:700; margin-bottom:6px; }
 .hadees-item .txt{ font-size:13px; line-height:1.5; }
 
@@ -1800,8 +1800,27 @@ function renderMoreHadees(){
       it.className='hadees-item';
       it.style.margin='0 0 10px';
       it.innerHTML = `<div class="src">${h.cat} • ${h.src}</div><div class="txt">${h.txt}</div>`;
+      it.onclick = ()=> openHadeesDetail(h);
       list.appendChild(it);
     });
+}
+async function shareText(text){
+  if(navigator.share){
+    try{ await navigator.share({ text, title:'Waqt24' }); return; }catch(e){ if(e && e.name==='AbortError') return; }
+  }
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast('Copy ho gaya');
+  }catch(e){ showToast('Share/Copy nahi ho saka'); }
+}
+function openHadeesDetail(h){
+  document.getElementById('detailTitle').textContent = h.cat;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="meaning">${h.txt}</div>
+    <div class="ref">Hawala: ${h.src}</div>
+    <button id="hadeesShareBtn" style="margin-top:20px; padding:11px 20px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13px; font-weight:700; cursor:pointer;">⤴ Share Karein</button>
+  `;
+  document.getElementById('hadeesShareBtn').onclick = ()=> shareText(h.txt + '\n\n— ' + h.src);
 }
 /* ============================================================
    QUIZ
