@@ -270,6 +270,9 @@ body{
 .more-item .ic{ font-size:20px; width:26px; text-align:center; }
 .more-item .lbl{ font-size:14.5px; font-weight:600; flex:1; }
 .more-item .chev{ color:var(--sub); }
+.more-item.disabled{ cursor:not-allowed; opacity:0.5; }
+.more-item.disabled .chev{ visibility:hidden; }
+.more-item .lblSub{ display:block; font-size:11px; font-weight:500; color:var(--sub); margin-top:2px; }
 .theme-row{ display:flex; gap:8px; padding:0 6px 16px; }
 .theme-row button{ flex:1; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12.5px; font-weight:600; }
 .theme-row button.active{ background:var(--accent); color:#08131c; border-color:var(--accent); }
@@ -436,7 +439,7 @@ body{
       <div class="section-title">Explore</div>
     </div>
     <div class="more-list" style="padding-top:0;">
-      <div class="more-item" data-open="ramzan"><div class="ic">🌙</div><div class="lbl">Ramzan</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="ramzan" id="ramzanMoreItem"><div class="ic">🌙</div><div class="lbl">Ramzan<span class="lblSub" id="ramzanSub"></span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="settings"><div class="ic">⚙️</div><div class="lbl">Settings</div><div class="chev">›</div></div>
       <div class="more-item" data-open="about"><div class="ic">ℹ️</div><div class="lbl">Iske Baare Mein</div><div class="chev">›</div></div>
     </div>
@@ -1789,8 +1792,34 @@ function renderMoreAbout(){
   `;
 }
 
+function daysUntilRamzan(){
+  let d = new Date(); d.setHours(0,0,0,0);
+  for(let i=0;i<380;i++){
+    const hd = gregorianToHijri(d);
+    if(hd.month===9 && hd.day===1) return i;
+    d = new Date(d.getTime()+24*3600000);
+  }
+  return null;
+}
+function updateRamzanLock(){
+  const item = document.getElementById('ramzanMoreItem');
+  const sub = document.getElementById('ramzanSub');
+  if(!item) return;
+  const hd = gregorianToHijri(new Date());
+  const isRamzan = hd.month===9;
+  item.classList.toggle('disabled', !isRamzan);
+  if(!isRamzan){
+    const days = daysUntilRamzan();
+    sub.textContent = days!=null ? (days===0 ? 'Ramzan kal shuru hoga' : `Ramzan mein ${days} din baaki`) : '';
+  } else {
+    sub.textContent = '';
+  }
+}
+updateRamzanLock();
+
 document.querySelectorAll('.more-item').forEach(item=>{
   item.onclick = ()=>{
+    if(item.classList.contains('disabled')) return;
     const which = item.dataset.open;
     if(which==='dua') renderMoreDua();
     else if(which==='hadees') renderMoreHadees();
