@@ -137,7 +137,8 @@ body{
   min-height:42px; justify-content:center;
 }
 .time-row .rowMain{ display:flex; align-items:center; gap:6px; }
-.time-row .remainText{ font-size:13px; text-align:right; padding-right:2px; line-height:18px; white-space:nowrap; flex:0 0 auto; }
+.time-row .remainText{ font-size:11.5px; text-align:left; line-height:18px; white-space:nowrap; flex:0 0 170px; overflow:hidden; text-overflow:ellipsis; }
+.time-row .remainText.remainEmpty{ visibility:hidden; }
 .time-row .remainText.remainPlaceholder{ visibility:hidden; }
 .time-row .remainLabel{ color:var(--sub); font-weight:400; opacity:0.75; }
 .time-row .remainValue{ color:var(--text); font-weight:800; }
@@ -185,7 +186,7 @@ body{
 #timesList.namaz-mode .dotsSlot{ flex-basis:63px; }
 #timesList.namaz-mode .meterWrap{ height:10px; }
 #timesList.namaz-mode .meterRow{ padding:7px 2px 0; gap:12px; }
-#timesList.namaz-mode .remainText{ font-size:13px; }
+#timesList.namaz-mode .remainText{ font-size:12px; flex-basis:172px; }
 .dotsSlot{ flex:0 0 76px; display:flex; align-items:center; justify-content:flex-end; }
 .status-dots{ flex:0 0 auto; display:flex; gap:3px; margin-left:auto; }
 .dot-btn{
@@ -979,7 +980,7 @@ function renderHome(){
         <div style="flex:1;"></div>
         ${dotsSlot}
       </div>
-      ${meterHtml ? `<div class="meterRow">${meterHtml}${remainHtml || '<div class="remainText">&nbsp;</div>'}</div>` : ''}
+      ${meterHtml ? `<div class="meterRow">${remainHtml || '<div class="remainText remainEmpty">&nbsp;</div>'}${meterHtml}</div>` : ''}
     `;
     row.querySelector('.name').onclick = ()=> showInfoModal(p.key);
     listEl.appendChild(row);
