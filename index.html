@@ -393,21 +393,16 @@ body{
   </div>
 
   <!-- RAMZAN TAB -->
-  <div class="screen scrollable" id="tab-ramzan">
+  <!-- ILM TAB (Du'a / Hadees / Quiz) -->
+  <div class="screen scrollable" id="tab-explore">
     <div class="pad" style="padding-bottom:0;">
-      <div class="section-title" style="margin-top:6px;">Aaj ka Roza</div>
+      <div class="section-title" style="margin-top:6px;">Ilm o Ibadat</div>
     </div>
-    <div class="ramzan-card">
-      <div class="roza-toggle">
-        <span style="font-size:13.5px; font-weight:600;" id="rozaLabel">Roza Rakha</span>
-        <div class="switch" id="rozaSwitch"><div class="knob"></div></div>
-      </div>
+    <div class="more-list" style="padding-top:0;">
+      <div class="more-item" data-open="dua"><div class="ic">🤲</div><div class="lbl">Du'a Padhiye</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="hadees"><div class="ic">📖</div><div class="lbl">Hadees Dekhiye</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="quiz"><div class="ic">🧠</div><div class="lbl">Quiz Kheliye</div><div class="chev">›</div></div>
     </div>
-    <div class="pad" style="padding-top:0; padding-bottom:0;">
-      <div class="section-title">Aaj ki 5 Namaz</div>
-    </div>
-    <div id="ramzanNamazList"></div>
-    <div style="height:20px;"></div>
   </div>
 
   <!-- MORE TAB -->
@@ -428,9 +423,7 @@ body{
       <div class="section-title">Explore</div>
     </div>
     <div class="more-list" style="padding-top:0;">
-      <div class="more-item" data-open="dua"><div class="ic">🤲</div><div class="lbl">Du'a Padhiye</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="hadees"><div class="ic">📖</div><div class="lbl">Hadees Dekhiye</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="quiz"><div class="ic">🧠</div><div class="lbl">Quiz Kheliye</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="ramzan"><div class="ic">🌙</div><div class="lbl">Ramzan</div><div class="chev">›</div></div>
       <div class="more-item" data-open="settings"><div class="ic">⚙️</div><div class="lbl">Settings</div><div class="chev">›</div></div>
       <div class="more-item" data-open="about"><div class="ic">ℹ️</div><div class="lbl">Iske Baare Mein</div><div class="chev">›</div></div>
     </div>
@@ -439,7 +432,7 @@ body{
   <div id="tabbar">
     <button class="tab-btn active" data-tab="home"><div class="ic">🕌</div><div class="lb">Home</div></button>
     <button class="tab-btn" data-tab="calendar"><div class="ic">🗓️</div><div class="lb">Calendar</div></button>
-    <button class="tab-btn" data-tab="ramzan"><div class="ic">🌙</div><div class="lb">Ramzan</div></button>
+    <button class="tab-btn" data-tab="explore"><div class="ic">📖</div><div class="lb">Ilm</div></button>
     <button class="tab-btn" data-tab="more"><div class="ic">☰</div><div class="lb">More</div></button>
   </div>
 
@@ -855,7 +848,6 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.classList.add('active');
     document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
     if(btn.dataset.tab==='calendar') renderCalendar();
-    if(btn.dataset.tab==='ramzan') renderRamzan();
   };
 });
 
@@ -1712,6 +1704,21 @@ function renderMoreSettings(){
     );
   };
 }
+function renderMoreRamzan(){
+  document.getElementById('detailTitle').textContent = 'Ramzan';
+  document.getElementById('detailBody').innerHTML = `
+    <div class="section-title" style="margin-top:0;">Aaj ka Roza</div>
+    <div class="ramzan-card" style="margin:0 0 14px;">
+      <div class="roza-toggle">
+        <span style="font-size:13.5px; font-weight:600;" id="rozaLabel">Roza Rakha</span>
+        <div class="switch" id="rozaSwitch"><div class="knob"></div></div>
+      </div>
+    </div>
+    <div class="section-title">Aaj ki 5 Namaz</div>
+    <div id="ramzanNamazList"></div>
+  `;
+  renderRamzan();
+}
 function renderMoreAbout(){
   document.getElementById('detailTitle').textContent="Iske Baare Mein";
   document.getElementById('detailBody').innerHTML = `
@@ -1728,6 +1735,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
     if(which==='dua') renderMoreDua();
     else if(which==='hadees') renderMoreHadees();
     else if(which==='quiz') renderMoreQuiz();
+    else if(which==='ramzan') renderMoreRamzan();
     else if(which==='settings') renderMoreSettings();
     else if(which==='about') renderMoreAbout();
     document.getElementById('detailOverlay').classList.add('active');
