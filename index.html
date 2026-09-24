@@ -1537,18 +1537,18 @@ function showDayDetail(date){
     const mDone = isZikrProfileComplete(date, morningPf);
     const eDone = isZikrProfileComplete(date, eveningPf);
     html += `<div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin:12px 0 6px;">📿 Zikr / Tasbeeh</div>
-      <div style="margin-bottom:12px;">
-        <div style="font-size:12.5px; font-weight:600; margin-bottom:6px;">🌅 Subah ke Azkar</div>
-        <div class="chip-row">
-          <div class="chip ${mDone?'prayed':''}" data-zp="morning" data-zd="done">Padh Liye</div>
-          <div class="chip ${!mDone?'pending':''}" data-zp="morning" data-zd="baaki">Padhna Baaki Hai</div>
+      <div class="row">
+        <span>🌅 Subah ke Azkar</span>
+        <div class="status-dots">
+          <button class="dot-btn ${mDone?'on-green':''}" data-zp="morning" data-zd="done" title="Padh Liye"></button>
+          <button class="dot-btn ${!mDone?'on-red':''}" data-zp="morning" data-zd="baaki" title="Padhna Baaki Hai"></button>
         </div>
       </div>
-      <div style="margin-bottom:4px;">
-        <div style="font-size:12.5px; font-weight:600; margin-bottom:6px;">🌇 Shaam ke Azkar</div>
-        <div class="chip-row">
-          <div class="chip ${eDone?'prayed':''}" data-zp="evening" data-zd="done">Padh Liye</div>
-          <div class="chip ${!eDone?'pending':''}" data-zp="evening" data-zd="baaki">Padhna Baaki Hai</div>
+      <div class="row">
+        <span>🌇 Shaam ke Azkar</span>
+        <div class="status-dots">
+          <button class="dot-btn ${eDone?'on-green':''}" data-zp="evening" data-zd="done" title="Padh Liye"></button>
+          <button class="dot-btn ${!eDone?'on-red':''}" data-zp="evening" data-zd="baaki" title="Padhna Baaki Hai"></button>
         </div>
       </div>`;
   }
