@@ -1184,11 +1184,14 @@ function showDayDetail(date){
       </div>
     </div>
   </div>`;
+  const todaySched = isSameDay(date, now) ? buildSchedule(date) : null;
   FIVE.forEach(p=>{
     const st = getStatus(date,p);
+    const pSched = todaySched && todaySched.find(x=>x.key===p);
+    const notStarted = pSched && now < pSched.start;
     html += `<div class="row">
       <span style="text-transform:capitalize">${icon(p)} ${p}</span>
-      <div class="status-dots">
+      <div class="status-dots"${notStarted ? ' style="opacity:0.3; pointer-events:none;" title="Abhi shuru nahi hua"' : ''}>
         <button class="dot-btn ${st==='green'?'on-green':''}" data-prayer="${p}" data-set="green" title="Padh Li"></button>
         <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-prayer="${p}" data-set="yellow" title="Qaza Padhi"></button>
         <button class="dot-btn ${st==='red'?'on-red':''}" data-prayer="${p}" data-set="red" title="Baaki Hai"></button>
