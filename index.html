@@ -147,7 +147,7 @@ body{
 .time-row .clock{ font-size:13px; font-variant-numeric:tabular-nums; flex:0 0 auto; color:var(--sub); letter-spacing:-0.3px; white-space:nowrap; }
 .time-row .clock .arrow{ opacity:0.5; margin:0 2px; font-size:12px; }
 .time-row.current .clock{ color:var(--text); font-weight:600; }
-.time-row .meterWrap{ flex:1; height:7px; background:var(--meterBg); border-radius:4px; overflow:hidden; position:relative; display:flex; justify-content:flex-end; margin-left:10px; max-width:70%; }
+.time-row .meterWrap{ flex:1; height:7px; background:var(--meterBg); border-radius:4px; overflow:hidden; position:relative; display:flex; justify-content:flex-end; margin-left:10px; max-width:70%; min-width:16px; }
 .time-row .meterFill{ height:100%; border-radius:4px; width:0%; background:var(--accent); }
 .time-row.fard .name{ color:var(--fard); }
 .time-row.nafil .name{ color:var(--nafil); }
@@ -172,16 +172,17 @@ body{
   background:var(--card); box-shadow:0 0 0 1px var(--line) inset;
   padding:11px 10px; border-radius:12px; min-height:52px;
 }
-#timesList.namaz-mode .time-row .name{ font-size:14.5px; font-weight:700; flex-basis:168px; }
-#timesList.namaz-mode .pIcon{ font-size:18px; }
-#timesList.namaz-mode .time-row .clock{ font-size:13.5px; }
-#timesList.namaz-mode .time-row.current{ background:var(--card2); box-shadow:0 0 0 2px var(--accent) inset, 0 3px 14px rgba(0,0,0,0.14); padding:16px 12px; min-height:78px; }
-#timesList.namaz-mode .time-row.current .name{ font-size:16.5px; font-weight:800; }
-#timesList.namaz-mode .time-row.current .pIcon{ font-size:22px; }
+#timesList.namaz-mode .time-row .name{ font-size:13.5px; font-weight:700; flex-basis:116px; }
+#timesList.namaz-mode .pIcon{ font-size:17px; }
+#timesList.namaz-mode .time-row .clock{ font-size:12px; }
+#timesList.namaz-mode .time-row.current{ background:var(--card2); box-shadow:0 0 0 2px var(--accent) inset, 0 3px 14px rgba(0,0,0,0.14); padding:14px 10px; min-height:74px; }
+#timesList.namaz-mode .time-row.current .name{ font-size:15px; font-weight:800; }
+#timesList.namaz-mode .time-row.current .pIcon{ font-size:20px; }
 #timesList.namaz-mode .time-row.future{ opacity:0.6; box-shadow:none; }
 #timesList.namaz-mode .time-row.past{ box-shadow:none; }
-#timesList.namaz-mode .dot-btn{ width:23px; height:23px; }
-#timesList.namaz-mode .meterWrap{ height:8px; }
+#timesList.namaz-mode .dot-btn{ width:19px; height:19px; }
+#timesList.namaz-mode .dotsSlot{ flex-basis:63px; }
+#timesList.namaz-mode .meterWrap{ height:8px; min-width:20px; margin-left:6px; }
 #timesList.namaz-mode .remainText{ font-size:13.5px; }
 .dotsSlot{ flex:0 0 76px; display:flex; align-items:center; justify-content:flex-end; }
 .status-dots{ flex:0 0 auto; display:flex; gap:3px; margin-left:auto; }
