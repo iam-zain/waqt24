@@ -1534,11 +1534,23 @@ function showDayDetail(date){
   const morningPf = state.tasbeeh.profiles.find(p=>p.id==='morning');
   const eveningPf = state.tasbeeh.profiles.find(p=>p.id==='evening');
   if(morningPf && eveningPf){
-    const mProg = zikrProfileProgress(date, morningPf);
-    const eProg = zikrProfileProgress(date, eveningPf);
+    const mDone = isZikrProfileComplete(date, morningPf);
+    const eDone = isZikrProfileComplete(date, eveningPf);
     html += `<div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin:12px 0 6px;">📿 Zikr / Tasbeeh</div>
-      <div class="row"><span>🌅 Subah ke Azkar</span><b>${mProg.done===mProg.total && mProg.total>0 ? '✅' : `${mProg.done}/${mProg.total}`}</b></div>
-      <div class="row"><span>🌇 Shaam ke Azkar</span><b>${eProg.done===eProg.total && eProg.total>0 ? '✅' : `${eProg.done}/${eProg.total}`}</b></div>`;
+      <div style="margin-bottom:12px;">
+        <div style="font-size:12.5px; font-weight:600; margin-bottom:6px;">🌅 Subah ke Azkar</div>
+        <div class="chip-row">
+          <div class="chip ${mDone?'prayed':''}" data-zp="morning" data-zd="done">Padh Liye</div>
+          <div class="chip ${!mDone?'pending':''}" data-zp="morning" data-zd="baaki">Padhna Baaki Hai</div>
+        </div>
+      </div>
+      <div style="margin-bottom:4px;">
+        <div style="font-size:12.5px; font-weight:600; margin-bottom:6px;">🌇 Shaam ke Azkar</div>
+        <div class="chip-row">
+          <div class="chip ${eDone?'prayed':''}" data-zp="evening" data-zd="done">Padh Liye</div>
+          <div class="chip ${!eDone?'pending':''}" data-zp="evening" data-zd="baaki">Padhna Baaki Hai</div>
+        </div>
+      </div>`;
   }
   det.innerHTML = html;
   det.querySelector('#calShareBtn').onclick = ()=> openShareChooser(calDetailDate);
@@ -1563,6 +1575,17 @@ function showDayDetail(date){
       renderCalendar(true);
       showDayDetail(calDetailDate);
       renderHome();
+    };
+  });
+  det.querySelectorAll('[data-zp]').forEach(el=>{
+    el.onclick = ()=>{
+      const pf = state.tasbeeh.profiles.find(p=>p.id===el.dataset.zp);
+      if(!pf) return;
+      const day = getZikrDay(calDetailDate, pf.id, true);
+      const wantDone = el.dataset.zd === 'done';
+      pf.items.forEach(it=>{ day[it.id] = wantDone ? it.target : 0; });
+      saveState();
+      showDayDetail(calDetailDate);
     };
   });
 }
