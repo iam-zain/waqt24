@@ -303,6 +303,80 @@ body{
 .theme-row button{ flex:1; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12.5px; font-weight:600; }
 .theme-row button.active{ background:var(--accent); color:#08131c; border-color:var(--accent); }
 
+/* ---------- STREAK STRIP (Home) ---------- */
+.streak-strip{ margin:0 14px 10px; padding:10px 14px; background:var(--card); border-radius:12px; border:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.streak-strip .streakMain{ font-size:13px; font-weight:700; color:var(--text); }
+.streak-strip .streakMain b{ color:var(--accent); }
+.streak-strip .streakBest{ font-size:11.5px; color:var(--sub); font-weight:600; }
+
+/* ---------- BACKUP ---------- */
+.backup-btn{ width:100%; padding:13px; border-radius:12px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13.5px; font-weight:700; margin-bottom:12px; cursor:pointer; }
+.backup-btn.secondary{ background:var(--card2); color:var(--text); }
+.backup-note{ font-size:11.5px; color:var(--sub); line-height:1.6; margin:6px 0 16px; }
+
+/* ---------- TASBEEH ---------- */
+.tasbeeh-count{ text-align:center; font-size:56px; font-weight:800; margin:6px 0 2px; color:var(--tasbeehColor, var(--accent)); }
+.tasbeeh-target{ text-align:center; font-size:12.5px; color:var(--sub); margin-bottom:16px; }
+.tasbeeh-tap{ width:180px; height:180px; margin:0 auto; border-radius:50%; background:var(--tasbeehColor, var(--accent)); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; color:#fff; border:none; cursor:pointer; box-shadow:0 8px 24px color-mix(in srgb, var(--tasbeehColor, var(--accent)) 40%, transparent); user-select:none; }
+.tasbeeh-tap:active{ transform:scale(0.96); }
+.tasbeeh-row{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; padding:16px 0 4px; }
+.tasbeeh-target-btn{ padding:8px 14px; border-radius:20px; border:1px solid var(--line); background:var(--card2); font-size:12.5px; font-weight:700; color:var(--sub); cursor:pointer; }
+.tasbeeh-target-btn.active{ background:var(--accent); color:var(--fardText); border-color:var(--accent); }
+.tasbeeh-swatches{ display:flex; gap:10px; justify-content:center; padding:10px 0; flex-wrap:wrap; }
+.tasbeeh-swatch{ width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer; }
+.tasbeeh-swatch.active{ border-color:var(--text); }
+.tasbeeh-shape-row{ display:flex; gap:8px; justify-content:center; padding:10px 0 4px; }
+.tasbeeh-shape-btn{ padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); font-size:15px; color:var(--sub); cursor:pointer; }
+.tasbeeh-shape-btn.active{ background:var(--accent); color:var(--fardText); border-color:var(--accent); }
+.tasbeeh-actions{ display:flex; gap:8px; padding:16px 0 4px; }
+.tasbeeh-actions button{ flex:1; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
+.tasbeeh-sound-toggle{ display:flex; align-items:center; justify-content:center; gap:8px; padding:6px 0 2px; font-size:12.5px; color:var(--sub); font-weight:600; }
+.tasbeeh-design-row{ display:flex; gap:8px; justify-content:center; padding:4px 0 14px; }
+.tasbeeh-design-btn{ padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); font-size:12px; font-weight:700; color:var(--sub); cursor:pointer; }
+.tasbeeh-design-btn.active{ background:var(--accent); color:var(--fardText); border-color:var(--accent); }
+.beads-track{ touch-action:none; cursor:grab; user-select:none; }
+.beads-track.h{ display:flex; gap:9px; overflow:hidden; padding:20px 4px; justify-content:flex-start; }
+.beads-track.v{ display:flex; flex-direction:column; gap:9px; overflow:hidden; height:220px; padding:4px 20px; align-items:center; justify-content:flex-start; margin:0 auto; width:60px; }
+.bead{ width:22px; height:22px; border-radius:50%; background:var(--card2); border:1px solid var(--line); flex:0 0 auto; }
+.bead.active{ background:var(--tasbeehColor, var(--accent)); box-shadow:0 0 10px var(--tasbeehColor, var(--accent)); }
+.beads-hint{ text-align:center; font-size:11px; color:var(--sub); margin-top:6px; }
+
+/* ---------- ZIKR PROFILES ---------- */
+.zikr-profile-card{ display:flex; align-items:center; gap:12px; padding:14px; margin-bottom:10px; border-radius:12px; border:1px solid var(--line); background:var(--card); cursor:pointer; }
+.zikr-profile-card .zpName{ font-size:14px; font-weight:700; margin-bottom:4px; }
+.zikr-profile-card .zpProgWrap{ flex:1; height:6px; background:var(--meterBg); border-radius:3px; overflow:hidden; }
+.zikr-profile-card .zpProgWrap div{ height:100%; background:var(--green); }
+.zikr-profile-card .zpCount{ font-size:11.5px; color:var(--sub); font-weight:600; margin-top:5px; }
+.zikr-item-card{ padding:12px 14px; margin-bottom:9px; border-radius:12px; border:1px solid var(--line); background:var(--card); display:flex; align-items:center; gap:12px; }
+.zikr-item-card.done{ border-color:var(--green); }
+.zikr-item-card .ziName{ font-size:13.5px; font-weight:700; }
+.zikr-item-card .ziCount{ font-size:11.5px; color:var(--sub); margin-top:3px; }
+.zikr-item-card .ziBar{ width:60px; height:6px; background:var(--meterBg); border-radius:3px; overflow:hidden; margin-top:6px; }
+.zikr-item-card .ziBar div{ height:100%; background:var(--green); }
+.zikr-item-tap{ width:44px; height:44px; border-radius:50%; background:var(--accent); color:var(--fardText); font-size:18px; font-weight:800; border:none; cursor:pointer; flex:0 0 auto; }
+.zikr-item-del{ width:26px; height:26px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--sub); font-size:13px; cursor:pointer; flex:0 0 auto; }
+.zikr-add-row{ display:flex; gap:8px; margin-top:6px; }
+.zikr-add-row input{ flex:1; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; }
+.zikr-add-row input.target{ flex:0 0 66px; }
+.zikr-add-row button{ padding:10px 14px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-weight:700; font-size:13px; cursor:pointer; }
+
+/* ---------- ISLAMIC MONTHS / EVENTS ---------- */
+.hmonth-card{ display:flex; align-items:center; gap:12px; padding:13px; margin-bottom:9px; border-radius:12px; border:1px solid var(--line); background:var(--card); }
+.hmonth-card .hIcon{ width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:19px; flex:0 0 auto; }
+.hmonth-card .hNo{ font-size:11px; color:var(--sub); font-weight:700; }
+.hmonth-card .hName{ font-size:14px; font-weight:700; color:var(--text); }
+.hmonth-card.current{ border-color:var(--accent); }
+.hevent-card{ padding:13px; margin-bottom:9px; border-radius:12px; border:1px solid var(--line); background:var(--card); }
+.hevent-card .heName{ font-size:14px; font-weight:700; margin-bottom:3px; }
+.hevent-card .heHijri{ font-size:11.5px; color:var(--sub); margin-bottom:2px; }
+.hevent-card .heGreg{ font-size:12px; color:var(--accent); font-weight:700; }
+.hconv-box{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:14px; }
+.hconv-box label{ display:block; font-size:11.5px; color:var(--sub); font-weight:600; margin-bottom:6px; }
+.hconv-box input, .hconv-box select{ width:100%; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13.5px; margin-bottom:10px; }
+.hconv-row{ display:flex; gap:8px; }
+.hconv-row > div{ flex:1; }
+.hconv-result{ text-align:center; font-size:14.5px; font-weight:700; color:var(--accent); padding:6px 0 2px; }
+
 .search-bar{ margin:10px 14px; }
 .search-bar input{
   width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--line);
@@ -429,6 +503,7 @@ body{
         </div>
       </div>
     </div>
+    <div class="streak-strip" id="streakStrip"></div>
     <div class="times-list" id="timesList"></div>
   </div>
 
@@ -459,6 +534,7 @@ body{
       <div class="more-item" data-open="hadees"><div class="ic">📖</div><div class="lbl">Hadees Dekhiye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="quiz"><div class="ic">🧠</div><div class="lbl">Quiz Kheliye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="qibla"><div class="ic">🧭</div><div class="lbl">Qibla ka Rukh</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="tasbeeh"><div class="ic">📿</div><div class="lbl">Tasbeeh Counter</div><div class="chev">›</div></div>
       <div class="more-item" data-open="stats"><div class="ic">📊</div><div class="lbl">Mera Report</div><div class="chev">›</div></div>
     </div>
   </div>
@@ -478,10 +554,19 @@ body{
         <button id="fmt24">24 Ghante</button>
         <button id="fmt12">12 Ghante (AM/PM)</button>
       </div>
-      <div class="section-title">Explore</div>
+      <div class="section-title">Islamic Calendar</div>
     </div>
     <div class="more-list" style="padding-top:0;">
       <div class="more-item" data-open="ramzan" id="ramzanMoreItem"><div class="ic">☪️</div><div class="lbl">Ramzan<span class="lblSub" id="ramzanSub"></span></div><div class="chev">›</div></div>
+      <div class="more-item" data-open="hijriConv"><div class="ic">🔁</div><div class="lbl">Tareekh Badlein (Hijri)</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="islamicMonths"><div class="ic">🌙</div><div class="lbl">Islami Mahine</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="islamicEvents"><div class="ic">🎉</div><div class="lbl">Islami Tehwaar</div><div class="chev">›</div></div>
+    </div>
+    <div class="pad" style="padding-bottom:0;">
+      <div class="section-title">Explore</div>
+    </div>
+    <div class="more-list" style="padding-top:0;">
+      <div class="more-item" data-open="backup"><div class="ic">💾</div><div class="lbl">Data Backup</div><div class="chev">›</div></div>
       <div class="more-item" data-open="settings"><div class="ic">⚙️</div><div class="lbl">Settings</div><div class="chev">›</div></div>
       <div class="more-item" data-open="about"><div class="ic">ℹ️</div><div class="lbl">Iske Baare Mein</div><div class="chev">›</div></div>
     </div>
@@ -846,6 +931,7 @@ let state = {
   tarabih: {},
   namazMode: false,
   notif: { fard:true, nafil:false, meal:true, special:false },
+  tasbeeh: { count:0, target:33, color:'#3fae6a', shape:'●', sound:true, design:'tap', profiles:null, daily:{} },
 };
 function loadState(){
   try{ const s = JSON.parse(localStorage.getItem('namazState')||'{}'); state = Object.assign(state, s); }catch(e){}
@@ -908,6 +994,32 @@ document.getElementById('fmt12').onclick=()=>{state.timeFormat='12';saveState();
 applyTimeFormat();
 
 /* ============================================================
+   STREAK TRACKER — consecutive days with all 5 Farz prayed on time
+   ============================================================ */
+function isAllFiveGreen(d){
+  return FIVE.every(p=> getStatus(d,p)==='green');
+}
+function computeStreak(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  let current = 0;
+  // today counts only once all 5 are already marked green; otherwise start counting from yesterday
+  let cursor = isAllFiveGreen(today) ? today : new Date(today.getTime()-86400000);
+  while(isAllFiveGreen(cursor)){
+    current++;
+    cursor = new Date(cursor.getTime()-86400000);
+  }
+  // scan back up to ~2 years to find the best-ever streak
+  let best = current, run = 0;
+  let d = new Date(today);
+  for(let i=0;i<730;i++){
+    if(isAllFiveGreen(d)){ run++; if(run>best) best = run; }
+    else{ run = 0; }
+    d = new Date(d.getTime()-86400000);
+  }
+  return { current, best };
+}
+
+/* ============================================================
    TAB NAVIGATION
    ============================================================ */
 document.querySelectorAll('.tab-btn').forEach(btn=>{
@@ -944,6 +1056,14 @@ function renderHome(){
   document.getElementById('hijriDate').textContent = hd.day+' '+hd.monthName+' '+hd.year+' AH';
   document.getElementById('cityLabel').textContent = '📍 ' + state.location.name + (state.location.state ? ', '+state.location.state : '');
   document.getElementById('namazModeBtn').classList.toggle('on', state.namazMode);
+
+  const streakEl = document.getElementById('streakStrip');
+  if(streakEl){
+    const { current, best } = computeStreak();
+    streakEl.innerHTML = current>0
+      ? `<div class="streakMain">🔥 Lagatar <b>${current}</b> din 5 Farz waqt par</div><div class="streakBest">Best: ${best} din</div>`
+      : `<div class="streakMain">🔥 Aaj se streak shuru karein</div><div class="streakBest">Best: ${best} din</div>`;
+  }
 
   const sched = buildSchedule(viewDate);
   const listEl = document.getElementById('timesList');
@@ -1411,6 +1531,16 @@ function showDayDetail(date){
       </div>
     </div>`;
   });
+  ensureZikrProfiles();
+  const morningPf = state.tasbeeh.profiles.find(p=>p.id==='morning');
+  const eveningPf = state.tasbeeh.profiles.find(p=>p.id==='evening');
+  if(morningPf && eveningPf){
+    const mProg = zikrProfileProgress(date, morningPf);
+    const eProg = zikrProfileProgress(date, eveningPf);
+    html += `<div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin:12px 0 6px;">📿 Zikr / Tasbeeh</div>
+      <div class="row"><span>🌅 Subah ke Azkar</span><b>${mProg.done===mProg.total && mProg.total>0 ? '✅' : `${mProg.done}/${mProg.total}`}</b></div>
+      <div class="row"><span>🌇 Shaam ke Azkar</span><b>${eProg.done===eProg.total && eProg.total>0 ? '✅' : `${eProg.done}/${eProg.total}`}</b></div>`;
+  }
   det.innerHTML = html;
   det.querySelector('#calShareBtn').onclick = ()=> openShareChooser(calDetailDate);
   const afterCalEdit = ()=>{ renderCalendar(true); showDayDetail(calDetailDate); renderHome(); };
@@ -1699,39 +1829,39 @@ const QUIZ_BANK = [
   ["Hazrat Muhammad ﷺ ke walid ka naam kya tha?", ["Abu Talib","Abdullah","Abdul Muttalib","Hamzah"], 1, "Seerat-un-Nabi ﷺ"],
   ["Hazrat Muhammad ﷺ ki walida ka naam kya tha?", ["Aaminah","Halimah","Khadijah","Safiyyah"], 0, "Seerat-un-Nabi ﷺ"],
   ["Hazrat Muhammad ﷺ ke dada ka naam kya tha?", ["Abu Sufyan","Abu Talib","Abdul Muttalib","Abdullah"], 2, "Seerat-un-Nabi ﷺ"],
-  ["Hazrat Muhammad ﷺ ko bachpan mein kis mashhoor daai ne doodh pilaya?", ["Hazrat Aaminah RA","Hazrat Halimah Sa'diyah RA","Hazrat Khadijah RA","Hazrat Hafsah RA"], 1, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ ko bachpan mein kis mashhoor daai ne doodh pilaya?", ["Hazrat Aaminah رَضِيَ ٱللَّٰهُ عَنْهَا","Hazrat Halimah Sa'diyah رَضِيَ ٱللَّٰهُ عَنْهَا","Hazrat Khadijah رَضِيَ ٱللَّٰهُ عَنْهَا","Hazrat Hafsah رَضِيَ ٱللَّٰهُ عَنْهَا"], 1, "Seerat-un-Nabi ﷺ"],
   ["Hazrat Muhammad ﷺ par pehli wahi kis jagah nazil hui?", ["Ghaar-e-Saur","Ghaar-e-Hira","Masjid-e-Nabawi","Kaaba ke andar"], 1, "Seerat-un-Nabi ﷺ"],
-  ["Pehli wahi kis Farishte ke zariye aayi?", ["Mikaeel AS","Israfeel AS","Jibreel AS","Izraeel AS"], 2, "Seerat-un-Nabi ﷺ"],
+  ["Pehli wahi kis Farishte ke zariye aayi?", ["Mikaeel عَلَيْهِ ٱلسَّلَامُ","Israfeel عَلَيْهِ ٱلسَّلَامُ","Jibreel عَلَيْهِ ٱلسَّلَامُ","Izraeel عَلَيْهِ ٱلسَّلَامُ"], 2, "Seerat-un-Nabi ﷺ"],
   ["Pehli wahi mein sabse pehla lafz kya tha?", ["Qul","Iqra","Allahu Akbar","Alhamdulillah"], 1, "Seerat-un-Nabi ﷺ"],
-  ["Hazrat Muhammad ﷺ ki pehli biwi ka naam kya tha?", ["Hazrat Aishah RA","Hazrat Hafsah RA","Hazrat Khadijah RA","Hazrat Sawdah RA"], 2, "Seerat-un-Nabi ﷺ"],
-  ["Hijrat ke waqt Hazrat Muhammad ﷺ aur Hazrat Abu Bakr RA ne kis ghaar mein panah li?", ["Ghaar-e-Hira","Ghaar-e-Saur","Ghaar-e-Uhud","Ghaar-e-Badr"], 1, "Seerat-un-Nabi ﷺ"],
+  ["Hazrat Muhammad ﷺ ki pehli biwi ka naam kya tha?", ["Hazrat Aishah رَضِيَ ٱللَّٰهُ عَنْهَا","Hazrat Hafsah رَضِيَ ٱللَّٰهُ عَنْهَا","Hazrat Khadijah رَضِيَ ٱللَّٰهُ عَنْهَا","Hazrat Sawdah رَضِيَ ٱللَّٰهُ عَنْهَا"], 2, "Seerat-un-Nabi ﷺ"],
+  ["Hijrat ke waqt Hazrat Muhammad ﷺ aur Hazrat Abu Bakr رَضِيَ ٱللَّٰهُ عَنْهُ ne kis ghaar mein panah li?", ["Ghaar-e-Hira","Ghaar-e-Saur","Ghaar-e-Uhud","Ghaar-e-Badr"], 1, "Seerat-un-Nabi ﷺ"],
   ["Hazrat Muhammad ﷺ ne Makkah se kis shehar ki taraf Hijrat farmayi?", ["Taif","Kufa","Madinah","Basra"], 2, "Seerat-un-Nabi ﷺ"],
   ["Hazrat Muhammad ﷺ ko Allah Ta'ala ne kis haisiyat se bheja?", ["Sirf Makkah ke logon ke liye","Sirf Arab ke liye","Tamam jahano ke liye Rasool","Sirf ek qabeelay ke liye"], 2, "Seerat-un-Nabi ﷺ"],
   ["Mi'raj ke mauqe par ummat ko kaunsi aham ibadat mili?", ["Zakat","Hajj","Panch waqt ki namaz","Qurbani"], 2, "Seerat-un-Nabi ﷺ"],
   ["Hazrat Muhammad ﷺ ka mashhoor laqab \"Al-Ameen\" kis sifat ki wajah se tha?", ["Bahaduri","Amanatdari aur bharosemandi","Tijarat","Ilm"], 1, "Seerat-un-Nabi ﷺ"],
   ["Hazrat Muhammad ﷺ ki zindagi hamare liye kis cheez ka namoona hai?", ["Sirf tijarat ka","Sirf jang ka","Behtareen uswah aur namoona-e-zindagi ka","Sirf safar ka"], 2, "Seerat-un-Nabi ﷺ"],
-  ["Sabse pehle Nabi kaun the?", ["Hazrat Nuh AS","Hazrat Adam AS","Hazrat Ibrahim AS","Hazrat Musa AS"], 1, "Ambiya-e-Kiram AS"],
-  ["Hazrat Nuh AS ki qaum kis cheez mein mubtala thi?", ["Shirk aur but-parasti","Tijarat","Ilm","Safar"], 0, "Ambiya-e-Kiram AS"],
-  ["Hazrat Ibrahim AS ko kis cheez ki wajah se aag mein dala gaya tha?", ["Tijarat ki wajah se","But-parasti ki mukhalifat ki wajah se","Safar ki wajah se","Hukumat ki wajah se"], 1, "Ambiya-e-Kiram AS"],
-  ["Hazrat Ibrahim AS ke bete kaun the jin ke saath Qurbani ka waqia mashhoor hai?", ["Hazrat Yusuf AS","Hazrat Ismail AS","Hazrat Yahya AS","Hazrat Yunus AS"], 1, "Ambiya-e-Kiram AS"],
-  ["Hazrat Musa AS ko Allah Ta'ala ne kis Fir'aun ki taraf bheja?", ["Namrud","Jalut","Fir'aun","Qarun"], 2, "Ambiya-e-Kiram AS"],
-  ["Hazrat Musa AS ka mashhoor mojiza kya tha?", ["Chand ka shaqq hona","Asa ka Allah ke hukm se mojiza dikhana","Murde zinda karna","Kashti banana"], 1, "Ambiya-e-Kiram AS"],
-  ["Hazrat Yunus AS ko kis makhlooq ne nigal liya tha?", ["Sher","Saamp","Machhli","Oont"], 2, "Ambiya-e-Kiram AS"],
-  ["Hazrat Yusuf AS ki zindagi ka ek aham sabaq kya hai?", ["Hasad aur badla","Sabr, paakdamni aur maafi","Duniya ki muhabbat","Takabbur"], 1, "Ambiya-e-Kiram AS"],
-  ["Hazrat Ayyub AS kis sifat ki wajah se mashhoor hain?", ["Sabr","Tijarat","Saltanat","Safar"], 0, "Ambiya-e-Kiram AS"],
-  ["Hazrat Isa AS ki walida ka naam kya tha?", ["Maryam AS","Aaminah RA","Hajra AS","Asiyah RA"], 0, "Ambiya-e-Kiram AS"],
+  ["Sabse pehle Nabi kaun the?", ["Hazrat Nuh عَلَيْهِ ٱلسَّلَامُ","Hazrat Adam عَلَيْهِ ٱلسَّلَامُ","Hazrat Ibrahim عَلَيْهِ ٱلسَّلَامُ","Hazrat Musa عَلَيْهِ ٱلسَّلَامُ"], 1, "Ambiya-e-Kiram AS"],
+  ["Hazrat Nuh عَلَيْهِ ٱلسَّلَامُ ki qaum kis cheez mein mubtala thi?", ["Shirk aur but-parasti","Tijarat","Ilm","Safar"], 0, "Ambiya-e-Kiram AS"],
+  ["Hazrat Ibrahim عَلَيْهِ ٱلسَّلَامُ ko kis cheez ki wajah se aag mein dala gaya tha?", ["Tijarat ki wajah se","But-parasti ki mukhalifat ki wajah se","Safar ki wajah se","Hukumat ki wajah se"], 1, "Ambiya-e-Kiram AS"],
+  ["Hazrat Ibrahim عَلَيْهِ ٱلسَّلَامُ ke bete kaun the jin ke saath Qurbani ka waqia mashhoor hai?", ["Hazrat Yusuf عَلَيْهِ ٱلسَّلَامُ","Hazrat Ismail عَلَيْهِ ٱلسَّلَامُ","Hazrat Yahya عَلَيْهِ ٱلسَّلَامُ","Hazrat Yunus عَلَيْهِ ٱلسَّلَامُ"], 1, "Ambiya-e-Kiram AS"],
+  ["Hazrat Musa عَلَيْهِ ٱلسَّلَامُ ko Allah Ta'ala ne kis Fir'aun ki taraf bheja?", ["Namrud","Jalut","Fir'aun","Qarun"], 2, "Ambiya-e-Kiram AS"],
+  ["Hazrat Musa عَلَيْهِ ٱلسَّلَامُ ka mashhoor mojiza kya tha?", ["Chand ka shaqq hona","Asa ka Allah ke hukm se mojiza dikhana","Murde zinda karna","Kashti banana"], 1, "Ambiya-e-Kiram AS"],
+  ["Hazrat Yunus عَلَيْهِ ٱلسَّلَامُ ko kis makhlooq ne nigal liya tha?", ["Sher","Saamp","Machhli","Oont"], 2, "Ambiya-e-Kiram AS"],
+  ["Hazrat Yusuf عَلَيْهِ ٱلسَّلَامُ ki zindagi ka ek aham sabaq kya hai?", ["Hasad aur badla","Sabr, paakdamni aur maafi","Duniya ki muhabbat","Takabbur"], 1, "Ambiya-e-Kiram AS"],
+  ["Hazrat Ayyub عَلَيْهِ ٱلسَّلَامُ kis sifat ki wajah se mashhoor hain?", ["Sabr","Tijarat","Saltanat","Safar"], 0, "Ambiya-e-Kiram AS"],
+  ["Hazrat Isa عَلَيْهِ ٱلسَّلَامُ ki walida ka naam kya tha?", ["Maryam عَلَيْهَا ٱلسَّلَامُ","Aaminah رَضِيَ ٱللَّٰهُ عَنْهَا","Hajra عَلَيْهِ ٱلسَّلَامُ","Asiyah رَضِيَ ٱللَّٰهُ عَنْهَا"], 0, "Ambiya-e-Kiram AS"],
   ["Mashhoor Hadith \"A'maal ka daromadar niyyat par hai\" kis cheez ki ahmiyat batati hai?", ["Maal","Niyyat","Shohrat","Nasab"], 1, "Ahadees aur Sunnat"],
   ["Sahih Bukhari kis Imam ne jama ki?", ["Imam Abu Hanifah RH","Imam Malik RH","Imam Bukhari RH","Imam Shafi'i RH"], 2, "Ahadees aur Sunnat"],
   ["Hadith mein ek Musalman ke liye doosre Musalman ke saath kaisa rawayya sikhaya gaya hai?", ["Zulm aur sakhti","Bhai-chara aur husn-e-sulook","Hasad","Takabbur"], 1, "Ahadees aur Sunnat"],
   ["Nabi ﷺ ne achhe akhlaaq ke bare mein kya ahmiyat batayi?", ["Achhe akhlaaq ki koi ahmiyat nahi","Achhe akhlaaq Islam ki aham taleemat mein se hain","Sirf ameeron ke liye zaroori hain","Sirf ghar ke andar zaroori hain"], 1, "Ahadees aur Sunnat"],
   ["Sunnat par amal karne ka bunyadi maqsad kya hai?", ["Sirf riwayat nibhani","Nabi ﷺ ke tareeqe ko apni zindagi mein apnana aur Allah ki raza hasil karna","Logon ko impress karna","Sirf dusron ko dikhana"], 1, "Ahadees aur Sunnat"],
-  ["Hazrat Abu Bakr Siddiq RA ka mashhoor laqab kya hai?", ["Al-Farooq","As-Siddiq","Zul-Noorain","Saifullah"], 1, "Sahaba-e-Kiram RA"],
-  ["Hazrat Umar Farooq RA ka mashhoor laqab kya hai?", ["As-Siddiq","Zul-Noorain","Al-Farooq","Saifullah"], 2, "Sahaba-e-Kiram RA"],
-  ["Hazrat Usman Ghani RA ko \"Zun-Noorain\" kyun kaha jata hai?", ["Unke paas do talwarein thin","Unhon ne do martaba Hijrat ki","Unhon ne Nabi ﷺ ki do sahibzadiyon se nikah kiya","Unhon ne do jangon mein shirkat ki"], 2, "Sahaba-e-Kiram RA"],
-  ["Hazrat Ali RA Nabi ﷺ ke kya lagte the?", ["Sirf dost","Chacha-zad bhai aur damad","Mamoo","Khalazad bhai"], 1, "Sahaba-e-Kiram RA"],
+  ["Hazrat Abu Bakr Siddiq رَضِيَ ٱللَّٰهُ عَنْهُ ka mashhoor laqab kya hai?", ["Al-Farooq","As-Siddiq","Zul-Noorain","Saifullah"], 1, "Sahaba-e-Kiram RA"],
+  ["Hazrat Umar Farooq رَضِيَ ٱللَّٰهُ عَنْهُ ka mashhoor laqab kya hai?", ["As-Siddiq","Zul-Noorain","Al-Farooq","Saifullah"], 2, "Sahaba-e-Kiram RA"],
+  ["Hazrat Usman Ghani رَضِيَ ٱللَّٰهُ عَنْهُ ko \"Zun-Noorain\" kyun kaha jata hai?", ["Unke paas do talwarein thin","Unhon ne do martaba Hijrat ki","Unhon ne Nabi ﷺ ki do sahibzadiyon se nikah kiya","Unhon ne do jangon mein shirkat ki"], 2, "Sahaba-e-Kiram RA"],
+  ["Hazrat Ali رَضِيَ ٱللَّٰهُ عَنْهُ Nabi ﷺ ke kya lagte the?", ["Sirf dost","Chacha-zad bhai aur damad","Mamoo","Khalazad bhai"], 1, "Sahaba-e-Kiram RA"],
   ["Muhajireen se murad kaun hain?", ["Madinah ke log","Makkah se Madinah Hijrat karne wale Musalman","Sirf Sahaba-e-Kiram ke bachche","Madinah ke Ansar"], 1, "Sahaba-e-Kiram RA"],
   ["Ansar se murad kaun hain?", ["Makkah ke tajir","Madinah ke woh Musalman jinhon ne Muhajireen ki madad ki","Sirf Quraysh","Makkah ke mushrik"], 1, "Sahaba-e-Kiram RA"],
-  ["Nabi ﷺ ke Sahaba RA ka adab karna Musalman ke liye kaisa rawayya hai?", ["Be-adabi","Muhabbat aur ehtram","Sirf siyasi rawayya","Koi ahmiyat nahi"], 1, "Sahaba-e-Kiram RA"],
+  ["Nabi ﷺ ke Sahaba رَضِيَ ٱللَّٰهُ عَنْهُ ka adab karna Musalman ke liye kaisa rawayya hai?", ["Be-adabi","Muhabbat aur ehtram","Sirf siyasi rawayya","Koi ahmiyat nahi"], 1, "Sahaba-e-Kiram RA"],
   ["Hadith ke mutabiq ek doosre ko hadiya dene ka kya asar hota hai?", ["Dushmani badhti hai","Muhabbat badhti hai","Maal kam hota hai","Rishtay khatam hote hain"], 1, "Sahaba-e-Kiram RA"],
   ["Hadiya dene mein bunyadi taur par kis cheez ka khayal rakhna chahiye?", ["Sirf mehnga hona","Ikhlas aur achhi niyyat","Logon ko dikhana","Badle mein zaroor kuch lena"], 1, "Sahaba-e-Kiram RA"],
   ["Kisi ko hadiya dene ke baad us par ehsan jatana kaisa rawayya hai?", ["Achha akhlaaq","Pasandeeda","Ehsan jatane se bachna chahiye","Zaroori hai"], 2, "Sahaba-e-Kiram RA"],
@@ -1744,7 +1874,7 @@ const QUIZ_BANK = [
   ["Qabr ke azaab se bachne ke liye Musalman ko kya karna chahiye?", ["Sirf maal jama karna","Iman, nek aamaal aur Allah se panah mangna","Sirf lambi zindagi ki dua karna","Sirf duniyaavi ilm hasil karna"], 1, "Akhirat"],
   ["Aakhirat ki zindagi ke bare mein Islam kya sikhata hai?", ["Woh sirf kuch saalon ki hogi","Woh hamesha rehne wali zindagi hai","Woh duniya se chhoti hogi","Uska koi hisaab nahi"], 1, "Akhirat"],
   ["Jahannam se bachne ke liye sabse bunyadi cheez kya hai?", ["Sirf duniyaavi daulat","Iman aur Allah ki ita'at","Shohrat","Nasab"], 1, "Akhirat"],
-  ["Jahannam ka darwaza rakhne wale Farishte ka naam kya hai?", ["Jibreel AS","Malik","Mikaeel AS","Israfeel AS"], 1, "Akhirat"],
+  ["Jahannam ka darwaza rakhne wale Farishte ka naam kya hai?", ["Jibreel عَلَيْهِ ٱلسَّلَامُ","Malik","Mikaeel عَلَيْهِ ٱلسَّلَامُ","Israfeel عَلَيْهِ ٱلسَّلَامُ"], 1, "Akhirat"],
   ["Jannat ke darwaze ki nigraani karne wale Farishte ko riwayat mein kis naam se jana jata hai?", ["Malik","Ridwan","Jibreel","Munkar"], 1, "Akhirat"],
   ["Jannat mein sabse buland darja kis naam se mashhoor hai?", ["Adn","Na'eem","Firdaws","Ma'wa"], 2, "Akhirat"],
   ["Tasneem kya hai?", ["Jahannam ka ek darwaza","Jannat ka ek chashma","Ek Farishta","Qayamat ka ek din"], 1, "Akhirat"],
@@ -2192,6 +2322,26 @@ function renderStats(){
       <div class="stats-row"><span>✅ Saare 5 Farz wale din</span><b>${allFiveDays} / ${pastDays.length}</b></div>
       <div class="stats-row"><span>☪️ Roza rakhe gaye din</span><b>${rozaDays}</b></div>
     </div>
+
+    ${(()=>{
+      ensureZikrProfiles();
+      const morning = state.tasbeeh.profiles.find(p=>p.id==='morning');
+      const evening = state.tasbeeh.profiles.find(p=>p.id==='evening');
+      if(!morning || !evening) return '';
+      let mDone=0, eDone=0;
+      pastDays.forEach(d=>{
+        if(isZikrProfileComplete(d, morning)) mDone++;
+        if(isZikrProfileComplete(d, evening)) eDone++;
+      });
+      const mMissed = pastDays.length - mDone, eMissed = pastDays.length - eDone;
+      return `<div class="ramzan-card" style="margin:0 0 14px;">
+        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">📿 Azkar ka Report</div>
+        <div class="stats-row"><span>🌅 Subah Azkar mukammal din</span><b>${mDone} / ${pastDays.length}</b></div>
+        <div class="stats-row"><span>🌇 Shaam Azkar mukammal din</span><b>${eDone} / ${pastDays.length}</b></div>
+        <div class="stats-row"><span>⚠️ Subah Azkar miss hue din</span><b>${mMissed}</b></div>
+        <div class="stats-row"><span>⚠️ Shaam Azkar miss hue din</span><b>${eMissed}</b></div>
+      </div>`;
+    })()}
   `;
   document.getElementById('statsGregBtn').onclick = ()=>{ statsCal='greg'; renderStats(); };
   document.getElementById('statsHijriBtn').onclick = ()=>{ statsCal='hijri'; renderStats(); };
@@ -2281,6 +2431,489 @@ function renderQibla(){
   };
 }
 
+/* ============================================================
+   DATA BACKUP — export/import the whole localStorage state as JSON
+   ============================================================ */
+function renderBackup(){
+  document.getElementById('detailTitle').textContent = 'Data Backup';
+  document.getElementById('detailBody').innerHTML = `
+    <div class="backup-note">Aapka poora data (namaz status, roza, tasbeeh, settings) sirf isi phone/browser mein save hota hai. Backup file bana kar rakh lein taake data delete/lost na ho, ya naye phone mein restore kar sakein.</div>
+    <button class="backup-btn" id="backupExportBtn">⬇️ Backup Banayein (Export)</button>
+    <button class="backup-btn secondary" id="backupImportBtn">⬆️ Backup Restore Karein (Import)</button>
+    <input type="file" id="backupFileInput" accept="application/json" style="display:none;">
+    <div class="backup-note" id="backupMsg"></div>
+  `;
+  document.getElementById('backupExportBtn').onclick = ()=>{
+    const payload = { app:'waqt24', exportedAt: new Date().toISOString(), state };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const d = new Date();
+    a.href = url;
+    a.download = `waqt24-backup-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    document.getElementById('backupMsg').textContent = 'Backup file download ho gayi hai.';
+  };
+  const fileInput = document.getElementById('backupFileInput');
+  document.getElementById('backupImportBtn').onclick = ()=> fileInput.click();
+  fileInput.onchange = ()=>{
+    const file = fileInput.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const payload = JSON.parse(reader.result);
+        const incoming = payload && payload.state ? payload.state : payload;
+        if(!incoming || typeof incoming !== 'object') throw new Error('bad file');
+        state = Object.assign(state, incoming);
+        saveState();
+        renderHome(); renderCalendar(); updateRamzanLock();
+        document.getElementById('backupMsg').textContent = '✅ Data restore ho gaya hai.';
+      }catch(e){
+        document.getElementById('backupMsg').textContent = '❌ Yeh file valid backup nahi hai.';
+      }
+    };
+    reader.readAsText(file);
+  };
+}
+
+/* ============================================================
+   TASBEEH COUNTER
+   ============================================================ */
+const TASBEEH_TARGETS = [33, 34, 99, 100];
+const TASBEEH_COLORS = ['#3fae6a','#3a9bd9','#d4a72c','#c85a4a','#a074e0','#e0729a'];
+const TASBEEH_SHAPES = ['●','◆','■','★'];
+const TASBEEH_DESIGNS = [ {id:'tap', label:'🔘 Button'}, {id:'beadsH', label:'📿 Beads ↔'}, {id:'beadsV', label:'📿 Beads ↕'} ];
+let tasbeehAudioCtx = null;
+function tasbeehBeep(){
+  if(!state.tasbeeh.sound) return;
+  try{
+    if(!tasbeehAudioCtx) tasbeehAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = tasbeehAudioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 0.12);
+  }catch(e){}
+}
+function tasbeehTick(){
+  const t = state.tasbeeh;
+  t.count++;
+  saveState();
+  if(navigator.vibrate) navigator.vibrate(t.count % t.target === 0 ? [40,40,80] : 15);
+  tasbeehBeep();
+  const countEl = document.querySelector('.tasbeeh-count');
+  if(countEl) countEl.textContent = t.count;
+  const beadCount = 11;
+  const activeIdx = t.count % beadCount;
+  document.querySelectorAll('.beads-track .bead').forEach((b,i)=> b.classList.toggle('active', i===activeIdx));
+}
+function setupBeadsDrag(track, isH){
+  let last = null, dist = 0;
+  const threshold = 30;
+  const getPos = (e)=> isH ? e.clientX : e.clientY;
+  track.addEventListener('pointerdown', (e)=>{ track.setPointerCapture(e.pointerId); last = getPos(e); dist = 0; });
+  track.addEventListener('pointermove', (e)=>{
+    if(last===null) return;
+    const pos = getPos(e);
+    const delta = isH ? (last - pos) : (pos - last); // right-to-left for H, bottom-to-top for V
+    last = pos;
+    if(delta>0){
+      dist += delta;
+      while(dist >= threshold){ dist -= threshold; tasbeehTick(); }
+    }
+  });
+  const end = ()=>{ last = null; dist = 0; };
+  track.addEventListener('pointerup', end);
+  track.addEventListener('pointercancel', end);
+  track.addEventListener('pointerleave', end);
+}
+function renderTasbeeh(){
+  document.getElementById('detailTitle').textContent = 'Tasbeeh Counter';
+  const t = state.tasbeeh;
+  const beadCount = 11;
+  const activeIdx = t.count % beadCount;
+  const beadsHtml = Array.from({length:beadCount}).map((_,i)=>`<div class="bead ${i===activeIdx?'active':''}"></div>`).join('');
+  const tapAreaHtml = t.design==='beadsH'
+    ? `<div class="beads-track h" id="beadsTrack" style="--tasbeehColor:${t.color};">${beadsHtml}</div><div class="beads-hint">Ungli se right se left swipe karein 👉👈</div>`
+    : t.design==='beadsV'
+    ? `<div class="beads-track v" id="beadsTrack" style="--tasbeehColor:${t.color};">${beadsHtml}</div><div class="beads-hint">Ungli se neeche se upar swipe karein 👆</div>`
+    : `<button class="tasbeeh-tap" id="tasbeehTapBtn" style="--tasbeehColor:${t.color};">${t.shape}<br>TAP</button>`;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="tasbeeh-count" style="--tasbeehColor:${t.color};">${t.count}</div>
+    <div class="tasbeeh-target">Target: ${t.target}</div>
+    ${tapAreaHtml}
+    <div class="tasbeeh-design-row" id="tasbeehDesignRow">
+      ${TASBEEH_DESIGNS.map(d=>`<button class="tasbeeh-design-btn ${t.design===d.id?'active':''}" data-design="${d.id}">${d.label}</button>`).join('')}
+    </div>
+    <div class="tasbeeh-row" id="tasbeehTargetRow">
+      ${TASBEEH_TARGETS.map(n=>`<button class="tasbeeh-target-btn ${t.target===n?'active':''}" data-target="${n}">${n}</button>`).join('')}
+      <button class="tasbeeh-target-btn ${!TASBEEH_TARGETS.includes(t.target)?'active':''}" id="tasbeehCustomBtn">Custom${!TASBEEH_TARGETS.includes(t.target)?` (${t.target})`:''}</button>
+    </div>
+    <div class="tasbeeh-swatches" id="tasbeehSwatches">
+      ${TASBEEH_COLORS.map(c=>`<div class="tasbeeh-swatch ${t.color===c?'active':''}" data-color="${c}" style="background:${c};"></div>`).join('')}
+    </div>
+    ${t.design==='tap' ? `<div class="tasbeeh-shape-row" id="tasbeehShapes">
+      ${TASBEEH_SHAPES.map(s=>`<button class="tasbeeh-shape-btn ${t.shape===s?'active':''}" data-shape="${s}">${s}</button>`).join('')}
+    </div>` : ''}
+    <div class="tasbeeh-sound-toggle">
+      🔊 Awaaz
+      <div class="roza-mini ${t.sound?'on':''}" id="tasbeehSoundBtn"><div class="roza-mini-knob"></div></div>
+    </div>
+    <div class="tasbeeh-actions">
+      <button id="tasbeehResetBtn">↺ Reset Karein</button>
+    </div>
+
+    <div class="section-title" style="padding:22px 0 10px;">Zikr Profiles</div>
+    <div id="zikrProfileList"></div>
+    <div class="tasbeeh-actions" style="margin-top:4px;">
+      <button id="zikrAddProfileBtn">+ Naya Profile Banayein</button>
+    </div>
+  `;
+  if(t.design==='tap'){
+    document.getElementById('tasbeehTapBtn').onclick = tasbeehTick;
+  } else {
+    setupBeadsDrag(document.getElementById('beadsTrack'), t.design==='beadsH');
+  }
+  document.getElementById('tasbeehResetBtn').onclick = ()=>{ t.count = 0; saveState(); renderTasbeeh(); };
+  document.getElementById('tasbeehSoundBtn').onclick = ()=>{ t.sound = !t.sound; saveState(); renderTasbeeh(); };
+  document.getElementById('tasbeehDesignRow').querySelectorAll('[data-design]').forEach(btn=>{
+    btn.onclick = ()=>{ t.design = btn.dataset.design; saveState(); renderTasbeeh(); };
+  });
+  document.getElementById('tasbeehTargetRow').querySelectorAll('[data-target]').forEach(btn=>{
+    btn.onclick = ()=>{ t.target = parseInt(btn.dataset.target); saveState(); renderTasbeeh(); };
+  });
+  document.getElementById('tasbeehCustomBtn').onclick = ()=>{
+    const val = prompt('Custom target darj karein:', t.target);
+    const n = parseInt(val);
+    if(n && n>0){ t.target = n; saveState(); renderTasbeeh(); }
+  };
+  document.getElementById('tasbeehSwatches').querySelectorAll('[data-color]').forEach(el=>{
+    el.onclick = ()=>{ t.color = el.dataset.color; saveState(); renderTasbeeh(); };
+  });
+  const shapeRow = document.getElementById('tasbeehShapes');
+  if(shapeRow) shapeRow.querySelectorAll('[data-shape]').forEach(el=>{
+    el.onclick = ()=>{ t.shape = el.dataset.shape; saveState(); renderTasbeeh(); };
+  });
+  renderZikrProfileList();
+  document.getElementById('zikrAddProfileBtn').onclick = ()=>{
+    const name = prompt('Naye profile ka naam darj karein (jaise "Safar ki Duaein"):');
+    if(!name || !name.trim()) return;
+    ensureZikrProfiles();
+    const id = 'p'+Date.now();
+    state.tasbeeh.profiles.push({ id, name:name.trim(), builtin:false, items:[] });
+    saveState();
+    renderZikrProfile(id);
+  };
+}
+
+/* ============================================================
+   ZIKR PROFILES (Morning/Evening Azkar + custom) — attached to Tasbeeh
+   ============================================================ */
+const ZIKR_SUGGESTIONS = ["Subhan Allah","Alhamdulillah","Allahu Akbar","La ilaha illallah","Durud Sharif","Astaghfar","Teesra Kalima","Auzu Billah","Bismillah","La hawla wala quwwata illa billah","Ayat-ul-Kursi","Surah Ikhlas","Surah Al-Falaq","Surah An-Naas","Subhanallahi wa bihamdihi"];
+function defaultAzkarItems(){
+  return [
+    {id:'subhanallah', name:'Subhan Allah', target:99},
+    {id:'alhamdulillah', name:'Alhamdulillah', target:99},
+    {id:'allahuakbar', name:'Allahu Akbar', target:100},
+    {id:'durud', name:'Durud Sharif', target:100},
+    {id:'astaghfar', name:'Astaghfar', target:100},
+    {id:'kalima3', name:'Teesra Kalima', target:100},
+  ];
+}
+function ensureZikrProfiles(){
+  if(!state.tasbeeh.profiles){
+    state.tasbeeh.profiles = [
+      { id:'morning', name:'Subah ke Azkar', builtin:true, dtype:'morning', items:defaultAzkarItems() },
+      { id:'evening', name:'Shaam ke Azkar', builtin:true, dtype:'evening', items:defaultAzkarItems() },
+    ];
+    saveState();
+  }
+  if(!state.tasbeeh.daily) state.tasbeeh.daily = {};
+}
+function getZikrDay(date, profileId, create){
+  ensureZikrProfiles();
+  const k = dayKey(date);
+  if(!state.tasbeeh.daily[k]) state.tasbeeh.daily[k] = {};
+  if(!state.tasbeeh.daily[k][profileId]){
+    if(!create) return {};
+    state.tasbeeh.daily[k][profileId] = {};
+  }
+  return state.tasbeeh.daily[k][profileId];
+}
+function zikrProfileProgress(date, profile){
+  const day = getZikrDay(date, profile.id, false);
+  let done = 0;
+  profile.items.forEach(it=>{ if((day[it.id]||0) >= it.target) done++; });
+  return { done, total: profile.items.length };
+}
+function isZikrProfileComplete(date, profile){
+  const p = zikrProfileProgress(date, profile);
+  return p.total>0 && p.done===p.total;
+}
+function renderZikrProfileList(){
+  ensureZikrProfiles();
+  const wrap = document.getElementById('zikrProfileList');
+  if(!wrap) return;
+  const today = new Date();
+  wrap.innerHTML = state.tasbeeh.profiles.map(pf=>{
+    const { done, total } = zikrProfileProgress(today, pf);
+    const pct = total>0 ? Math.round(done/total*100) : 0;
+    return `<div class="zikr-profile-card" data-pf="${pf.id}">
+      <div style="flex:1;">
+        <div class="zpName">${pf.name}</div>
+        <div class="zpProgWrap"><div style="width:${pct}%;"></div></div>
+        <div class="zpCount">${done}/${total} zikr mukammal (aaj)</div>
+      </div>
+      <div class="chev">›</div>
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('[data-pf]').forEach(el=>{
+    el.onclick = ()=> renderZikrProfile(el.dataset.pf);
+  });
+}
+function renderZikrProfile(profileId){
+  ensureZikrProfiles();
+  const profile = state.tasbeeh.profiles.find(p=>p.id===profileId);
+  if(!profile) return renderTasbeeh();
+  document.getElementById('detailTitle').textContent = profile.name;
+  const today = new Date();
+  const day = getZikrDay(today, profile.id, true);
+  saveState();
+  document.getElementById('detailBody').innerHTML = `
+    <button id="zikrBackToTasbeeh" style="margin-bottom:14px; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer;">‹ Tasbeeh Counter</button>
+    <div id="zikrItemsWrap"></div>
+    <div class="zikr-add-row">
+      <input type="text" id="zikrNewName" list="zikrSuggestList" placeholder="Naya zikr/dua ka naam">
+      <datalist id="zikrSuggestList">${ZIKR_SUGGESTIONS.map(s=>`<option value="${s}">`).join('')}</datalist>
+      <input type="number" id="zikrNewTarget" class="target" placeholder="Target" value="100">
+      <button id="zikrAddItemBtn">+ Add</button>
+    </div>
+    ${!profile.builtin ? `<div class="tasbeeh-actions" style="margin-top:16px;"><button id="zikrDeleteProfileBtn">🗑️ Profile Delete Karein</button></div>` : ''}
+  `;
+  function renderItems(){
+    const w = document.getElementById('zikrItemsWrap');
+    w.innerHTML = profile.items.map(it=>{
+      const c = day[it.id]||0;
+      const done = c>=it.target;
+      const pct = Math.min(100, Math.round(c/it.target*100));
+      return `<div class="zikr-item-card ${done?'done':''}" data-item="${it.id}">
+        <div style="flex:1;">
+          <div class="ziName">${done?'✅ ':''}${it.name}</div>
+          <div class="ziCount">${c} / ${it.target}</div>
+          <div class="ziBar"><div style="width:${pct}%;"></div></div>
+        </div>
+        <button class="zikr-item-tap" data-tap="${it.id}">+1</button>
+        <button class="zikr-item-del" data-del="${it.id}">✕</button>
+      </div>`;
+    }).join('');
+    w.querySelectorAll('[data-tap]').forEach(btn=>{
+      btn.onclick = ()=>{
+        const id = btn.dataset.tap;
+        day[id] = (day[id]||0) + 1;
+        saveState();
+        if(navigator.vibrate) navigator.vibrate(10);
+        renderItems();
+      };
+    });
+    w.querySelectorAll('[data-del]').forEach(btn=>{
+      btn.onclick = ()=>{
+        const id = btn.dataset.del;
+        profile.items = profile.items.filter(it=>it.id!==id);
+        delete day[id];
+        saveState();
+        renderItems();
+      };
+    });
+  }
+  renderItems();
+  document.getElementById('zikrBackToTasbeeh').onclick = renderTasbeeh;
+  document.getElementById('zikrAddItemBtn').onclick = ()=>{
+    const nameEl = document.getElementById('zikrNewName');
+    const targetEl = document.getElementById('zikrNewTarget');
+    const name = nameEl.value.trim();
+    const target = parseInt(targetEl.value) || 100;
+    if(!name) return;
+    const id = 'z'+Date.now();
+    profile.items.push({ id, name, target });
+    saveState();
+    nameEl.value=''; targetEl.value='100';
+    renderItems();
+  };
+  const delProfileBtn = document.getElementById('zikrDeleteProfileBtn');
+  if(delProfileBtn) delProfileBtn.onclick = ()=>{
+    if(!confirm('Yeh profile delete karein?')) return;
+    state.tasbeeh.profiles = state.tasbeeh.profiles.filter(p=>p.id!==profile.id);
+    saveState();
+    renderTasbeeh();
+  };
+}
+
+/* ============================================================
+   HIJRI <-> GREGORIAN CONVERTER
+   ============================================================ */
+function jdToGregorian(jd){
+  jd = Math.floor(jd + 0.5);
+  const a = jd + 32044;
+  const b = Math.floor((4*a+3)/146097);
+  const c = a - Math.floor(146097*b/4);
+  const d = Math.floor((4*c+3)/1461);
+  const e = c - Math.floor(1461*d/4);
+  const m = Math.floor((5*e+2)/153);
+  const day = e - Math.floor((153*m+2)/5) + 1;
+  const month = m + 3 - 12*Math.floor(m/10);
+  const year = 100*b + d - 4800 + Math.floor(m/10);
+  return new Date(year, month-1, day);
+}
+function hijriToGregorian(day, month, year){
+  // Approximate the Gregorian date from mean Hijri year/month lengths, then correct
+  // by searching nearby days against gregorianToHijri() so the two functions always
+  // round-trip exactly (avoids drift from an independently-derived inverse formula).
+  const epochJD = julianDate(622,7,19) - 1; // 1 Muharram 1 AH (Gregorian proleptic)
+  const approxDays = (year-1)*354.36667 + (month-1)*29.53056 + (day-1);
+  const guess = jdToGregorian(epochJD + approxDays);
+  for(let delta=-20; delta<=20; delta++){
+    const cand = new Date(guess.getFullYear(), guess.getMonth(), guess.getDate()+delta);
+    const hd = gregorianToHijri(cand);
+    if(hd.day===day && hd.month===month && hd.year===year) return cand;
+  }
+  return guess;
+}
+function renderHijriConverter(){
+  document.getElementById('detailTitle').textContent = 'Tareekh Badlein';
+  const todayG = new Date();
+  const todayH = gregorianToHijri(todayG);
+  document.getElementById('detailBody').innerHTML = `
+    <div class="hconv-box">
+      <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">Gregorian → Hijri</div>
+      <label>Tareekh chunein</label>
+      <input type="date" id="convGregInput" value="${todayG.getFullYear()}-${String(todayG.getMonth()+1).padStart(2,'0')}-${String(todayG.getDate()).padStart(2,'0')}">
+      <div class="hconv-result" id="convGregResult"></div>
+    </div>
+    <div class="hconv-box">
+      <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">Hijri → Gregorian</div>
+      <div class="hconv-row">
+        <div><label>Din</label><input type="number" id="convHDay" min="1" max="30" value="${todayH.day}"></div>
+        <div><label>Mahina</label>
+          <select id="convHMonth">${HIJRI_MONTHS.map((m,i)=>`<option value="${i+1}" ${i+1===todayH.month?'selected':''}>${m}</option>`).join('')}</select>
+        </div>
+        <div><label>Saal (AH)</label><input type="number" id="convHYear" value="${todayH.year}"></div>
+      </div>
+      <div class="hconv-result" id="convHResult"></div>
+    </div>
+  `;
+  const gInput = document.getElementById('convGregInput');
+  const gResult = document.getElementById('convGregResult');
+  function updateGregToHijri(){
+    const parts = gInput.value.split('-').map(Number);
+    if(parts.length!==3 || parts.some(isNaN)){ gResult.textContent=''; return; }
+    const d = new Date(parts[0], parts[1]-1, parts[2]);
+    const hd = gregorianToHijri(d);
+    gResult.textContent = `${hd.day} ${hd.monthName} ${hd.year} AH`;
+  }
+  gInput.oninput = updateGregToHijri;
+  updateGregToHijri();
+
+  const hDay = document.getElementById('convHDay'), hMonth = document.getElementById('convHMonth'), hYear = document.getElementById('convHYear');
+  const hResult = document.getElementById('convHResult');
+  function updateHijriToGreg(){
+    const day = parseInt(hDay.value), month = parseInt(hMonth.value), year = parseInt(hYear.value);
+    if(!day || !month || !year){ hResult.textContent=''; return; }
+    const g = hijriToGregorian(day, month, year);
+    hResult.textContent = `${DOW[g.getDay()]}, ${g.getDate()} ${MON[g.getMonth()]} ${g.getFullYear()}`;
+  }
+  [hDay, hMonth, hYear].forEach(el=> el.oninput = updateHijriToGreg);
+  updateHijriToGreg();
+}
+
+/* ============================================================
+   ISLAMIC MONTHS
+   ============================================================ */
+const HIJRI_MONTH_META = [
+  {icon:'🕋', color:'#8e6fd6'}, {icon:'🌫️', color:'#5c8fc9'}, {icon:'🌟', color:'#d4a72c'},
+  {icon:'🌙', color:'#3a9bd9'}, {icon:'❄️', color:'#4fb0c9'}, {icon:'❄️', color:'#4f9fc9'},
+  {icon:'🌌', color:'#6a6fd6'}, {icon:'🌒', color:'#a074e0'}, {icon:'☪️', color:'#3fae6a'},
+  {icon:'🎉', color:'#e0729a'}, {icon:'🕊️', color:'#5cbf8a'}, {icon:'🕋', color:'#c85a4a'},
+];
+function renderIslamicMonths(){
+  document.getElementById('detailTitle').textContent = 'Islami Mahine';
+  const curH = gregorianToHijri(new Date());
+  document.getElementById('detailBody').innerHTML = `
+    <div class="backup-note">Hijri (Qamri) saal ke 12 mahine, chand ki bunyaad par.</div>
+    ${HIJRI_MONTHS.map((name,i)=>{
+      const meta = HIJRI_MONTH_META[i];
+      const isCurrent = curH.month===i+1;
+      return `<div class="hmonth-card ${isCurrent?'current':''}">
+        <div class="hIcon" style="background:color-mix(in srgb, ${meta.color} 22%, transparent); color:${meta.color};">${meta.icon}</div>
+        <div style="flex:1;">
+          <div class="hNo">Mahina ${i+1}${isCurrent?' · Abhi chal raha hai':''}</div>
+          <div class="hName">${name}</div>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+/* ============================================================
+   ISLAMIC EVENTS
+   ============================================================ */
+function hijriYearStart(hYear){
+  return hijriToGregorian(1, 1, hYear);
+}
+function findLastFridayInHijriMonth(hMonth, hYear){
+  let d = hijriToGregorian(1, hMonth, hYear);
+  let lastFriday = null;
+  for(let i=0;i<31;i++){
+    const hd = gregorianToHijri(d);
+    if(hd.month!==hMonth || hd.year!==hYear) break;
+    if(d.getDay()===5) lastFriday = new Date(d);
+    d = new Date(d.getTime()+86400000);
+  }
+  return lastFriday;
+}
+function nextOccurrence(computeForYear){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const curH = gregorianToHijri(today);
+  let g = computeForYear(curH.year);
+  if(g < today) g = computeForYear(curH.year+1);
+  return g;
+}
+function islamicEventsList(){
+  const events = [
+    { name:"Islami Naya Saal (1 Muharram)", h:(y)=>hijriToGregorian(1,1,y) },
+    { name:"Ashura (10 Muharram)", h:(y)=>hijriToGregorian(10,1,y) },
+    { name:"Eid Milad-un-Nabi ﷺ (12 Rabi-ul-Awwal)", h:(y)=>hijriToGregorian(12,3,y) },
+    { name:"Shab-e-Bara'at (15 Sha'ban)", h:(y)=>hijriToGregorian(15,8,y) },
+    { name:"Ramzan Shuru (1 Ramzan)", h:(y)=>hijriToGregorian(1,9,y) },
+    { name:"Shab-e-Qadr (27 Ramzan, ehtimaan)", h:(y)=>hijriToGregorian(27,9,y) },
+    { name:"Jumat-ul-Vida (Ramzan ki aakhri Jumu'ah)", h:(y)=> findLastFridayInHijriMonth(9,y) },
+    { name:"Eid-ul-Fitr (1 Shawwal)", h:(y)=>hijriToGregorian(1,10,y) },
+    { name:"Eid-ul-Azha / Baqr-Eid (10 Zul-Hijjah)", h:(y)=>hijriToGregorian(10,12,y) },
+  ];
+  return events.map(e=>{
+    const g = nextOccurrence(e.h);
+    const hd = gregorianToHijri(g);
+    return { name:e.name, greg:g, hijri:`${hd.day} ${hd.monthName} ${hd.year} AH` };
+  }).sort((a,b)=> a.greg - b.greg);
+}
+function renderIslamicEvents(){
+  document.getElementById('detailTitle').textContent = 'Islami Tehwaar';
+  const events = islamicEventsList();
+  document.getElementById('detailBody').innerHTML = `
+    <div class="backup-note">Aane wale ahem Islami tareekhein (Hijri arithmetic hisaab se; chaand dikhne par 1 din aage-peeche ho sakta hai).</div>
+    ${events.map(e=>`<div class="hevent-card">
+      <div class="heName">${e.name}</div>
+      <div class="heHijri">${e.hijri}</div>
+      <div class="heGreg">📅 ${DOW[e.greg.getDay()]}, ${e.greg.getDate()} ${MON[e.greg.getMonth()]} ${e.greg.getFullYear()}</div>
+    </div>`).join('')}
+  `;
+}
+
 function daysUntilRamzan(){
   let d = new Date(); d.setHours(0,0,0,0);
   for(let i=0;i<380;i++){
@@ -2336,6 +2969,11 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='ramzan') renderMoreRamzan();
     else if(which==='qibla') renderQibla();
     else if(which==='stats') renderStats();
+    else if(which==='tasbeeh') renderTasbeeh();
+    else if(which==='hijriConv') renderHijriConverter();
+    else if(which==='islamicMonths') renderIslamicMonths();
+    else if(which==='islamicEvents') renderIslamicEvents();
+    else if(which==='backup') renderBackup();
     else if(which==='settings') renderMoreSettings();
     else if(which==='about') renderMoreAbout();
     document.getElementById('detailOverlay').classList.add('active');
