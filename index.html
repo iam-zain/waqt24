@@ -1027,7 +1027,7 @@ function renderHome(){
 document.getElementById('dateBack').onclick=()=>{ homeViewDate = new Date(homeViewDate.getTime()-24*3600000); renderHome(); };
 document.getElementById('dateFwd').onclick=()=>{ homeViewDate = new Date(homeViewDate.getTime()+24*3600000); renderHome(); };
 document.getElementById('dateCenterBtn').onclick=()=>{ homeViewDate = new Date(); renderHome(); };
-document.getElementById('namazModeBtn').onclick=()=>{ state.namazMode = !state.namazMode; saveState(); renderHome(); };
+document.getElementById('namazModeBtn').onclick=()=>{ state.namazMode = !state.namazMode; saveState(); lastLiveKey = null; renderHome(); };
 
 function bulkSetFive(status, date, onDone){
   const now = new Date();
