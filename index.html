@@ -304,6 +304,9 @@ body{
 .theme-row button.active{ background:var(--accent); color:#08131c; border-color:var(--accent); }
 
 /* ---------- STREAK STRIP (Home) ---------- */
+.app-toast{ position:fixed; left:50%; bottom:90px; transform:translateX(-50%) translateY(12px); background:var(--card2); color:var(--text); border:1px solid var(--line); padding:10px 18px; border-radius:20px; font-size:12.5px; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,0.3); opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:999; }
+.app-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
 .streak-strip{ margin:0 14px 10px; padding:10px 14px; background:var(--card); border-radius:12px; border:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:10px; }
 .streak-strip .streakMain{ font-size:13px; font-weight:700; color:var(--text); }
 .streak-strip .streakMain b{ color:var(--accent); }
@@ -999,6 +1002,20 @@ applyTimeFormat();
 function isAllFiveGreen(d){
   return FIVE.every(p=> getStatus(d,p)==='green');
 }
+let toastTimer = null;
+function showToast(msg){
+  let el = document.getElementById('appToast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'appToast';
+    el.className = 'app-toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> el.classList.remove('show'), 1400);
+}
 function computeStreak(){
   const today = new Date(); today.setHours(0,0,0,0);
   let current = 0;
@@ -1536,13 +1553,15 @@ function showDayDetail(date){
   if(morningPf && eveningPf){
     const mDone = isZikrProfileComplete(date, morningPf);
     const eDone = isZikrProfileComplete(date, eveningPf);
+    const mMarked = zikrDayMarkedBaaki(date, morningPf.id);
+    const eMarked = zikrDayMarkedBaaki(date, eveningPf.id);
     html += `<div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin:12px 0 6px;">📿 Zikr / Tasbeeh</div>
       <div class="row">
         <span>🌅 Subah ke Azkar</span>
         <div style="display:flex; align-items:center; gap:8px;">
           <div class="status-dots">
             <button class="dot-btn ${mDone?'on-green':''}" data-zp="morning" data-zd="done" title="Padh Liye"></button>
-            <button class="dot-btn ${!mDone?'on-red':''}" data-zp="morning" data-zd="baaki" title="Padhna Baaki Hai"></button>
+            <button class="dot-btn ${(!mDone && mMarked)?'on-red':''}" data-zp="morning" data-zd="baaki" title="Padhna Baaki Hai"></button>
           </div>
           <button class="bulk-btn bulk-clear" data-zp="morning" data-zreset="1" title="Reset Karein" style="width:24px; height:24px; font-size:11px;">↺</button>
         </div>
@@ -1552,7 +1571,7 @@ function showDayDetail(date){
         <div style="display:flex; align-items:center; gap:8px;">
           <div class="status-dots">
             <button class="dot-btn ${eDone?'on-green':''}" data-zp="evening" data-zd="done" title="Padh Liye"></button>
-            <button class="dot-btn ${!eDone?'on-red':''}" data-zp="evening" data-zd="baaki" title="Padhna Baaki Hai"></button>
+            <button class="dot-btn ${(!eDone && eMarked)?'on-red':''}" data-zp="evening" data-zd="baaki" title="Padhna Baaki Hai"></button>
           </div>
           <button class="bulk-btn bulk-clear" data-zp="evening" data-zreset="1" title="Reset Karein" style="width:24px; height:24px; font-size:11px;">↺</button>
         </div>
@@ -1588,9 +1607,19 @@ function showDayDetail(date){
       const pf = state.tasbeeh.profiles.find(p=>p.id===el.dataset.zp);
       if(!pf) return;
       const day = getZikrDay(calDetailDate, pf.id, true);
+      if(el.dataset.zreset){
+        pf.items.forEach(it=>{ day[it.id] = 0; });
+        delete day.__marked;
+        saveState();
+        showToast(pf.name + ' reset ho gaya');
+        showDayDetail(calDetailDate);
+        return;
+      }
       const wantDone = el.dataset.zd === 'done';
       pf.items.forEach(it=>{ day[it.id] = wantDone ? it.target : 0; });
+      day.__marked = true;
       saveState();
+      showToast(pf.name + ': ' + (wantDone ? 'Padh Liye' : 'Padhna Baaki Hai'));
       showDayDetail(calDetailDate);
     };
   });
@@ -2541,7 +2570,8 @@ function tasbeehTick(){
   const activeIdx = t.count % beadCount;
   document.querySelectorAll('.beads-track .bead').forEach((b,i)=> b.classList.toggle('active', i===activeIdx));
 }
-function setupBeadsDrag(track, isH){
+function setupBeadsDrag(track, isH, onTick){
+  const tick = onTick || tasbeehTick;
   let activePointerId = null, last = null, dist = 0;
   const threshold = 42; // a deliberate finger-width swipe per bead, avoids over-sensitive counting
   const getPos = (e)=> isH ? e.clientX : e.clientY;
@@ -2561,7 +2591,7 @@ function setupBeadsDrag(track, isH){
     last = pos;
     if(delta>0){
       dist += delta;
-      if(dist >= threshold){ dist -= threshold; tasbeehTick(); } // at most one bead per move event, however far it jumped
+      if(dist >= threshold){ dist -= threshold; tick(); } // at most one bead per move event, however far it jumped
     } else if(delta<0){
       dist = Math.max(0, dist + delta*0.5); // reverse wobble bleeds off progress instead of reversing count
     }
@@ -2697,6 +2727,10 @@ function isZikrProfileComplete(date, profile){
   const p = zikrProfileProgress(date, profile);
   return p.total>0 && p.done===p.total;
 }
+function zikrDayMarkedBaaki(date, profileId){
+  const k = dayKey(date);
+  return !!(state.tasbeeh.daily[k] && state.tasbeeh.daily[k][profileId] && state.tasbeeh.daily[k][profileId].__marked);
+}
 function renderZikrProfileList(){
   ensureZikrProfiles();
   const wrap = document.getElementById('zikrProfileList');
@@ -2746,7 +2780,7 @@ function renderZikrProfile(profileId){
       const done = c>=it.target;
       const pct = Math.min(100, Math.round(c/it.target*100));
       return `<div class="zikr-item-card ${done?'done':''}" data-item="${it.id}">
-        <div style="flex:1;">
+        <div style="flex:1; cursor:pointer;" data-open="${it.id}">
           <div class="ziName">${done?'✅ ':''}${it.name}</div>
           <div class="ziCount">${c} / ${it.target}</div>
           <div class="ziBar"><div style="width:${pct}%;"></div></div>
@@ -2763,6 +2797,9 @@ function renderZikrProfile(profileId){
         if(navigator.vibrate) navigator.vibrate(10);
         renderItems();
       };
+    });
+    w.querySelectorAll('[data-open]').forEach(el=>{
+      el.onclick = ()=> renderZikrItemCounter(profile.id, el.dataset.open);
     });
     w.querySelectorAll('[data-del]').forEach(btn=>{
       btn.onclick = ()=>{
@@ -2802,6 +2839,60 @@ function renderZikrProfile(profileId){
     saveState();
     renderZikrProfile(profile.id);
   };
+}
+
+/* Full-screen tap/beads counting animation for a single zikr/dua inside a profile — mirrors the main Tasbeeh Counter but counts against that item's own saved progress. */
+function renderZikrItemCounter(profileId, itemId){
+  const profile = state.tasbeeh.profiles.find(p=>p.id===profileId);
+  if(!profile) return renderTasbeeh();
+  const item = profile.items.find(i=>i.id===itemId);
+  if(!item) return renderZikrProfile(profileId);
+  const day = getZikrDay(new Date(), profileId, true);
+  const t = state.tasbeeh;
+  const beadCount = 11;
+  document.getElementById('detailTitle').textContent = item.name;
+
+  function draw(){
+    const c = day[item.id]||0;
+    const activeIdx = c % beadCount;
+    const beadsHtml = Array.from({length:beadCount}).map((_,i)=>`<div class="bead ${i===activeIdx?'active':''}"></div>`).join('');
+    const tapAreaHtml = t.design==='beadsH'
+      ? `<div class="beads-track h" id="beadsTrack" style="--tasbeehColor:${t.color};">${beadsHtml}</div><div class="beads-hint">Ungli se right se left swipe karein 👉👈</div>`
+      : t.design==='beadsV'
+      ? `<div class="beads-track v" id="beadsTrack" style="--tasbeehColor:${t.color};">${beadsHtml}</div><div class="beads-hint">Ungli se neeche se upar swipe karein 👆</div>`
+      : `<button class="tasbeeh-tap" id="tasbeehTapBtn" style="--tasbeehColor:${t.color};">${t.shape}<br>TAP</button>`;
+    document.getElementById('detailBody').innerHTML = `
+      <button id="zikrItemBackBtn" style="margin-bottom:14px; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer;">‹ ${profile.name}</button>
+      <div class="tasbeeh-count" style="--tasbeehColor:${t.color};">${c}</div>
+      <div class="tasbeeh-target">Target: ${item.target}</div>
+      ${tapAreaHtml}
+      <div class="tasbeeh-actions" style="margin-top:20px;">
+        <button id="zikrItemResetBtn">↺ Yeh Zikr Reset Karein</button>
+      </div>
+    `;
+    document.getElementById('zikrItemBackBtn').onclick = ()=> renderZikrProfile(profileId);
+    document.getElementById('zikrItemResetBtn').onclick = ()=>{ day[item.id] = 0; saveState(); draw(); };
+    const tick = ()=>{
+      const nc = (day[item.id]||0) + 1;
+      day[item.id] = nc;
+      saveState();
+      if(navigator.vibrate) navigator.vibrate(nc % item.target === 0 ? [40,40,80] : 15);
+      tasbeehBeep();
+      const countEl = document.querySelector('.tasbeeh-count');
+      if(countEl) countEl.textContent = nc;
+      const newActiveIdx = nc % beadCount;
+      document.querySelectorAll('.beads-track .bead').forEach((b,i)=> b.classList.toggle('active', i===newActiveIdx));
+      if(nc >= item.target){
+        setTimeout(()=>{ renderZikrProfile(profileId); }, 500); // let the user see the final count/feel the vibration, then auto-return
+      }
+    };
+    if(t.design==='tap'){
+      document.getElementById('tasbeehTapBtn').onclick = tick;
+    } else {
+      setupBeadsDrag(document.getElementById('beadsTrack'), t.design==='beadsH', tick);
+    }
+  }
+  draw();
 }
 
 /* ============================================================
