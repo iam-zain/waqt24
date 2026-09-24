@@ -481,7 +481,7 @@ body{
       <div class="section-title">Explore</div>
     </div>
     <div class="more-list" style="padding-top:0;">
-      <div class="more-item" data-open="ramzan" id="ramzanMoreItem"><div class="ic">🌙</div><div class="lbl">Ramzan<span class="lblSub" id="ramzanSub"></span></div><div class="chev">›</div></div>
+      <div class="more-item" data-open="ramzan" id="ramzanMoreItem"><div class="ic">☪️</div><div class="lbl">Ramzan<span class="lblSub" id="ramzanSub"></span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="settings"><div class="ic">⚙️</div><div class="lbl">Settings</div><div class="chev">›</div></div>
       <div class="more-item" data-open="about"><div class="ic">ℹ️</div><div class="lbl">Iske Baare Mein</div><div class="chev">›</div></div>
     </div>
@@ -1360,7 +1360,7 @@ function dayCell(date){
     dotsHtml += `<span style="background:${color}"></span>`;
   });
   dotsHtml += '</div>';
-  const rozaMark = rozaOn ? '<span class="cal-roza-mark">🌙</span>' : '';
+  const rozaMark = rozaOn ? '<span class="cal-roza-mark">☪️</span>' : '';
   c.innerHTML = `${rozaMark}<div>${label}</div>${dotsHtml}`;
   c.onclick = ()=> showDayDetail(date);
   return c;
@@ -2190,7 +2190,7 @@ function renderStats(){
       <div class="stats-row"><span>〰️ Highest Qaza</span><b>${highestQaza || '—'}</b></div>
       <div class="stats-row"><span>⚠️ Highest Missed</span><b>${highestMissed || '—'}</b></div>
       <div class="stats-row"><span>✅ Saare 5 Farz wale din</span><b>${allFiveDays} / ${pastDays.length}</b></div>
-      <div class="stats-row"><span>🌙 Roza rakhe gaye din</span><b>${rozaDays}</b></div>
+      <div class="stats-row"><span>☪️ Roza rakhe gaye din</span><b>${rozaDays}</b></div>
     </div>
   `;
   document.getElementById('statsGregBtn').onclick = ()=>{ statsCal='greg'; renderStats(); };
