@@ -1029,8 +1029,17 @@ document.getElementById('dateCenterBtn').onclick=()=>{ homeViewDate = new Date()
 document.getElementById('namazModeBtn').onclick=()=>{ state.namazMode = !state.namazMode; saveState(); renderHome(); };
 
 function bulkSetFive(status, date, onDone){
-  if(!isSameDay(date, new Date()) && date > new Date()) return; // future days locked
-  FIVE.forEach(p=>{ state.status[statusKey(date, p)] = status; });
+  const now = new Date();
+  if(!isSameDay(date, now) && date > now) return; // future days locked
+  const isToday = isSameDay(date, now);
+  const sched = isToday ? buildSchedule(date) : null;
+  FIVE.forEach(p=>{
+    if(isToday){
+      const pSched = sched.find(x=>x.key===p);
+      if(pSched && now < pSched.start) return; // prayer hasn't started yet today
+    }
+    state.status[statusKey(date, p)] = status;
+  });
   saveState();
   onDone();
 }
@@ -1186,17 +1195,17 @@ function showDayDetail(date){
     </div>`;
   });
   det.innerHTML = html;
+  const afterCalEdit = ()=>{ renderCalendar(true); showDayDetail(calDetailDate); renderHome(); };
   det.querySelector('#calRozaBtn').onclick = ()=>{
     const k = dayKey(calDetailDate);
     state.roza[k] = !state.roza[k];
     saveState();
-    renderCalendar(true);
-    showDayDetail(calDetailDate);
+    afterCalEdit();
   };
-  det.querySelector('#calBulkGreen').onclick = ()=> bulkSetFive('green', calDetailDate, ()=>{ renderCalendar(true); showDayDetail(calDetailDate); });
-  det.querySelector('#calBulkYellow').onclick = ()=> bulkSetFive('yellow', calDetailDate, ()=>{ renderCalendar(true); showDayDetail(calDetailDate); });
-  det.querySelector('#calBulkRed').onclick = ()=> bulkSetFive('red', calDetailDate, ()=>{ renderCalendar(true); showDayDetail(calDetailDate); });
-  det.querySelector('#calBulkClear').onclick = ()=> bulkClearFive(calDetailDate, ()=>{ renderCalendar(true); showDayDetail(calDetailDate); });
+  det.querySelector('#calBulkGreen').onclick = ()=> bulkSetFive('green', calDetailDate, afterCalEdit);
+  det.querySelector('#calBulkYellow').onclick = ()=> bulkSetFive('yellow', calDetailDate, afterCalEdit);
+  det.querySelector('#calBulkRed').onclick = ()=> bulkSetFive('red', calDetailDate, afterCalEdit);
+  det.querySelector('#calBulkClear').onclick = ()=> bulkClearFive(calDetailDate, afterCalEdit);
   det.querySelectorAll('.dot-btn').forEach(btn=>{
     btn.onclick = ()=>{
       const prayer = btn.dataset.prayer, want = btn.dataset.set;
@@ -1206,6 +1215,7 @@ function showDayDetail(date){
       saveState();
       renderCalendar(true);
       showDayDetail(calDetailDate);
+      renderHome();
     };
   });
 }
