@@ -909,7 +909,7 @@ document.getElementById('infoModal').onclick = (e)=>{ if(e.target.id==='infoModa
 /* ============================================================
    HIJRI DATE (arithmetic / tabular Islamic calendar approximation)
    ============================================================ */
-const HIJRI_MONTHS = ["Muharram","Safar-ul-Muzaffar","Rabi-ul-Awwal","Rabi-ul-Aakhir","Jamadi-ul-Awwal","Jamadi-ul-Aakhir","Rajab-ul-Murajjab","Sha'ban-ul-Muazzam","Ramzan-ul-Mubarak","Shawwal-ul-Mukarram","Zul-Qa'dah","Zul-Hijjah"];
+const HIJRI_MONTHS = ["Muharram-ul-Haraam","Safar-ul-Muzaffar","Rabi-ul-Awwal","Rabi-ul-Aakhir","Jamadi-ul-Awwal","Jamadi-ul-Aakhir","Rajab-ul-Murajjab","Sha'ban-ul-Muazzam","Ramzan-ul-Mubarak","Shawwal-ul-Mukarram","Zul-Qa'dah","Zul-Hijjah"];
 function gregorianToHijri(date){
   const jd = Math.floor(julianDate(date.getFullYear(), date.getMonth()+1, date.getDate())) + 1;
   let l = jd - 1948440 + 10632;
@@ -3076,8 +3076,8 @@ function nextOccurrence(computeForYear){
 }
 function islamicEventsList(){
   const events = [
-    { name:"Islami Naya Saal (1 Muharram)", h:(y)=>hijriToGregorian(1,1,y) },
-    { name:"Muharram ki 10 Tareekh", h:(y)=>hijriToGregorian(10,1,y) },
+    { name:"Islami Naya Saal (1 Muharram-ul-Haraam)", h:(y)=>hijriToGregorian(1,1,y) },
+    { name:"Muharram-ul-Haraam ki 10 Tareekh", h:(y)=>hijriToGregorian(10,1,y) },
     { name:"Milad-un-Nabi ﷺ (12 Rabi-ul-Awwal)", h:(y)=>hijriToGregorian(12,3,y) },
     { name:"Ramzan Shuru (1 Ramzan)", h:(y)=>hijriToGregorian(1,9,y) },
     { name:"Shab-e-Qadr (27 Ramzan, ehtimaan)", h:(y)=>hijriToGregorian(27,9,y) },
