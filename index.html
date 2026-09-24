@@ -274,6 +274,10 @@ body{
 /* ---------- RAMZAN TAB ---------- */
 .ramzan-card{ margin:0 14px 14px; padding:14px; background:var(--card); border-radius:14px; border:1px solid var(--line); }
 .ramzan-card h3{ font-size:14px; margin-bottom:10px; }
+.stats-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:9px 0; font-size:13px; border-top:1px solid var(--line); }
+.stats-row:first-child{ border-top:none; }
+.stats-row span{ flex:0 0 auto; color:var(--text); }
+.stats-row b{ text-align:right; font-weight:700; }
 .chip-row{ display:flex; gap:8px; flex-wrap:wrap; }
 .chip{ padding:8px 12px; border-radius:20px; border:1px solid var(--line); background:var(--card2); font-size:12.5px; font-weight:600; color:var(--sub); cursor:pointer; }
 .chip.prayed{ background:var(--green); color:#06210f; border-color:var(--green); }
@@ -453,7 +457,7 @@ body{
       <div class="more-item" data-open="dua"><div class="ic">🤲</div><div class="lbl">Du'a Padhiye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="hadees"><div class="ic">📖</div><div class="lbl">Hadees Dekhiye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="quiz"><div class="ic">🧠</div><div class="lbl">Quiz Kheliye</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="qibla"><div class="ic">🧭</div><div class="lbl">Qibla Disha</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="qibla"><div class="ic">🧭</div><div class="lbl">Qibla ka Rukh</div><div class="chev">›</div></div>
       <div class="more-item" data-open="stats"><div class="ic">📊</div><div class="lbl">Mera Report</div><div class="chev">›</div></div>
     </div>
   </div>
@@ -1128,38 +1132,45 @@ async function shareDayText(date){
 function drawDayShareCanvas(date){
   const lines = buildDaySchedLines(date);
   const hd = gregorianToHijri(date);
+  const cs = getComputedStyle(document.documentElement);
+  const col = (name, fallback)=>{ const v = cs.getPropertyValue(name).trim(); return v || fallback; };
+  const cBg = col('--bg', '#0d1420');
+  const cText = col('--text', '#e9edf3');
+  const cSub = col('--sub', '#7c8ba0');
+  const cLine = col('--line', '#232f42');
+  const cAccent = col('--accent', '#3a9bd9');
   const W = 720, rowH = 62, headerH = 150, footerH = 50;
   const H = headerH + lines.length*rowH + footerH;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#0d1420'; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle = '#e9edf3';
+  ctx.fillStyle = cBg; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = cText;
   ctx.font = '700 30px sans-serif';
   ctx.fillText('🕌 Waqt24', 32, 52);
   ctx.font = '600 20px sans-serif';
-  ctx.fillStyle = '#7c8ba0';
+  ctx.fillStyle = cSub;
   ctx.fillText(`${DOW[date.getDay()]}, ${date.getDate()} ${MON[date.getMonth()]} ${date.getFullYear()}`, 32, 84);
   ctx.fillText(`${hd.day} ${hd.monthName} ${hd.year} AH  •  📍 ${state.location.name}`, 32, 112);
-  ctx.strokeStyle = '#232f42'; ctx.lineWidth = 1;
+  ctx.strokeStyle = cAccent; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(32, headerH-14); ctx.lineTo(W-32, headerH-14); ctx.stroke();
 
   lines.forEach((l,i)=>{
     const y = headerH + i*rowH;
-    if(i>0){ ctx.strokeStyle='#1a2438'; ctx.beginPath(); ctx.moveTo(32,y); ctx.lineTo(W-32,y); ctx.stroke(); }
+    if(i>0){ ctx.strokeStyle=cLine; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(32,y); ctx.lineTo(W-32,y); ctx.stroke(); }
     ctx.font = '26px sans-serif';
     ctx.fillText(l.icon, 32, y+38);
     ctx.font = '600 22px sans-serif';
-    ctx.fillStyle = '#e9edf3';
+    ctx.fillStyle = cText;
     ctx.fillText(l.name+(l.mark?'  '+l.mark:''), 78, y+38);
     ctx.font = '20px sans-serif';
-    ctx.fillStyle = '#9aa6ba';
+    ctx.fillStyle = cSub;
     ctx.textAlign = 'right';
     ctx.fillText(l.range, W-32, y+38);
     ctx.textAlign = 'left';
   });
   ctx.font = '16px sans-serif';
-  ctx.fillStyle = '#5b6482';
+  ctx.fillStyle = cSub;
   ctx.textAlign = 'center';
   ctx.fillText('iam-zain.github.io/waqt24', W/2, H-20);
   ctx.textAlign = 'left';
@@ -1881,11 +1892,12 @@ const NOTIF_CATS = [
   {key:'special', label:'Tulu / Ghurub / Zawal', sub:'Suraj nikalna, doobna, zawal'},
 ];
 function notifPermLabel(){
-  if(!('Notification' in window)) return 'Is browser mein notifications support nahi hai';
-  if(Notification.permission==='granted') return '✅ Notifications ki ijaazat mil gayi hai';
-  if(Notification.permission==='denied') return '⛔ Notifications block hain — browser settings mein ijaazat dijiye';
-  return 'Notifications abhi off hain';
+  if(!('Notification' in window)) return 'Is browser mein yaad-dahaniyan ka support nahi hai';
+  if(Notification.permission==='granted') return '✅ Yaad-dahaniyon ki ijaazat mil gayi hai';
+  if(Notification.permission==='denied') return '⛔ Yaad-dahaniyan block hain — browser settings mein ijaazat dijiye';
+  return 'Yaad-dahaniyan abhi off hain';
 }
+let settingsTab = 'notif'; // notif | location
 function renderMoreSettings(){
   document.getElementById('detailTitle').textContent="Settings";
   const loc = state.location;
@@ -1893,34 +1905,71 @@ function renderMoreSettings(){
   const canNotify = 'Notification' in window;
   const granted = canNotify && Notification.permission==='granted';
   body.innerHTML = `
-    <div class="section-title" style="margin-top:0;">Notifications</div>
-    <div class="ramzan-card" style="margin:0 0 14px;">
-      <div style="font-size:12px; color:var(--sub); margin-bottom:10px;">${notifPermLabel()}</div>
-      ${!granted && canNotify && Notification.permission!=='denied' ? `<button id="notifPermBtn" style="width:100%; padding:11px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13px; font-weight:700; cursor:pointer; margin-bottom:12px;">🔔 Notifications On Karein</button>` : ''}
-      ${NOTIF_CATS.map(c=>`
-        <div class="roza-toggle" style="padding:8px 0;">
-          <span style="font-size:13px; font-weight:600;">${c.label}<span style="display:block; font-size:10.5px; color:var(--sub); font-weight:500; margin-top:2px;">${c.sub}</span></span>
-          <div class="switch ${state.notif[c.key]?'on':''}" data-notif-cat="${c.key}"><div class="knob"></div></div>
-        </div>
-      `).join('')}
+    <div class="cal-toggle" style="padding:0 0 14px;">
+      <button id="settingsTabNotif" class="${settingsTab==='notif'?'active':''}">Yaad-dahaniyan</button>
+      <button id="settingsTabLoc" class="${settingsTab==='location'?'active':''}">Jagah</button>
     </div>
-    <div class="section-title" style="margin-top:0;">Location</div>
-    <div class="ramzan-card" style="margin:0 0 14px;">
-      <div style="font-size:13.5px; font-weight:700; margin-bottom:2px;">📍 ${loc.name}</div>
-      <div style="font-size:11.5px; color:var(--sub); margin-bottom:12px;">${loc.lat.toFixed(4)}, ${loc.lon.toFixed(4)} ${loc.source==='gps' ? '(GPS)' : ''}</div>
-      <button id="gpsBtn" style="width:100%; padding:11px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13px; font-weight:700; cursor:pointer;">📡 GPS Se Location Lein</button>
-      <div id="gpsStatus" style="font-size:11.5px; color:var(--sub); margin-top:8px;"></div>
-    </div>
-    <div class="section-title" style="margin-top:0;">Ya Shehar Chuniye</div>
-    <div class="search-bar" style="margin:0 0 10px;"><input id="citySearchInput" placeholder="Shehar dhoondhiye..." value="${citySearch}"></div>
-    <div id="cityList"></div>
-    <div class="section-title">Calculation</div>
-    <div style="font-size:13px; line-height:1.8; color:var(--sub); padding-bottom:10px;">
-      Fajr Angle: 18 darja &nbsp;|&nbsp; Isha Angle: 17 darja<br>
-      Asr Calculation: Hanafi (standard)<br><br>
-      <span style="color:var(--text)">Note:</span> Shafi Asr aur alag Hijri offset ka option future update mein add kiya jayega.
-    </div>
+    <div id="settingsPane"></div>
   `;
+  const pane = body.querySelector('#settingsPane');
+
+  function renderNotifPane(){
+    pane.innerHTML = `
+      <div class="ramzan-card" style="margin:0 0 14px;">
+        <div style="font-size:12px; color:var(--sub); margin-bottom:10px;">${notifPermLabel()}</div>
+        ${!granted && canNotify && Notification.permission!=='denied' ? `<button id="notifPermBtn" style="width:100%; padding:11px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13px; font-weight:700; cursor:pointer; margin-bottom:12px;">🔔 Yaad-dahaniyan On Karein</button>` : ''}
+        ${NOTIF_CATS.map(c=>`
+          <div class="roza-toggle" style="padding:8px 0;">
+            <span style="font-size:13px; font-weight:600;">${c.label}<span style="display:block; font-size:10.5px; color:var(--sub); font-weight:500; margin-top:2px;">${c.sub}</span></span>
+            <div class="switch ${state.notif[c.key]?'on':''}" data-notif-cat="${c.key}"><div class="knob"></div></div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    const permBtn = pane.querySelector('#notifPermBtn');
+    if(permBtn) permBtn.onclick = async ()=>{
+      try{ await Notification.requestPermission(); }catch(e){}
+      scheduleNotifications(true);
+      renderMoreSettings();
+    };
+    pane.querySelectorAll('[data-notif-cat]').forEach(sw=>{
+      sw.onclick = ()=>{
+        const cat = sw.dataset.notifCat;
+        state.notif[cat] = !state.notif[cat];
+        saveState();
+        sw.classList.toggle('on', state.notif[cat]);
+        scheduleNotifications(true);
+      };
+    });
+  }
+
+  function renderLocationPane(){
+    pane.innerHTML = `
+      <div class="section-title" style="margin-top:0;">Jagah</div>
+      <div class="ramzan-card" style="margin:0 0 14px;">
+        <div style="font-size:13.5px; font-weight:700; margin-bottom:2px;">📍 ${loc.name}</div>
+        <div style="font-size:11.5px; color:var(--sub); margin-bottom:12px;">${loc.lat.toFixed(4)}, ${loc.lon.toFixed(4)} ${loc.source==='gps' ? '(GPS)' : ''}</div>
+        <button id="gpsBtn" style="width:100%; padding:11px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13px; font-weight:700; cursor:pointer;">📡 GPS Se Location Lein</button>
+        <div id="gpsStatus" style="font-size:11.5px; color:var(--sub); margin-top:8px;"></div>
+      </div>
+      <div class="section-title" style="margin-top:0;">Ya Shehar Chuniye</div>
+      <div class="search-bar" style="margin:0 0 10px;"><input id="citySearchInput" placeholder="Shehar dhoondhiye..." value="${citySearch}"></div>
+      <div id="cityList"></div>
+      <div class="section-title">Hisaab</div>
+      <div style="font-size:13px; line-height:1.8; color:var(--sub); padding-bottom:10px;">
+        Fajr Angle: 18 darja &nbsp;|&nbsp; Isha Angle: 17 darja<br>
+        Asr Hisaab: Hanafi (standard)<br><br>
+        <span style="color:var(--text)">Note:</span> Shafi Asr aur alag Hijri offset ka option future update mein add kiya jayega.
+      </div>
+    `;
+    setupLocationPane();
+  }
+
+  if(settingsTab==='notif') renderNotifPane(); else renderLocationPane();
+  body.querySelector('#settingsTabNotif').onclick = ()=>{ settingsTab='notif'; renderMoreSettings(); };
+  body.querySelector('#settingsTabLoc').onclick = ()=>{ settingsTab='location'; renderMoreSettings(); };
+
+  function setupLocationPane(){
   const cityListEl = body.querySelector('#cityList');
   function renderCityRow(c){
     const isActive = loc.source!=='gps' && loc.name===c.name;
@@ -1978,21 +2027,7 @@ function renderMoreSettings(){
       {timeout:10000}
     );
   };
-  const permBtn = body.querySelector('#notifPermBtn');
-  if(permBtn) permBtn.onclick = async ()=>{
-    try{ await Notification.requestPermission(); }catch(e){}
-    scheduleNotifications(true);
-    renderMoreSettings();
-  };
-  body.querySelectorAll('[data-notif-cat]').forEach(sw=>{
-    sw.onclick = ()=>{
-      const cat = sw.dataset.notifCat;
-      state.notif[cat] = !state.notif[cat];
-      saveState();
-      sw.classList.toggle('on', state.notif[cat]);
-      scheduleNotifications(true);
-    };
-  });
+  }
 }
 function renderMoreRamzan(){
   document.getElementById('detailTitle').textContent = 'Ramzan';
@@ -2101,13 +2136,17 @@ function renderStats(){
   FIVE.forEach(p=>{ totalGreen+=farzCount[p].green; totalYellow+=farzCount[p].yellow; totalRed+=farzCount[p].red; });
   const totalPossible = pastDays.length*5;
 
-  let highestPrayed = null, highestMissed = null;
-  FIVE.forEach(p=>{
-    if(farzCount[p].green>0 && (!highestPrayed || farzCount[p].green>farzCount[highestPrayed].green)) highestPrayed = p;
-    if(farzCount[p].red>0 && (!highestMissed || farzCount[p].red>farzCount[highestMissed].red)) highestMissed = p;
-  });
-
   const icon = (k)=> (PRAYER_META[k] && PRAYER_META[k].icon) || '🕐';
+  function topPrayers(field){
+    let max = 0;
+    FIVE.forEach(p=>{ if(farzCount[p][field]>max) max = farzCount[p][field]; });
+    if(max===0) return null;
+    const names = FIVE.filter(p=>farzCount[p][field]===max).map(p=>icon(p)+' '+p.charAt(0).toUpperCase()+p.slice(1));
+    return names.join(', ');
+  }
+  const highestPrayed = topPrayers('green');
+  const highestQaza = topPrayers('yellow');
+  const highestMissed = topPrayers('red');
   const pct = totalPossible>0 ? Math.round(totalGreen/totalPossible*100) : 0;
 
   document.getElementById('detailBody').innerHTML = `
@@ -2144,10 +2183,11 @@ function renderStats(){
     </div>
 
     <div class="ramzan-card" style="margin:0 0 14px;">
-      <div class="cal-detail .row" style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px;"><span>🏆 Highest Padhi Gayi</span><b style="text-transform:capitalize;">${highestPrayed ? icon(highestPrayed)+' '+highestPrayed : '—'}</b></div>
-      <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px; border-top:1px solid var(--line);"><span>⚠️ Highest Missed/Qaza</span><b style="text-transform:capitalize;">${highestMissed ? icon(highestMissed)+' '+highestMissed : '—'}</b></div>
-      <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px; border-top:1px solid var(--line);"><span>✅ Saare 5 Farz wale din</span><b>${allFiveDays} / ${pastDays.length}</b></div>
-      <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px; border-top:1px solid var(--line);"><span>🌙 Roza rakhe gaye din</span><b>${rozaDays}</b></div>
+      <div class="stats-row"><span>🏆 Highest Padhi Gayi</span><b>${highestPrayed || '—'}</b></div>
+      <div class="stats-row"><span>〰️ Highest Qaza</span><b>${highestQaza || '—'}</b></div>
+      <div class="stats-row"><span>⚠️ Highest Missed</span><b>${highestMissed || '—'}</b></div>
+      <div class="stats-row"><span>✅ Saare 5 Farz wale din</span><b>${allFiveDays} / ${pastDays.length}</b></div>
+      <div class="stats-row"><span>🌙 Roza rakhe gaye din</span><b>${rozaDays}</b></div>
     </div>
   `;
   document.getElementById('statsGregBtn').onclick = ()=>{ statsCal='greg'; renderStats(); };
@@ -2180,7 +2220,7 @@ function stopQiblaCompass(){
 }
 function renderQibla(){
   stopQiblaCompass();
-  document.getElementById('detailTitle').textContent = 'Qibla Disha';
+  document.getElementById('detailTitle').textContent = 'Qibla ka Rukh';
   const loc = state.location;
   const bearing = qiblaBearing(loc.lat, loc.lon);
   document.getElementById('detailBody').innerHTML = `
