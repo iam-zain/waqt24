@@ -337,8 +337,8 @@ body{
 .beads-track{ touch-action:none; cursor:grab; user-select:none; }
 .beads-track.h{ display:flex; gap:9px; overflow:hidden; padding:20px 4px; justify-content:flex-start; }
 .beads-track.v{ display:flex; flex-direction:column; gap:9px; overflow:hidden; height:220px; padding:4px 20px; align-items:center; justify-content:flex-start; margin:0 auto; width:60px; }
-.bead{ width:22px; height:22px; border-radius:50%; background:var(--card2); border:1px solid var(--line); flex:0 0 auto; }
-.bead.active{ background:var(--tasbeehColor, var(--accent)); box-shadow:0 0 10px var(--tasbeehColor, var(--accent)); }
+.bead{ width:24px; height:24px; border-radius:50%; background:radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--sub) 35%, var(--card2)) 0%, var(--card2) 55%, var(--line) 100%); border:1px solid var(--line); flex:0 0 auto; box-shadow:inset 0 -2px 3px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.2); }
+.bead.active{ background:radial-gradient(circle at 32% 28%, color-mix(in srgb, white 45%, var(--tasbeehColor, var(--accent))) 0%, var(--tasbeehColor, var(--accent)) 60%, var(--tasbeehColor, var(--accent)) 100%); box-shadow:0 0 12px var(--tasbeehColor, var(--accent)), inset 0 -2px 3px rgba(0,0,0,0.25); }
 .beads-hint{ text-align:center; font-size:11px; color:var(--sub); margin-top:6px; }
 
 /* ---------- ZIKR PROFILES ---------- */
@@ -503,12 +503,12 @@ body{
         </div>
       </div>
     </div>
-    <div class="streak-strip" id="streakStrip"></div>
     <div class="times-list" id="timesList"></div>
   </div>
 
   <!-- CALENDAR TAB -->
   <div class="screen scrollable" id="tab-calendar">
+    <div class="streak-strip" id="streakStrip"></div>
     <div class="cal-toggle">
       <button id="calGregBtn" class="active">Gregorian</button>
       <button id="calHijriBtn">Hijri</button>
@@ -902,7 +902,7 @@ document.getElementById('infoModal').onclick = (e)=>{ if(e.target.id==='infoModa
 /* ============================================================
    HIJRI DATE (arithmetic / tabular Islamic calendar approximation)
    ============================================================ */
-const HIJRI_MONTHS = ["Muharram","Safar","Rabi-ul-Awwal","Rabi-ul-Aakhir","Jamadi-ul-Awwal","Jamadi-ul-Aakhir","Rajab","Sha'ban","Ramzan","Shawwal","Zul-Qa'dah","Zul-Hijjah"];
+const HIJRI_MONTHS = ["Muharram","Safar-ul-Muzaffar","Rabi-ul-Awwal","Rabi-ul-Aakhir","Jamadi-ul-Awwal","Jamadi-ul-Aakhir","Rajab-ul-Murajjab","Sha'ban-ul-Muazzam","Ramzan-ul-Mubarak","Shawwal-ul-Mukarram","Zul-Qa'dah","Zul-Hijjah"];
 function gregorianToHijri(date){
   const jd = Math.floor(julianDate(date.getFullYear(), date.getMonth()+1, date.getDate())) + 1;
   let l = jd - 1948440 + 10632;
@@ -1056,14 +1056,6 @@ function renderHome(){
   document.getElementById('hijriDate').textContent = hd.day+' '+hd.monthName+' '+hd.year+' AH';
   document.getElementById('cityLabel').textContent = '📍 ' + state.location.name + (state.location.state ? ', '+state.location.state : '');
   document.getElementById('namazModeBtn').classList.toggle('on', state.namazMode);
-
-  const streakEl = document.getElementById('streakStrip');
-  if(streakEl){
-    const { current, best } = computeStreak();
-    streakEl.innerHTML = current>0
-      ? `<div class="streakMain">🔥 Lagatar <b>${current}</b> din 5 Farz waqt par</div><div class="streakBest">Best: ${best} din</div>`
-      : `<div class="streakMain">🔥 Aaj se streak shuru karein</div><div class="streakBest">Best: ${best} din</div>`;
-  }
 
   const sched = buildSchedule(viewDate);
   const listEl = document.getElementById('timesList');
@@ -1416,6 +1408,13 @@ function shiftCalMonth(dir){
 }
 
 function renderCalendar(preserveDetail){
+  const streakEl = document.getElementById('streakStrip');
+  if(streakEl){
+    const { current, best } = computeStreak();
+    streakEl.innerHTML = current>0
+      ? `<div class="streakMain">🔥 Lagatar <b>${current}</b> din 5 Farz waqt par</div><div class="streakBest">Best: ${best} din</div>`
+      : `<div class="streakMain">🔥 Aaj se streak shuru karein</div><div class="streakBest">Best: ${best} din</div>`;
+  }
   const dowEl = document.getElementById('calDow');
   dowEl.innerHTML = ['S','M','T','W','T','F','S'].map(d=>`<div class="cal-dow">${d}</div>`).join('');
   const grid = document.getElementById('calGrid');
@@ -2515,17 +2514,28 @@ function tasbeehTick(){
 }
 function setupBeadsDrag(track, isH){
   let last = null, dist = 0;
-  const threshold = 30;
+  const threshold = 33; // matches bead width(24)+gap(9) so one bead-step = one count
+  const maxStepsPerMove = 1; // a single pointermove event can only register one bead, however far it jumps
   const getPos = (e)=> isH ? e.clientX : e.clientY;
-  track.addEventListener('pointerdown', (e)=>{ track.setPointerCapture(e.pointerId); last = getPos(e); dist = 0; });
+  track.addEventListener('pointerdown', (e)=>{
+    track.setPointerCapture(e.pointerId);
+    last = getPos(e); dist = 0;
+    e.preventDefault();
+  });
   track.addEventListener('pointermove', (e)=>{
     if(last===null) return;
+    e.preventDefault();
     const pos = getPos(e);
-    const delta = isH ? (last - pos) : (pos - last); // right-to-left for H, bottom-to-top for V
+    // moving right-to-left (H) or bottom-to-top (V) both mean the coordinate decreases
+    const delta = last - pos;
     last = pos;
     if(delta>0){
       dist += delta;
-      while(dist >= threshold){ dist -= threshold; tasbeehTick(); }
+      let steps = 0;
+      while(dist >= threshold && steps < maxStepsPerMove){ dist -= threshold; tasbeehTick(); steps++; }
+      if(dist >= threshold) dist = 0; // drop any excess from an abnormally large jump instead of bursting
+    } else if(delta<0){
+      dist = Math.max(0, dist + delta*0.5); // reverse wobble bleeds off progress instead of reversing count
     }
   });
   const end = ()=>{ last = null; dist = 0; };
@@ -2694,7 +2704,9 @@ function renderZikrProfile(profileId){
       <input type="number" id="zikrNewTarget" class="target" placeholder="Target" value="100">
       <button id="zikrAddItemBtn">+ Add</button>
     </div>
-    ${!profile.builtin ? `<div class="tasbeeh-actions" style="margin-top:16px;"><button id="zikrDeleteProfileBtn">🗑️ Profile Delete Karein</button></div>` : ''}
+    <div class="tasbeeh-actions" style="margin-top:16px;">
+      ${profile.builtin ? `<button id="zikrResetDefaultBtn">↺ Default 6 Zikr Wapas Layein</button>` : `<button id="zikrDeleteProfileBtn">🗑️ Profile Delete Karein</button>`}
+    </div>
   `;
   function renderItems(){
     const w = document.getElementById('zikrItemsWrap');
@@ -2751,6 +2763,13 @@ function renderZikrProfile(profileId){
     state.tasbeeh.profiles = state.tasbeeh.profiles.filter(p=>p.id!==profile.id);
     saveState();
     renderTasbeeh();
+  };
+  const resetDefaultBtn = document.getElementById('zikrResetDefaultBtn');
+  if(resetDefaultBtn) resetDefaultBtn.onclick = ()=>{
+    if(!confirm('Is profile ko wapas default 6 zikr par reset karein? Aapke add kiye hue extra zikr hat jayenge.')) return;
+    profile.items = defaultAzkarItems();
+    saveState();
+    renderZikrProfile(profile.id);
   };
 }
 
@@ -2886,9 +2905,8 @@ function nextOccurrence(computeForYear){
 function islamicEventsList(){
   const events = [
     { name:"Islami Naya Saal (1 Muharram)", h:(y)=>hijriToGregorian(1,1,y) },
-    { name:"Ashura (10 Muharram)", h:(y)=>hijriToGregorian(10,1,y) },
-    { name:"Eid Milad-un-Nabi ﷺ (12 Rabi-ul-Awwal)", h:(y)=>hijriToGregorian(12,3,y) },
-    { name:"Shab-e-Bara'at (15 Sha'ban)", h:(y)=>hijriToGregorian(15,8,y) },
+    { name:"Muharram ki 10 Tareekh", h:(y)=>hijriToGregorian(10,1,y) },
+    { name:"Milad-un-Nabi ﷺ (12 Rabi-ul-Awwal)", h:(y)=>hijriToGregorian(12,3,y) },
     { name:"Ramzan Shuru (1 Ramzan)", h:(y)=>hijriToGregorian(1,9,y) },
     { name:"Shab-e-Qadr (27 Ramzan, ehtimaan)", h:(y)=>hijriToGregorian(27,9,y) },
     { name:"Jumat-ul-Vida (Ramzan ki aakhri Jumu'ah)", h:(y)=> findLastFridayInHijriMonth(9,y) },
