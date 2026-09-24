@@ -4,6 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
 <title>Namaz Timer</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#182236">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
+<meta name="description" content="Roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein — GPS-based accurate prayer times, Hijri calendar, Ramzan tracker, Qibla direction aur bahut kuch.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Waqt24 — Namaz Timer">
+<meta property="og:description" content="Roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein — GPS-based accurate prayer times, Hijri calendar, Ramzan tracker, Qibla direction aur bahut kuch.">
+<meta property="og:url" content="https://iam-zain.github.io/waqt24/">
+<meta property="og:image" content="https://iam-zain.github.io/waqt24/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Waqt24 — Namaz Timer">
+<meta name="twitter:description" content="Roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein.">
+<meta name="twitter:image" content="https://iam-zain.github.io/waqt24/icons/icon-512.png">
 <style>
 :root{
   --bg:#0d1420; --bg2:#131c2b; --card:#16202f; --card2:#1b2635;
@@ -418,6 +438,8 @@ body{
       <div class="more-item" data-open="dua"><div class="ic">🤲</div><div class="lbl">Du'a Padhiye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="hadees"><div class="ic">📖</div><div class="lbl">Hadees Dekhiye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="quiz"><div class="ic">🧠</div><div class="lbl">Quiz Kheliye</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="qibla"><div class="ic">🧭</div><div class="lbl">Qibla Disha</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="stats"><div class="ic">📊</div><div class="lbl">Mera Report</div><div class="chev">›</div></div>
     </div>
   </div>
 
@@ -793,6 +815,7 @@ let state = {
   roza: {},
   tarabih: {},
   namazMode: false,
+  notif: { fard:true, nafil:false, meal:true, special:false },
 };
 function loadState(){
   try{ const s = JSON.parse(localStorage.getItem('namazState')||'{}'); state = Object.assign(state, s); }catch(e){}
@@ -1069,6 +1092,41 @@ document.getElementById('bulkRed').onclick = ()=> bulkSetFive('red', homeViewDat
 document.getElementById('bulkClear').onclick = ()=> bulkClearFive(homeViewDate, renderHome);
 renderHome();
 setInterval(()=>{ if(isSameDay(homeViewDate,new Date())) renderHome(); }, 15000);
+
+/* ============================================================
+   NOTIFICATIONS — local, best-effort while the app is open
+   (browsers do not allow reliable scheduled notifications from a
+   static page when it is fully closed; this schedules timers for
+   whatever remains of today whenever the app is open/foregrounded)
+   ============================================================ */
+let scheduledNotifDay = null;
+let notifTimers = [];
+function scheduleNotifications(force){
+  if(!('Notification' in window)) return;
+  const today = dayKey(new Date());
+  if(!force && scheduledNotifDay===today) return;
+  notifTimers.forEach(id=>clearTimeout(id));
+  notifTimers = [];
+  scheduledNotifDay = today;
+  if(Notification.permission!=='granted') return;
+  const now = new Date();
+  const sched = buildSchedule(now);
+  sched.forEach(p=>{
+    if(!state.notif[p.type]) return;
+    const delay = p.start - now;
+    if(delay<=0 || delay>24*3600000) return;
+    const id = setTimeout(()=>{
+      try{
+        const icon = (PRAYER_META[p.key]&&PRAYER_META[p.key].icon)||'🕐';
+        new Notification(icon+' '+p.name+' ka waqt', { body: p.name+' ka waqt ho gaya hai.', icon:'icons/icon-192.png', tag:'waqt24-'+p.key });
+      }catch(e){}
+    }, delay);
+    notifTimers.push(id);
+  });
+}
+scheduleNotifications();
+setInterval(()=> scheduleNotifications(), 60000);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) scheduleNotifications(); });
 
 let scrollHideTimer = null;
 document.getElementById('timesList').addEventListener('scroll', ()=>{
@@ -1687,11 +1745,36 @@ function renderQuizResult(){
 }
 
 let citySearch = '';
+const NOTIF_CATS = [
+  {key:'fard', label:'Farz Namaz', sub:'Fajr, Zuhr, Asr, Maghrib, Isha'},
+  {key:'nafil', label:'Nafil Namaz', sub:'Ishraq, Chaast, Awwabin, Tahajjud'},
+  {key:'meal', label:'Sehri / Iftar', sub:'Sehri khatm, Iftar shuru'},
+  {key:'special', label:'Tulu / Ghurub / Zawal', sub:'Suraj nikalna, doobna, zawal'},
+];
+function notifPermLabel(){
+  if(!('Notification' in window)) return 'Is browser mein notifications support nahi hai';
+  if(Notification.permission==='granted') return '✅ Notifications ki ijaazat mil gayi hai';
+  if(Notification.permission==='denied') return '⛔ Notifications block hain — browser settings mein ijaazat dijiye';
+  return 'Notifications abhi off hain';
+}
 function renderMoreSettings(){
   document.getElementById('detailTitle').textContent="Settings";
   const loc = state.location;
   const body = document.getElementById('detailBody');
+  const canNotify = 'Notification' in window;
+  const granted = canNotify && Notification.permission==='granted';
   body.innerHTML = `
+    <div class="section-title" style="margin-top:0;">Notifications</div>
+    <div class="ramzan-card" style="margin:0 0 14px;">
+      <div style="font-size:12px; color:var(--sub); margin-bottom:10px;">${notifPermLabel()}</div>
+      ${!granted && canNotify && Notification.permission!=='denied' ? `<button id="notifPermBtn" style="width:100%; padding:11px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13px; font-weight:700; cursor:pointer; margin-bottom:12px;">🔔 Notifications On Karein</button>` : ''}
+      ${NOTIF_CATS.map(c=>`
+        <div class="roza-toggle" style="padding:8px 0;">
+          <span style="font-size:13px; font-weight:600;">${c.label}<span style="display:block; font-size:10.5px; color:var(--sub); font-weight:500; margin-top:2px;">${c.sub}</span></span>
+          <div class="switch ${state.notif[c.key]?'on':''}" data-notif-cat="${c.key}"><div class="knob"></div></div>
+        </div>
+      `).join('')}
+    </div>
     <div class="section-title" style="margin-top:0;">Location</div>
     <div class="ramzan-card" style="margin:0 0 14px;">
       <div style="font-size:13.5px; font-weight:700; margin-bottom:2px;">📍 ${loc.name}</div>
@@ -1766,6 +1849,21 @@ function renderMoreSettings(){
       {timeout:10000}
     );
   };
+  const permBtn = body.querySelector('#notifPermBtn');
+  if(permBtn) permBtn.onclick = async ()=>{
+    try{ await Notification.requestPermission(); }catch(e){}
+    scheduleNotifications(true);
+    renderMoreSettings();
+  };
+  body.querySelectorAll('[data-notif-cat]').forEach(sw=>{
+    sw.onclick = ()=>{
+      const cat = sw.dataset.notifCat;
+      state.notif[cat] = !state.notif[cat];
+      saveState();
+      sw.classList.toggle('on', state.notif[cat]);
+      scheduleNotifications(true);
+    };
+  });
 }
 function renderMoreRamzan(){
   document.getElementById('detailTitle').textContent = 'Ramzan';
@@ -1790,6 +1888,225 @@ function renderMoreAbout(){
       Banaya gaya hai mohabbat se, taake har Musalman apni namaz waqt par ada kar sake. Allah hum sabko namaz ki hifazat karne ki taufeeq de. Ameen.
     </div>
   `;
+}
+
+/* ============================================================
+   STATS / REPORT
+   ============================================================ */
+let statsCal = 'greg'; // greg | hijri
+let statsRange = 'month'; // month | year
+let statsDate = new Date();
+
+function hijriMonthDays(anchorDate){
+  const hd = gregorianToHijri(anchorDate);
+  let probe = new Date(anchorDate);
+  let cur = gregorianToHijri(probe);
+  while(cur.day !== 1 || cur.month !== hd.month){
+    probe = new Date(probe.getTime() - 24*3600000);
+    cur = gregorianToHijri(probe);
+    if(cur.month===hd.month && cur.day===1) break;
+  }
+  const days=[]; let d=new Date(probe); let count=0;
+  while(true){ const h=gregorianToHijri(d); if(h.month!==hd.month || count>35) break; days.push(new Date(d)); d=new Date(d.getTime()+86400000); count++; }
+  return { days, label: hd.monthName+' '+hd.year+' AH' };
+}
+function hijriYearDays(anchorDate){
+  const hd = gregorianToHijri(anchorDate);
+  let probe = new Date(anchorDate);
+  let cur = gregorianToHijri(probe);
+  let guard = 0;
+  while(!(cur.month===1 && cur.day===1) && guard<400){
+    probe = new Date(probe.getTime() - 24*3600000);
+    cur = gregorianToHijri(probe);
+    guard++;
+  }
+  const days=[]; let d=new Date(probe); let count=0;
+  while(count<360){ const h=gregorianToHijri(d); if(h.year!==hd.year) break; days.push(new Date(d)); d=new Date(d.getTime()+86400000); count++; }
+  return { days, label: hd.year+' AH' };
+}
+function getStatsPeriod(){
+  if(statsCal==='greg'){
+    if(statsRange==='month'){
+      const y=statsDate.getFullYear(), m=statsDate.getMonth();
+      const daysInMonth = new Date(y,m+1,0).getDate();
+      const days=[]; for(let d=1; d<=daysInMonth; d++) days.push(new Date(y,m,d));
+      return { days, label: MON[m]+' '+y };
+    } else {
+      const y=statsDate.getFullYear();
+      const days=[]; let d=new Date(y,0,1); while(d.getFullYear()===y){ days.push(new Date(d)); d=new Date(d.getTime()+86400000); }
+      return { days, label: ''+y };
+    }
+  } else {
+    return statsRange==='month' ? hijriMonthDays(statsDate) : hijriYearDays(statsDate);
+  }
+}
+function shiftStatsPeriod(dir){
+  if(statsCal==='greg'){
+    if(statsRange==='month') statsDate = new Date(statsDate.getFullYear(), statsDate.getMonth()+dir, 1);
+    else statsDate = new Date(statsDate.getFullYear()+dir, statsDate.getMonth(), 1);
+  } else {
+    if(statsRange==='month') statsDate = new Date(statsDate.getTime() + dir*29.5*24*3600000);
+    else statsDate = new Date(statsDate.getTime() + dir*354*24*3600000);
+  }
+  renderStats();
+}
+function renderStats(){
+  document.getElementById('detailTitle').textContent = 'Mera Report';
+  const { days, label } = getStatsPeriod();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const pastDays = days.filter(d=>d<=today);
+
+  const farzCount = {}; FIVE.forEach(p=> farzCount[p] = {green:0, yellow:0, red:0});
+  let allFiveDays = 0, rozaDays = 0;
+  pastDays.forEach(d=>{
+    let allGreen = true;
+    FIVE.forEach(p=>{
+      const st = getStatus(d,p);
+      if(st) farzCount[p][st]++;
+      if(st!=='green') allGreen = false;
+    });
+    if(allGreen) allFiveDays++;
+    if(state.roza[dayKey(d)]) rozaDays++;
+  });
+  let totalGreen=0, totalYellow=0, totalRed=0;
+  FIVE.forEach(p=>{ totalGreen+=farzCount[p].green; totalYellow+=farzCount[p].yellow; totalRed+=farzCount[p].red; });
+  const totalPossible = pastDays.length*5;
+
+  let highestPrayed = null, highestMissed = null;
+  FIVE.forEach(p=>{
+    if(farzCount[p].green>0 && (!highestPrayed || farzCount[p].green>farzCount[highestPrayed].green)) highestPrayed = p;
+    if(farzCount[p].red>0 && (!highestMissed || farzCount[p].red>farzCount[highestMissed].red)) highestMissed = p;
+  });
+
+  const icon = (k)=> (PRAYER_META[k] && PRAYER_META[k].icon) || '🕐';
+  const pct = totalPossible>0 ? Math.round(totalGreen/totalPossible*100) : 0;
+
+  document.getElementById('detailBody').innerHTML = `
+    <div class="cal-toggle" style="padding:0 0 8px;">
+      <button id="statsGregBtn" class="${statsCal==='greg'?'active':''}">Gregorian</button>
+      <button id="statsHijriBtn" class="${statsCal==='hijri'?'active':''}">Hijri</button>
+    </div>
+    <div class="cal-toggle" style="padding:0 0 14px;">
+      <button id="statsMonthBtn" class="${statsRange==='month'?'active':''}">Monthly</button>
+      <button id="statsYearBtn" class="${statsRange==='year'?'active':''}">Yearly</button>
+    </div>
+    <div class="cal-header" style="padding:0 0 14px; border:none;">
+      <button id="statsPrev">‹</button>
+      <div class="month-label">${label}</div>
+      <button id="statsNext">›</button>
+    </div>
+
+    <div class="ramzan-card" style="margin:0 0 14px; text-align:center;">
+      <div style="font-size:32px; font-weight:800; color:var(--accent);">${pct}%</div>
+      <div style="font-size:12px; color:var(--sub); margin-top:2px;">Farz Namaz on-time completion (${totalGreen}/${totalPossible})</div>
+    </div>
+
+    <div class="ramzan-card" style="margin:0 0 14px;">
+      <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">Farz ka Tafseel</div>
+      ${FIVE.map(p=>{
+        const c = farzCount[p]; const total = c.green+c.yellow+c.red;
+        const w = total>0 ? Math.round(c.green/Math.max(1,pastDays.length)*100) : 0;
+        return `<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+          <span style="width:80px; font-size:12.5px; font-weight:600; text-transform:capitalize;">${icon(p)} ${p}</span>
+          <div style="flex:1; height:8px; background:var(--meterBg); border-radius:4px; overflow:hidden;"><div style="width:${w}%; height:100%; background:var(--green);"></div></div>
+          <span style="width:56px; text-align:right; font-size:11px; color:var(--sub);">${c.green}/${pastDays.length}</span>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="ramzan-card" style="margin:0 0 14px;">
+      <div class="cal-detail .row" style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px;"><span>🏆 Highest Prayed</span><b style="text-transform:capitalize;">${highestPrayed ? icon(highestPrayed)+' '+highestPrayed : '—'}</b></div>
+      <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px; border-top:1px solid var(--line);"><span>⚠️ Highest Missed</span><b style="text-transform:capitalize;">${highestMissed ? icon(highestMissed)+' '+highestMissed : '—'}</b></div>
+      <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px; border-top:1px solid var(--line);"><span>✅ Saare 5 Farz wale din</span><b>${allFiveDays} / ${pastDays.length}</b></div>
+      <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:13px; border-top:1px solid var(--line);"><span>🌙 Roza rakhe gaye din</span><b>${rozaDays}</b></div>
+    </div>
+  `;
+  document.getElementById('statsGregBtn').onclick = ()=>{ statsCal='greg'; renderStats(); };
+  document.getElementById('statsHijriBtn').onclick = ()=>{ statsCal='hijri'; renderStats(); };
+  document.getElementById('statsMonthBtn').onclick = ()=>{ statsRange='month'; renderStats(); };
+  document.getElementById('statsYearBtn').onclick = ()=>{ statsRange='year'; renderStats(); };
+  document.getElementById('statsPrev').onclick = ()=> shiftStatsPeriod(-1);
+  document.getElementById('statsNext').onclick = ()=> shiftStatsPeriod(1);
+}
+
+/* ============================================================
+   QIBLA DIRECTION
+   ============================================================ */
+const KAABA = { lat: 21.4225, lon: 39.8262 };
+function qiblaBearing(lat, lon){
+  const toRad = d=>d*Math.PI/180, toDeg = r=>r*180/Math.PI;
+  const phi1 = toRad(lat), phi2 = toRad(KAABA.lat);
+  const dLambda = toRad(KAABA.lon - lon);
+  const y = Math.sin(dLambda)*Math.cos(phi2);
+  const x = Math.cos(phi1)*Math.sin(phi2) - Math.sin(phi1)*Math.cos(phi2)*Math.cos(dLambda);
+  return (toDeg(Math.atan2(y,x)) + 360) % 360;
+}
+let qiblaOrientHandler = null;
+function stopQiblaCompass(){
+  if(qiblaOrientHandler){
+    window.removeEventListener('deviceorientationabsolute', qiblaOrientHandler);
+    window.removeEventListener('deviceorientation', qiblaOrientHandler);
+    qiblaOrientHandler = null;
+  }
+}
+function renderQibla(){
+  stopQiblaCompass();
+  document.getElementById('detailTitle').textContent = 'Qibla Disha';
+  const loc = state.location;
+  const bearing = qiblaBearing(loc.lat, loc.lon);
+  document.getElementById('detailBody').innerHTML = `
+    <div style="text-align:center; padding:10px 0 4px;">
+      <div style="font-size:12.5px; color:var(--sub); margin-bottom:16px;">📍 ${loc.name} se Khana Kaaba ki taraf</div>
+      <div style="position:relative; width:240px; height:240px; margin:0 auto;">
+        <svg id="qiblaDial" viewBox="0 0 200 200" style="width:100%; height:100%; transition:transform .15s ease-out;">
+          <circle cx="100" cy="100" r="96" fill="var(--card2)" stroke="var(--line)" stroke-width="2"/>
+          <text x="100" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="var(--sub)">N</text>
+          <text x="100" y="190" text-anchor="middle" font-size="12" fill="var(--sub)">S</text>
+          <text x="14" y="105" text-anchor="middle" font-size="12" fill="var(--sub)">W</text>
+          <text x="186" y="105" text-anchor="middle" font-size="12" fill="var(--sub)">E</text>
+          <g id="qiblaNeedle" style="transform-origin:100px 100px;">
+            <polygon points="100,26 90,108 100,96 110,108" fill="var(--accent)"/>
+            <text x="100" y="46" text-anchor="middle" font-size="20">🕋</text>
+          </g>
+          <circle cx="100" cy="100" r="5" fill="var(--accent)"/>
+        </svg>
+      </div>
+      <div style="font-size:13px; color:var(--text); margin-top:16px; font-weight:700;">Qibla: ${Math.round(bearing)}° (Shumaal se)</div>
+      <div id="qiblaStatus" style="font-size:11.5px; color:var(--sub); margin-top:6px; line-height:1.6;">
+        Compass on karne ke liye button dabayein, ya phone ko flat rakh kar upar diya hua angle khud North se naapein.
+      </div>
+      <button id="qiblaCompassBtn" style="margin-top:14px; padding:10px 20px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13px; font-weight:700; cursor:pointer;">🧭 Compass On Karein</button>
+    </div>
+  `;
+  const needle = document.getElementById('qiblaNeedle');
+  const statusEl = document.getElementById('qiblaStatus');
+  const dial = document.getElementById('qiblaDial');
+  needle.style.transform = `rotate(${bearing}deg)`;
+
+  document.getElementById('qiblaCompassBtn').onclick = async ()=>{
+    const start = ()=>{
+      qiblaOrientHandler = (e)=>{
+        let heading = (typeof e.webkitCompassHeading === 'number') ? e.webkitCompassHeading : (e.alpha!=null ? (360 - e.alpha) : null);
+        if(heading==null) return;
+        dial.style.transform = `rotate(${-heading}deg)`;
+        needle.style.transform = `rotate(${bearing}deg)`;
+        statusEl.textContent = 'Compass chalu hai — phone ko seedha pakdein, 🕋 wahi Qibla ki taraf ishara karega.';
+      };
+      const evt = ('ondeviceorientationabsolute' in window) ? 'deviceorientationabsolute' : 'deviceorientation';
+      window.addEventListener(evt, qiblaOrientHandler);
+    };
+    if(typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
+      try{
+        const res = await DeviceOrientationEvent.requestPermission();
+        if(res==='granted') start();
+        else statusEl.textContent = 'Compass ki ijaazat nahi mili. Manually angle ka istemal karein.';
+      }catch(e){ statusEl.textContent = 'Compass is device par uplabdh nahi hai.'; }
+    } else if('DeviceOrientationEvent' in window){
+      start();
+    } else {
+      statusEl.textContent = 'Is browser/device mein compass sensor uplabdh nahi hai.';
+    }
+  };
 }
 
 function daysUntilRamzan(){
@@ -1825,6 +2142,8 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='hadees') renderMoreHadees();
     else if(which==='quiz') renderMoreQuiz();
     else if(which==='ramzan') renderMoreRamzan();
+    else if(which==='qibla') renderQibla();
+    else if(which==='stats') renderStats();
     else if(which==='settings') renderMoreSettings();
     else if(which==='about') renderMoreAbout();
     document.getElementById('detailOverlay').classList.add('active');
@@ -1832,9 +2151,19 @@ document.querySelectorAll('.more-item').forEach(item=>{
 });
 document.getElementById('detailBack').onclick = ()=>{
   document.getElementById('detailOverlay').classList.remove('active');
+  stopQiblaCompass();
 };
 
 /* init calendar/ramzan lazily on first view already handled by tab click */
+
+/* ============================================================
+   PWA: service worker registration (offline support)
+   ============================================================ */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
 </script>
 </body>
 </html>
