@@ -132,7 +132,7 @@ body{
 .time-row .remainText.remainPlaceholder{ visibility:hidden; }
 .time-row .remainLabel{ color:var(--sub); font-weight:400; opacity:0.75; }
 .time-row .remainValue{ color:var(--text); font-weight:800; }
-.time-row .name{ font-size:14px; font-weight:600; flex:0 0 155px; min-width:0; display:flex; align-items:center; gap:5px; cursor:pointer; }
+.time-row .name{ font-size:14px; font-weight:600; flex:0 0 162px; min-width:0; display:flex; align-items:center; gap:5px; cursor:pointer; }
 .time-row .name .nameTxt{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
 .pIcon{ font-size:17px; line-height:1; flex:0 0 auto; }
 .time-row .clock{ font-size:13px; font-variant-numeric:tabular-nums; flex:0 0 auto; color:var(--sub); letter-spacing:-0.3px; white-space:nowrap; }
@@ -145,7 +145,7 @@ body{
 .time-row.special .name{ color:var(--special); }
 .time-row.meal .name{ color:var(--meal); }
 .time-row.current{ background:var(--card2); box-shadow:0 0 0 1.5px var(--accent) inset, 0 2px 10px rgba(0,0,0,0.10); padding-top:8px; padding-bottom:8px; min-height:56px; }
-.time-row.current .name{ font-weight:800; font-size:15.5px; flex-basis:165px; }
+.time-row.current .name{ font-weight:800; font-size:15.5px; }
 .time-row.current .pIcon{ font-size:19px; }
 .time-row.past{ opacity:0.4; }
 .time-row.past .name{ color:var(--sub) !important; font-weight:500; }
@@ -163,11 +163,11 @@ body{
   background:var(--card); box-shadow:0 0 0 1px var(--line) inset;
   padding:11px 10px; border-radius:12px; min-height:52px;
 }
-#timesList.namaz-mode .time-row .name{ font-size:14.5px; font-weight:700; flex-basis:160px; }
+#timesList.namaz-mode .time-row .name{ font-size:14.5px; font-weight:700; flex-basis:168px; }
 #timesList.namaz-mode .pIcon{ font-size:18px; }
 #timesList.namaz-mode .time-row .clock{ font-size:13.5px; }
 #timesList.namaz-mode .time-row.current{ background:var(--card2); box-shadow:0 0 0 2px var(--accent) inset, 0 3px 14px rgba(0,0,0,0.14); padding:16px 12px; min-height:78px; }
-#timesList.namaz-mode .time-row.current .name{ font-size:16.5px; font-weight:800; flex-basis:170px; }
+#timesList.namaz-mode .time-row.current .name{ font-size:16.5px; font-weight:800; }
 #timesList.namaz-mode .time-row.current .pIcon{ font-size:22px; }
 #timesList.namaz-mode .time-row.future{ opacity:0.6; box-shadow:none; }
 #timesList.namaz-mode .time-row.past{ box-shadow:none; }
@@ -857,6 +857,7 @@ const DOW = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturd
 const MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 let homeViewDate = new Date();
+let lastLiveKey = null;
 function isSameDay(a,b){ return dayKey(a)===dayKey(b); }
 
 function renderHome(){
@@ -918,6 +919,7 @@ function renderHome(){
     const rowStatus = FIVE.includes(p.key) ? getStatus(viewDate, p.key) : undefined;
     const statusClass = rowStatus ? ' status-'+rowStatus : '';
     row.className = 'time-row '+p.type+' '+stateClass+statusClass;
+    row.dataset.key = p.key;
 
     let dotsHtml = '';
     let sehriHtml = '';
@@ -979,6 +981,20 @@ function renderHome(){
     row.querySelector('.name').onclick = ()=> showInfoModal(p.key);
     listEl.appendChild(row);
   });
+
+  if(isToday){
+    const liveKey = (isIftarActive && 'iftar') || (isGhurubActive && 'ghurub') || (currentIdx>=0 && sched[currentIdx].key) || null;
+    if(liveKey && liveKey !== lastLiveKey){
+      const liveRow = listEl.querySelector('.time-row[data-key="'+liveKey+'"]');
+      if(liveRow){
+        const listTop = listEl.getBoundingClientRect().top;
+        const rowTop = liveRow.getBoundingClientRect().top;
+        const targetOffset = listEl.clientHeight * 0.22;
+        listEl.scrollTo({ top: listEl.scrollTop + (rowTop - listTop) - targetOffset, behavior: 'smooth' });
+      }
+    }
+    lastLiveKey = liveKey;
+  }
 
   listEl.querySelectorAll('.dot-btn').forEach(btn=>{
     btn.onclick = ()=>{
