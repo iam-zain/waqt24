@@ -138,6 +138,7 @@ body{
   position:relative; cursor:pointer; border:1px solid var(--line); flex:0 0 auto;
 }
 .roza-mini.on{ background:var(--roza); border-color:var(--roza); }
+.roza-mini.disabled{ opacity:0.35; pointer-events:none; }
 .roza-mini-knob{ width:17px; height:17px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:left .15s; }
 .roza-mini.on .roza-mini-knob{ left:20px; }
 .dateCenter .todayTag{ display:inline-block; margin-left:6px; padding:2px 8px; border-radius:8px; background:var(--accent); color:var(--fardText); font-size:11px; font-weight:700; vertical-align:middle; }
@@ -1525,7 +1526,7 @@ function showDayDetail(date){
   <div class="controlBar" style="border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin:0 -12px 8px; padding:8px 12px;">
     <div class="controlCol">
       <span class="bulkLabel">Roza</span>
-      <div class="roza-mini ${rozaOn?'on':''}" id="calRozaBtn"><div class="roza-mini-knob"></div></div>
+      <div class="roza-mini ${rozaOn?'on':''}${isFuture?' disabled':''}" id="calRozaBtn"><div class="roza-mini-knob"></div></div>
     </div>
     <div class="controlDivider"></div>
     <div class="controlCol bulkCol" id="calBulkCol">
@@ -1542,7 +1543,7 @@ function showDayDetail(date){
   FIVE.forEach(p=>{
     const st = getStatus(date,p);
     const pSched = todaySched && todaySched.find(x=>x.key===p);
-    const notStarted = pSched && now < pSched.start;
+    const notStarted = (pSched && now < pSched.start) || isFuture;
     html += `<div class="row${rozaOn ? ' roza-tint' : ''}">
       <span style="text-transform:capitalize">${icon(p)} ${p}</span>
       <div class="status-dots"${notStarted ? ' style="opacity:0.3; pointer-events:none;" title="Abhi shuru nahi hua"' : ''}>
@@ -1560,10 +1561,11 @@ function showDayDetail(date){
     const eDone = isZikrProfileComplete(date, eveningPf);
     const mMarked = zikrDayMarkedBaaki(date, morningPf.id);
     const eMarked = zikrDayMarkedBaaki(date, eveningPf.id);
+    const zikrDisabledAttr = isFuture ? ' style="opacity:0.3; pointer-events:none;" title="Abhi shuru nahi hua"' : '';
     html += `<div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin:12px 0 6px;">📿 Zikr / Tasbeeh</div>
       <div class="row">
         <span>🌅 Subah ke Azkar</span>
-        <div style="display:flex; align-items:center; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px;"${zikrDisabledAttr}>
           <div class="status-dots">
             <button class="dot-btn ${mDone?'on-green':''}" data-zp="morning" data-zd="done" title="Padh Liye">✓</button>
             <button class="dot-btn ${(!mDone && mMarked)?'on-red':''}" data-zp="morning" data-zd="baaki" title="Padhna Baaki Hai">⏳</button>
@@ -1573,7 +1575,7 @@ function showDayDetail(date){
       </div>
       <div class="row">
         <span>🌇 Shaam ke Azkar</span>
-        <div style="display:flex; align-items:center; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px;"${zikrDisabledAttr}>
           <div class="status-dots">
             <button class="dot-btn ${eDone?'on-green':''}" data-zp="evening" data-zd="done" title="Padh Liye">✓</button>
             <button class="dot-btn ${(!eDone && eMarked)?'on-red':''}" data-zp="evening" data-zd="baaki" title="Padhna Baaki Hai">⏳</button>
@@ -1586,6 +1588,7 @@ function showDayDetail(date){
   det.querySelector('#calShareBtn').onclick = ()=> openShareChooser(calDetailDate);
   const afterCalEdit = ()=>{ renderCalendar(true); showDayDetail(calDetailDate); renderHome(); };
   det.querySelector('#calRozaBtn').onclick = ()=>{
+    if(isFuture) return;
     const k = dayKey(calDetailDate);
     state.roza[k] = !state.roza[k];
     saveState();
@@ -1597,6 +1600,7 @@ function showDayDetail(date){
   det.querySelector('#calBulkClear').onclick = ()=> bulkClearFive(calDetailDate, afterCalEdit);
   det.querySelectorAll('.dot-btn').forEach(btn=>{
     btn.onclick = ()=>{
+      if(isFuture) return;
       const prayer = btn.dataset.prayer, want = btn.dataset.set;
       const cur = getStatus(calDetailDate, prayer);
       const k = statusKey(calDetailDate, prayer);
@@ -1611,6 +1615,7 @@ function showDayDetail(date){
   });
   det.querySelectorAll('[data-zp]').forEach(el=>{
     el.onclick = ()=>{
+      if(isFuture) return;
       const pf = state.tasbeeh.profiles.find(p=>p.id===el.dataset.zp);
       if(!pf) return;
       const day = getZikrDay(calDetailDate, pf.id, true);
