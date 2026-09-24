@@ -211,7 +211,7 @@ body{
 #timesList.namaz-mode .time-row.current .pIcon{ font-size:20px; }
 #timesList.namaz-mode .time-row.future{ opacity:0.6; box-shadow:none; }
 #timesList.namaz-mode .time-row.past{ box-shadow:none; }
-#timesList.namaz-mode .dot-btn{ width:19px; height:19px; }
+#timesList.namaz-mode .dot-btn{ width:19px; height:19px; font-size:9px; }
 #timesList.namaz-mode .dotsSlot{ flex-basis:63px; }
 #timesList.namaz-mode .meterWrap{ height:10px; }
 #timesList.namaz-mode .meterRow{ padding:7px 2px 0; gap:12px; }
@@ -220,10 +220,11 @@ body{
 .status-dots{ flex:0 0 auto; display:flex; gap:3px; margin-left:auto; }
 .dot-btn{
   width:23px; height:23px; border-radius:50%; border:1.5px solid var(--dotBorder, var(--line)); background:transparent; cursor:pointer; padding:0;
+  display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; line-height:1; color:var(--dotBorder, var(--sub));
 }
-.dot-btn.on-green{ background:var(--green); border-color:var(--green); }
-.dot-btn.on-yellow{ background:var(--yellow); border-color:var(--yellow); }
-.dot-btn.on-red{ background:var(--red); border-color:var(--red); }
+.dot-btn.on-green{ background:var(--green); border-color:var(--green); color:#fff; }
+.dot-btn.on-yellow{ background:var(--yellow); border-color:var(--yellow); color:#2b2100; }
+.dot-btn.on-red{ background:var(--red); border-color:var(--red); color:#fff; }
 
 /* ---------- TAB BAR ---------- */
 #tabbar{
@@ -1002,6 +1003,7 @@ applyTimeFormat();
 function isAllFiveGreen(d){
   return FIVE.every(p=> getStatus(d,p)==='green');
 }
+const NAMAZ_STATUS_LABEL = { green:'Padh Li', yellow:'Qaza Padhi', red:'Baaki Hai' };
 let toastTimer = null;
 function showToast(msg){
   let el = document.getElementById('appToast');
@@ -1126,9 +1128,9 @@ function renderHome(){
     if(FIVE.includes(p.key) && !isFuture){
       const st = rowStatus;
       dotsHtml = `<div class="status-dots">
-        <button class="dot-btn ${st==='green'?'on-green':''}" data-prayer="${p.key}" data-set="green" title="Padh Li"></button>
-        <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-prayer="${p.key}" data-set="yellow" title="Qaza Padhi"></button>
-        <button class="dot-btn ${st==='red'?'on-red':''}" data-prayer="${p.key}" data-set="red" title="Baaki Hai"></button>
+        <button class="dot-btn ${st==='green'?'on-green':''}" data-prayer="${p.key}" data-set="green" title="Padh Li">✓</button>
+        <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-prayer="${p.key}" data-set="yellow" title="Qaza Padhi">~</button>
+        <button class="dot-btn ${st==='red'?'on-red':''}" data-prayer="${p.key}" data-set="red" title="Baaki Hai">⏳</button>
       </div>`;
     } else if(p.key==='sehri' && !isFutureDate){
       const rozaOn = !!state.roza[dayKey(viewDate)];
@@ -1200,7 +1202,9 @@ function renderHome(){
       const prayer = btn.dataset.prayer, want = btn.dataset.set;
       const cur = getStatus(viewDate, prayer);
       const k = statusKey(viewDate, prayer);
-      if(cur===want){ delete state.status[k]; } else { state.status[k]=want; }
+      const label = prayer.charAt(0).toUpperCase()+prayer.slice(1);
+      if(cur===want){ delete state.status[k]; showToast(label+': Clear ho gaya'); }
+      else{ state.status[k]=want; showToast(label+': '+NAMAZ_STATUS_LABEL[want]); }
       saveState();
       renderHome();
     };
@@ -1541,9 +1545,9 @@ function showDayDetail(date){
     html += `<div class="row${rozaOn ? ' roza-tint' : ''}">
       <span style="text-transform:capitalize">${icon(p)} ${p}</span>
       <div class="status-dots"${notStarted ? ' style="opacity:0.3; pointer-events:none;" title="Abhi shuru nahi hua"' : ''}>
-        <button class="dot-btn ${st==='green'?'on-green':''}" data-prayer="${p}" data-set="green" title="Padh Li"></button>
-        <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-prayer="${p}" data-set="yellow" title="Qaza Padhi"></button>
-        <button class="dot-btn ${st==='red'?'on-red':''}" data-prayer="${p}" data-set="red" title="Baaki Hai"></button>
+        <button class="dot-btn ${st==='green'?'on-green':''}" data-prayer="${p}" data-set="green" title="Padh Li">✓</button>
+        <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-prayer="${p}" data-set="yellow" title="Qaza Padhi">~</button>
+        <button class="dot-btn ${st==='red'?'on-red':''}" data-prayer="${p}" data-set="red" title="Baaki Hai">⏳</button>
       </div>
     </div>`;
   });
@@ -1560,8 +1564,8 @@ function showDayDetail(date){
         <span>🌅 Subah ke Azkar</span>
         <div style="display:flex; align-items:center; gap:8px;">
           <div class="status-dots">
-            <button class="dot-btn ${mDone?'on-green':''}" data-zp="morning" data-zd="done" title="Padh Liye"></button>
-            <button class="dot-btn ${(!mDone && mMarked)?'on-red':''}" data-zp="morning" data-zd="baaki" title="Padhna Baaki Hai"></button>
+            <button class="dot-btn ${mDone?'on-green':''}" data-zp="morning" data-zd="done" title="Padh Liye">✓</button>
+            <button class="dot-btn ${(!mDone && mMarked)?'on-red':''}" data-zp="morning" data-zd="baaki" title="Padhna Baaki Hai">⏳</button>
           </div>
           <button class="bulk-btn bulk-clear" data-zp="morning" data-zreset="1" title="Reset Karein" style="width:24px; height:24px; font-size:11px;">↺</button>
         </div>
@@ -1570,8 +1574,8 @@ function showDayDetail(date){
         <span>🌇 Shaam ke Azkar</span>
         <div style="display:flex; align-items:center; gap:8px;">
           <div class="status-dots">
-            <button class="dot-btn ${eDone?'on-green':''}" data-zp="evening" data-zd="done" title="Padh Liye"></button>
-            <button class="dot-btn ${(!eDone && eMarked)?'on-red':''}" data-zp="evening" data-zd="baaki" title="Padhna Baaki Hai"></button>
+            <button class="dot-btn ${eDone?'on-green':''}" data-zp="evening" data-zd="done" title="Padh Liye">✓</button>
+            <button class="dot-btn ${(!eDone && eMarked)?'on-red':''}" data-zp="evening" data-zd="baaki" title="Padhna Baaki Hai">⏳</button>
           </div>
           <button class="bulk-btn bulk-clear" data-zp="evening" data-zreset="1" title="Reset Karein" style="width:24px; height:24px; font-size:11px;">↺</button>
         </div>
@@ -1595,7 +1599,9 @@ function showDayDetail(date){
       const prayer = btn.dataset.prayer, want = btn.dataset.set;
       const cur = getStatus(calDetailDate, prayer);
       const k = statusKey(calDetailDate, prayer);
-      if(cur===want){ delete state.status[k]; } else { state.status[k]=want; }
+      const label = prayer.charAt(0).toUpperCase()+prayer.slice(1);
+      if(cur===want){ delete state.status[k]; showToast(label+': Clear ho gaya'); }
+      else{ state.status[k]=want; showToast(label+': '+NAMAZ_STATUS_LABEL[want]); }
       saveState();
       renderCalendar(true);
       showDayDetail(calDetailDate);
@@ -1654,9 +1660,9 @@ function renderRamzan(){
     const pSched = sched.find(x=>x.key===p);
     const notStarted = pSched && now < pSched.start;
     const dotsHtml = notStarted ? '' : `<div class="status-dots">
-        <button class="dot-btn ${st==='green'?'on-green':''}" data-p="${p}" data-s="green" title="Padh Li"></button>
-        <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-p="${p}" data-s="yellow" title="Qaza Padhi"></button>
-        <button class="dot-btn ${st==='red'?'on-red':''}" data-p="${p}" data-s="red" title="Baaki Hai"></button>
+        <button class="dot-btn ${st==='green'?'on-green':''}" data-p="${p}" data-s="green" title="Padh Li">✓</button>
+        <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-p="${p}" data-s="yellow" title="Qaza Padhi">~</button>
+        <button class="dot-btn ${st==='red'?'on-red':''}" data-p="${p}" data-s="red" title="Baaki Hai">⏳</button>
       </div>`;
     row.innerHTML = `<span style="font-weight:700; font-size:13.5px; text-transform:capitalize; cursor:pointer;" data-info="${p}">${icon} ${p}</span>
       ${dotsHtml}`;
@@ -1668,9 +1674,9 @@ function renderRamzan(){
   const ishaRowR = sched.find(x=>x.key==='isha');
   const tarabihStarted = ishaRowR && now >= ishaRowR.start;
   const tDotsHtml = tarabihStarted ? `<div class="status-dots">
-      <button class="dot-btn ${tSt==='prayed'?'on-green':''}" data-t="prayed" title="Padhi Gayi"></button>
-      <button class="dot-btn ${tSt==='qaza'?'on-yellow':''}" data-t="qaza" title="Qaza"></button>
-      <button class="dot-btn ${tSt==='pending'?'on-red':''}" data-t="pending" title="Baaki Hai"></button>
+      <button class="dot-btn ${tSt==='prayed'?'on-green':''}" data-t="prayed" title="Padhi Gayi">✓</button>
+      <button class="dot-btn ${tSt==='qaza'?'on-yellow':''}" data-t="qaza" title="Qaza">~</button>
+      <button class="dot-btn ${tSt==='pending'?'on-red':''}" data-t="pending" title="Baaki Hai">⏳</button>
     </div>` : '';
   const tRow = document.createElement('div');
   tRow.className='ramzan-card';
@@ -1684,13 +1690,17 @@ function renderRamzan(){
       btn.onclick=()=>{
         const p=btn.dataset.p, want=btn.dataset.s;
         const kk = statusKey(now,p);
-        if(state.status[kk]===want) delete state.status[kk]; else state.status[kk]=want;
+        const label = p.charAt(0).toUpperCase()+p.slice(1);
+        if(state.status[kk]===want){ delete state.status[kk]; showToast(label+': Clear ho gaya'); }
+        else{ state.status[kk]=want; showToast(label+': '+NAMAZ_STATUS_LABEL[want]); }
         saveState(); renderRamzan();
       };
     } else if(btn.dataset.t){
       btn.onclick=()=>{
         const want=btn.dataset.t;
-        state.tarabih[tk] = state.tarabih[tk]===want ? undefined : want;
+        const label = 'Taraabih';
+        if(state.tarabih[tk]===want){ state.tarabih[tk] = undefined; showToast(label+': Clear ho gaya'); }
+        else{ state.tarabih[tk] = want; showToast(label+': '+(want==='prayed'?'Padhi Gayi':want==='qaza'?'Qaza':'Baaki Hai')); }
         saveState(); renderRamzan();
       };
     }
@@ -2745,11 +2755,25 @@ function renderZikrProfileList(){
         <div class="zpProgWrap"><div style="width:${pct}%;"></div></div>
         <div class="zpCount">${done}/${total} zikr mukammal (aaj)</div>
       </div>
+      <button class="bulk-btn bulk-clear" data-pfreset="${pf.id}" title="Aaj ka reset karein" style="width:26px; height:26px; font-size:12px; flex:0 0 auto;">↺</button>
       <div class="chev">›</div>
     </div>`;
   }).join('');
   wrap.querySelectorAll('[data-pf]').forEach(el=>{
     el.onclick = ()=> renderZikrProfile(el.dataset.pf);
+  });
+  wrap.querySelectorAll('[data-pfreset]').forEach(btn=>{
+    btn.onclick = (e)=>{
+      e.stopPropagation();
+      const pf = state.tasbeeh.profiles.find(p=>p.id===btn.dataset.pfreset);
+      if(!pf) return;
+      const day = getZikrDay(today, pf.id, true);
+      pf.items.forEach(it=>{ day[it.id] = 0; });
+      delete day.__marked;
+      saveState();
+      showToast(pf.name + ' aaj ke liye reset ho gaya');
+      renderZikrProfileList();
+    };
   });
 }
 function renderZikrProfile(profileId){
