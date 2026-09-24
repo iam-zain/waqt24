@@ -335,8 +335,8 @@ body{
 .tasbeeh-design-btn{ padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); font-size:12px; font-weight:700; color:var(--sub); cursor:pointer; }
 .tasbeeh-design-btn.active{ background:var(--accent); color:var(--fardText); border-color:var(--accent); }
 .beads-track{ touch-action:none; cursor:grab; user-select:none; }
-.beads-track.h{ display:flex; gap:9px; overflow:hidden; padding:20px 4px; justify-content:flex-start; }
-.beads-track.v{ display:flex; flex-direction:column; gap:9px; overflow:hidden; height:220px; padding:4px 20px; align-items:center; justify-content:flex-start; margin:0 auto; width:60px; }
+.beads-track.h{ display:flex; flex-direction:row-reverse; gap:9px; overflow:hidden; padding:20px 4px; justify-content:flex-start; }
+.beads-track.v{ display:flex; flex-direction:column-reverse; gap:9px; overflow:hidden; height:220px; padding:4px 20px; align-items:center; justify-content:flex-start; margin:0 auto; width:60px; }
 .bead{ width:24px; height:24px; border-radius:50%; background:radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--sub) 35%, var(--card2)) 0%, var(--card2) 55%, var(--line) 100%); border:1px solid var(--line); flex:0 0 auto; box-shadow:inset 0 -2px 3px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.2); }
 .bead.active{ background:radial-gradient(circle at 32% 28%, color-mix(in srgb, white 45%, var(--tasbeehColor, var(--accent))) 0%, var(--tasbeehColor, var(--accent)) 60%, var(--tasbeehColor, var(--accent)) 100%); box-shadow:0 0 12px var(--tasbeehColor, var(--accent)), inset 0 -2px 3px rgba(0,0,0,0.25); }
 .beads-hint{ text-align:center; font-size:11px; color:var(--sub); margin-top:6px; }
@@ -1539,16 +1539,22 @@ function showDayDetail(date){
     html += `<div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin:12px 0 6px;">📿 Zikr / Tasbeeh</div>
       <div class="row">
         <span>🌅 Subah ke Azkar</span>
-        <div class="status-dots">
-          <button class="dot-btn ${mDone?'on-green':''}" data-zp="morning" data-zd="done" title="Padh Liye"></button>
-          <button class="dot-btn ${!mDone?'on-red':''}" data-zp="morning" data-zd="baaki" title="Padhna Baaki Hai"></button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="status-dots">
+            <button class="dot-btn ${mDone?'on-green':''}" data-zp="morning" data-zd="done" title="Padh Liye"></button>
+            <button class="dot-btn ${!mDone?'on-red':''}" data-zp="morning" data-zd="baaki" title="Padhna Baaki Hai"></button>
+          </div>
+          <button class="bulk-btn bulk-clear" data-zp="morning" data-zreset="1" title="Reset Karein" style="width:24px; height:24px; font-size:11px;">↺</button>
         </div>
       </div>
       <div class="row">
         <span>🌇 Shaam ke Azkar</span>
-        <div class="status-dots">
-          <button class="dot-btn ${eDone?'on-green':''}" data-zp="evening" data-zd="done" title="Padh Liye"></button>
-          <button class="dot-btn ${!eDone?'on-red':''}" data-zp="evening" data-zd="baaki" title="Padhna Baaki Hai"></button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="status-dots">
+            <button class="dot-btn ${eDone?'on-green':''}" data-zp="evening" data-zd="done" title="Padh Liye"></button>
+            <button class="dot-btn ${!eDone?'on-red':''}" data-zp="evening" data-zd="baaki" title="Padhna Baaki Hai"></button>
+          </div>
+          <button class="bulk-btn bulk-clear" data-zp="evening" data-zreset="1" title="Reset Karein" style="width:24px; height:24px; font-size:11px;">↺</button>
         </div>
       </div>`;
   }
@@ -2536,17 +2542,18 @@ function tasbeehTick(){
   document.querySelectorAll('.beads-track .bead').forEach((b,i)=> b.classList.toggle('active', i===activeIdx));
 }
 function setupBeadsDrag(track, isH){
-  let last = null, dist = 0;
-  const threshold = 33; // matches bead width(24)+gap(9) so one bead-step = one count
-  const maxStepsPerMove = 1; // a single pointermove event can only register one bead, however far it jumps
+  let activePointerId = null, last = null, dist = 0;
+  const threshold = 42; // a deliberate finger-width swipe per bead, avoids over-sensitive counting
   const getPos = (e)=> isH ? e.clientX : e.clientY;
   track.addEventListener('pointerdown', (e)=>{
+    if(activePointerId !== null) return; // ignore a second finger while one is already dragging
+    activePointerId = e.pointerId;
     track.setPointerCapture(e.pointerId);
     last = getPos(e); dist = 0;
     e.preventDefault();
   });
   track.addEventListener('pointermove', (e)=>{
-    if(last===null) return;
+    if(e.pointerId !== activePointerId || last===null) return;
     e.preventDefault();
     const pos = getPos(e);
     // moving right-to-left (H) or bottom-to-top (V) both mean the coordinate decreases
@@ -2554,14 +2561,15 @@ function setupBeadsDrag(track, isH){
     last = pos;
     if(delta>0){
       dist += delta;
-      let steps = 0;
-      while(dist >= threshold && steps < maxStepsPerMove){ dist -= threshold; tasbeehTick(); steps++; }
-      if(dist >= threshold) dist = 0; // drop any excess from an abnormally large jump instead of bursting
+      if(dist >= threshold){ dist -= threshold; tasbeehTick(); } // at most one bead per move event, however far it jumped
     } else if(delta<0){
       dist = Math.max(0, dist + delta*0.5); // reverse wobble bleeds off progress instead of reversing count
     }
   });
-  const end = ()=>{ last = null; dist = 0; };
+  const end = (e)=>{
+    if(e && e.pointerId!==undefined && e.pointerId!==activePointerId) return;
+    activePointerId = null; last = null; dist = 0;
+  };
   track.addEventListener('pointerup', end);
   track.addEventListener('pointercancel', end);
   track.addEventListener('pointerleave', end);
