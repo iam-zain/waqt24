@@ -567,7 +567,7 @@ body{
       <div class="more-item" data-open="ramzan" id="ramzanMoreItem"><div class="ic">☪️</div><div class="lbl">Ramzan<span class="lblSub" id="ramzanSub"></span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="hijriConv"><div class="ic">🔁</div><div class="lbl">Tareekh Badlein (Hijri)</div><div class="chev">›</div></div>
       <div class="more-item" data-open="islamicMonths"><div class="ic">🌙</div><div class="lbl">Islami Mahine</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="islamicEvents"><div class="ic">🎉</div><div class="lbl">Islami Tehwaar</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="islamicEvents"><div class="ic">🎉</div><div class="lbl">Khaas Din</div><div class="chev">›</div></div>
     </div>
     <div class="pad" style="padding-bottom:0;">
       <div class="section-title">Explore</div>
@@ -3096,7 +3096,7 @@ function islamicEventsList(){
   }).sort((a,b)=> a.greg - b.greg);
 }
 function renderIslamicEvents(){
-  document.getElementById('detailTitle').textContent = 'Islami Tehwaar';
+  document.getElementById('detailTitle').textContent = 'Khaas Din';
   const events = islamicEventsList();
   document.getElementById('detailBody').innerHTML = `
     <div class="backup-note">Aane wale ahem Islami tareekhein (Hijri arithmetic hisaab se; chaand dikhne par 1 din aage-peeche ho sakta hai).</div>
