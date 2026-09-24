@@ -1087,6 +1087,7 @@ function renderCalendar(){
   const grid = document.getElementById('calGrid');
   grid.innerHTML = '';
   document.getElementById('calDetail').style.display='none';
+  calDetailDate = null;
 
   if(calMode==='greg'){
     const y = calViewDate.getFullYear(), m = calViewDate.getMonth();
@@ -1123,6 +1124,9 @@ function renderCalendar(){
       count++;
     }
   }
+
+  const todayCell = grid.querySelector('.cal-cell.today');
+  if(todayCell) showDayDetail(new Date());
 }
 function emptyCell(){ const c=document.createElement('div'); c.className='cal-cell empty'; return c; }
 function dayCell(date){
