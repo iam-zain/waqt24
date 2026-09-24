@@ -236,7 +236,9 @@ body{
 .cal-dots{ display:flex; gap:2px; }
 .cal-dots span{ width:5px; height:5px; border-radius:50%; background:var(--line); }
 .cal-detail{ margin:10px 14px 20px; padding:12px; background:var(--card); border-radius:12px; border:1px solid var(--line); }
-.cal-detail .row{ display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line); font-size:13px; }
+.cal-detail .row{ display:flex; justify-content:space-between; align-items:center; padding:6px 8px; margin:0 -8px; border-radius:8px; border-bottom:1px solid var(--line); font-size:13px; }
+.cal-detail .row.roza-tint{ background:color-mix(in srgb, var(--roza) 16%, transparent); border-bottom-color:color-mix(in srgb, var(--roza) 30%, var(--line)); }
+.cal-detail .controlCol.bulkCol{ justify-content:space-between; }
 .cal-detail .row:last-child{ border-bottom:none; }
 .cal-detail .tag{ padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700; }
 
@@ -367,7 +369,7 @@ body{
       </div>
       <div class="controlDivider"></div>
       <div class="controlCol bulkCol">
-        <span class="bulkLabel">Farz Namaz</span>
+        <span class="bulkLabel">5 Farz Namaz</span>
         <div class="bulkBtns" id="bulkBtns">
           <button class="bulk-btn bulk-green" id="bulkGreen" title="Sab Padh Li">✓</button>
           <button class="bulk-btn bulk-yellow" id="bulkYellow" title="Sab Qaza Padhi">~</button>
@@ -1175,7 +1177,7 @@ function showDayDetail(date){
     </div>
     <div class="controlDivider"></div>
     <div class="controlCol bulkCol" id="calBulkCol">
-      <span class="bulkLabel">Farz Namaz</span>
+      <span class="bulkLabel">5 Farz Namaz</span>
       <div class="bulkBtns${isFuture?' disabled':''}" id="calBulkBtns">
         <button class="bulk-btn bulk-green" id="calBulkGreen" title="Sab Padh Li">✓</button>
         <button class="bulk-btn bulk-yellow" id="calBulkYellow" title="Sab Qaza Padhi">~</button>
@@ -1189,7 +1191,7 @@ function showDayDetail(date){
     const st = getStatus(date,p);
     const pSched = todaySched && todaySched.find(x=>x.key===p);
     const notStarted = pSched && now < pSched.start;
-    html += `<div class="row">
+    html += `<div class="row${rozaOn ? ' roza-tint' : ''}">
       <span style="text-transform:capitalize">${icon(p)} ${p}</span>
       <div class="status-dots"${notStarted ? ' style="opacity:0.3; pointer-events:none;" title="Abhi shuru nahi hua"' : ''}>
         <button class="dot-btn ${st==='green'?'on-green':''}" data-prayer="${p}" data-set="green" title="Padh Li"></button>
