@@ -86,31 +86,32 @@ body{
   display:flex; justify-content:space-between; align-items:center; gap:10px;
   padding:8px 4px 12px; border-bottom:1px solid var(--line);
 }
-.date-bar .greg{ font-size:16px; color:var(--sub); font-weight:600; }
-.date-bar .hijri{ font-size:14.5px; color:var(--accent); font-weight:700; margin-top:3px; }
+.date-bar .greg{ font-size:15.5px; color:var(--sub); font-weight:600; }
+.date-bar .hijri{ font-size:16px; color:var(--accent); font-weight:700; margin-top:4px; }
 .dateNav{
-  width:32px; height:32px; flex:0 0 auto; border-radius:9px; border:1px solid var(--line);
-  background:var(--card); color:var(--text); font-size:16px; cursor:pointer;
+  width:34px; height:34px; flex:0 0 auto; border-radius:10px; border:1px solid var(--line);
+  background:var(--card); color:var(--text); font-size:17px; cursor:pointer;
 }
 .dateCenter{ flex:1; text-align:center; cursor:pointer; }
-.cityLabel{ font-size:13px; color:var(--sub); margin-top:3px; }
+.cityLabel{ font-size:15px; color:var(--sub); margin-top:4px; }
 .controlBar{
   display:flex; align-items:stretch;
-  padding:6px 2px; margin-top:2px; border-bottom:1px solid var(--line);
+  padding:8px 2px; margin-top:2px; border-bottom:1px solid var(--line);
 }
-.controlCol{ flex:1; display:flex; align-items:center; justify-content:center; padding:3px; gap:8px; min-width:0; }
+.controlCol{ flex:0 0 auto; display:flex; align-items:center; justify-content:center; padding:3px; gap:6px; min-width:0; }
+.controlCol.bulkCol{ flex:1; gap:5px; }
 .controlDivider{ width:1px; background:var(--line); margin:2px 0; }
-.bulkLabel{ font-size:13px; color:var(--sub); font-weight:600; white-space:nowrap; }
-.bulkBtns{ display:flex; gap:6px; transition:opacity .2s; flex:0 0 auto; }
+.bulkLabel{ font-size:12.5px; color:var(--sub); font-weight:600; white-space:nowrap; }
+.bulkBtns{ display:flex; gap:5px; transition:opacity .2s; flex:0 0 auto; }
 .bulkBtns.disabled{ opacity:0.3; pointer-events:none; filter:grayscale(0.6); }
 .bulk-btn{
-  width:26px; height:26px; border-radius:50%; border:1.5px solid transparent; cursor:pointer;
-  font-size:12.5px; font-weight:800; display:flex; align-items:center; justify-content:center; color:#fff; flex:0 0 auto;
+  width:25px; height:25px; border-radius:50%; border:1.5px solid transparent; cursor:pointer;
+  font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; color:#fff; flex:0 0 auto;
 }
 .bulk-green{ background:var(--green); }
 .bulk-yellow{ background:var(--yellow); color:#2b2100; }
 .bulk-red{ background:var(--red); }
-.bulk-clear{ background:transparent; border-color:var(--dotBorder, var(--line)); color:var(--sub); font-size:14px; }
+.bulk-clear{ background:transparent; border-color:var(--dotBorder, var(--line)); color:var(--sub); font-size:16px; }
 .roza-mini{
   width:40px; height:23px; border-radius:12px; background:var(--meterBg);
   position:relative; cursor:pointer; border:1px solid var(--line); flex:0 0 auto;
@@ -118,34 +119,34 @@ body{
 .roza-mini.on{ background:var(--roza); border-color:var(--roza); }
 .roza-mini-knob{ width:17px; height:17px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:left .15s; }
 .roza-mini.on .roza-mini-knob{ left:20px; }
-.dateCenter .todayTag{ display:inline-block; margin-left:6px; padding:1px 7px; border-radius:8px; background:var(--accent); color:var(--fardText); font-size:9.5px; font-weight:700; vertical-align:middle; }
+.dateCenter .todayTag{ display:inline-block; margin-left:6px; padding:2px 8px; border-radius:8px; background:var(--accent); color:var(--fardText); font-size:11px; font-weight:700; vertical-align:middle; }
 
-.times-list{ flex:1; display:flex; flex-direction:column; justify-content:flex-start; gap:clamp(3px, 1.1dvh, 11px); padding:4px 0; min-height:0; overflow-y:auto; }
+.times-list{ flex:1; display:flex; flex-direction:column; justify-content:flex-start; gap:clamp(4px, 1.6dvh, 20px); padding:4px 0; min-height:0; overflow-y:auto; }
 .time-row{
   display:flex; flex-direction:column; gap:2px;
-  padding:4px 6px; border-radius:8px; position:relative;
-  min-height:38px; justify-content:center;
+  padding:5px 8px; border-radius:9px; position:relative;
+  min-height:42px; justify-content:center;
 }
 .time-row .rowMain{ display:flex; align-items:center; gap:6px; }
-.time-row .remainText{ font-size:11.5px; text-align:right; padding-right:2px; line-height:15px; }
+.time-row .remainText{ font-size:14px; text-align:right; padding-right:2px; line-height:18px; }
 .time-row .remainText.remainPlaceholder{ visibility:hidden; }
 .time-row .remainLabel{ color:var(--sub); font-weight:400; opacity:0.75; }
 .time-row .remainValue{ color:var(--text); font-weight:800; }
-.time-row .name{ font-size:11.5px; font-weight:600; flex:0 0 140px; min-width:0; display:flex; align-items:center; gap:4px; cursor:pointer; }
+.time-row .name{ font-size:14px; font-weight:600; flex:0 0 155px; min-width:0; display:flex; align-items:center; gap:5px; cursor:pointer; }
 .time-row .name .nameTxt{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
-.pIcon{ font-size:14px; line-height:1; flex:0 0 auto; }
-.time-row .clock{ font-size:10.5px; font-variant-numeric:tabular-nums; flex:0 0 auto; color:var(--sub); letter-spacing:-0.4px; white-space:nowrap; }
-.time-row .clock .arrow{ opacity:0.5; margin:0 2px; font-size:10px; }
+.pIcon{ font-size:17px; line-height:1; flex:0 0 auto; }
+.time-row .clock{ font-size:13px; font-variant-numeric:tabular-nums; flex:0 0 auto; color:var(--sub); letter-spacing:-0.3px; white-space:nowrap; }
+.time-row .clock .arrow{ opacity:0.5; margin:0 2px; font-size:12px; }
 .time-row.current .clock{ color:var(--text); font-weight:600; }
-.time-row .meterWrap{ flex:1; height:6px; background:var(--meterBg); border-radius:4px; overflow:hidden; position:relative; display:flex; justify-content:flex-end; margin-left:10px; max-width:70%; }
+.time-row .meterWrap{ flex:1; height:7px; background:var(--meterBg); border-radius:4px; overflow:hidden; position:relative; display:flex; justify-content:flex-end; margin-left:10px; max-width:70%; }
 .time-row .meterFill{ height:100%; border-radius:4px; width:0%; background:var(--accent); }
 .time-row.fard .name{ color:var(--fard); }
 .time-row.nafil .name{ color:var(--nafil); }
 .time-row.special .name{ color:var(--special); }
 .time-row.meal .name{ color:var(--meal); }
-.time-row.current{ background:var(--card2); box-shadow:0 0 0 1.5px var(--accent) inset, 0 2px 10px rgba(0,0,0,0.10); padding-top:8px; padding-bottom:8px; min-height:52px; }
-.time-row.current .name{ font-weight:800; font-size:12.5px; flex-basis:150px; }
-.time-row.current .pIcon{ font-size:16px; }
+.time-row.current{ background:var(--card2); box-shadow:0 0 0 1.5px var(--accent) inset, 0 2px 10px rgba(0,0,0,0.10); padding-top:8px; padding-bottom:8px; min-height:56px; }
+.time-row.current .name{ font-weight:800; font-size:15.5px; flex-basis:165px; }
+.time-row.current .pIcon{ font-size:19px; }
 .time-row.past{ opacity:0.4; }
 .time-row.past .name{ color:var(--sub) !important; font-weight:500; }
 .time-row.past .clock{ color:var(--sub); }
@@ -162,21 +163,21 @@ body{
   background:var(--card); box-shadow:0 0 0 1px var(--line) inset;
   padding:11px 10px; border-radius:12px; min-height:52px;
 }
-#timesList.namaz-mode .time-row .name{ font-size:12.5px; font-weight:700; flex-basis:150px; }
-#timesList.namaz-mode .pIcon{ font-size:16px; }
-#timesList.namaz-mode .time-row .clock{ font-size:11.5px; }
-#timesList.namaz-mode .time-row.current{ background:var(--card2); box-shadow:0 0 0 2px var(--accent) inset, 0 3px 14px rgba(0,0,0,0.14); padding:14px 10px; min-height:66px; }
-#timesList.namaz-mode .time-row.current .name{ font-size:14px; font-weight:800; flex-basis:158px; }
-#timesList.namaz-mode .time-row.current .pIcon{ font-size:19px; }
+#timesList.namaz-mode .time-row .name{ font-size:14.5px; font-weight:700; flex-basis:160px; }
+#timesList.namaz-mode .pIcon{ font-size:18px; }
+#timesList.namaz-mode .time-row .clock{ font-size:13.5px; }
+#timesList.namaz-mode .time-row.current{ background:var(--card2); box-shadow:0 0 0 2px var(--accent) inset, 0 3px 14px rgba(0,0,0,0.14); padding:16px 12px; min-height:78px; }
+#timesList.namaz-mode .time-row.current .name{ font-size:16.5px; font-weight:800; flex-basis:170px; }
+#timesList.namaz-mode .time-row.current .pIcon{ font-size:22px; }
 #timesList.namaz-mode .time-row.future{ opacity:0.6; box-shadow:none; }
 #timesList.namaz-mode .time-row.past{ box-shadow:none; }
-#timesList.namaz-mode .dot-btn{ width:19px; height:19px; }
+#timesList.namaz-mode .dot-btn{ width:23px; height:23px; }
 #timesList.namaz-mode .meterWrap{ height:8px; }
-#timesList.namaz-mode .remainText{ font-size:11.5px; }
-.dotsSlot{ flex:0 0 63px; display:flex; align-items:center; justify-content:flex-end; }
+#timesList.namaz-mode .remainText{ font-size:13.5px; }
+.dotsSlot{ flex:0 0 76px; display:flex; align-items:center; justify-content:flex-end; }
 .status-dots{ flex:0 0 auto; display:flex; gap:3px; margin-left:auto; }
 .dot-btn{
-  width:19px; height:19px; border-radius:50%; border:1.5px solid var(--dotBorder, var(--line)); background:transparent; cursor:pointer; padding:0;
+  width:23px; height:23px; border-radius:50%; border:1.5px solid var(--dotBorder, var(--line)); background:transparent; cursor:pointer; padding:0;
 }
 .dot-btn.on-green{ background:var(--green); border-color:var(--green); }
 .dot-btn.on-yellow{ background:var(--yellow); border-color:var(--yellow); }
@@ -189,11 +190,11 @@ body{
 }
 .tab-btn{
   flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:3px; padding:10px 0 8px; background:none; border:none; color:var(--sub); cursor:pointer;
+  gap:4px; padding:13px 0 11px; background:none; border:none; color:var(--sub); cursor:pointer;
 }
 .tab-btn.active{ color:var(--accent); }
-.tab-btn .ic{ font-size:23px; line-height:1; }
-.tab-btn .lb{ font-size:12px; font-weight:600; }
+.tab-btn .ic{ font-size:27px; line-height:1; }
+.tab-btn .lb{ font-size:13.5px; font-weight:600; }
 
 /* ---------- generic screen padding ---------- */
 .pad{ padding:14px; }
@@ -352,7 +353,7 @@ body{
         <div class="roza-mini" id="namazModeBtn"><div class="roza-mini-knob"></div></div>
       </div>
       <div class="controlDivider"></div>
-      <div class="controlCol">
+      <div class="controlCol bulkCol">
         <span class="bulkLabel">Farz Namaz</span>
         <div class="bulkBtns" id="bulkBtns">
           <button class="bulk-btn bulk-green" id="bulkGreen" title="Sab Padh Li">✓</button>
