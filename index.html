@@ -3206,8 +3206,8 @@ function renderStats(){
       <button id="statsHijriBtn" class="${statsCal==='hijri'?'active':''}">Hijri</button>
     </div>
     <div class="cal-toggle" style="padding:0 0 14px;">
-      <button id="statsMonthBtn" class="${statsRange==='month'?'active':''}">Monthly</button>
-      <button id="statsYearBtn" class="${statsRange==='year'?'active':''}">Yearly</button>
+      <button id="statsMonthBtn" class="${statsRange==='month'?'active':''}">Maahana</button>
+      <button id="statsYearBtn" class="${statsRange==='year'?'active':''}">Saalana</button>
     </div>
     <div class="cal-header" style="padding:0 0 14px; border:none;">
       <button id="statsPrev">‹</button>
@@ -3234,16 +3234,11 @@ function renderStats(){
     </div>
 
     <div class="ramzan-card" style="margin:0 0 14px;">
-      <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🕌 Namaz ka Report</div>
-      <div class="stats-row"><span>🏆 Highest Padhi Gayi</span><b>${highestPrayed || '—'}</b></div>
-      <div class="stats-row"><span>〰️ Highest Qaza</span><b>${highestQaza || '—'}</b></div>
-      <div class="stats-row"><span>⚠️ Highest Missed</span><b>${highestMissed || '—'}</b></div>
+      <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🕌 Namaz ka Jaiza</div>
+      <div class="stats-row"><span>🏆 Sabse Zyada Padhi Gayi</span><b>${highestPrayed || '—'}</b></div>
+      <div class="stats-row"><span>〰️ Sabse Zyada Qaza</span><b>${highestQaza || '—'}</b></div>
+      <div class="stats-row"><span>⚠️ Sabse Zyada Chhooti</span><b>${highestMissed || '—'}</b></div>
       <div class="stats-row"><span>✅ Saare 5 Farz wale din</span><b>${allFiveDays} / ${pastDays.length}</b></div>
-    </div>
-
-    <div class="ramzan-card" style="margin:0 0 14px;">
-      <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">☪️ Roza ka Report</div>
-      <div class="stats-row"><span>🌙 Roza rakhe gaye din</span><b>${rozaDays}</b></div>
     </div>
 
     ${(()=>{
@@ -3257,11 +3252,17 @@ function renderStats(){
         if(isZikrProfileComplete(d, evening)) eDone++;
       });
       return `<div class="ramzan-card" style="margin:0 0 14px;">
-        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">📿 Azkar ka Report</div>
+        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">📿 Azkar ka Jaiza</div>
         <div class="stats-row"><span>🌅 Subah Azkar mukammal din</span><b>${mDone} / ${pastDays.length}</b></div>
         <div class="stats-row"><span>🌇 Shaam Azkar mukammal din</span><b>${eDone} / ${pastDays.length}</b></div>
       </div>`;
     })()}
+
+    <div class="ramzan-card" style="margin:0 0 14px;">
+      <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">☪️ Roza ka Jaiza</div>
+      <div class="stats-row"><span>🌙 Roza rakhe gaye din</span><b>${rozaDays}</b></div>
+    </div>
+
 
     ${(()=>{
       const t0 = days[0].getTime(), t1 = days[days.length-1].getTime() + 86400000;
@@ -3272,11 +3273,11 @@ function renderStats(){
       const acc = asked>0 ? Math.round(right/asked*100) : 0;
       const best = played ? Math.max(...logs.map(x=>Math.round(x.score/x.total*100))) : 0;
       return `<div class="ramzan-card" style="margin:0 0 14px;">
-        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🧠 Quiz ka Report</div>
+        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🧠 Quiz ka Jaiza</div>
         <div class="stats-row"><span>🎮 Quiz khele gaye</span><b>${played}</b></div>
         <div class="stats-row"><span>✅ Sahi jawab</span><b>${right} / ${asked}</b></div>
-        <div class="stats-row"><span>🎯 Accuracy</span><b>${played ? acc+'%' : '—'}</b></div>
-        <div class="stats-row"><span>🏆 Sabse behtar score</span><b>${played ? best+'%' : '—'}</b></div>
+        <div class="stats-row"><span>🎯 Durustgi</span><b>${played ? acc+'%' : '—'}</b></div>
+        <div class="stats-row"><span>🏆 Sabse behtar nateeja</span><b>${played ? best+'%' : '—'}</b></div>
       </div>`;
     })()}
 
@@ -3287,7 +3288,7 @@ function renderStats(){
       const baki = KHAAS_SHABD.filter(w=>ws[w.tr]==='learning').length;
       const w = Math.round(yaad/total*100);
       return `<div class="ramzan-card" style="margin:0 0 14px;">
-        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">📚 Lafz ka Report (Khaas Shabd)</div>
+        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">📚 Lafz ka Jaiza (Khaas Shabd)</div>
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
           <div style="flex:1; height:8px; background:var(--meterBg); border-radius:4px; overflow:hidden;"><div style="width:${w}%; height:100%; background:var(--green);"></div></div>
           <span style="font-size:11px; color:var(--sub);">${yaad}/${total}</span>
@@ -3303,10 +3304,10 @@ function renderStats(){
       const ns = computeStreak(), as = azkarStreak(), qs = quizStreak(), ls = learnStreak();
       const row = (icon, label, sub, val)=> `<div class="stats-row"><span>${icon} ${label}<span class="stat-sub">${sub}</span></span><b>${val} din</b></div>`;
       const block = (icon, label, sub, st)=>
-        row(icon, label+' Streak', 'Lagatar din jab '+sub, st.cur) +
-        row('🏆', 'Sabse Lambi '+label+' Streak', 'Ab tak ka sabse zyada lagatar din', st.best);
+        row(icon, label+' ki Paabandi', 'Lagatar din jab '+sub, st.cur) +
+        row('🏆', 'Sabse Lambi '+label+' Paabandi', 'Ab tak ke sabse zyada lagatar din', st.best);
       return `<div class="ramzan-card" style="margin:0 0 14px;">
-        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🔥 Streaks</div>
+        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🔥 Paabandi</div>
         ${block('🕌','Namaz','paanchon Farz waqt par padhe', ns.current===undefined?ns:{cur:ns.current,best:ns.best})}
         ${block('📿','Azkar','Subah aur Shaam dono azkar mukammal kiye', as)}
         ${block('🧠','Quiz','kam az kam ek quiz khela', qs)}
