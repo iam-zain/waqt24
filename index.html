@@ -384,6 +384,16 @@ body{
 .hevent-card.tag-qadr{ border-left-color:#d4a72c; }
 .hevent-card.tag-jumavida{ border-left-color:#3a9bd9; }
 .hevent-card.tag-eid{ border-left-color:#c85a9a; }
+.rz-ashra{ margin:16px 0 8px; font-size:13px; font-weight:800; }
+.rz-row{ display:grid; grid-template-columns:34px 1fr auto; align-items:center; column-gap:10px; padding:9px 12px; margin-bottom:6px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--line); border-radius:12px; }
+.rz-row.qadr{ border-left-color:#d4a72c; }
+.rz-row.today{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, var(--card)); }
+.rz-n{ width:30px; height:30px; border-radius:50%; background:var(--card2); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800; }
+.rz-row.today .rz-n{ background:var(--accent); color:var(--fardText,#fff); border-color:var(--accent); }
+.rz-mid{ min-width:0; }
+.rz-g{ font-size:13px; font-weight:700; }
+.rz-h{ font-size:10.5px; color:var(--sub); margin-top:1px; line-height:1.35; }
+.rz-t{ display:flex; flex-direction:column; align-items:flex-end; gap:2px; font-size:11.5px; font-weight:700; white-space:nowrap; }
 .ramzan-locked .switch, .ramzan-locked .status-dots{ pointer-events:none; opacity:.45; }
 .he-tabs{ margin:0 0 12px; gap:6px; }
 .he-tabs .chip{ padding:7px 11px; }
@@ -2984,8 +2994,42 @@ function renderMoreRamzan(){
     <div class="section-title">Aaj ki 5 Namaz</div>
     <div id="ramzanNamazList"></div>
     </div>
+    <div id="ramzanCal"></div>
   `;
   renderRamzan();
+  renderRamzanCalendar();
+}
+function renderRamzanCalendar(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const th = gregorianToHijri(today);
+  const year = th.month>9 ? th.year+1 : th.year;
+  const first = hijriToGregorian(1, 9, year);
+  const shawwal1 = hijriToGregorian(1, 10, year);
+  const count = Math.round((shawwal1 - first)/86400000);
+  const rows = [];
+  for(let n=1; n<=count; n++){
+    const d = new Date(first.getFullYear(), first.getMonth(), first.getDate()+n-1);
+    const sch = buildSchedule(d);
+    const sehri = sch.find(x=>x.key==='sehri'), iftar = sch.find(x=>x.key==='iftar');
+    rows.push({ n, d, sehri: sehri ? fmtTime(sehri.end) : '--', iftar: iftar ? fmtTime(iftar.start) : '--', isToday: d.getTime()===today.getTime(), qadr: n>=21 && n%2===1 });
+  }
+  const ashra = [[1,10,'🤲 Pehla Ashra — Rehmat'],[11,20,'🕊️ Doosra Ashra — Maghfirat'],[21,count,'🔥 Teesra Ashra — Jahannam se Nijat']];
+  const dateStr = d=> `${DOW[d.getDay()].slice(0,3)}, ${d.getDate()} ${MON[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;
+  document.getElementById('ramzanCal').innerHTML = `
+    <div class="section-title">Ramzan ${year} AH ka Calendar</div>
+    <div class="backup-note" style="margin-bottom:10px;">${first.getFullYear()} mein mutawaqqa tareekhein (Hijri arithmetic hisaab se; chaand dikhne par 1 din aage-peeche ho sakta hai). Ramzan ${count} din ka hai. 🌅 Sehri khatm &nbsp; 🌇 Iftar</div>
+    ${ashra.map(([a,b,label])=>`
+      <div class="rz-ashra">${label}</div>
+      ${rows.filter(r=>r.n>=a && r.n<=b).map(r=>`<div class="rz-row ${r.isToday?'today':''} ${r.qadr?'qadr':''}">
+        <div class="rz-n">${r.n}</div>
+        <div class="rz-mid">
+          <div class="rz-g">${dateStr(r.d)}</div>
+          <div class="rz-h">${r.n} Ramzan-ul-Mubarak ${year} AH${r.qadr ? ' • ✨ Shab-e-Qadr ka Ehtimaal' : ''}</div>
+        </div>
+        <div class="rz-t"><span>🌅 ${r.sehri}</span><span>🌇 ${r.iftar}</span></div>
+      </div>`).join('')}
+    `).join('')}
+  `;
 }
 function renderMoreAbout(){
   document.getElementById('detailTitle').textContent="Iske Baare Mein";
