@@ -313,10 +313,7 @@ body{
 .app-toast{ position:fixed; left:50%; bottom:90px; transform:translateX(-50%) translateY(12px); background:var(--card2); color:var(--text); border:1px solid var(--line); padding:10px 18px; border-radius:20px; font-size:12.5px; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,0.3); opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:999; }
 .app-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
-.streak-strip{ margin:0 14px 10px; padding:10px 14px; background:var(--card); border-radius:12px; border:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:10px; }
-.streak-strip .streakMain{ font-size:13px; font-weight:700; color:var(--text); }
-.streak-strip .streakMain b{ color:var(--accent); }
-.streak-strip .streakBest{ font-size:11.5px; color:var(--sub); font-weight:600; }
+.stats-row .stat-sub{ display:block; font-size:10.5px; color:var(--sub); font-weight:500; margin-top:2px; }
 
 /* ---------- BACKUP ---------- */
 .backup-btn{ width:100%; padding:13px; border-radius:12px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13.5px; font-weight:700; margin-bottom:12px; cursor:pointer; }
@@ -682,7 +679,6 @@ body{
 
   <!-- CALENDAR TAB -->
   <div class="screen scrollable" id="tab-calendar">
-    <div class="streak-strip" id="streakStrip"></div>
     <div class="cal-toggle">
       <button id="calGregBtn" class="active">Gregorian</button>
       <button id="calHijriBtn">Hijri</button>
@@ -1625,13 +1621,6 @@ function shiftCalMonth(dir){
 }
 
 function renderCalendar(preserveDetail){
-  const streakEl = document.getElementById('streakStrip');
-  if(streakEl){
-    const { current, best } = computeStreak();
-    streakEl.innerHTML = current>0
-      ? `<div class="streakMain">🔥 Lagatar <b>${current}</b> din 5 Farz waqt par</div><div class="streakBest">Best: ${best} din</div>`
-      : `<div class="streakMain">🔥 Aaj se streak shuru karein</div><div class="streakBest">Best: ${best} din</div>`;
-  }
   const dowEl = document.getElementById('calDow');
   dowEl.innerHTML = ['S','M','T','W','T','F','S'].map(d=>`<div class="cal-dow">${d}</div>`).join('');
   const grid = document.getElementById('calGrid');
@@ -2508,7 +2497,6 @@ function renderDailyWord(){
     </div>`;
   document.getElementById('detailBody').innerHTML = `
     <div class="dw-wrap">
-      <div class="dw-streak">${(()=>{ const st2 = learnStreak(); return st2.cur>0 ? `🔥 ${st2.cur} din ki learning streak` : 'Aaj koi lafz mark karein — streak shuru karein'; })()}</div>
       <div class="dw-top"><span class="dw-pos">Lafz ${idx+1} / ${KHAAS_SHABD.length}</span><span class="act-group">${bmBtn('word:'+w.tr)}<button class="act-btn" id="wordImgBtn" title="Image share">🖼</button></span></div>
       <div class="daily-word-card ${st==='known'?'is-known':st==='learning'?'is-learning':''}" id="dailyWordCard">
         <div class="cat">${w.cat}</div>
@@ -3226,6 +3214,17 @@ function renderStats(){
       <div class="stats-row"><span>✅ Saare 5 Farz wale din</span><b>${allFiveDays} / ${pastDays.length}</b></div>
     </div>
 
+    ${(()=>{
+      const ns = computeStreak(), ls = learnStreak();
+      return `<div class="ramzan-card" style="margin:0 0 14px;">
+        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🔥 Streaks</div>
+        <div class="stats-row"><span>🕌 Namaz Streak<span class="stat-sub">Lagatar din jab paanchon Farz waqt par padhe</span></span><b>${ns.current} din</b></div>
+        <div class="stats-row"><span>🏆 Sabse Lambi Namaz Streak</span><b>${ns.best} din</b></div>
+        <div class="stats-row"><span>📚 Lafz Seekhne ki Streak<span class="stat-sub">Lagatar din jab koi lafz mark kiya ya quiz kiya</span></span><b>${ls.cur} din</b></div>
+        <div class="stats-row"><span>🏅 Sabse Lambi Lafz Streak</span><b>${ls.best} din</b></div>
+      </div>`;
+    })()}
+
     <div class="ramzan-card" style="margin:0 0 14px;">
       <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">☪️ Roza ka Report</div>
       <div class="stats-row"><span>🌙 Roza rakhe gaye din</span><b>${rozaDays}</b></div>
@@ -3280,8 +3279,6 @@ function renderStats(){
         <div class="stats-row"><span>✅ Lafz yaad ho gaye</span><b>${yaad}</b></div>
         <div class="stats-row"><span>📖 Yaad karna baaki</span><b>${baki}</b></div>
         <div class="stats-row"><span>🆕 Abhi shuru nahi kiye</span><b>${total-yaad-baki}</b></div>
-        <div class="stats-row"><span>🔥 Current learning streak</span><b>${learnStreak().cur} din</b></div>
-        <div class="stats-row"><span>🏅 Sabse lambi streak</span><b>${learnStreak().best} din</b></div>
       </div>`;
     })()}
 
