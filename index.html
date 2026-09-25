@@ -384,6 +384,21 @@ body{
 .hevent-card.tag-qadr{ border-left-color:#d4a72c; }
 .hevent-card.tag-jumavida{ border-left-color:#3a9bd9; }
 .hevent-card.tag-eid{ border-left-color:#c85a9a; }
+.rz-dow{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px; text-align:center; font-size:11.5px; font-weight:800; color:var(--sub); }
+.rz-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+.rz-cell{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; aspect-ratio:1/1.05; padding:2px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer; font-family:inherit; }
+.rz-cn{ font-size:16px; font-weight:800; line-height:1.1; }
+.rz-cg{ font-size:9.5px; color:var(--sub); font-weight:600; line-height:1.1; }
+.rz-cq{ position:absolute; top:1px; right:2px; font-size:9px; line-height:1; }
+.rz-cell.qadr{ border-color:#d4a72c; }
+.rz-cell.today{ background:color-mix(in srgb, var(--accent) 12%, var(--card)); border-color:var(--accent); }
+.rz-cell.sel{ background:var(--accent); border-color:var(--accent); color:var(--fardText,#fff); }
+.rz-cell.sel .rz-cg{ color:inherit; opacity:.85; }
+.rz-detail{ margin-top:12px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+.rz-detail-top{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.rz-detail-n{ flex:0 0 auto; width:38px; height:38px; border-radius:50%; background:var(--accent); color:var(--fardText,#fff); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; }
+.rz-detail-times{ display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding-top:10px; border-top:1px solid var(--line); }
+.rz-legend{ margin-top:10px; font-size:10.5px; color:var(--sub); text-align:center; }
 .rz-ashra{ margin:16px 0 8px; font-size:13px; font-weight:800; }
 .rz-row{ display:grid; grid-template-columns:34px 1fr auto; align-items:center; column-gap:10px; padding:9px 12px; margin-bottom:6px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--line); border-radius:12px; }
 .rz-row.qadr{ border-left-color:#d4a72c; }
@@ -2999,6 +3014,7 @@ function renderMoreRamzan(){
   renderRamzan();
   renderRamzanCalendar();
 }
+let rzView = 'grid', rzSel = null;
 function renderRamzanCalendar(){
   const today = new Date(); today.setHours(0,0,0,0);
   const th = gregorianToHijri(today);
@@ -3013,12 +3029,28 @@ function renderRamzanCalendar(){
     const sehri = sch.find(x=>x.key==='sehri'), iftar = sch.find(x=>x.key==='iftar');
     rows.push({ n, d, sehri: sehri ? fmtTime(sehri.end) : '--', iftar: iftar ? fmtTime(iftar.start) : '--', isToday: d.getTime()===today.getTime(), qadr: n>=21 && n%2===1 });
   }
+  if(rzSel===null || rzSel>count){ const t = rows.find(r=>r.isToday); rzSel = t ? t.n : 1; }
   const ashra = [[1,10,'🤲 Pehla Ashra — Rehmat'],[11,20,'🕊️ Doosra Ashra — Maghfirat'],[21,count,'🔥 Teesra Ashra — Jahannam se Nijat']];
   const dateStr = d=> `${DOW[d.getDay()].slice(0,3)}, ${d.getDate()} ${MON[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;
-  document.getElementById('ramzanCal').innerHTML = `
-    <div class="section-title">Ramzan ${year} AH ka Calendar</div>
-    <div class="backup-note" style="margin-bottom:10px;">${first.getFullYear()} mein mutawaqqa tareekhein (Hijri arithmetic hisaab se; chaand dikhne par 1 din aage-peeche ho sakta hai). Ramzan ${count} din ka hai. 🌅 Sehri khatm &nbsp; 🌇 Iftar</div>
-    ${ashra.map(([a,b,label])=>`
+  const detail = r=> `<div class="rz-detail">
+      <div class="rz-detail-top"><span class="rz-detail-n">${r.n}</span>
+        <div><div class="rz-g">${DOW[r.d.getDay()]}, ${r.d.getDate()} ${MON[r.d.getMonth()]} ${r.d.getFullYear()}</div>
+        <div class="rz-h">${r.n} Ramzan-ul-Mubarak ${year} AH${r.qadr ? ' • ✨ Shab-e-Qadr ka Ehtimaal' : ''}</div></div></div>
+      <div class="rz-detail-times"><span>🌅 Sehri khatm: <b>${r.sehri}</b></span><span>🌇 Iftar: <b>${r.iftar}</b></span></div>
+    </div>`;
+  const gridHtml = `
+    <div class="rz-dow">${['S','M','T','W','T','F','S'].map(x=>`<span>${x}</span>`).join('')}</div>
+    <div class="rz-grid">
+      ${Array(first.getDay()).fill('<div></div>').join('')}
+      ${rows.map(r=>`<button class="rz-cell ${r.isToday?'today':''} ${r.qadr?'qadr':''} ${r.n===rzSel?'sel':''}" data-n="${r.n}">
+        <span class="rz-cn">${r.n}</span>
+        <span class="rz-cg">${r.d.getDate()} ${MON[r.d.getMonth()].slice(0,3)}</span>
+        ${r.qadr ? '<span class="rz-cq">✨</span>' : ''}
+      </button>`).join('')}
+    </div>
+    <div id="rzDetailWrap">${detail(rows[rzSel-1])}</div>
+    <div class="rz-legend">Andar ka bara number = Ramzan ka din &nbsp;•&nbsp; ✨ = Shab-e-Qadr ka ehtimaal</div>`;
+  const listHtml = ashra.map(([a,b,label])=>`
       <div class="rz-ashra">${label}</div>
       ${rows.filter(r=>r.n>=a && r.n<=b).map(r=>`<div class="rz-row ${r.isToday?'today':''} ${r.qadr?'qadr':''}">
         <div class="rz-n">${r.n}</div>
@@ -3028,8 +3060,25 @@ function renderRamzanCalendar(){
         </div>
         <div class="rz-t"><span>🌅 ${r.sehri}</span><span>🌇 ${r.iftar}</span></div>
       </div>`).join('')}
-    `).join('')}
+    `).join('');
+  document.getElementById('ramzanCal').innerHTML = `
+    <div class="section-title">Ramzan ${year} AH ka Calendar</div>
+    <div class="backup-note" style="margin-bottom:10px;">${first.getFullYear()} mein mutawaqqa tareekhein (Hijri arithmetic hisaab se; chaand dikhne par 1 din aage-peeche ho sakta hai). Ramzan ${count} din ka hai.</div>
+    <div class="view-toggle" style="margin:0 0 12px;">
+      <button id="rzGridBtn" class="${rzView==='grid'?'active':''}">Grid</button>
+      <button id="rzListBtn" class="${rzView==='list'?'active':''}">List</button>
+    </div>
+    ${rzView==='grid' ? gridHtml : `<div class="backup-note" style="margin-bottom:6px;">🌅 Sehri khatm &nbsp; 🌇 Iftar</div>` + listHtml}
   `;
+  document.getElementById('rzGridBtn').onclick = ()=>{ rzView='grid'; renderRamzanCalendar(); };
+  document.getElementById('rzListBtn').onclick = ()=>{ rzView='list'; renderRamzanCalendar(); };
+  document.querySelectorAll('#ramzanCal .rz-cell').forEach(el=>{
+    el.onclick = ()=>{
+      rzSel = parseInt(el.dataset.n);
+      document.querySelectorAll('#ramzanCal .rz-cell').forEach(c=> c.classList.toggle('sel', c===el));
+      document.getElementById('rzDetailWrap').innerHTML = detail(rows[rzSel-1]);
+    };
+  });
 }
 function renderMoreAbout(){
   document.getElementById('detailTitle').textContent="Iske Baare Mein";
