@@ -384,6 +384,14 @@ body{
 .hevent-card.tag-qadr{ border-left-color:#d4a72c; }
 .hevent-card.tag-jumavida{ border-left-color:#3a9bd9; }
 .hevent-card.tag-eid{ border-left-color:#c85a9a; }
+.he-tabs{ margin:0 0 12px; gap:6px; }
+.he-tabs .chip{ padding:7px 11px; }
+.hevent-card.tag-miraj{ border-left-color:#7a6ee0; }
+.hevent-card.tag-ghazwa{ border-left-color:#b5533c; }
+.hevent-card .heYr{ font-size:11.5px; font-weight:700; color:var(--sub); margin-bottom:2px; }
+.hevent-card .heBadge{ display:inline-block; margin-top:6px; padding:3px 9px; border-radius:10px; font-size:10.5px; font-weight:700; line-height:1.4; color:var(--text); background:color-mix(in srgb, #d4a72c 20%, var(--card)); border:1px solid #d4a72c; }
+.hevent-card .he-share{ position:absolute; right:10px; bottom:10px; height:30px; min-width:30px; padding:0 6px; border-radius:8px; border:1px solid var(--line); background:var(--card2); font-size:14px; line-height:1; cursor:pointer; }
+.hevent-card:has(.he-share){ padding-bottom:16px; }
 .hevent-card .heIc{ position:absolute; top:12px; right:13px; font-size:30px; line-height:1; }
 .hevent-card .heName{ font-size:14px; font-weight:700; margin-bottom:3px; }
 .hevent-card .heHijri{ font-size:11.5px; color:var(--sub); margin-bottom:2px; }
@@ -671,7 +679,7 @@ body{
     </div>
     <div class="more-list" style="padding-top:0;">
       <div class="more-item" data-open="asma"><div class="ic">💚</div><div class="lbl">Asma-ul-Husna</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="prophetNames"><div class="ic">🌙</div><div class="lbl">Muhammad ﷺ ke 99 Naam</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="prophetNames"><div class="ic">🌙</div><div class="lbl">Muhammad ﷺ ke Naam</div><div class="chev">›</div></div>
       <div class="more-item" data-open="dua"><div class="ic">🤲</div><div class="lbl">Du'a Padhiye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="hadees"><div class="ic">📖</div><div class="lbl">Hadees Dekhiye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="quiz"><div class="ic">🧠</div><div class="lbl">Quiz Kheliye</div><div class="chev">›</div></div>
@@ -681,7 +689,7 @@ body{
       <div class="more-item" data-open="dailyWord"><div class="ic">🗓️</div><div class="lbl">Aaj Ka Lafz</div><div class="chev">›</div></div>
       <div class="more-item" data-open="mythBusters"><div class="ic">💡</div><div class="lbl">Ghalat Fehmi Ka Izala</div><div class="chev">›</div></div>
       <div class="more-item" data-open="bookmarks"><div class="ic">⭐</div><div class="lbl">Mere Pasandeeda</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="stats"><div class="ic">📊</div><div class="lbl">Mera Report</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="stats"><div class="ic">📊</div><div class="lbl">Safar-e-Taraqqi</div><div class="chev">›</div></div>
     </div>
   </div>
 
@@ -1077,7 +1085,7 @@ let state = {
   roza: {},
   tarabih: {},
   namazMode: false,
-  notif: { fard:true, nafil:false, meal:true, special:false },
+  notif: { fard:true, nafil:false, meal:true, special:false, lafz:false, hadees:false, learnTime:'08:00' },
   tasbeeh: { count:0, target:33, color:'#3fae6a', shape:'●', sound:true, design:'tap', profiles:null, daily:{} },
   wordStatus: {},
   quizLog: [],
@@ -1543,6 +1551,20 @@ function scheduleNotifications(force){
     }, delay);
     notifTimers.push(id);
   });
+  const lt = String(state.notif.learnTime || '08:00').split(':').map(Number);
+  const at = new Date(now); at.setHours(lt[0]||0, lt[1]||0, 0, 0);
+  const learnDelay = at - now;
+  if(learnDelay>0 && learnDelay<24*3600000){
+    const fire = (title, body, tag)=>{ try{ new Notification(title, { body, icon:'icons/icon-192.png', tag }); }catch(e){} };
+    if(state.notif.lafz) notifTimers.push(setTimeout(()=>{
+      const w = KHAAS_SHABD[dailyWordIndex(0)];
+      fire('📚 Aaj ka lafz: '+w.tr, w.m, 'waqt24-lafz');
+    }, learnDelay));
+    if(state.notif.hadees) notifTimers.push(setTimeout(()=>{
+      const h = HADEES[Math.floor(Date.now()/86400000) % HADEES.length];
+      fire('📖 Aaj ki Hadees ('+h.src+')', h.txt, 'waqt24-hadees');
+    }, learnDelay));
+  }
 }
 scheduleNotifications();
 setInterval(()=> scheduleNotifications(), 60000);
@@ -2189,11 +2211,11 @@ const QUIZ_CAT_ICON = {
 let namesView = 'grid';
 function renderNamesList(which){
   const dataset = which==='asma' ? ASMA_UL_HUSNA : PROPHET_NAMES;
-  const title = which==='asma' ? 'Asma-ul-Husna' : "Muhammad ﷺ ke 99 Naam";
+  const title = which==='asma' ? 'Asma-ul-Husna' : "Muhammad ﷺ ke Naam";
   document.getElementById('detailTitle').textContent = title;
   const body = document.getElementById('detailBody');
   const note = which==='prophet'
-    ? `<div class="backup-note" style="margin:0 14px 12px;">Yeh mukhtalif Ahadees, Quranic tazkiron aur mash'hoor alqaab ka majmua hai — Allah ke Asma-ul-Husna ki tarah ek mutlaq/fixed list nahi hai.</div>`
+    ? `<div class="backup-note" style="margin:0 14px 12px;">Yeh naam/alqaab Quran, Sahih Ahadees aur mash'hoor kitabon (Dala'il-ul-Khayrat, Qasida Burda) se liye gaye hain. Allah ke Asma-ul-Husna ki tarah iski koi ek mutlaq/fixed list nahi hai, isliye yahan sirf mustanad naam rakhe gaye hain.</div>`
     : '';
   body.innerHTML = `
     <div class="view-toggle" style="margin:0 14px 12px;">
@@ -2787,6 +2809,10 @@ const NOTIF_CATS = [
   {key:'meal', label:'Sehri / Iftar', sub:'Sehri khatm, Iftar shuru'},
   {key:'special', label:'Tulu / Ghurub / Zawal', sub:'Suraj nikalna, doobna, zawal'},
 ];
+const LEARN_NOTIF = [
+  {key:'lafz', label:'Aaj Ka Lafz', sub:'Roz ek naya Islami lafz'},
+  {key:'hadees', label:'Aaj ki Hadees', sub:'Roz ek hadees'},
+];
 function notifPermLabel(){
   if(!('Notification' in window)) return 'Is browser mein yaad-dahaniyan ka support nahi hai';
   if(Notification.permission==='granted') return '✅ Yaad-dahaniyon ki ijaazat mil gayi hai';
@@ -2821,7 +2847,23 @@ function renderMoreSettings(){
           </div>
         `).join('')}
       </div>
+      <div class="section-title" style="margin-top:0;">Seekhne ki Yaad-dahani</div>
+      <div class="ramzan-card" style="margin:0 0 14px;">
+        ${LEARN_NOTIF.map(c=>`
+          <div class="roza-toggle" style="padding:8px 0;">
+            <span style="font-size:13px; font-weight:600;">${c.label}<span style="display:block; font-size:10.5px; color:var(--sub); font-weight:500; margin-top:2px;">${c.sub}</span></span>
+            <div class="switch ${state.notif[c.key]?'on':''}" data-notif-cat="${c.key}"><div class="knob"></div></div>
+          </div>
+        `).join('')}
+        <div class="roza-toggle" style="padding:8px 0;">
+          <span style="font-size:13px; font-weight:600;">Yaad-dahani ka waqt</span>
+          <input type="time" id="learnTimeInput" value="${state.notif.learnTime || '08:00'}" style="padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px;">
+        </div>
+        <div style="font-size:10.5px; color:var(--sub); margin-top:6px;">Yaad-dahani tab aati hai jab app khuli ho ya background mein ho.</div>
+      </div>
     `;
+    const learnInput = pane.querySelector('#learnTimeInput');
+    learnInput.onchange = ()=>{ if(learnInput.value){ state.notif.learnTime = learnInput.value; saveState(); scheduleNotifications(true); } };
     const permBtn = pane.querySelector('#notifPermBtn');
     if(permBtn) permBtn.onclick = async ()=>{
       try{ await Notification.requestPermission(); }catch(e){}
@@ -3011,7 +3053,7 @@ function shiftStatsPeriod(dir){
   renderStats();
 }
 function renderStats(){
-  document.getElementById('detailTitle').textContent = 'Mera Report';
+  document.getElementById('detailTitle').textContent = 'Safar-e-Taraqqi';
   const { days, label } = getStatsPeriod();
   const today = new Date(); today.setHours(0,0,0,0);
   const pastDays = days.filter(d=>d<=today);
@@ -3240,14 +3282,14 @@ function renderQibla(){
 function renderBackup(){
   document.getElementById('detailTitle').textContent = 'Data Backup';
   document.getElementById('detailBody').innerHTML = `
-    <div class="backup-note">Aapka poora data (namaz status, roza, tasbeeh, settings) sirf isi phone/browser mein save hota hai. Backup file bana kar rakh lein taake data delete/lost na ho, ya naye phone mein restore kar sakein.</div>
+    <div class="backup-note">Aapka poora data (namaz status, roza, tasbeeh, quiz scores, yaad kiye lafz, pasandeeda, settings) sirf isi phone/browser mein save hota hai. Backup file bana kar rakh lein taake data delete/lost na ho, ya naye phone mein restore kar sakein.</div>
     <button class="backup-btn" id="backupExportBtn">⬇️ Backup Banayein (Export)</button>
     <button class="backup-btn secondary" id="backupImportBtn">⬆️ Backup Restore Karein (Import)</button>
     <input type="file" id="backupFileInput" accept="application/json" style="display:none;">
     <div class="backup-note" id="backupMsg"></div>
   `;
   document.getElementById('backupExportBtn').onclick = ()=>{
-    const payload = { app:'waqt24', exportedAt: new Date().toISOString(), state };
+    const payload = { app:'waqt24', exportedAt: new Date().toISOString(), state, hijriOffset: hijriOffset() };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -3270,6 +3312,7 @@ function renderBackup(){
         const incoming = payload && payload.state ? payload.state : payload;
         if(!incoming || typeof incoming !== 'object') throw new Error('bad file');
         state = Object.assign(state, incoming);
+        if(payload && payload.hijriOffset!==undefined){ try{ localStorage.setItem('hijriOffset', String(payload.hijriOffset)); }catch(e){} }
         saveState();
         renderHome(); renderCalendar(); updateRamzanLock();
         document.getElementById('backupMsg').textContent = '✅ Data restore ho gaya hai.';
@@ -3789,10 +3832,17 @@ function islamicEventsList(){
     { name:"Islami Naya Saal (1 Muharram-ul-Haraam)", h:(y)=>hijriToGregorian(1,1,y), ic:"🌙", tag:"newyear" },
     { name:"Muharram-ul-Haraam ki 10 Tareekh", h:(y)=>hijriToGregorian(10,1,y), ic:"🖤", tag:"ashura" },
     { name:"Milad-un-Nabi ﷺ (12 Rabi-ul-Awwal)", h:(y)=>hijriToGregorian(12,3,y), ic:"💚", tag:"milad" },
+    { name:"Laylat-ul-Miraj (27 Rajab)", h:(y)=>hijriToGregorian(27,7,y), ic:"🌠", tag:"miraj", yr:"Safar-e-Miraj ki mash'hoor raat", note:"Tareekh mein ikhtilaf — mash'hoor riwayat 27 Rajab hai, qatai nahi" },
     { name:"Ramzan Shuru (1 Ramzan)", h:(y)=>hijriToGregorian(1,9,y), ic:"🌒", tag:"ramzan" },
+    { name:"Ghazwa-e-Badr (17 Ramzan)", h:(y)=>hijriToGregorian(17,9,y), ic:"⚔️", tag:"ghazwa", yr:"2 Hijri" },
     { name:"Shab-e-Qadr ka Ehtimaal", nights:[21,23,25,27,29].map(d=>({day:d, h:(y)=>hijriToGregorian(d,9,y)})), ic:"✨", tag:"qadr" },
     { name:"Jumat-ul-Vida (Ramzan ki aakhri Jumu'ah)", h:(y)=> findLastFridayInHijriMonth(9,y), ic:"🕊️", tag:"jumavida" },
+    { name:"Fateh Makkah (20 Ramzan)", h:(y)=>hijriToGregorian(20,9,y), ic:"🕋", tag:"ghazwa", yr:"8 Hijri", note:"Mash'hoor tareekh 20 Ramzan hai; ba'z riwayat mein farq milta hai" },
     { name:"Eid-ul-Fitr (1 Shawwal)", h:(y)=>hijriToGregorian(1,10,y), ic:"🎉", tag:"eid" },
+    { name:"Ghazwa-e-Uhud (7 Shawwal)", h:(y)=>hijriToGregorian(7,10,y), ic:"🛡️", tag:"ghazwa", yr:"3 Hijri", note:"Ba'z riwayat mein 15 Shawwal bhi milta hai" },
+    { name:"Ghazwa-e-Hunain (10 Shawwal)", h:(y)=>hijriToGregorian(10,10,y), ic:"🏹", tag:"ghazwa", yr:"8 Hijri", note:"Tareekh mein ikhtilaf (6 ya 10 Shawwal)" },
+    { name:"Sulah Hudaibiyah (1 Zul-Qa'dah)", h:(y)=>hijriToGregorian(1,11,y), ic:"🤝", tag:"ghazwa", yr:"6 Hijri", note:"Rawangi ki tareekh; muahida usi mahine mein hua, din ta'qreebi hai" },
+    { name:"Ghazwa-e-Khandaq (8 Zul-Qa'dah)", h:(y)=>hijriToGregorian(8,11,y), ic:"⛏️", tag:"ghazwa", yr:"5 Hijri", note:"Tareekh ta'qreebi hai; ba'z riwayat mein Shawwal" },
     { name:"Eid-ul-Azha / Baqr-Eid (10 Zul-Hijjah)", h:(y)=>hijriToGregorian(10,12,y), ic:"🐐", tag:"eid" },
   ];
   return events.map(e=>{
@@ -3806,15 +3856,28 @@ function islamicEventsList(){
     }
     const g = nextOccurrence(e.h);
     const hd = gregorianToHijri(g);
-    return { name:e.name, greg:g, hijri:`${hd.day} ${hd.monthName} ${hd.year} AH`, ic:e.ic, tag:e.tag };
+    return { name:e.name, greg:g, hijri:`${hd.day} ${hd.monthName} ${hd.year} AH`, ic:e.ic, tag:e.tag, yr:e.yr, note:e.note };
   }).sort((a,b)=> a.greg - b.greg);
+}
+let khaasDinTab = 'all';
+const KHAAS_DIN_TABS = [['all','All'],['eid','Eid'],['ramzan','Ramzan'],['ghazwa','Ghazwa'],['misc','Miscellaneous']];
+function eventInTab(e, tab){
+  if(tab==='all') return true;
+  if(tab==='eid') return e.tag==='eid';
+  if(tab==='ramzan') return ['ramzan','qadr','jumavida'].includes(e.tag) || (e.tag==='ghazwa' && /Ramzan/.test(e.name));
+  if(tab==='ghazwa') return e.tag==='ghazwa';
+  return ['newyear','ashura','milad','miraj'].includes(e.tag);
 }
 function renderIslamicEvents(){
   document.getElementById('detailTitle').textContent = 'Khaas Din';
-  const events = islamicEventsList();
+  const events = islamicEventsList().filter(e=> eventInTab(e, khaasDinTab));
+  const fmtG = g=> `${DOW[g.getDay()]}, ${g.getDate()} ${MON[g.getMonth()]} ${g.getFullYear()}`;
   document.getElementById('detailBody').innerHTML = `
-    <div class="backup-note">Aane wale ahem Islami tareekhein (Hijri arithmetic hisaab se; chaand dikhne par 1 din aage-peeche ho sakta hai).</div>
-    ${events.map(e=> e.nights ? `<div class="hevent-card tag-${e.tag}">
+    <div class="chip-row he-tabs" id="heTabs">
+      ${KHAAS_DIN_TABS.map(([k,l])=>`<div class="chip ${khaasDinTab===k?'active':''}" data-tab="${k}">${l}</div>`).join('')}
+    </div>
+    <div class="backup-note">Aane wale ahem Islami tareekhein (Hijri arithmetic hisaab se; chaand dikhne par 1 din aage-peeche ho sakta hai). ⚠️ wale din ki tareekh mein ikhtilaf ya ta'qreeb hai.</div>
+    ${events.map((e,i)=> e.nights ? `<div class="hevent-card tag-${e.tag}">
       <div class="heIc">${e.ic}</div>
       <div class="heName">${e.name}</div>
       ${e.nights.map(n=>`<div class="heNightRow">
@@ -3822,15 +3885,29 @@ function renderIslamicEvents(){
           <span class="heNightDay">${n.day} Ramzan</span>
           <span class="heHijri">${n.hijri}</span>
         </span>
-        <span class="heGreg">📅 ${DOW[n.greg.getDay()]}, ${n.greg.getDate()} ${MON[n.greg.getMonth()]} ${n.greg.getFullYear()}</span>
+        <span class="heGreg">📅 ${fmtG(n.greg)}</span>
       </div>`).join('')}
+      <button class="he-share" data-i="${i}" title="Image share">🖼</button>
     </div>` : `<div class="hevent-card tag-${e.tag}">
       <div class="heIc">${e.ic}</div>
       <div class="heName">${e.name}</div>
+      ${e.yr ? `<div class="heYr">${e.yr}</div>` : ''}
       <div class="heHijri">${e.hijri}</div>
-      <div class="heGreg">📅 ${DOW[e.greg.getDay()]}, ${e.greg.getDate()} ${MON[e.greg.getMonth()]} ${e.greg.getFullYear()}</div>
+      <div class="heGreg">📅 ${fmtG(e.greg)}</div>
+      ${e.note ? `<div class="heBadge">⚠️ ${e.note}</div>` : ''}
+      <button class="he-share" data-i="${i}" title="Image share">🖼</button>
     </div>`).join('')}
   `;
+  document.querySelectorAll('#heTabs [data-tab]').forEach(el=>{
+    el.onclick = ()=>{ khaasDinTab = el.dataset.tab; renderIslamicEvents(); };
+  });
+  document.querySelectorAll('#detailBody .he-share').forEach(btn=>{
+    btn.onclick = ()=>{
+      const e = events[parseInt(btn.dataset.i)];
+      const body = e.nights ? e.nights.map(n=>`${n.day} Ramzan — ${fmtG(n.greg)}`).join('\n') : `${e.hijri}\n${fmtG(e.greg)}`;
+      shareCard({ kind:'Khaas Din', title:e.name, sub:e.yr||'', body, foot:e.note||'' });
+    };
+  });
 }
 
 function daysUntilRamzan(){
