@@ -381,6 +381,11 @@ body{
 .hevent-card .heName{ font-size:14px; font-weight:700; margin-bottom:3px; }
 .hevent-card .heHijri{ font-size:11.5px; color:var(--sub); margin-bottom:2px; }
 .hevent-card .heGreg{ font-size:12px; color:var(--accent); font-weight:700; }
+.hevent-card .heNightRow{ display:flex; align-items:baseline; gap:8px; padding:6px 0; border-top:1px solid var(--line); flex-wrap:wrap; }
+.hevent-card .heNightRow:first-of-type{ border-top:1px solid var(--line); margin-top:4px; }
+.hevent-card .heNightDay{ font-size:12px; font-weight:700; flex:0 0 auto; min-width:62px; }
+.hevent-card .heNightRow .heHijri{ margin-bottom:0; }
+.hevent-card .heNightRow .heGreg{ margin-left:auto; }
 .hconv-box{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:14px; }
 .hconv-box label{ display:block; font-size:11.5px; color:var(--sub); font-weight:600; margin-bottom:6px; }
 .hconv-box input, .hconv-box select{ width:100%; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13.5px; margin-bottom:10px; }
@@ -3622,16 +3627,20 @@ function islamicEventsList(){
     { name:"Muharram-ul-Haraam ki 10 Tareekh", h:(y)=>hijriToGregorian(10,1,y) },
     { name:"Milad-un-Nabi ﷺ (12 Rabi-ul-Awwal)", h:(y)=>hijriToGregorian(12,3,y) },
     { name:"Ramzan Shuru (1 Ramzan)", h:(y)=>hijriToGregorian(1,9,y) },
-    { name:"Shab-e-Qadr ka Ehtimaal (21 Ramzan)", h:(y)=>hijriToGregorian(21,9,y) },
-    { name:"Shab-e-Qadr ka Ehtimaal (23 Ramzan)", h:(y)=>hijriToGregorian(23,9,y) },
-    { name:"Shab-e-Qadr ka Ehtimaal (25 Ramzan)", h:(y)=>hijriToGregorian(25,9,y) },
-    { name:"Shab-e-Qadr ka Ehtimaal (27 Ramzan)", h:(y)=>hijriToGregorian(27,9,y) },
-    { name:"Shab-e-Qadr ka Ehtimaal (29 Ramzan)", h:(y)=>hijriToGregorian(29,9,y) },
+    { name:"Shab-e-Qadr ka Ehtimaal", nights:[21,23,25,27,29].map(d=>({day:d, h:(y)=>hijriToGregorian(d,9,y)})) },
     { name:"Jumat-ul-Vida (Ramzan ki aakhri Jumu'ah)", h:(y)=> findLastFridayInHijriMonth(9,y) },
     { name:"Eid-ul-Fitr (1 Shawwal)", h:(y)=>hijriToGregorian(1,10,y) },
     { name:"Eid-ul-Azha / Baqr-Eid (10 Zul-Hijjah)", h:(y)=>hijriToGregorian(10,12,y) },
   ];
   return events.map(e=>{
+    if(e.nights){
+      const nights = e.nights.map(n=>{
+        const g = nextOccurrence(n.h);
+        const hd = gregorianToHijri(g);
+        return { day:n.day, greg:g, hijri:`${hd.day} ${hd.monthName} ${hd.year} AH` };
+      });
+      return { name:e.name, nights, greg:nights[0].greg };
+    }
     const g = nextOccurrence(e.h);
     const hd = gregorianToHijri(g);
     return { name:e.name, greg:g, hijri:`${hd.day} ${hd.monthName} ${hd.year} AH` };
@@ -3642,7 +3651,14 @@ function renderIslamicEvents(){
   const events = islamicEventsList();
   document.getElementById('detailBody').innerHTML = `
     <div class="backup-note">Aane wale ahem Islami tareekhein (Hijri arithmetic hisaab se; chaand dikhne par 1 din aage-peeche ho sakta hai).</div>
-    ${events.map(e=>`<div class="hevent-card">
+    ${events.map(e=> e.nights ? `<div class="hevent-card">
+      <div class="heName">${e.name}</div>
+      ${e.nights.map(n=>`<div class="heNightRow">
+        <span class="heNightDay">${n.day} Ramzan</span>
+        <span class="heHijri">${n.hijri}</span>
+        <span class="heGreg">📅 ${DOW[n.greg.getDay()]}, ${n.greg.getDate()} ${MON[n.greg.getMonth()]} ${n.greg.getFullYear()}</span>
+      </div>`).join('')}
+    </div>` : `<div class="hevent-card">
       <div class="heName">${e.name}</div>
       <div class="heHijri">${e.hijri}</div>
       <div class="heGreg">📅 ${DOW[e.greg.getDay()]}, ${e.greg.getDate()} ${MON[e.greg.getMonth()]} ${e.greg.getFullYear()}</div>
