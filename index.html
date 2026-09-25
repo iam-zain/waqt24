@@ -2080,7 +2080,7 @@ const QUIZ_CAT_ICON = {
   "Namaz":"🕌", "Akhlaq aur Muashira":"🤝", "Quran aur Ibadaat":"📖",
   "Seerat-un-Nabi ﷺ":"🌙", "Ambiya-e-Kiram AS":"⭐", "Ahadees aur Sunnat":"📜",
   "Sahaba-e-Kiram RA":"👥", "Akhirat":"🌌", "Khaas Shabd":"📚",
-  "Asma-ul-Husna":"💚", "Muhammad ﷺ ke Naam":"🕌"
+  "Asma-ul-Husna":"💚"
 };
 
 /* Auto-generate quiz questions from the Khaas Shabd word bank: "<word> ka matlab?" MCQ */
@@ -2098,9 +2098,9 @@ const QUIZ_CAT_ICON = {
 
 /* Auto-generate quiz questions from the 99 Names datasets: "<name> ka matlab?" MCQ */
 (function generateNamesQuiz(){
-  QUIZ_CATEGORIES.push("Asma-ul-Husna", "Muhammad ﷺ ke Naam");
-  [ [ASMA_UL_HUSNA, "Asma-ul-Husna"], [PROPHET_NAMES, "Muhammad ﷺ ke Naam"] ].forEach(([dataset, catName])=>{
-    const pool = shuffleArr(dataset).slice(0, 25);
+  QUIZ_CATEGORIES.push("Asma-ul-Husna");
+  [ [ASMA_UL_HUSNA, "Asma-ul-Husna", 25], [PROPHET_NAMES, "Seerat-un-Nabi ﷺ", 9] ].forEach(([dataset, catName, count])=>{
+    const pool = shuffleArr(dataset).slice(0, count);
     pool.forEach(w=>{
       const wrongPool = dataset.filter(x=>x.m!==w.m);
       const wrongs = shuffleArr(wrongPool).slice(0,3).map(x=>x.m);
