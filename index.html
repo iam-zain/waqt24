@@ -384,6 +384,7 @@ body{
 .hevent-card.tag-qadr{ border-left-color:#d4a72c; }
 .hevent-card.tag-jumavida{ border-left-color:#3a9bd9; }
 .hevent-card.tag-eid{ border-left-color:#c85a9a; }
+.ramzan-locked .switch, .ramzan-locked .status-dots{ pointer-events:none; opacity:.45; }
 .he-tabs{ margin:0 0 12px; gap:6px; }
 .he-tabs .chip{ padding:7px 11px; }
 .hevent-card.tag-miraj{ border-left-color:#7a6ee0; }
@@ -2969,7 +2970,10 @@ function renderMoreSettings(){
 }
 function renderMoreRamzan(){
   document.getElementById('detailTitle').textContent = 'Ramzan';
+  const live = gregorianToHijri(new Date()).month===9;
   document.getElementById('detailBody').innerHTML = `
+    ${live ? '' : `<div class="backup-note" style="margin-bottom:12px;">🌙 Abhi Ramzan nahi hai — yeh sirf jhalak hai. Ramzan mein yahan roza aur namaz mark kar sakenge.</div>`}
+    <div class="${live ? '' : 'ramzan-locked'}">
     <div class="section-title" style="margin-top:0;">Aaj ka Roza</div>
     <div class="ramzan-card" style="margin:0 0 14px;">
       <div class="roza-toggle">
@@ -2979,6 +2983,7 @@ function renderMoreRamzan(){
     </div>
     <div class="section-title">Aaj ki 5 Namaz</div>
     <div id="ramzanNamazList"></div>
+    </div>
   `;
   renderRamzan();
 }
@@ -3925,7 +3930,7 @@ function updateRamzanLock(){
   if(!item) return;
   const hd = gregorianToHijri(new Date());
   const isRamzan = hd.month===9;
-  item.classList.toggle('disabled', !isRamzan);
+  item.classList.remove('disabled');
   if(!isRamzan){
     const days = daysUntilRamzan();
     sub.textContent = days!=null ? (days===0 ? 'Ramzan kal shuru hoga' : `Ramzan mein ${days} din baaki`) : '';
@@ -3947,13 +3952,58 @@ function closeTopModalUI(){
   const detail = document.getElementById('detailOverlay');
   if(share.classList.contains('active')){ share.classList.remove('active'); return; }
   if(info.classList.contains('active')){ info.classList.remove('active'); return; }
-  if(detail.classList.contains('active')){ detail.classList.remove('active'); stopQiblaCompass(); return; }
+  if(detail.classList.contains('active')){ detail.classList.remove('active'); navStack.length = 0; curScreen = null; stopQiblaCompass(); return; }
 }
 function closeModal(){
   if(history.state && history.state.waqtModal){ history.back(); }
   else{ closeTopModalUI(); }
 }
-window.addEventListener('popstate', ()=>{ closeTopModalUI(); });
+/* In-overlay navigation: each deeper screen pushes one history entry, so the
+   phone's back button steps back one screen instead of closing the overlay. */
+const navStack = [];
+let curScreen = null;
+let suppressPops = 0;
+const navOrig = {};
+function overlayActive(){ return document.getElementById('detailOverlay').classList.contains('active'); }
+function onNavigate(s){
+  if(!overlayActive()){ navStack.length = 0; curScreen = s; return; }
+  if(!curScreen){ curScreen = s; return; }
+  if(s.level > curScreen.level){
+    curScreen.scroll = document.getElementById('detailBody').scrollTop;
+    navStack.push(curScreen);
+    history.pushState({ waqtModal:true, nav:true }, '');
+    curScreen = s;
+  } else if(s.level === curScreen.level){
+    curScreen = s;
+  } else {
+    let removed = 0;
+    while(navStack.length && navStack[navStack.length-1].level >= s.level){ navStack.pop(); removed++; }
+    curScreen = s;
+    if(removed){ suppressPops++; history.go(-removed); }
+  }
+}
+function navWrap(name, level){
+  if(typeof window[name] !== 'function') return;
+  navOrig[name] = window[name];
+  window[name] = function(...args){
+    onNavigate({ fn:name, args, level });
+    return navOrig[name].apply(this, args);
+  };
+}
+window.addEventListener('popstate', ()=>{
+  if(suppressPops){ suppressPops--; return; }
+  const share = document.getElementById('shareChooser');
+  const info = document.getElementById('infoModal');
+  if(overlayActive() && navStack.length && !share.classList.contains('active') && !info.classList.contains('active')){
+    const prev = navStack.pop();
+    curScreen = prev;
+    navOrig[prev.fn](...prev.args);
+    const sc = prev.scroll || 0;
+    setTimeout(()=>{ document.getElementById('detailBody').scrollTop = sc; }, 0);
+    return;
+  }
+  closeTopModalUI();
+});
 
 document.querySelectorAll('.more-item').forEach(item=>{
   item.onclick = ()=>{
@@ -3984,6 +4034,10 @@ document.querySelectorAll('.more-item').forEach(item=>{
   };
 });
 document.getElementById('detailBack').onclick = closeModal;
+['renderMoreDua','renderMoreHadees','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks'].forEach(n=>navWrap(n,0));
+['openDuaDetail','openHadeesDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect'].forEach(n=>navWrap(n,1));
+['renderShabdDetail','renderQuizQuestion','renderQuizResult','renderMythQuizQuestion','renderMythQuizResult'].forEach(n=>navWrap(n,2));
+navWrap('renderReviewList',3);
 (function(){
   const t = document.getElementById('detailTitle');
   let last = t.textContent;
