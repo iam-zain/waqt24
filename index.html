@@ -427,8 +427,12 @@ body{
 .qz-btn.done:disabled{ opacity:.4; cursor:default; }
 .qz-btn.wide{ flex:1; }
 .qz-note{ font-size:12px; color:var(--sub); line-height:1.5; margin-bottom:10px; }
-.qz-bulk{ display:flex; gap:8px; }
-.qz-bulk input{ width:90px; padding:8px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:14px; }
+.qz-custom{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:8px; }
+.qz-custom label{ display:flex; flex-direction:column; gap:4px; font-size:11.5px; font-weight:700; color:var(--sub); }
+.qz-custom input{ width:100%; padding:9px 6px; text-align:center; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:14px; font-weight:700; }
+.qz-preview{ font-size:12px; color:var(--sub); margin:0 0 10px; }
+.qz-btn.full{ width:100%; height:42px; }
+.qz-btn.danger{ color:var(--red); border-color:var(--red); background:transparent; }
 .rz-ashra{ margin:16px 0 8px; font-size:13px; font-weight:800; }
 .rz-row{ display:grid; grid-template-columns:34px 1fr auto; align-items:center; column-gap:10px; padding:9px 12px; margin-bottom:6px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--line); border-radius:12px; }
 .rz-row.qadr{ border-left-color:#d4a72c; }
@@ -4253,12 +4257,20 @@ function renderQaza(){
     <div class="ramzan-card" style="margin:0 0 14px;">
       <div class="qz-note">Kitne din ki qaza baaki hai? Har namaz (Witr samet) mein utne din jud jayenge.</div>
       <div class="chip-row" style="margin-bottom:10px;">
-        ${[['30 din',30],['6 mahine',180],['1 saal',365],['5 saal',1825]].map(([l,n])=>`<div class="chip" data-quick="${n}">${l}</div>`).join('')}
+        ${[['30 din',0,0,30],['6 mahine',0,6,0],['1 saal',1,0,0],['5 saal',5,0,0]].map(([l,y,m,d])=>`<div class="chip" data-y="${y}" data-m="${m}" data-d="${d}">${l}</div>`).join('')}
       </div>
-      <div class="qz-bulk">
-        <input id="qzDays" type="number" inputmode="numeric" min="1" placeholder="Din" aria-label="Kitne din ki qaza">
-        <button id="qzBulkBtn" class="qz-btn add wide">Sab mein Jodein</button>
+      <div class="qz-custom">
+        <label>Saal<input id="qzYears" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+        <label>Mahine<input id="qzMonths" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+        <label>Din<input id="qzDays" type="number" inputmode="numeric" min="0" placeholder="0"></label>
       </div>
+      <div class="qz-preview" id="qzPreview">Kul: 0 din</div>
+      <button id="qzBulkBtn" class="qz-btn add full">Sab mein Jodein</button>
+    </div>
+    <div class="section-title">Reset</div>
+    <div class="ramzan-card" style="margin:0 0 14px;">
+      <button class="qz-btn danger full" id="qzResetLeft" style="margin-bottom:10px;">↺ Baaki Qaza Reset Karein (sab 0)</button>
+      <button class="qz-btn danger full" id="qzResetDone">↺ Padhi Gayi Qaza ka Record Reset Karein</button>
     </div>
     <div class="backup-note">Yeh aapka apna hisaab hai — sirf isi phone mein save hota hai.</div>
   `;
@@ -4281,17 +4293,42 @@ function renderQaza(){
       showToast('Ek qaza padh li — Allah qubool farmaye');
     };
   });
-  body.querySelectorAll('[data-quick]').forEach(c=>{
-    c.onclick = ()=>{ document.getElementById('qzDays').value = c.dataset.quick; };
+  const qzInputs = ['qzYears','qzMonths','qzDays'].map(id=>document.getElementById(id));
+  const qzTotalDays = ()=> (parseInt(qzInputs[0].value)||0)*365 + (parseInt(qzInputs[1].value)||0)*30 + (parseInt(qzInputs[2].value)||0);
+  const qzUpdatePreview = ()=>{ document.getElementById('qzPreview').textContent = 'Kul: ' + qzTotalDays() + ' din (har namaz mein judenge)'; };
+  qzInputs.forEach(i=> i.oninput = qzUpdatePreview);
+  body.querySelectorAll('[data-y]').forEach(c=>{
+    c.onclick = ()=>{
+      qzInputs[0].value = c.dataset.y!=='0' ? c.dataset.y : '';
+      qzInputs[1].value = c.dataset.m!=='0' ? c.dataset.m : '';
+      qzInputs[2].value = c.dataset.d!=='0' ? c.dataset.d : '';
+      qzUpdatePreview();
+    };
   });
   document.getElementById('qzBulkBtn').onclick = ()=>{
-    const n = parseInt(document.getElementById('qzDays').value);
-    if(!n || n<1){ showToast('Din ki ginti likhein'); return; }
+    const n = qzTotalDays();
+    if(n<1){ showToast('Saal, mahine ya din likhein'); return; }
     QAZA_KEYS.forEach(([k])=>{ q[k] += n; });
     saveState();
     renderQaza();
     showToast(n+' din ki qaza jud gayi');
   };
+  const twoStep = (btn, label, action)=>{
+    let armed = null;
+    btn.onclick = ()=>{
+      if(armed){ clearTimeout(armed); armed = null; action(); return; }
+      btn.textContent = 'Pakka? Dobara dabayein';
+      armed = setTimeout(()=>{ armed = null; btn.textContent = label; }, 4000);
+    };
+  };
+  twoStep(document.getElementById('qzResetLeft'), '↺ Baaki Qaza Reset Karein (sab 0)', ()=>{
+    QAZA_KEYS.forEach(([k])=>{ q[k] = 0; });
+    saveState(); renderQaza(); showToast('Baaki qaza reset ho gayi');
+  });
+  twoStep(document.getElementById('qzResetDone'), '↺ Padhi Gayi Qaza ka Record Reset Karein', ()=>{
+    state.qazaDone = {};
+    saveState(); renderQaza(); showToast('Padhi gayi qaza ka record reset ho gaya');
+  });
 }
 
 /* ============================================================
