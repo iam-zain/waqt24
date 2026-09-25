@@ -482,7 +482,25 @@ body{
 .dw-wrap .daily-word-status button{ min-height:46px; display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.25; }
 .dw-wrap .daily-word-nav{ gap:10px; padding:6px 0 0; }
 .dw-wrap .daily-word-nav button{ flex:1; width:auto; height:44px; border-radius:12px; font-size:14px; font-weight:700; border:1.5px solid var(--dotBorder,var(--line)); background:var(--card); }
-.dw-pos{ text-align:center; font-size:11.5px; color:var(--sub); font-weight:700; margin:0 0 8px; }
+.dw-streak{ text-align:center; font-size:12.5px; font-weight:700; color:var(--special,#a8762a); background:var(--card2); border:1px solid var(--line); border-radius:20px; padding:6px 12px; margin:0 auto 12px; width:fit-content; max-width:100%; }
+.review-start-btn{ width:100%; margin-top:14px; min-height:46px; border-radius:12px; border:1.5px solid var(--accent); background:var(--card); color:var(--accent); font-size:13.5px; font-weight:800; cursor:pointer; }
+.review-note{ font-size:13px; line-height:1.5; margin:0 0 18px; padding:10px 12px; border-radius:10px; background:var(--card2); border:1px solid var(--line); }
+.res-btn{ display:block; width:100%; max-width:320px; margin:0 auto 10px; padding:12px 16px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:13.5px; font-weight:700; cursor:pointer; }
+.review-card{ padding:14px; margin-bottom:10px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+.review-card .q{ font-size:13.5px; font-weight:700; line-height:1.5; margin-bottom:10px; }
+.review-card .rv{ font-size:12.5px; line-height:1.45; padding:8px 10px; border-radius:8px; margin-bottom:6px; }
+.review-card .rv.wrong{ background:color-mix(in srgb, var(--red) 16%, var(--card)); }
+.review-card .rv.right{ background:color-mix(in srgb, var(--green) 18%, var(--card)); }
+.dw-prog{ margin-left:8px; font-size:10.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--yellow,#d4a72c); color:#2b2100; }
+.dw-top{ display:flex; align-items:center; justify-content:space-between; margin:0 0 8px; }
+.dw-pos{ font-size:11.5px; color:var(--sub); font-weight:700; }
+.detail-actions{ display:flex; align-items:center; justify-content:flex-end; gap:8px; margin:0 0 14px; }
+.detail-actions.between{ justify-content:space-between; }
+.act-group{ display:inline-flex; gap:8px; align-items:center; }
+.bm-btn, .act-btn{ height:38px; min-width:38px; padding:0 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:17px; line-height:1; cursor:pointer; }
+.bm-btn.on{ color:#d4a72c; border-color:#d4a72c; }
+.back-pill{ padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
+.dw-row .bm-btn{ flex:0 0 auto; height:34px; min-width:34px; padding:0 8px; }
 .dw-section{ margin:22px 0 0; }
 .dw-section-title{ display:flex; align-items:center; justify-content:space-between; font-size:13.5px; font-weight:800; margin-bottom:10px; }
 .dw-count{ min-width:26px; padding:2px 9px; text-align:center; border-radius:12px; font-size:12px; font-weight:800; background:var(--card2); border:1px solid var(--line); }
@@ -662,6 +680,7 @@ body{
       <div class="more-item" data-open="khaasShabd"><div class="ic">📚</div><div class="lbl">Khaas Shabd</div><div class="chev">›</div></div>
       <div class="more-item" data-open="dailyWord"><div class="ic">🗓️</div><div class="lbl">Aaj Ka Lafz</div><div class="chev">›</div></div>
       <div class="more-item" data-open="mythBusters"><div class="ic">💡</div><div class="lbl">Ghalat Fehmi Ka Izala</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="bookmarks"><div class="ic">⭐</div><div class="lbl">Mere Pasandeeda</div><div class="chev">›</div></div>
       <div class="more-item" data-open="stats"><div class="ic">📊</div><div class="lbl">Mera Report</div><div class="chev">›</div></div>
     </div>
   </div>
@@ -1062,6 +1081,9 @@ let state = {
   tasbeeh: { count:0, target:33, color:'#3fae6a', shape:'●', sound:true, design:'tap', profiles:null, daily:{} },
   wordStatus: {},
   quizLog: [],
+  wordCorrect: {},
+  learnDays: {},
+  bookmarks: [],
 };
 function loadState(){
   try{ const s = JSON.parse(localStorage.getItem('namazState')||'{}'); state = Object.assign(state, s); }catch(e){}
@@ -1842,6 +1864,129 @@ function renderRamzan(){
    ============================================================ */
 /* (data moved to data.js: DUAS, HADEES) */
 
+/* ============================================================
+   BOOKMARKS (Mere Pasandeeda) + IMAGE SHARE CARDS
+   ============================================================ */
+function bmList(){ if(!Array.isArray(state.bookmarks)) state.bookmarks = []; return state.bookmarks; }
+function isBookmarked(k){ return bmList().includes(k); }
+function toggleBookmark(k){
+  const l = bmList(); const i = l.indexOf(k);
+  if(i>=0) l.splice(i,1); else l.push(k);
+  saveState();
+  return i<0;
+}
+function bmBtn(k, extra){
+  const on = isBookmarked(k);
+  return `<button class="bm-btn ${on?'on':''}" data-bm="${k.replace(/"/g,'&quot;')}" ${extra||''} title="Pasandeeda">${on?'★':'☆'}</button>`;
+}
+document.getElementById('detailBody').addEventListener('click', (e)=>{
+  const b = e.target.closest('.bm-btn');
+  if(!b) return;
+  e.stopPropagation();
+  const on = toggleBookmark(b.dataset.bm);
+  b.classList.toggle('on', on);
+  b.textContent = on ? '★' : '☆';
+  showToast(on ? 'Pasandeeda mein add ho gaya' : 'Pasandeeda se hata diya');
+  if(b.dataset.refresh) renderBookmarks();
+}, true);
+function bmResolve(k){
+  const i = k.indexOf(':'); const t = k.slice(0,i), id = k.slice(i+1);
+  if(t==='dua'){ const d = DUAS.find(x=>x.title===id); return d && { type:"Du'a", ar:'', title:d.title, sub:d.cat, open:()=>openDuaDetail(d) }; }
+  if(t==='hadees'){ const h = HADEES.find(x=>x.txt.slice(0,40)===id); return h && { type:'Hadees', ar:'', title:h.txt.length>70?h.txt.slice(0,70)+'…':h.txt, sub:h.src, open:()=>openHadeesDetail(h) }; }
+  if(t==='asma'){ const x = ASMA_UL_HUSNA.findIndex(n=>n.tr===id); return x>=0 && { type:'Asma-ul-Husna', ar:ASMA_UL_HUSNA[x].ar, title:id, sub:ASMA_UL_HUSNA[x].m, open:()=>renderNameDetail('asma', x) }; }
+  if(t==='prophet'){ const x = PROPHET_NAMES.findIndex(n=>n.tr===id); return x>=0 && { type:'Muhammad ﷺ ke Naam', ar:PROPHET_NAMES[x].ar, title:id, sub:PROPHET_NAMES[x].m, open:()=>renderNameDetail('prophet', x) }; }
+  if(t==='word'){ const x = KHAAS_SHABD.findIndex(n=>n.tr===id); return x>=0 && { type:'Khaas Shabd', ar:KHAAS_SHABD[x].ar, title:id, sub:KHAAS_SHABD[x].m, open:()=>renderShabdDetail(x, renderBookmarks) }; }
+  return null;
+}
+function renderBookmarks(){
+  document.getElementById('detailTitle').textContent = 'Mere Pasandeeda';
+  const items = bmList().map(k=>({k, r:bmResolve(k)})).filter(x=>x.r);
+  const body = document.getElementById('detailBody');
+  if(!items.length){
+    body.innerHTML = `<div class="empty-state">Abhi tak kuch pasandeeda nahi.<br>Kisi bhi dua, hadees, naam ya lafz par ☆ dabayein.</div>`;
+    return;
+  }
+  const types = [...new Set(items.map(x=>x.r.type))];
+  body.innerHTML = types.map(t=>`
+    <div class="dw-section">
+      <div class="dw-section-title"><span>${t}</span><span class="dw-count">${items.filter(x=>x.r.type===t).length}</span></div>
+      ${items.filter(x=>x.r.type===t).map(x=>`<div class="dw-row" data-k="${x.k.replace(/"/g,'&quot;')}">
+        ${x.r.ar ? `<div class="ar">${x.r.ar}</div>` : ''}
+        <div class="info"><div class="tr">${x.r.title}</div><div class="m">${x.r.sub}</div></div>
+        ${bmBtn(x.k, 'data-refresh="1"')}
+      </div>`).join('')}
+    </div>`).join('');
+  body.querySelectorAll('.dw-row').forEach(el=>{
+    el.onclick = ()=>{ const r = bmResolve(el.dataset.k); if(r) r.open(); };
+  });
+}
+
+async function shareCard(cfg){
+  try{ await document.fonts.load('700 60px "Scheherazade New"', cfg.arabic || 'ا'); }catch(e){}
+  const W = 1080, PAD = 84, MAXW = W - PAD*2;
+  const SANS = '"Segoe UI", system-ui, -apple-system, Roboto, sans-serif';
+  const AR = '"Scheherazade New", "Noto Naskh Arabic", serif';
+  const meas = document.createElement('canvas').getContext('2d');
+  function wrap(text, font, dir){
+    meas.font = font; meas.direction = dir || 'ltr';
+    const out = [];
+    String(text).split('\n').forEach(par=>{
+      let line = '';
+      par.split(/\s+/).filter(Boolean).forEach(w=>{
+        const t = line ? line+' '+w : w;
+        if(meas.measureText(t).width > MAXW && line){ out.push(line); line = w; } else line = t;
+      });
+      out.push(line);
+    });
+    return out;
+  }
+  const blocks = [];
+  if(cfg.kind) blocks.push({ lines:[cfg.kind.toUpperCase()], font:`700 30px ${SANS}`, color:'#a9782f', lh:44, gap:34 });
+  if(cfg.arabic){
+    let size = 84, lines;
+    do{ lines = wrap(cfg.arabic, `700 ${size}px ${AR}`, 'rtl'); size -= 4; }while(lines.length>6 && size>40);
+    size += 4;
+    blocks.push({ lines, font:`700 ${size}px ${AR}`, color:'#2a2117', lh:Math.round(size*1.7), gap:30, dir:'rtl' });
+  }
+  if(cfg.title) blocks.push({ lines:wrap(cfg.title, `800 54px ${SANS}`), font:`800 54px ${SANS}`, color:'#a9782f', lh:70, gap:22 });
+  if(cfg.sub) blocks.push({ lines:wrap(cfg.sub, `italic 36px ${SANS}`), font:`italic 36px ${SANS}`, color:'#7a6d5a', lh:52, gap:22 });
+  if(cfg.body) blocks.push({ lines:wrap(cfg.body, `500 42px ${SANS}`), font:`500 42px ${SANS}`, color:'#2a2117', lh:64, gap:22 });
+  if(cfg.foot) blocks.push({ lines:wrap(cfg.foot, `500 30px ${SANS}`), font:`500 30px ${SANS}`, color:'#7a6d5a', lh:44, gap:10 });
+  let H = PAD*2 + 90;
+  blocks.forEach(b=>{ H += b.lines.length*b.lh + b.gap; });
+  H = Math.max(H, 1080);
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#f8f2e6'); g.addColorStop(1,'#efe4d0');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = '#c9a24f'; ctx.lineWidth = 6; ctx.strokeRect(28,28,W-56,H-56);
+  ctx.strokeStyle = '#e2cf9f'; ctx.lineWidth = 2; ctx.strokeRect(44,44,W-88,H-88);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const contentH = blocks.reduce((a,b)=> a + b.lines.length*b.lh + b.gap, 0);
+  let y = Math.max(PAD + 30, Math.round((H - contentH)/2) - 20);
+  blocks.forEach(b=>{
+    ctx.font = b.font; ctx.fillStyle = b.color; ctx.direction = b.dir || 'ltr';
+    b.lines.forEach(l=>{ ctx.fillText(l, W/2, y + b.lh/2); y += b.lh; });
+    y += b.gap;
+  });
+  ctx.direction = 'ltr'; ctx.font = `700 30px ${SANS}`; ctx.fillStyle = '#a9782f';
+  ctx.fillText('Waqt24  •  iam-zain.github.io/waqt24', W/2, H - PAD - 20);
+  const blob = await new Promise(r=> c.toBlob(r, 'image/png'));
+  if(!blob){ showToast('Image nahi ban saki'); return; }
+  const file = new File([blob], 'waqt24-card.png', { type:'image/png' });
+  try{
+    if(navigator.canShare && navigator.canShare({ files:[file] })){
+      await navigator.share({ files:[file], title:'Waqt24' });
+      return;
+    }
+  }catch(e){ if(e && e.name==='AbortError') return; }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'waqt24-card.png';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  showToast('Image download ho gayi');
+}
+
 let duaView='grid', duaSearch='';
 let hadeesFilter='All', hadeesSearch='';
 
@@ -1849,18 +1994,28 @@ function renderMoreDua(){
   document.getElementById('detailTitle').textContent="Du'a";
   const body = document.getElementById('detailBody');
   body.innerHTML = `
-    <div class="search-bar"><input id="duaSearchInput" placeholder="Dua dhoondhiye..." value="${duaSearch}"></div>
+    <div class="search-bar-wrap">
+      <input id="duaSearchInput" placeholder="Dua dhoondhiye...">
+      <button id="duaSearchClear" class="search-clear-btn">✕</button>
+    </div>
     <div class="view-toggle">
       <button id="duaGridBtn" class="${duaView==='grid'?'active':''}">Grid</button>
       <button id="duaListBtn" class="${duaView==='list'?'active':''}">List</button>
     </div>
     <div class="dua-grid ${duaView==='list'?'list':''}" id="duaGrid"></div>
   `;
-  body.querySelector('#duaSearchInput').oninput = (e)=>{ duaSearch=e.target.value; renderMoreDua(); };
+  document.getElementById('duaSearchInput').value = duaSearch;
+  wireLiveSearch('duaSearchInput', 'duaSearchClear', renderDuaGrid, v=>{ duaSearch = v; });
   body.querySelector('#duaGridBtn').onclick = ()=>{ duaView='grid'; renderMoreDua(); };
   body.querySelector('#duaListBtn').onclick = ()=>{ duaView='list'; renderMoreDua(); };
-  const grid = body.querySelector('#duaGrid');
-  const filtered = DUAS.filter(d=> (d.title+d.cat).toLowerCase().includes(duaSearch.toLowerCase()));
+  renderDuaGrid();
+}
+function renderDuaGrid(){
+  const grid = document.getElementById('duaGrid');
+  const q = duaSearch.trim().toLowerCase();
+  grid.innerHTML = '';
+  const filtered = DUAS.filter(d=> (d.title+' '+d.cat+' '+d.translit+' '+d.meaning).toLowerCase().includes(q));
+  if(!filtered.length){ grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Koi dua nahi mili.</div>`; return; }
   filtered.forEach(d=>{
     const c = document.createElement('div');
     c.className='dua-card';
@@ -1872,22 +2027,31 @@ function renderMoreDua(){
 function openDuaDetail(d){
   document.getElementById('detailTitle').textContent = d.title;
   document.getElementById('detailBody').innerHTML = `
+    <div class="detail-actions">
+      ${bmBtn('dua:'+d.title)}
+      <button class="act-btn" id="duaImgBtn" title="Image share">🖼</button>
+    </div>
     <div class="arabic">${d.arabic}</div>
     <div class="translit">${d.translit}</div>
     <div class="meaning">${d.meaning}</div>
     <div class="ref">Hawala: ${d.ref}</div>
   `;
+  document.getElementById('duaImgBtn').onclick = ()=> shareCard({ kind:"Du'a", arabic:d.arabic, title:d.title, sub:d.translit, body:d.meaning, foot:'Hawala: '+d.ref });
 }
 function renderMoreHadees(){
   document.getElementById('detailTitle').textContent="Hadees";
   const cats = ['All', ...new Set(HADEES.map(h=>h.cat))];
   const body = document.getElementById('detailBody');
   body.innerHTML = `
-    <div class="search-bar"><input id="hSearchInput" placeholder="Hadees dhoondhiye..." value="${hadeesSearch}"></div>
+    <div class="search-bar-wrap">
+      <input id="hSearchInput" placeholder="Hadees dhoondhiye...">
+      <button id="hSearchClear" class="search-clear-btn">✕</button>
+    </div>
     <div class="chip-row" style="padding:0 0 10px;" id="hCats"></div>
     <div id="hList"></div>
   `;
-  body.querySelector('#hSearchInput').oninput=(e)=>{ hadeesSearch=e.target.value; renderMoreHadees(); };
+  document.getElementById('hSearchInput').value = hadeesSearch;
+  wireLiveSearch('hSearchInput', 'hSearchClear', renderHadeesList, v=>{ hadeesSearch = v; });
   const catsEl = body.querySelector('#hCats');
   cats.forEach(c=>{
     const chip = document.createElement('div');
@@ -1896,16 +2060,22 @@ function renderMoreHadees(){
     chip.onclick=()=>{ hadeesFilter=c; renderMoreHadees(); };
     catsEl.appendChild(chip);
   });
-  const list = body.querySelector('#hList');
-  HADEES.filter(h=> (hadeesFilter==='All'||h.cat===hadeesFilter) && h.txt.toLowerCase().includes(hadeesSearch.toLowerCase()))
-    .forEach(h=>{
-      const it = document.createElement('div');
-      it.className='hadees-item';
-      it.style.margin='0 0 10px';
-      it.innerHTML = `<div class="src">${h.cat} • ${h.src}</div><div class="txt">${h.txt}</div>`;
-      it.onclick = ()=> openHadeesDetail(h);
-      list.appendChild(it);
-    });
+  renderHadeesList();
+}
+function renderHadeesList(){
+  const list = document.getElementById('hList');
+  const q = hadeesSearch.trim().toLowerCase();
+  list.innerHTML = '';
+  const items = HADEES.filter(h=> (hadeesFilter==='All'||h.cat===hadeesFilter) && (h.txt+' '+h.src+' '+h.cat).toLowerCase().includes(q));
+  if(!items.length){ list.innerHTML = `<div class="empty-state">Koi hadees nahi mili.</div>`; return; }
+  items.forEach(h=>{
+    const it = document.createElement('div');
+    it.className='hadees-item';
+    it.style.margin='0 0 10px';
+    it.innerHTML = `<div class="src">${h.cat} • ${h.src}</div><div class="txt">${h.txt}</div>`;
+    it.onclick = ()=> openHadeesDetail(h);
+    list.appendChild(it);
+  });
 }
 async function shareText(text){
   if(navigator.share){
@@ -1919,10 +2089,15 @@ async function shareText(text){
 function openHadeesDetail(h){
   document.getElementById('detailTitle').textContent = h.cat;
   document.getElementById('detailBody').innerHTML = `
+    <div class="detail-actions">
+      ${bmBtn('hadees:'+h.txt.slice(0,40))}
+      <button class="act-btn" id="hadeesImgBtn" title="Image share">🖼</button>
+      <button class="act-btn" id="hadeesShareBtn" title="Text share">⤴</button>
+    </div>
     <div class="meaning">${h.txt}</div>
     <div class="ref">Hawala: ${h.src}</div>
-    <button id="hadeesShareBtn" style="margin-top:20px; padding:11px 20px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13px; font-weight:700; cursor:pointer;">⤴ Share Karein</button>
   `;
+  document.getElementById('hadeesImgBtn').onclick = ()=> shareCard({ kind:'Hadees', title:h.cat, body:h.txt, foot:'Hawala: '+h.src });
   document.getElementById('hadeesShareBtn').onclick = ()=> shareText(h.txt + '\n\n— ' + h.src);
 }
 /* ============================================================
@@ -2046,7 +2221,10 @@ function renderNameDetail(which, idx){
   const w = dataset[idx];
   document.getElementById('detailTitle').textContent = `${idx+1} / ${dataset.length}`;
   document.getElementById('detailBody').innerHTML = `
-    <button id="nameBackBtn" style="margin:0 14px 14px; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer;">‹ Fehrist</button>
+    <div class="detail-actions between" style="margin:0 14px 14px;">
+      <button id="nameBackBtn" class="back-pill">‹ Fehrist</button>
+      <span class="act-group">${bmBtn((which==='asma'?'asma:':'prophet:')+w.tr)}<button class="act-btn" id="nameImgBtn" title="Image share">🖼</button></span>
+    </div>
     <div class="name-detail">
       <div class="ar">${w.ar}</div>
       <div class="tr">${w.tr}</div>
@@ -2058,6 +2236,7 @@ function renderNameDetail(which, idx){
     </div>
   `;
   document.getElementById('nameBackBtn').onclick = ()=> renderNamesList(which);
+  document.getElementById('nameImgBtn').onclick = ()=> shareCard({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Muhammad ﷺ ke Naam', arabic:w.ar, title:w.tr, body:w.m });
   document.getElementById('namePrevBtn').onclick = ()=> idx>0 && renderNameDetail(which, idx-1);
   document.getElementById('nameNextBtn').onclick = ()=> idx<dataset.length-1 && renderNameDetail(which, idx+1);
 }
@@ -2079,17 +2258,18 @@ const SHABD_CAT_ICON = {
 };
 /* Wires a search input's oninput to update only the results container (not
    the whole screen), so the input never gets re-created and loses focus/cursor. */
-function wireLiveSearch(inputId, clearBtnId, onChange){
+function wireLiveSearch(inputId, clearBtnId, onChange, setVal){
   const input = document.getElementById(inputId);
   const clearBtn = document.getElementById(clearBtnId);
+  const set = setVal || (v=>{ shabdSearch = v; });
   clearBtn.classList.toggle('show', !!input.value);
   input.oninput = ()=>{
-    shabdSearch = input.value;
+    set(input.value);
     clearBtn.classList.toggle('show', !!input.value);
     onChange();
   };
   clearBtn.onclick = ()=>{
-    shabdSearch = '';
+    set('');
     input.value = '';
     clearBtn.classList.remove('show');
     onChange();
@@ -2178,7 +2358,10 @@ function renderShabdDetail(idx, backFn){
   const w = KHAAS_SHABD[idx];
   document.getElementById('detailTitle').textContent = w.cat;
   document.getElementById('detailBody').innerHTML = `
-    <button id="shabdBackBtn" style="margin:0 14px 14px; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer;">‹ Wapas</button>
+    <div class="detail-actions between" style="margin:0 14px 14px;">
+      <button id="shabdBackBtn" class="back-pill">‹ Wapas</button>
+      <span class="act-group">${bmBtn('word:'+w.tr)}<button class="act-btn" id="shabdImgBtn" title="Image share">🖼</button></span>
+    </div>
     <div class="shabd-detail">
       <div class="ar">${w.ar}</div>
       <div class="tr">${w.tr}</div>
@@ -2189,6 +2372,7 @@ function renderShabdDetail(idx, backFn){
     </div>
   `;
   document.getElementById('shabdBackBtn').onclick = backFn || renderKhaasShabd;
+  document.getElementById('shabdImgBtn').onclick = ()=> shareCard({ kind:'Khaas Shabd', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
 }
 
 /* ============================================================
@@ -2202,10 +2386,60 @@ function dailyWordIndex(offset){
 function wordStatus(tr){
   return (state.wordStatus && state.wordStatus[tr]) || null;
 }
+function markLearnDay(){
+  if(!state.learnDays) state.learnDays = {};
+  state.learnDays[dayKey(new Date())] = true;
+}
+function learnStreak(){
+  const days = state.learnDays || {};
+  const has = d=> !!days[dayKey(d)];
+  const probe = new Date(); probe.setHours(0,0,0,0);
+  if(!has(probe)) probe.setDate(probe.getDate()-1);
+  let cur = 0;
+  while(has(probe)){ cur++; probe.setDate(probe.getDate()-1); }
+  const times = Object.keys(days).map(k=>{ const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d).getTime(); }).sort((a,b)=>a-b);
+  let best = 0, run = 0, prev = null;
+  times.forEach(t=>{
+    run = (prev!==null && Math.round((t-prev)/86400000)===1) ? run+1 : 1;
+    if(run>best) best = run;
+    prev = t;
+  });
+  return { cur, best };
+}
 function setWordStatus(tr, status){
   if(!state.wordStatus) state.wordStatus = {};
   state.wordStatus[tr] = status;
+  if(status) markLearnDay();
   saveState();
+}
+function startWordReview(){
+  const learning = KHAAS_SHABD.filter(w=>wordStatus(w.tr)==='learning');
+  if(!learning.length){ showToast('Koi lafz "Yaad karna baaki hai" mein nahi hai'); return; }
+  const pool = shuffleArr(learning).slice(0, 10).map(w=>{
+    const wrongs = shuffleArr(KHAAS_SHABD.filter(x=>x.m!==w.m)).slice(0,3).map(x=>x.m);
+    const options = shuffleArr([w.m, ...wrongs]);
+    return [`"${w.tr}" (${w.ar}) ka matlab kya hai?`, options, options.indexOf(w.m), 'Lafz Review', w.tr];
+  });
+  const promoted = [];
+  startQuiz(pool, pool.length, 'Lafz Review', {
+    onAnswer:(item, ok)=>{
+      const tr = item[4];
+      if(!state.wordCorrect) state.wordCorrect = {};
+      if(ok){
+        state.wordCorrect[tr] = (state.wordCorrect[tr]||0) + 1;
+        if(state.wordCorrect[tr] >= 2){ delete state.wordCorrect[tr]; setWordStatus(tr, 'known'); promoted.push(tr); }
+      } else {
+        state.wordCorrect[tr] = 0;
+      }
+      markLearnDay();
+      saveState();
+    },
+    summary:()=> promoted.length
+      ? `<div class="review-note">🎉 Yaad ho gaye: <b>${promoted.join(', ')}</b></div>`
+      : `<div class="review-note">Kisi lafz ka matlab 2 martaba sahi batayein to woh "Yaad ho gaya" mein chala jayega.</div>`,
+    backLabel:'Aaj Ka Lafz par Wapas',
+    back:()=> renderDailyWord()
+  });
 }
 let dailyWordOffset = 0;
 function renderDailyWord(){
@@ -2221,12 +2455,13 @@ function renderDailyWord(){
       <div class="dw-section-title"><span>${title}</span><span class="dw-count">${items.length}</span></div>
       ${items.length ? items.map(x=>`<div class="dw-row" data-i="${x.i}">
           <div class="ar">${x.ar}</div>
-          <div class="info"><div class="tr">${x.tr}</div><div class="m">${x.m}</div></div>
+          <div class="info"><div class="tr">${x.tr}${cls==='learning' && (state.wordCorrect||{})[x.tr] ? `<span class="dw-prog">${(state.wordCorrect||{})[x.tr]}/2 sahi</span>` : ''}</div><div class="m">${x.m}</div></div>
         </div>`).join('') : `<div class="empty-state" style="padding:14px 10px;">${emptyMsg}</div>`}
     </div>`;
   document.getElementById('detailBody').innerHTML = `
     <div class="dw-wrap">
-      <div class="dw-pos">Lafz ${idx+1} / ${KHAAS_SHABD.length}</div>
+      <div class="dw-streak">${(()=>{ const st2 = learnStreak(); return st2.cur>0 ? `🔥 ${st2.cur} din ki learning streak` : 'Aaj koi lafz mark karein — streak shuru karein'; })()}</div>
+      <div class="dw-top"><span class="dw-pos">Lafz ${idx+1} / ${KHAAS_SHABD.length}</span><span class="act-group">${bmBtn('word:'+w.tr)}<button class="act-btn" id="wordImgBtn" title="Image share">🖼</button></span></div>
       <div class="daily-word-card ${st==='known'?'is-known':st==='learning'?'is-learning':''}" id="dailyWordCard">
         <div class="cat">${w.cat}</div>
         <div class="ar">${w.ar}</div>
@@ -2242,10 +2477,14 @@ function renderDailyWord(){
         <button id="wordPrevBtn">‹ Pichla</button>
         <button id="wordNextBtn">Agla ›</button>
       </div>
+      ${learning.length ? `<button id="wordReviewBtn" class="review-start-btn">🔁 Baaki Lafz ka Quiz (${learning.length})</button>` : ''}
       ${section('known', '✅ Yaad ho gaya', known, 'Abhi tak koi lafz "Yaad ho gaya" mark nahi hua.')}
       ${section('learning', '📖 Yaad karna baaki hai', learning, 'Abhi tak koi lafz "Yaad karna baaki hai" mark nahi hua.')}
     </div>
   `;
+  const rvBtn = document.getElementById('wordReviewBtn');
+  if(rvBtn) rvBtn.onclick = startWordReview;
+  document.getElementById('wordImgBtn').onclick = ()=> shareCard({ kind:'Aaj Ka Lafz', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
   document.getElementById('wordKnownBtn').onclick = ()=>{ setWordStatus(w.tr, st==='known'?null:'known'); renderDailyWord(); };
   document.getElementById('wordLearningBtn').onclick = ()=>{ setWordStatus(w.tr, st==='learning'?null:'learning'); renderDailyWord(); };
   document.getElementById('wordPrevBtn').onclick = ()=>{ dailyWordOffset--; renderDailyWord(); };
@@ -2315,7 +2554,7 @@ function renderMythCountSelect(){
 let mythQuizState = null;
 function startMythQuiz(n){
   const picked = shuffleArr(MYTH_BUSTERS).slice(0, Math.min(n, MYTH_BUSTERS.length));
-  mythQuizState = { questions: picked, idx: 0, score: 0, answered: false };
+  mythQuizState = { questions: picked, idx: 0, score: 0, answered: false, wrong: [] };
   renderMythQuizQuestion();
 }
 function renderMythQuizQuestion(){
@@ -2344,6 +2583,7 @@ function renderMythQuizQuestion(){
         else if(bi===chosen) b.classList.add('wrong');
       });
       if(chosen===m.correctIdx) qs.score++;
+      else qs.wrong.push({ q:m.q, chosenText:(chosen===0?'A. '+m.optA:'B. '+m.optB), correctText:(m.correctIdx===0?'A. '+m.optA:'B. '+m.optB), explain:m.explain });
       document.getElementById('mythQuizRevealWrap').innerHTML = `<div class="quiz-reveal"><b>✅ Sahi Jawab: Option ${m.correctIdx===0?'A':'B'}</b><div style="margin-top:6px;">${m.explain}</div></div>`;
       const isLast = qs.idx===qs.questions.length-1;
       document.getElementById('mythQuizNextWrap').innerHTML = `<button id="mythQuizNextBtn" style="padding:12px 28px; border-radius:12px; border:none; background:var(--accent); color:var(--fardText); font-size:14px; font-weight:700; cursor:pointer;">${isLast?'Result Dekhiye':'Agla Sawal'}</button>`;
@@ -2355,7 +2595,7 @@ function renderMythQuizQuestion(){
 }
 function renderMythQuizResult(){
   const qs = mythQuizState;
-  logQuizResult('Ghalat Fehmi Ka Izala', qs.score, qs.questions.length);
+  if(!qs.logged){ qs.logged = true; logQuizResult('Ghalat Fehmi Ka Izala', qs.score, qs.questions.length); }
   const pct = Math.round((qs.score/qs.questions.length)*100);
   const msg = pct>=80 ? 'Zabardast! Mashallah.' : pct>=50 ? 'Achha kiya, aur mehnat kijiye.' : 'Koi baat nahi, "Sab Padhein" mode mein poori list dekh lijiye.';
   document.getElementById('detailTitle').textContent = "Result";
@@ -2364,11 +2604,14 @@ function renderMythQuizResult(){
       <div style="font-size:44px; margin-bottom:10px;">🏆</div>
       <div style="font-size:26px; font-weight:800; margin-bottom:4px;">${qs.score} / ${qs.questions.length}</div>
       <div style="font-size:13px; color:var(--sub); margin-bottom:6px;">${pct}% Sahi Jawab</div>
-      <div style="font-size:13.5px; margin-bottom:24px;">${msg}</div>
-      <button id="mythQuizRetry" style="padding:12px 24px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:13.5px; font-weight:700; cursor:pointer;">Wapas</button>
+      <div style="font-size:13.5px; margin-bottom:18px;">${msg}</div>
+      ${qs.wrong.length ? `<button id="mythReviewBtn" class="res-btn">❌ Galat Jawabon ka Jaiza (${qs.wrong.length})</button>` : ''}
+      <button id="mythQuizRetry" class="res-btn">Wapas</button>
     </div>
   `;
   document.getElementById('mythQuizRetry').onclick = renderMythBusters;
+  const mrb = document.getElementById('mythReviewBtn');
+  if(mrb) mrb.onclick = ()=> renderReviewList(qs.wrong, renderMythQuizResult, false);
 }
 function renderMythReadList(){
   document.getElementById('detailTitle').textContent = 'Sab Padhein';
@@ -2394,6 +2637,19 @@ function renderMythReadList(){
   document.getElementById('mythReadBackBtn').onclick = renderMythBusters;
 }
 
+function renderReviewList(items, backFn){
+  document.getElementById('detailTitle').textContent = 'Galat Jawabon ka Jaiza';
+  document.getElementById('detailBody').innerHTML = `
+    <button id="reviewBackBtn" class="back-pill" style="margin-bottom:14px;">‹ Result</button>
+    ${items.map((w,i)=>`<div class="review-card">
+      <div class="q">${i+1}. ${w.q}</div>
+      <div class="rv wrong">❌ Aapka jawab: ${w.chosenText}</div>
+      <div class="rv right">✅ Sahi jawab: ${w.correctText}</div>
+      ${w.explain ? `<div class="myth-explain" style="display:block;">${w.explain}</div>` : ''}
+    </div>`).join('')}
+  `;
+  document.getElementById('reviewBackBtn').onclick = backFn;
+}
 function renderMoreQuiz(){
   quizState = null;
   document.getElementById('detailTitle').textContent = "Quiz";
@@ -2452,9 +2708,9 @@ function logQuizResult(cat, score, total){
   if(state.quizLog.length > 1000) state.quizLog.shift();
   saveState();
 }
-function startQuiz(pool, n, cat){
+function startQuiz(pool, n, cat, hooks){
   const picked = shuffleArr(pool).slice(0, n);
-  quizState = { questions: picked, idx: 0, score: 0, answered: false, cat: cat || 'Mix' };
+  quizState = { questions: picked, idx: 0, score: 0, answered: false, cat: cat || 'Mix', wrong: [], hooks: hooks || {} };
   renderQuizQuestion();
 }
 
@@ -2482,11 +2738,14 @@ function renderQuizQuestion(){
         if(bi===correct) b.classList.add('correct');
         else if(bi===chosen) b.classList.add('wrong');
       });
+      const item = qs.questions[qs.idx];
       if(chosen===correct){
         qs.score++;
       } else {
+        qs.wrong.push({ q, chosenText: opts[chosen], correctText: opts[correct], item });
         document.getElementById('quizRevealWrap').innerHTML = `<div class="quiz-reveal">Sahi Jawab: <b>${opts[correct]}</b></div>`;
       }
+      if(qs.hooks.onAnswer) qs.hooks.onAnswer(item, chosen===correct);
       const isLast = qs.idx===qs.questions.length-1;
       document.getElementById('quizNextWrap').innerHTML = `<button id="quizNextBtn" style="padding:12px 28px; border-radius:12px; border:none; background:var(--accent); color:var(--fardText); font-size:14px; font-weight:700; cursor:pointer;">${isLast?'Result Dekhiye':'Agla Sawal'}</button>`;
       document.getElementById('quizNextBtn').onclick = ()=>{
@@ -2498,7 +2757,7 @@ function renderQuizQuestion(){
 
 function renderQuizResult(){
   const qs = quizState;
-  logQuizResult(qs.cat, qs.score, qs.questions.length);
+  if(!qs.logged){ qs.logged = true; logQuizResult(qs.cat, qs.score, qs.questions.length); }
   const pct = Math.round((qs.score/qs.questions.length)*100);
   const msg = pct>=80 ? 'Zabardast! Mashallah.' : pct>=50 ? 'Achha kiya, aur mehnat kijiye.' : 'Koi baat nahi, dobara koshish kijiye.';
   document.getElementById('detailTitle').textContent = "Result";
@@ -2507,11 +2766,18 @@ function renderQuizResult(){
       <div style="font-size:44px; margin-bottom:10px;">🏆</div>
       <div style="font-size:26px; font-weight:800; margin-bottom:4px;">${qs.score} / ${qs.questions.length}</div>
       <div style="font-size:13px; color:var(--sub); margin-bottom:6px;">${pct}% Sahi Jawab</div>
-      <div style="font-size:13.5px; margin-bottom:24px;">${msg}</div>
-      <button id="quizRetry" style="padding:12px 24px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:13.5px; font-weight:700; cursor:pointer;">Dobara Khelein</button>
+      <div style="font-size:13.5px; margin-bottom:18px;">${msg}</div>
+      ${qs.hooks.summary ? qs.hooks.summary() : ''}
+      ${qs.wrong.length ? `<button id="quizReviewBtn" class="res-btn">❌ Galat Jawabon ka Jaiza (${qs.wrong.length})</button>
+      <button id="quizRedoWrongBtn" class="res-btn">🔁 Sirf Galat Sawal Dobara</button>` : ''}
+      <button id="quizRetry" class="res-btn">${qs.hooks.backLabel || 'Dobara Khelein'}</button>
     </div>
   `;
-  document.getElementById('quizRetry').onclick = renderMoreQuiz;
+  document.getElementById('quizRetry').onclick = qs.hooks.back || renderMoreQuiz;
+  const rvb = document.getElementById('quizReviewBtn');
+  if(rvb) rvb.onclick = ()=> renderReviewList(qs.wrong, renderQuizResult, true);
+  const rdb = document.getElementById('quizRedoWrongBtn');
+  if(rdb) rdb.onclick = ()=>{ startQuiz(qs.wrong.map(w=>w.item), qs.wrong.length, qs.cat, qs.hooks); quizState.logged = true; };
 }
 
 let citySearch = '';
@@ -2813,12 +3079,34 @@ function renderStats(){
     </div>
 
     <div class="ramzan-card" style="margin:0 0 14px;">
+      <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🕌 Namaz ka Report</div>
       <div class="stats-row"><span>🏆 Highest Padhi Gayi</span><b>${highestPrayed || '—'}</b></div>
       <div class="stats-row"><span>〰️ Highest Qaza</span><b>${highestQaza || '—'}</b></div>
       <div class="stats-row"><span>⚠️ Highest Missed</span><b>${highestMissed || '—'}</b></div>
       <div class="stats-row"><span>✅ Saare 5 Farz wale din</span><b>${allFiveDays} / ${pastDays.length}</b></div>
-      <div class="stats-row"><span>☪️ Roza rakhe gaye din</span><b>${rozaDays}</b></div>
     </div>
+
+    <div class="ramzan-card" style="margin:0 0 14px;">
+      <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">☪️ Roza ka Report</div>
+      <div class="stats-row"><span>🌙 Roza rakhe gaye din</span><b>${rozaDays}</b></div>
+    </div>
+
+    ${(()=>{
+      ensureZikrProfiles();
+      const morning = state.tasbeeh.profiles.find(p=>p.id==='morning');
+      const evening = state.tasbeeh.profiles.find(p=>p.id==='evening');
+      if(!morning || !evening) return '';
+      let mDone=0, eDone=0;
+      pastDays.forEach(d=>{
+        if(isZikrProfileComplete(d, morning)) mDone++;
+        if(isZikrProfileComplete(d, evening)) eDone++;
+      });
+      return `<div class="ramzan-card" style="margin:0 0 14px;">
+        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">📿 Azkar ka Report</div>
+        <div class="stats-row"><span>🌅 Subah Azkar mukammal din</span><b>${mDone} / ${pastDays.length}</b></div>
+        <div class="stats-row"><span>🌇 Shaam Azkar mukammal din</span><b>${eDone} / ${pastDays.length}</b></div>
+      </div>`;
+    })()}
 
     ${(()=>{
       const t0 = days[0].getTime(), t1 = days[days.length-1].getTime() + 86400000;
@@ -2852,28 +3140,11 @@ function renderStats(){
         <div class="stats-row"><span>✅ Lafz yaad ho gaye</span><b>${yaad}</b></div>
         <div class="stats-row"><span>📖 Yaad karna baaki</span><b>${baki}</b></div>
         <div class="stats-row"><span>🆕 Abhi shuru nahi kiye</span><b>${total-yaad-baki}</b></div>
+        <div class="stats-row"><span>🔥 Current learning streak</span><b>${learnStreak().cur} din</b></div>
+        <div class="stats-row"><span>🏅 Sabse lambi streak</span><b>${learnStreak().best} din</b></div>
       </div>`;
     })()}
 
-    ${(()=>{
-      ensureZikrProfiles();
-      const morning = state.tasbeeh.profiles.find(p=>p.id==='morning');
-      const evening = state.tasbeeh.profiles.find(p=>p.id==='evening');
-      if(!morning || !evening) return '';
-      let mDone=0, eDone=0;
-      pastDays.forEach(d=>{
-        if(isZikrProfileComplete(d, morning)) mDone++;
-        if(isZikrProfileComplete(d, evening)) eDone++;
-      });
-      const mMissed = pastDays.length - mDone, eMissed = pastDays.length - eDone;
-      return `<div class="ramzan-card" style="margin:0 0 14px;">
-        <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">📿 Azkar ka Report</div>
-        <div class="stats-row"><span>🌅 Subah Azkar mukammal din</span><b>${mDone} / ${pastDays.length}</b></div>
-        <div class="stats-row"><span>🌇 Shaam Azkar mukammal din</span><b>${eDone} / ${pastDays.length}</b></div>
-        <div class="stats-row"><span>⚠️ Subah Azkar miss hue din</span><b>${mMissed}</b></div>
-        <div class="stats-row"><span>⚠️ Shaam Azkar miss hue din</span><b>${eMissed}</b></div>
-      </div>`;
-    })()}
   `;
   document.getElementById('statsGregBtn').onclick = ()=>{ statsCal='greg'; renderStats(); };
   document.getElementById('statsHijriBtn').onclick = ()=>{ statsCal='hijri'; renderStats(); };
@@ -3622,6 +3893,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='prophetNames') renderNamesList('prophet');
     else if(which==='khaasShabd') renderKhaasShabd();
     else if(which==='dailyWord') renderDailyWord();
+    else if(which==='bookmarks') renderBookmarks();
     else if(which==='mythBusters') renderMythBusters();
     else if(which==='hijriConv') renderHijriConverter();
     else if(which==='islamicMonths') renderIslamicMonths();
