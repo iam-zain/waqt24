@@ -3860,7 +3860,7 @@ function islamicEventsList(){
   }).sort((a,b)=> a.greg - b.greg);
 }
 let khaasDinTab = 'all';
-const KHAAS_DIN_TABS = [['all','All'],['eid','Eid'],['ramzan','Ramzan'],['ghazwa','Ghazwa'],['misc','Miscellaneous']];
+const KHAAS_DIN_TABS = [['all','Sabhi'],['eid','Eid'],['ramzan','Ramzan'],['ghazwa','Ghazwa'],['misc','Mazeed']];
 function eventInTab(e, tab){
   if(tab==='all') return true;
   if(tab==='eid') return e.tag==='eid';
