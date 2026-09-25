@@ -2097,21 +2097,50 @@ const QUIZ_CAT_ICON = {
     const wrongs = shuffleArr(wrongPool).slice(0,3).map(x=>x.m);
     const options = shuffleArr([w.m, ...wrongs]);
     const correctIdx = options.indexOf(w.m);
-    QUIZ_BANK.push([`"${w.tr}" (${w.ar}) ka Roman Urdu meaning kya hai?`, options, correctIdx, "Khaas Shabd"]);
+    QUIZ_BANK.push([`"${w.tr}" (${w.ar}) ka matlab kya hai?`, options, correctIdx, "Khaas Shabd"]);
   });
 })();
 
-/* Auto-generate quiz questions from the 99 Names datasets: "<name> ka matlab?" MCQ */
+/* Auto-generate quiz questions from the 99 Names datasets:
+   1) "<name> ka matlab?" MCQ (uses the full 99-name pool)
+   2) "In mein se kaunsa naam sahi hai?" (1 real + 3 fake distractors)
+   3) "In mein se kaunsa naam sahi NAHI hai?" (3 real + 1 fake distractor) */
 (function generateNamesQuiz(){
   QUIZ_CATEGORIES.push("Asma-ul-Husna");
-  [ [ASMA_UL_HUSNA, "Asma-ul-Husna", 25], [PROPHET_NAMES, "Seerat-un-Nabi ﷺ", 9] ].forEach(([dataset, catName, count])=>{
-    const pool = shuffleArr(dataset).slice(0, count);
-    pool.forEach(w=>{
+  const dedupByTr = (arr)=>{
+    const seen = new Set(); const out = [];
+    arr.forEach(w=>{ if(!seen.has(w.tr)){ seen.add(w.tr); out.push(w); } });
+    return out;
+  };
+  const genericPool = dedupByTr(KHAAS_SHABD);
+  [
+    [ASMA_UL_HUSNA, "Asma-ul-Husna", "Allah"],
+    [PROPHET_NAMES, "Seerat-un-Nabi ﷺ", "Muhammad ﷺ"]
+  ].forEach(([dataset, catName, subject])=>{
+    // 1) meaning questions — full pool
+    shuffleArr(dataset).forEach(w=>{
       const wrongPool = dataset.filter(x=>x.m!==w.m);
       const wrongs = shuffleArr(wrongPool).slice(0,3).map(x=>x.m);
       const options = shuffleArr([w.m, ...wrongs]);
       const correctIdx = options.indexOf(w.m);
-      QUIZ_BANK.push([`"${w.tr}" (${w.ar}) ka Roman Urdu meaning kya hai?`, options, correctIdx, catName]);
+      QUIZ_BANK.push([`"${w.tr}" (${w.ar}) ka matlab kya hai?`, options, correctIdx, catName]);
+    });
+    const realTrs = new Set(dataset.map(w=>w.tr));
+    const fakePool = genericPool.filter(w=>!realTrs.has(w.tr));
+    const label = w => `${w.tr} (${w.ar})`;
+    // 2) which one IS a real name (1 real + 3 fake)
+    shuffleArr(dataset).slice(0, 20).forEach(real=>{
+      const fakes = shuffleArr(fakePool).slice(0,3);
+      const options = shuffleArr([real, ...fakes]).map(label);
+      const correctIdx = options.indexOf(label(real));
+      QUIZ_BANK.push([`In mein se kaunsa naam ${subject} ka sahi naam hai?`, options, correctIdx, catName]);
+    });
+    // 3) which one is NOT a real name (3 real + 1 fake)
+    shuffleArr(fakePool).slice(0, 20).forEach(fake=>{
+      const reals = shuffleArr(dataset).slice(0,3);
+      const options = shuffleArr([fake, ...reals]).map(label);
+      const correctIdx = options.indexOf(label(fake));
+      QUIZ_BANK.push([`In mein se kaunsa naam ${subject} ka sahi naam NAHI hai?`, options, correctIdx, catName]);
     });
   });
 })();
