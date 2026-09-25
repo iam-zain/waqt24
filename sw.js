@@ -1,7 +1,10 @@
-const CACHE_NAME = 'waqt24-v1';
+const CACHE_NAME = 'waqt24-v2';
 const CORE_ASSETS = [
   './',
   './index.html',
+  './data.js',
+  './fonts/scheherazade-400.woff2',
+  './fonts/scheherazade-700.woff2',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -21,13 +24,13 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Network-first for the HTML shell so updates arrive quickly; cache-first for everything else.
+// Network-first for the HTML shell and data.js so updates arrive quickly; cache-first for everything else.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  const isHTML = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/';
+  const isHTML = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/data.js') || url.pathname === '/';
 
   if (isHTML) {
     event.respondWith(
