@@ -2227,7 +2227,12 @@ function renderShabdHubList(){
     return;
   }
   const cats = [...new Set(KHAAS_SHABD.map(w=>w.cat))];
-  wrap.innerHTML = cats.map(c=>{
+  const allCard = `<div class="shabd-cat-card" data-cat="__all__" style="border-color:var(--accent);">
+      <div class="ic">🌐</div>
+      <div class="info"><div class="name">Sabhi Naam</div><div class="count">${KHAAS_SHABD.length} alfaz</div></div>
+      <div class="chev">›</div>
+    </div>`;
+  wrap.innerHTML = allCard + cats.map(c=>{
     const count = KHAAS_SHABD.filter(w=>w.cat===c).length;
     return `<div class="shabd-cat-card" data-cat="${c}">
       <div class="ic">${SHABD_CAT_ICON[c]||'📚'}</div>
@@ -2241,13 +2246,14 @@ function renderShabdHubList(){
 }
 let shabdCatSearch = '';
 function renderShabdCategory(cat){
-  document.getElementById('detailTitle').textContent = cat;
+  const isAll = cat === '__all__';
+  document.getElementById('detailTitle').textContent = isAll ? 'Sabhi Naam' : cat;
   shabdCatSearch = '';
   const body = document.getElementById('detailBody');
   body.innerHTML = `
     <button id="shabdCatBackBtn" style="margin:0 14px 14px; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer;">‹ Khaas Shabd</button>
     <div class="search-bar-wrap">
-      <input id="shabdCatSearchInput" placeholder="Isi category mein dhoondhiye...">
+      <input id="shabdCatSearchInput" placeholder="${isAll?'Sabhi mein dhoondhiye...':'Isi category mein dhoondhiye...'}">
       <button id="shabdCatSearchClear" class="search-clear-btn">✕</button>
     </div>
     <div id="shabdCatList"></div>
@@ -2256,7 +2262,7 @@ function renderShabdCategory(cat){
   const renderList = ()=>{
     const wrap = document.getElementById('shabdCatList');
     const q = shabdCatSearch.trim().toLowerCase();
-    const items = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> w.cat===cat && (w.tr+w.m).toLowerCase().includes(q));
+    const items = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> (isAll || w.cat===cat) && (w.tr+w.m).toLowerCase().includes(q));
     wrap.innerHTML = items.map(w=>`<div class="shabd-row" data-idx="${w.i}">
         <div class="ar">${w.ar}</div>
         <div class="info"><div class="tr">${w.tr}</div><div class="m">${w.m}</div></div>
