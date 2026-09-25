@@ -287,6 +287,7 @@ body{
 .stats-row b{ text-align:right; font-weight:700; }
 .chip-row{ display:flex; gap:8px; flex-wrap:wrap; }
 .chip{ padding:8px 12px; border-radius:20px; border:1px solid var(--line); background:var(--card2); font-size:12.5px; font-weight:600; color:var(--sub); cursor:pointer; }
+.chip.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
 .chip.prayed{ background:var(--green); color:#06210f; border-color:var(--green); }
 .chip.qaza{ background:var(--yellow); color:#2b2100; border-color:var(--yellow); }
 .chip.pending{ background:var(--red); color:#2b0808; border-color:var(--red); }
@@ -454,7 +455,11 @@ body{
 .shabd-detail .m, .shabd-detail .ex{ font-size:14px; line-height:1.6; }
 
 /* ---------- AAJ KA LAFZ (Daily Word) ---------- */
-.daily-word-card{ margin:10px 14px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:26px 18px; text-align:center; touch-action:pan-y; }
+.daily-word-card{ margin:10px 14px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:26px 18px; text-align:center; touch-action:pan-y; transition:background .2s,border-color .2s; }
+.daily-word-card.is-known{ background:var(--green); border-color:var(--green); }
+.daily-word-card.is-known .cat, .daily-word-card.is-known .m, .daily-word-card.is-known .ex{ color:#06210f; }
+.daily-word-card.is-known .tr{ color:#06210f; }
+.empty-state{ text-align:center; padding:40px 20px; color:var(--sub); font-size:13.5px; line-height:1.6; }
 .daily-word-card .cat{ font-size:11px; color:var(--sub); font-weight:700; text-transform:uppercase; margin-bottom:10px; }
 .daily-word-card .ar{ font-size:38px; margin-bottom:10px; direction:rtl; }
 .daily-word-card .tr{ font-size:18px; font-weight:800; color:var(--accent); margin-bottom:10px; }
@@ -2172,7 +2177,7 @@ let shabdSearch = '';
 const SHABD_CAT_ICON = {
   "Allah, Imaan aur Aqeeda":"🕋", "Allah ke Naam aur Sifaat":"💚", "Nabi, Rasool aur Ambiya":"🌙",
   "Quran, Wahi aur Asmani Kitabein":"📖", "Farishte aur Ghaibi Makhlooq":"👼", "Sahaba aur Ahl-e-Bait":"👥",
-  "Ibadat aur Namaz":"🕌", "Roza aur Ramadan":"🌙", "Nekiyan, Gunah aur Akhlaaq":"⚖️",
+  "Ibadat aur Namaz":"🙏", "Roza aur Ramadan":"🌙", "Nekiyan, Gunah aur Akhlaaq":"⚖️",
   "Sadqah, Khairat aur Maali Ibadat":"🤲", "Hajj, Umrah aur Qurbani":"🕋", "Jannat aur Aakhirat":"🌌",
   "Qayamat, Qabr aur Aamaal":"⏳", "Nabi ﷺ ki Zindagi aur Seerat":"⭐", "Islamic Battles / Ghazawaat":"🗡️",
   "Quran mein zikr hone wale Mashhoor Log":"📜", "Mashhoor Islamic Titles":"🏷️",
@@ -2311,13 +2316,30 @@ function setWordStatus(tr, status){
   saveState();
 }
 let dailyWordOffset = 0;
+let dailyWordView = 'today';
 function renderDailyWord(){
   document.getElementById('detailTitle').textContent = 'Aaj Ka Lafz';
+  const body = document.getElementById('detailBody');
+  body.innerHTML = `
+    <div class="chip-row" id="dailyWordTabs">
+      <div class="chip ${dailyWordView==='today'?'active':''}" data-v="today">Aaj Ka Lafz</div>
+      <div class="chip ${dailyWordView==='known'?'active':''}" data-v="known">✅ Yaad ho gaya</div>
+      <div class="chip ${dailyWordView==='learning'?'active':''}" data-v="learning">📖 Yaad karna baaki hai</div>
+    </div>
+    <div id="dailyWordContent"></div>
+  `;
+  body.querySelectorAll('#dailyWordTabs [data-v]').forEach(el=>{
+    el.onclick = ()=>{ dailyWordView = el.dataset.v; renderDailyWord(); };
+  });
+  if(dailyWordView==='today') renderDailyWordCard();
+  else renderWordStatusList(dailyWordView);
+}
+function renderDailyWordCard(){
   const idx = dailyWordIndex(dailyWordOffset);
   const w = KHAAS_SHABD[idx];
   const st = wordStatus(w.tr);
-  document.getElementById('detailBody').innerHTML = `
-    <div class="daily-word-card" id="dailyWordCard">
+  document.getElementById('dailyWordContent').innerHTML = `
+    <div class="daily-word-card ${st==='known'?'is-known':''}" id="dailyWordCard">
       <div class="cat">${w.cat}</div>
       <div class="ar">${w.ar}</div>
       <div class="tr">${w.tr}</div>
@@ -2329,16 +2351,14 @@ function renderDailyWord(){
       <button id="wordLearningBtn" class="${st==='learning'?'active-learning':''}">📖 Yaad karna baaki hai</button>
     </div>
     <div class="daily-word-nav">
-      <button id="wordPrevBtn" title="Pichla">‹</button>
-      <button id="wordTodayBtn" title="Aaj ka lafz" style="width:auto; border-radius:20px; padding:0 16px; font-size:11.5px;">Aaj</button>
-      <button id="wordNextBtn" title="Agla">›</button>
+      <button id="wordPrevBtn" title="Pichla">‹ Pichla</button>
+      <button id="wordNextBtn" title="Agla">Agla ›</button>
     </div>
   `;
-  document.getElementById('wordKnownBtn').onclick = ()=>{ setWordStatus(w.tr, st==='known'?null:'known'); renderDailyWord(); };
-  document.getElementById('wordLearningBtn').onclick = ()=>{ setWordStatus(w.tr, st==='learning'?null:'learning'); renderDailyWord(); };
-  document.getElementById('wordPrevBtn').onclick = ()=>{ dailyWordOffset--; renderDailyWord(); };
-  document.getElementById('wordNextBtn').onclick = ()=>{ dailyWordOffset++; renderDailyWord(); };
-  document.getElementById('wordTodayBtn').onclick = ()=>{ dailyWordOffset=0; renderDailyWord(); };
+  document.getElementById('wordKnownBtn').onclick = ()=>{ setWordStatus(w.tr, st==='known'?null:'known'); renderDailyWordCard(); };
+  document.getElementById('wordLearningBtn').onclick = ()=>{ setWordStatus(w.tr, st==='learning'?null:'learning'); renderDailyWordCard(); };
+  document.getElementById('wordPrevBtn').onclick = ()=>{ dailyWordOffset--; renderDailyWordCard(); };
+  document.getElementById('wordNextBtn').onclick = ()=>{ dailyWordOffset++; renderDailyWordCard(); };
   const card = document.getElementById('dailyWordCard');
   let touchStartX = null;
   card.addEventListener('pointerdown', (e)=>{ touchStartX = e.clientX; });
@@ -2346,8 +2366,24 @@ function renderDailyWord(){
     if(touchStartX===null) return;
     const dx = e.clientX - touchStartX;
     touchStartX = null;
-    if(dx > 40){ dailyWordOffset--; renderDailyWord(); }
-    else if(dx < -40){ dailyWordOffset++; renderDailyWord(); }
+    if(dx > 40){ dailyWordOffset--; renderDailyWordCard(); }
+    else if(dx < -40){ dailyWordOffset++; renderDailyWordCard(); }
+  });
+}
+function renderWordStatusList(status){
+  const words = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> wordStatus(w.tr)===status);
+  const wrap = document.getElementById('dailyWordContent');
+  if(!words.length){
+    wrap.innerHTML = `<div class="empty-state">${status==='known' ? 'Abhi tak koi lafz "Yaad ho gaya" mark nahi hua.' : 'Abhi tak koi lafz "Yaad karna baaki hai" mark nahi hua.'}</div>`;
+    return;
+  }
+  wrap.innerHTML = words.map(w=>`<div class="shabd-row" data-i="${w.i}">
+      <div class="ar">${w.ar}</div>
+      <div class="tr">${w.tr}</div>
+      <div class="m">${w.m}</div>
+    </div>`).join('');
+  wrap.querySelectorAll('[data-i]').forEach(el=>{
+    el.onclick = ()=>{ dailyWordOffset = parseInt(el.dataset.i) - dailyWordIndex(0); dailyWordView='today'; renderDailyWord(); };
   });
 }
 
