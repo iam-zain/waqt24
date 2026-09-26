@@ -801,17 +801,6 @@ body{
         <button id="themeAuto">🌓 Auto</button>
         <button id="themeWaqti">🕋 Waqti</button>
       </div>
-      <div class="section-title">Waqt ka Andaaz</div>
-      <div class="theme-row">
-        <button id="fmt24">24 Ghante</button>
-        <button id="fmt12">12 Ghante (AM/PM)</button>
-      </div>
-      <div class="section-title">Text ka Size</div>
-      <div class="theme-row" id="textSizeRow">
-        <button data-size="m">Normal</button>
-        <button data-size="l">Bara</button>
-        <button data-size="xl">Bohot Bara</button>
-      </div>
       <div class="section-title">Islami Taqweem</div>
     </div>
     <div class="more-list" style="padding-top:0;">
@@ -826,11 +815,8 @@ body{
     <div class="more-list" style="padding-top:0;">
       <div class="more-item" data-open="qaza"><div class="ic">🧎</div><div class="lbl">Qaza Namaz</div><div class="chev">›</div></div>
       <div class="more-item" data-open="install"><div class="ic">📲</div><div class="lbl">App Install Karein</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="backup"><div class="ic">💾</div><div class="lbl">Data Backup</div><div class="chev">›</div></div>
       <div class="more-item" data-open="settings"><div class="ic">⚙️</div><div class="lbl">Settings</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="howto"><div class="ic">📘</div><div class="lbl">Istemal ka Tareeqa</div><div class="chev">›</div></div>
       <div class="more-item" data-open="raabta"><div class="ic">✉️</div><div class="lbl">Raabta</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="about"><div class="ic">ℹ️</div><div class="lbl">Iske Baare Mein</div><div class="chev">›</div></div>
     </div>
   </div>
 
@@ -1260,14 +1246,7 @@ document.getElementById('themeWaqti').onclick=()=>{state.theme='waqti';saveState
 applyTheme();
 setInterval(applyTheme, 30000);
 
-function applyTimeFormat(){
-  document.getElementById('fmt24').classList.toggle('active', state.timeFormat==='24');
-  document.getElementById('fmt12').classList.toggle('active', state.timeFormat==='12');
-}
-applyTimeFormat();
-document.getElementById('fmt24').onclick=()=>{state.timeFormat='24';saveState();applyTimeFormat();renderHome();renderCalendar();};
-document.getElementById('fmt12').onclick=()=>{state.timeFormat='12';saveState();applyTimeFormat();renderHome();renderCalendar();};
-applyTimeFormat();
+function setTimeFormat(f){ state.timeFormat = f; saveState(); renderHome(); renderCalendar(); }
 
 /* ============================================================
    STREAK TRACKER — consecutive days with all 5 Farz prayed on time
@@ -2983,19 +2962,38 @@ function notifPermLabel(){
   if(Notification.permission==='denied') return '⛔ Yaad-dahaniyan block hain — browser settings mein ijaazat dijiye';
   return 'Yaad-dahaniyan abhi off hain';
 }
-let settingsTab = 'notif'; // notif | location
+let settingsTab = 'location'; // location | notif | lang
+function renderSettingsMenu(){
+  document.getElementById('detailTitle').textContent = 'Settings';
+  const items = [
+    ['location','🏙️','Apna Shahar Chunein', state.location.name],
+    ['timefmt','🕒','Waqt ka Andaaz', state.timeFormat==='12' ? '12 Ghante (AM/PM)' : '24 Ghante'],
+    ['textsize','🔠','Text ka Size', {m:'Normal',l:'Bara',xl:'Bohot Bara'}[state.textScale]||'Normal'],
+    ['lang','🌐','Zubaan', state.lang==='en' ? 'English' : 'Hinglish / Roman Urdu'],
+    ['notif','🔔','Yaad-dahaniyan', ''],
+    ['howto','📘','Istemal ka Tareeqa', ''],
+    ['backup','💾','Data Backup', ''],
+    ['about','ℹ️','Iske Baare Mein', ''],
+  ];
+  document.getElementById('detailBody').innerHTML = `<div class="more-list set-list">${items.map(([k,ic,l,sub])=>`
+    <div class="more-item" data-sec="${k}" role="button" tabindex="0"><div class="ic">${ic}</div><div class="lbl">${l}${sub?`<span class="lblSub">${sub}</span>`:''}</div><div class="chev">›</div></div>`).join('')}</div>`;
+  document.querySelectorAll('#detailBody [data-sec]').forEach(el=>{
+    el.onclick = ()=>{
+      const k = el.dataset.sec;
+      if(k==='backup') renderBackup();
+      else if(k==='howto') renderHowTo();
+      else if(k==='about') renderMoreAbout();
+      else { settingsTab = k; renderMoreSettings(); }
+    };
+  });
+}
 function renderMoreSettings(){
-  document.getElementById('detailTitle').textContent="Settings";
+  document.getElementById('detailTitle').textContent = ({notif:'Yaad-dahaniyan', lang:'Zubaan', timefmt:'Waqt ka Andaaz', textsize:'Text ka Size'})[settingsTab] || 'Apna Shahar Chunein';
   const loc = state.location;
   const body = document.getElementById('detailBody');
   const canNotify = 'Notification' in window;
   const granted = canNotify && Notification.permission==='granted';
   body.innerHTML = `
-    <div class="cal-toggle" style="padding:0 0 14px;">
-      <button id="settingsTabNotif" class="${settingsTab==='notif'?'active':''}">Yaad-dahaniyan</button>
-      <button id="settingsTabLoc" class="${settingsTab==='location'?'active':''}">Jagah</button>
-      <button id="settingsTabLang" class="${settingsTab==='lang'?'active':''}">Zubaan</button>
-    </div>
     <div id="settingsPane"></div>
   `;
   const pane = body.querySelector('#settingsPane');
@@ -3048,7 +3046,7 @@ function renderMoreSettings(){
 
   function renderLocationPane(){
     pane.innerHTML = `
-      <div class="section-title" style="margin-top:0;">Jagah</div>
+      <div class="section-title" style="margin-top:0;">Aapki Maujooda Jagah</div>
       <div class="ramzan-card" style="margin:0 0 14px;">
         <div style="font-size:13.5px; font-weight:700; margin-bottom:2px;">📍 ${loc.name}</div>
         <div style="font-size:11.5px; color:var(--sub); margin-bottom:12px;">${loc.lat.toFixed(4)}, ${loc.lon.toFixed(4)} ${loc.source==='gps' ? '(GPS)' : ''}</div>
@@ -3068,6 +3066,21 @@ function renderMoreSettings(){
     setupLocationPane();
   }
 
+  function renderTimeFmtPane(){
+    pane.innerHTML = `<div class="theme-row" style="padding:0 0 12px;">
+      <button data-fmt="24" class="${state.timeFormat==='24'?'active':''}">24 Ghante</button>
+      <button data-fmt="12" class="${state.timeFormat==='12'?'active':''}">12 Ghante (AM/PM)</button>
+    </div>`;
+    pane.querySelectorAll('[data-fmt]').forEach(b=>{ b.onclick = ()=>{ setTimeFormat(b.dataset.fmt); renderTimeFmtPane(); }; });
+  }
+  function renderTextSizePane(){
+    pane.innerHTML = `<div class="theme-row" style="padding:0 0 12px;">
+      <button data-size="m" class="${state.textScale==='m'?'active':''}">Normal</button>
+      <button data-size="l" class="${state.textScale==='l'?'active':''}">Bara</button>
+      <button data-size="xl" class="${state.textScale==='xl'?'active':''}">Bohot Bara</button>
+    </div>`;
+    pane.querySelectorAll('[data-size]').forEach(b=>{ b.onclick = ()=>{ state.textScale = b.dataset.size; saveState(); applyTextScale(); renderTextSizePane(); }; });
+  }
   function renderLangPane(){
     pane.innerHTML = `
       <div class="section-title" style="margin-top:0;">${L({rur:'Zubaan chuniye',en:'Choose language'})}</div>
@@ -3079,10 +3092,7 @@ function renderMoreSettings(){
       el.onclick = ()=>{ if(state.lang===el.dataset.lang) return; state.lang = el.dataset.lang; saveState(); location.reload(); };
     });
   }
-  if(settingsTab==='notif') renderNotifPane(); else if(settingsTab==='lang') renderLangPane(); else renderLocationPane();
-  body.querySelector('#settingsTabNotif').onclick = ()=>{ settingsTab='notif'; renderMoreSettings(); };
-  body.querySelector('#settingsTabLoc').onclick = ()=>{ settingsTab='location'; renderMoreSettings(); };
-  body.querySelector('#settingsTabLang').onclick = ()=>{ settingsTab='lang'; renderMoreSettings(); };
+  if(settingsTab==='notif') renderNotifPane(); else if(settingsTab==='lang') renderLangPane(); else if(settingsTab==='timefmt') renderTimeFmtPane(); else if(settingsTab==='textsize') renderTextSizePane(); else renderLocationPane();
 
   function setupLocationPane(){
   const cityListEl = body.querySelector('#cityList');
@@ -3370,7 +3380,7 @@ function renderStats(){
     </div>
 
     <div class="ramzan-card" style="margin:0 0 14px;">
-      <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🕌 Namaz ka Jaiza</div>
+      <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🛐 Namaz ka Jaiza</div>
       <div class="stats-row"><span>🏆 Sabse Zyada Padhi Gayi</span><b>${highestPrayed || '—'}</b></div>
       <div class="stats-row"><span>〰️ Sabse Zyada Qaza</span><b>${highestQaza || '—'}</b></div>
       <div class="stats-row"><span>⚠️ Sabse Zyada Chhooti</span><b>${highestMissed || '—'}</b></div>
@@ -3391,8 +3401,8 @@ function renderStats(){
       });
       return `<div class="ramzan-card" style="margin:0 0 14px;">
         <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">📿 Azkar ka Jaiza</div>
-        <div class="stats-row"><span>🌅 Subah Azkar mukammal din</span><b>${mDone} / ${pastDays.length}</b></div>
-        <div class="stats-row"><span>🌇 Shaam Azkar mukammal din</span><b>${eDone} / ${pastDays.length}</b></div>
+        <div class="stats-row"><span>🌄 Subah Azkar mukammal din</span><b>${mDone} / ${pastDays.length}</b></div>
+        <div class="stats-row"><span>🌉 Shaam Azkar mukammal din</span><b>${eDone} / ${pastDays.length}</b></div>
       </div>`;
     })()}
 
@@ -3413,9 +3423,9 @@ function renderStats(){
       return `<div class="ramzan-card" style="margin:0 0 14px;">
         <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🧠 Quiz ka Jaiza</div>
         <div class="stats-row"><span>🎮 Quiz khele gaye</span><b>${played}</b></div>
-        <div class="stats-row"><span>✅ Sahi jawab</span><b>${right} / ${asked}</b></div>
+        <div class="stats-row"><span>☑️ Sahi jawab</span><b>${right} / ${asked}</b></div>
         <div class="stats-row"><span>🎯 Durustgi</span><b>${played ? acc+'%' : '—'}</b></div>
-        <div class="stats-row"><span>🏆 Sabse behtar nateeja</span><b>${played ? best+'%' : '—'}</b></div>
+        <div class="stats-row"><span>🎖️ Sabse behtar nateeja</span><b>${played ? best+'%' : '—'}</b></div>
       </div>`;
     })()}
 
@@ -3431,8 +3441,8 @@ function renderStats(){
           <div style="flex:1; height:8px; background:var(--meterBg); border-radius:4px; overflow:hidden;"><div style="width:${w}%; height:100%; background:var(--green);"></div></div>
           <span style="font-size:11px; color:var(--sub);">${yaad}/${total}</span>
         </div>
-        <div class="stats-row"><span>✅ Lafz yaad ho gaye</span><b>${yaad}</b></div>
-        <div class="stats-row"><span>📖 Yaad karna baaki</span><b>${baki}</b></div>
+        <div class="stats-row"><span>📗 Lafz yaad ho gaye</span><b>${yaad}</b></div>
+        <div class="stats-row"><span>📝 Yaad karna baaki</span><b>${baki}</b></div>
         <div class="stats-row"><span>🆕 Abhi shuru nahi kiye</span><b>${total-yaad-baki}</b></div>
       </div>`;
     })()}
@@ -3441,15 +3451,15 @@ function renderStats(){
     ${(()=>{
       const ns = computeStreak(), as = azkarStreak(), qs = quizStreak(), ls = learnStreak();
       const row = (icon, label, sub, val)=> `<div class="stats-row"><span>${icon} ${label}<span class="stat-sub">${sub}</span></span><b>${val} din</b></div>`;
-      const block = (icon, label, sub, st)=>
+      const block = (icon, bestIcon, label, sub, st)=>
         row(icon, label+' ki Paabandi', 'Lagatar din jab '+sub, st.cur) +
-        row('🏆', 'Sabse Lambi '+label+' Paabandi', 'Ab tak ke sabse zyada lagatar din', st.best);
+        row(bestIcon, 'Sabse Lambi '+label+' Paabandi', 'Ab tak ke sabse zyada lagatar din', st.best);
       return `<div class="ramzan-card" style="margin:0 0 14px;">
         <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🔥 Paabandi</div>
-        ${block('🕌','Namaz','paanchon Farz waqt par padhe', ns.current===undefined?ns:{cur:ns.current,best:ns.best})}
-        ${block('📿','Azkar','Subah aur Shaam dono azkar mukammal kiye', as)}
-        ${block('🧠','Quiz','kam az kam ek quiz khela', qs)}
-        ${block('📚','Lafz','koi lafz mark kiya ya lafz ka quiz kiya', ls)}
+        ${block('🕋','🥇','Namaz','paanchon Farz waqt par padhe', ns.current===undefined?ns:{cur:ns.current,best:ns.best})}
+        ${block('🌿','🥈','Azkar','Subah aur Shaam dono azkar mukammal kiye', as)}
+        ${block('🎲','🥉','Quiz','kam az kam ek quiz khela', qs)}
+        ${block('✍️','🏅','Lafz','koi lafz mark kiya ya lafz ka quiz kiya', ls)}
       </div>`;
     })()}
   `;
@@ -4177,16 +4187,16 @@ function nextOccurrence(computeForYear){
 }
 function islamicEventsList(){
   const events = [
-    { name:"Islami Naya Saal (1 Muharram-ul-Haraam)", h:(y)=>hijriToGregorian(1,1,y), ic:"🌙", tag:"newyear" },
+    { name:"Islami Naya Saal (1 Muharram-ul-Haraam)", h:(y)=>hijriToGregorian(1,1,y), ic:"🥳", tag:"newyear" },
     { name:"Muharram-ul-Haraam ki 10 Tareekh", h:(y)=>hijriToGregorian(10,1,y), ic:"🖤", tag:"ashura" },
-    { name:"Milad-un-Nabi ﷺ (12 Rabi-ul-Awwal)", h:(y)=>hijriToGregorian(12,3,y), ic:"💚", tag:"milad" },
+    { name:"Milad-un-Nabi ﷺ (12 Rabi-ul-Awwal)", h:(y)=>hijriToGregorian(12,3,y), ic:"🌹", tag:"milad" },
     { name:"Laylat-ul-Miraj (27 Rajab)", h:(y)=>hijriToGregorian(27,7,y), ic:"🌠", tag:"miraj", yr:"Safar-e-Miraj ki mash'hoor raat", note:"Tareekh mein ikhtilaf — mash'hoor riwayat 27 Rajab hai, qatai nahi" },
-    { name:"Ramzan Shuru (1 Ramzan)", h:(y)=>hijriToGregorian(1,9,y), ic:"🌒", tag:"ramzan" },
+    { name:"Ramzan Shuru (1 Ramzan)", h:(y)=>hijriToGregorian(1,9,y), ic:"🌛", tag:"ramzan" },
     { name:"Ghazwa-e-Badr (17 Ramzan)", h:(y)=>hijriToGregorian(17,9,y), ic:"⚔️", tag:"ghazwa", yr:"2 Hijri" },
     { name:"Shab-e-Qadr ka Ehtimaal", nights:[21,23,25,27,29].map(d=>({day:d, h:(y)=>hijriToGregorian(d,9,y)})), ic:"✨", tag:"qadr" },
     { name:"Jumat-ul-Vida (Ramzan ki aakhri Jumu'ah)", h:(y)=> findLastFridayInHijriMonth(9,y), ic:"🕊️", tag:"jumavida" },
-    { name:"Fateh Makkah (20 Ramzan)", h:(y)=>hijriToGregorian(20,9,y), ic:"🕋", tag:"ghazwa", yr:"8 Hijri", note:"Mash'hoor tareekh 20 Ramzan hai; ba'z riwayat mein farq milta hai" },
-    { name:"Eid-ul-Fitr (1 Shawwal)", h:(y)=>hijriToGregorian(1,10,y), ic:"🎉", tag:"eid" },
+    { name:"Fateh Makkah (20 Ramzan)", h:(y)=>hijriToGregorian(20,9,y), ic:"🚩", tag:"ghazwa", yr:"8 Hijri", note:"Mash'hoor tareekh 20 Ramzan hai; ba'z riwayat mein farq milta hai" },
+    { name:"Eid-ul-Fitr (1 Shawwal)", h:(y)=>hijriToGregorian(1,10,y), ic:"🎊", tag:"eid" },
     { name:"Ghazwa-e-Uhud (7 Shawwal)", h:(y)=>hijriToGregorian(7,10,y), ic:"🛡️", tag:"ghazwa", yr:"3 Hijri", note:"Ba'z riwayat mein 15 Shawwal bhi milta hai" },
     { name:"Ghazwa-e-Hunain (10 Shawwal)", h:(y)=>hijriToGregorian(10,10,y), ic:"🏹", tag:"ghazwa", yr:"8 Hijri", note:"Tareekh mein ikhtilaf (6 ya 10 Shawwal)" },
     { name:"Sulah Hudaibiyah (1 Zul-Qa'dah)", h:(y)=>hijriToGregorian(1,11,y), ic:"🤝", tag:"ghazwa", yr:"6 Hijri", note:"Rawangi ki tareekh; muahida usi mahine mein hua, din ta'qreebi hai" },
@@ -4373,7 +4383,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='islamicMonths') renderIslamicMonths();
     else if(which==='islamicEvents') renderIslamicEvents();
     else if(which==='backup') renderBackup();
-    else if(which==='settings') renderMoreSettings();
+    else if(which==='settings') renderSettingsMenu();
     else if(which==='about') renderMoreAbout();
     document.getElementById('detailOverlay').classList.add('active');
     document.getElementById('detailBody').scrollTop = 0;
@@ -4381,8 +4391,8 @@ document.querySelectorAll('.more-item').forEach(item=>{
   };
 });
 document.getElementById('detailBack').onclick = closeModal;
-['renderMoreDua','renderMoreHadees','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderHowTo'].forEach(n=>navWrap(n,0));
-['openDuaDetail','openHadeesDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail'].forEach(n=>navWrap(n,1));
+['renderMoreDua','renderMoreHadees','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
+['openDuaDetail','openHadeesDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo'].forEach(n=>navWrap(n,1));
 ['renderShabdDetail','renderQuizQuestion','renderQuizResult','renderMythQuizQuestion','renderMythQuizResult'].forEach(n=>navWrap(n,2));
 navWrap('renderReviewList',3);
 (function(){
@@ -4603,7 +4613,7 @@ const A11Y_CLICKABLE = '.more-item, .chip, .name-tile, .shabd-row, .dw-row, .dua
 function a11yFix(root){
   (root||document).querySelectorAll('button:not([aria-label])').forEach(b=>{
     const t = (b.getAttribute('title') || A11Y_SYMBOL_LABELS[(b.textContent||'').trim()] || '');
-    if(t) b.setAttribute('aria-label', t);
+    if(t) b.setAttribute('aria-label', state.lang==='en' ? i18nCore(t) : t);
   });
   (root||document).querySelectorAll(A11Y_CLICKABLE).forEach(el=>{
     if(el.tagName==='BUTTON' || el.hasAttribute('role')) return;
@@ -4623,11 +4633,7 @@ function applyTextScale(){
   const z = TEXT_SCALES[k] || 1;
   document.documentElement.style.zoom = z;
   document.documentElement.style.setProperty('--zoom', z);
-  document.querySelectorAll('#textSizeRow button').forEach(b=> b.classList.toggle('active', b.dataset.size===k));
 }
-document.querySelectorAll('#textSizeRow button').forEach(b=>{
-  b.onclick = ()=>{ state.textScale = b.dataset.size; saveState(); applyTextScale(); };
-});
 applyTextScale();
 a11yFix();
 renderGoalCard();
@@ -4658,9 +4664,16 @@ function i18nCore(str){
   if(I18N_EN[t]!==undefined) return str.replace(t, I18N_EN[t]);
   const m = t.match(/^([^\p{L}\p{N}]*)(.*?)([^\p{L}\p{N})?!.']*)$/su);
   if(m && m[2] && I18N_EN[m[2]]!==undefined) return str.replace(t, m[1]+I18N_EN[m[2]]+m[3]);
-  for(const [re,fn] of (typeof I18N_PATTERNS!=='undefined' ? I18N_PATTERNS : [])){
+  const pats = (typeof I18N_PATTERNS!=='undefined' ? I18N_PATTERNS : []);
+  for(const [re,fn] of pats){
     const mm = t.match(re);
     if(mm) return str.replace(t, fn(mm));
+  }
+  if(m && m[2]){
+    for(const [re,fn] of pats){
+      const mm = m[2].match(re);
+      if(mm) return str.replace(t, m[1]+fn(mm)+m[3]);
+    }
   }
   return str;
 }

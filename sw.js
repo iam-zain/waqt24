@@ -1,8 +1,9 @@
-const CACHE_NAME = 'waqt24-v3';
+const CACHE_NAME = 'waqt24-v4';
 const CORE_ASSETS = [
   './',
   './index.html',
   './data.js',
+  './i18n.js',
   './fonts/scheherazade-400.woff2',
   './fonts/scheherazade-700.woff2',
   './manifest.json',
@@ -30,7 +31,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  const isHTML = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/data.js') || url.pathname === '/';
+  const isHTML = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/data.js') || url.pathname.endsWith('/i18n.js') || url.pathname === '/';
 
   if (isHTML) {
     event.respondWith(
