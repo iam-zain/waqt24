@@ -116,7 +116,7 @@ body{
   background:var(--card); color:var(--text); font-size:15px; cursor:pointer;
 }
 .dateCenter{ flex:1; text-align:center; cursor:pointer; }
-.cityLabel{ font-size:15px; color:var(--sub); margin-top:4px; }
+.cityLabel{ font-size:15px; color:var(--sub); margin-top:4px; cursor:pointer; text-decoration:underline dotted; text-underline-offset:3px; }
 .controlBar{
   display:flex; align-items:stretch;
   padding:8px 2px; margin-top:2px; border-bottom:1px solid var(--line);
@@ -271,6 +271,9 @@ body{
 .cal-dots{ display:flex; gap:2px; }
 .cal-dots span{ width:5px; height:5px; border-radius:50%; background:var(--line); }
 .cal-detail{ margin:10px 14px 20px; padding:12px; background:var(--card); border-radius:12px; border:1px solid var(--line); }
+.cal-dtxt{ min-width:0; }
+.cal-dg{ font-weight:700; font-size:13.5px; }
+.cal-dh{ font-weight:700; font-size:12px; color:var(--accent); margin-top:2px; }
 .cal-detail .row{ display:flex; justify-content:space-between; align-items:center; padding:6px 8px; margin:0 -8px; border-radius:8px; border-bottom:1px solid var(--line); font-size:13px; }
 .cal-detail .row.roza-tint{ background:color-mix(in srgb, var(--roza) 16%, transparent); border-bottom-color:color-mix(in srgb, var(--roza) 30%, var(--line)); }
 .cal-detail .controlCol.bulkCol{ justify-content:space-between; }
@@ -310,7 +313,7 @@ body{
 .theme-row button.active{ background:var(--accent); color:var(--fardText,#08131c); border-color:var(--accent); }
 
 /* ---------- STREAK STRIP (Home) ---------- */
-.app-toast{ position:fixed; left:50%; bottom:90px; transform:translateX(-50%) translateY(12px); background:var(--card2); color:var(--text); border:1px solid var(--line); padding:10px 18px; border-radius:20px; font-size:12.5px; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,0.3); opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:999; }
+.app-toast{ position:fixed; width:max-content; max-width:calc(100vw - 32px); text-align:center; left:50%; bottom:90px; transform:translateX(-50%) translateY(12px); background:var(--card2); color:var(--text); border:1px solid var(--line); padding:10px 18px; border-radius:20px; font-size:12.5px; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,0.3); opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:999; }
 .app-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
 .stats-row:has(.stat-sub) > span{ flex:1 1 auto; min-width:0; white-space:normal; }
@@ -433,6 +436,37 @@ body{
 .qz-preview{ font-size:12px; color:var(--sub); margin:0 0 10px; }
 .qz-btn.full{ width:100%; height:42px; }
 .qz-btn.danger{ color:var(--red); border-color:var(--red); background:transparent; }
+.raabta-head{ text-align:center; padding:16px 12px; margin-bottom:12px; background:var(--card); border:1px solid var(--line); border-radius:16px; }
+.raabta-ic{ width:56px; height:56px; margin:0 auto 8px; border-radius:16px; background:var(--card2); display:flex; align-items:center; justify-content:center; font-size:28px; }
+.raabta-t{ font-size:16px; font-weight:800; margin-bottom:4px; }
+.raabta-sub{ font-size:12.5px; color:var(--sub); margin-bottom:8px; }
+.raabta-mail{ font-size:14.5px; font-weight:800; color:var(--accent); word-break:break-all; margin-bottom:12px; }
+.raabta-btns{ display:flex; gap:8px; }
+.raabta-btn{ flex:1; display:flex; align-items:center; justify-content:center; min-height:42px; padding:0 10px; border-radius:11px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; font-weight:700; text-decoration:none; cursor:pointer; font-family:inherit; }
+.raabta-btn.primary{ background:var(--accent); border-color:var(--accent); color:var(--fardText,#fff); }
+.raabta-card{ text-decoration:none; color:inherit; align-items:center; }
+.raabta-card .hChev{ color:var(--sub); font-size:18px; }
+.hmonth-card{ cursor:pointer; }
+.hmonth-card .hChev{ flex:0 0 auto; color:var(--sub); font-size:18px; }
+.hIcon.big{ width:64px; height:64px; font-size:32px; margin:0 auto 8px; }
+.mdetail-head{ text-align:center; padding:6px 0 4px; }
+.mdetail-ar{ font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:34px; line-height:1.6; }
+.mdetail-name{ font-size:16px; font-weight:800; color:var(--accent); margin-bottom:8px; }
+.mdetail-badges{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+.mbadge{ padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; background:var(--card2); border:1px solid var(--line); }
+.mbadge.sacred{ background:color-mix(in srgb, var(--special,#a8762a) 18%, var(--card)); border-color:var(--special,#a8762a); }
+.mbadge.now{ background:var(--accent); color:var(--fardText,#fff); border-color:var(--accent); }
+.minfo-card{ padding:12px 14px; margin-bottom:8px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:12px; font-size:13px; line-height:1.6; }
+.minfo-card.ev{ border-left-color:var(--special,#a8762a); }
+.howto-card{ display:flex; gap:12px; align-items:flex-start; padding:12px 14px; margin-bottom:8px; background:var(--card); border:1px solid var(--line); border-radius:14px; }
+.howto-ic{ flex:0 0 auto; width:42px; height:42px; border-radius:12px; background:var(--card2); display:flex; align-items:center; justify-content:center; font-size:22px; }
+.howto-body{ flex:1; min-width:0; }
+.howto-t{ font-size:14px; font-weight:800; margin-bottom:4px; }
+.howto-d{ font-size:12.5px; line-height:1.6; color:var(--sub); }
+.lang-opt{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; margin-bottom:8px; border:1px solid var(--line); border-radius:12px; background:var(--card); cursor:pointer; }
+.lang-opt.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, var(--card)); }
+.lang-opt span{ display:block; font-size:11px; color:var(--sub); margin-top:2px; }
+.lang-check{ font-size:18px; font-weight:800; color:var(--accent); }
 .rz-ashra{ margin:16px 0 8px; font-size:13px; font-weight:800; }
 .rz-row{ display:grid; grid-template-columns:34px 1fr auto; align-items:center; column-gap:10px; padding:9px 12px; margin-bottom:6px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--line); border-radius:12px; }
 .rz-row.qadr{ border-left-color:#d4a72c; }
@@ -743,7 +777,7 @@ body{
     </div>
     <div class="more-list" style="padding-top:0;">
       <div class="more-item" data-open="asma"><div class="ic">💚</div><div class="lbl">Asma-ul-Husna</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="prophetNames"><div class="ic">🌙</div><div class="lbl">Muhammad ﷺ ke Naam</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="prophetNames"><div class="ic">🌙</div><div class="lbl">Muhammad ﷺ ke 99 Naam</div><div class="chev">›</div></div>
       <div class="more-item" data-open="dua"><div class="ic">🤲</div><div class="lbl">Du'a Padhiye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="hadees"><div class="ic">📖</div><div class="lbl">Hadees Dekhiye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="quiz"><div class="ic">🧠</div><div class="lbl">Quiz Kheliye</div><div class="chev">›</div></div>
@@ -794,6 +828,8 @@ body{
       <div class="more-item" data-open="install"><div class="ic">📲</div><div class="lbl">App Install Karein</div><div class="chev">›</div></div>
       <div class="more-item" data-open="backup"><div class="ic">💾</div><div class="lbl">Data Backup</div><div class="chev">›</div></div>
       <div class="more-item" data-open="settings"><div class="ic">⚙️</div><div class="lbl">Settings</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="howto"><div class="ic">📘</div><div class="lbl">Istemal ka Tareeqa</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="raabta"><div class="ic">✉️</div><div class="lbl">Raabta</div><div class="chev">›</div></div>
       <div class="more-item" data-open="about"><div class="ic">ℹ️</div><div class="lbl">Iske Baare Mein</div><div class="chev">›</div></div>
     </div>
   </div>
@@ -833,10 +869,12 @@ body{
 </div>
 
 <script src="data.js"></script>
+<script src="i18n.js"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
    ============================================================ */
+function L(o){ return (state.lang==='en' && o.en!==undefined) ? o.en : o.rur; }
 const SHARE_SVG = '<svg class="ic-share" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"></line></svg>';
 const TZ = 5.5; // India Standard Time
 const PRIORITY_CITIES = [
@@ -1049,7 +1087,7 @@ function buildSchedule(date){
   const chaast = addMin(sunrise, 90);
   const zawalStart = addMin(zawal, -15); // makrooh window before zawal
   const iftar = new Date(maghrib);
-  const awwabin = addMin(maghrib, 20);
+  const awwabin = new Date(maghrib);
   const nightLen = (fajr.getTime()+24*3600000 - maghrib.getTime());
   const tahajjudStart = new Date(maghrib.getTime() + nightLen*0.5); // half the night
   const tihaiStart = new Date(maghrib.getTime() + nightLen*(2/3)); // last third of the night
@@ -1162,12 +1200,16 @@ let state = {
   tasbeeh: { count:0, target:33, color:'#3fae6a', shape:'●', sound:true, design:'tap', profiles:null, daily:{} },
   wordStatus: {},
   quizLog: [],
+  lang: 'rur',
   wordCorrect: {},
   learnDays: {},
   bookmarks: [],
 };
 function loadState(){
   try{ const s = JSON.parse(localStorage.getItem('namazState')||'{}'); state = Object.assign(state, s); }catch(e){}
+  if(state.timeFormat!=='12') state.timeFormat = '24';
+  if(!['m','l','xl'].includes(state.textScale)) state.textScale = 'm';
+  if(state.lang!=='en') state.lang = 'rur';
 }
 function saveState(){
   try{ localStorage.setItem('namazState', JSON.stringify(state)); }catch(e){}
@@ -1222,6 +1264,7 @@ function applyTimeFormat(){
   document.getElementById('fmt24').classList.toggle('active', state.timeFormat==='24');
   document.getElementById('fmt12').classList.toggle('active', state.timeFormat==='12');
 }
+applyTimeFormat();
 document.getElementById('fmt24').onclick=()=>{state.timeFormat='24';saveState();applyTimeFormat();renderHome();renderCalendar();};
 document.getElementById('fmt12').onclick=()=>{state.timeFormat='12';saveState();applyTimeFormat();renderHome();renderCalendar();};
 applyTimeFormat();
@@ -1347,7 +1390,7 @@ function renderHome(){
       isPast = isPastDate;
       isFuture = !isPastDate;
     }
-    const stateClass = isLive ? 'current' : isPast ? 'past' : 'future';
+    const stateClass = isLive ? 'current' : isPastDate ? 'normal' : isPast ? 'past' : 'future';
     const rowStatus = FIVE.includes(p.key) ? getStatus(viewDate, p.key) : undefined;
     const statusClass = rowStatus ? ' status-'+rowStatus : '';
     row.className = 'time-row '+p.type+' '+stateClass+statusClass;
@@ -1421,7 +1464,7 @@ function renderHome(){
         const listTop = listEl.getBoundingClientRect().top;
         const rowTop = liveRow.getBoundingClientRect().top;
         const targetOffset = listEl.clientHeight * 0.22;
-        listEl.scrollTo({ top: listEl.scrollTop + (rowTop - listTop) - targetOffset, behavior: 'smooth' });
+        listEl.scrollTo({ top: Math.max(0, listEl.scrollTop + (rowTop - listTop) - targetOffset), behavior: instantScroll ? 'auto' : 'smooth' });
       }
     }
     lastLiveKey = liveKey;
@@ -1456,7 +1499,15 @@ function renderHome(){
 document.getElementById('dateBack').onclick=()=>{ homeViewDate = new Date(homeViewDate.getTime()-24*3600000); renderHome(); };
 document.getElementById('dateFwd').onclick=()=>{ homeViewDate = new Date(homeViewDate.getTime()+24*3600000); renderHome(); };
 document.getElementById('dateCenterBtn').onclick=()=>{ homeViewDate = new Date(); renderHome(); };
-document.getElementById('namazModeBtn').onclick=()=>{ state.namazMode = !state.namazMode; saveState(); lastLiveKey = null; renderHome(); };
+document.getElementById('cityLabel').onclick=(e)=>{ e.stopPropagation(); settingsTab = 'location'; openOverlay(renderMoreSettings); };
+let instantScroll = false;
+document.getElementById('namazModeBtn').onclick=()=>{
+  state.namazMode = !state.namazMode; saveState(); lastLiveKey = null;
+  instantScroll = true;
+  document.getElementById('timesList').scrollTop = 0;
+  renderHome();
+  requestAnimationFrame(()=>{ instantScroll = false; });
+};
 
 /* ============================================================
    SHARE A DAY'S SCHEDULE — as text or as an image
@@ -1753,8 +1804,9 @@ function showDayDetail(date){
   const isFuture = !isSameDay(date, now) && date > now;
   const rozaOn = !!state.roza[dayKey(date)];
   let html = `<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px;">
-    <div style="font-weight:700; font-size:13.5px;">
-      ${DOW[date.getDay()]}, ${date.getDate()} ${MON[date.getMonth()]} ${date.getFullYear()} &nbsp;•&nbsp; ${hd.day} ${hd.monthName} ${hd.year} AH
+    <div class="cal-dtxt">
+      <div class="cal-dg">${DOW[date.getDay()]}, ${date.getDate()} ${MON[date.getMonth()]} ${date.getFullYear()}</div>
+      <div class="cal-dh">${hd.day} ${hd.monthName} ${hd.year} AH</div>
     </div>
     <button id="calShareBtn" title="Share karein" style="flex:0 0 auto; width:28px; height:28px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:14px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;">${SHARE_SVG}</button>
   </div>
@@ -1878,7 +1930,8 @@ function showDayDetail(date){
 function renderRamzan(){
   const now = new Date();
   const k = dayKey(now);
-  const rozaOn = !!state.roza[k];
+  const liveRamzan = gregorianToHijri(now).month===9;
+  const rozaOn = liveRamzan && !!state.roza[k];
   document.getElementById('rozaSwitch').className = 'switch'+(rozaOn?' on':'');
   document.getElementById('rozaLabel').textContent = rozaOn ? 'Roza Rakha ✓' : 'Roza Rakhiye';
 
@@ -1900,7 +1953,7 @@ function renderRamzan(){
     const icon = (PRAYER_META[p] && PRAYER_META[p].icon) || '🕐';
     const pSched = sched.find(x=>x.key===p);
     const notStarted = pSched && now < pSched.start;
-    const dotsHtml = notStarted ? '' : `<div class="status-dots">
+    const dotsHtml = (notStarted || !liveRamzan) ? '' : `<div class="status-dots">
         <button class="dot-btn ${st==='green'?'on-green':''}" data-p="${p}" data-s="green" title="Padh Li">✓</button>
         <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-p="${p}" data-s="yellow" title="Qaza Padhi">~</button>
         <button class="dot-btn ${st==='red'?'on-red':''}" data-p="${p}" data-s="red" title="Baaki Hai">⏳</button>
@@ -1914,7 +1967,7 @@ function renderRamzan(){
   const tSt = state.tarabih[tk];
   const ishaRowR = sched.find(x=>x.key==='isha');
   const tarabihStarted = ishaRowR && now >= ishaRowR.start;
-  const tDotsHtml = tarabihStarted ? `<div class="status-dots">
+  const tDotsHtml = (tarabihStarted && liveRamzan) ? `<div class="status-dots">
       <button class="dot-btn ${tSt==='prayed'?'on-green':''}" data-t="prayed" title="Padhi Gayi">✓</button>
       <button class="dot-btn ${tSt==='qaza'?'on-yellow':''}" data-t="qaza" title="Qaza">~</button>
       <button class="dot-btn ${tSt==='pending'?'on-red':''}" data-t="pending" title="Baaki Hai">⏳</button>
@@ -2278,11 +2331,11 @@ const QUIZ_CAT_ICON = {
 let namesView = 'grid';
 function renderNamesList(which){
   const dataset = which==='asma' ? ASMA_UL_HUSNA : PROPHET_NAMES;
-  const title = which==='asma' ? 'Asma-ul-Husna' : "Muhammad ﷺ ke Naam";
+  const title = which==='asma' ? 'Asma-ul-Husna' : "Muhammad ﷺ ke 99 Naam";
   document.getElementById('detailTitle').textContent = title;
   const body = document.getElementById('detailBody');
   const note = which==='prophet'
-    ? `<div class="backup-note" style="margin:0 14px 12px;">Yeh naam/alqaab Quran, Sahih Ahadees aur mash'hoor kitabon (Dala'il-ul-Khayrat, Qasida Burda) se liye gaye hain. Allah ke Asma-ul-Husna ki tarah iski koi ek mutlaq/fixed list nahi hai, isliye yahan sirf mustanad naam rakhe gaye hain.</div>`
+    ? `<div class="backup-note" style="margin:0 14px 12px;">Yeh naam/alqaab Quran, Sahih Ahadees aur mash'hoor kitabon (Dala'il-ul-Khayrat, Qasida Burda) se liye gaye hain. Allah ke Asma-ul-Husna ki tarah iski koi ek mutlaq/fixed list nahi hai, isliye yeh 99 naam Dala'il-ul-Khayrat ki fehrist se, Quran-o-Sahih Ahadees mein aaye naamon ko tarjeeh dekar chune gaye hain.</div>`
     : '';
   body.innerHTML = `
     <div class="view-toggle" style="margin:0 14px 12px;">
@@ -2337,7 +2390,7 @@ let shabdSearch = '';
 const SHABD_CAT_ICON = {
   "Allah, Imaan aur Aqeeda":"🕋", "Allah ke Naam aur Sifaat":"💚", "Nabi, Rasool aur Ambiya":"🌙",
   "Quran, Wahi aur Asmani Kitabein":"📖", "Farishte aur Ghaibi Makhlooq":"👼", "Sahaba aur Ahl-e-Bait":"👥",
-  "Ibadat aur Namaz":"🙏", "Roza aur Ramadan":"🍽️", "Nekiyan, Gunah aur Akhlaaq":"⚖️",
+  "Ibadat aur Namaz":"🙏", "Roza aur Ramzan":"🍽️", "Nekiyan, Gunah aur Akhlaaq":"⚖️",
   "Sadqah, Khairat aur Maali Ibadat":"💰", "Hajj, Umrah aur Qurbani":"🐪", "Jannat aur Aakhirat":"🌌",
   "Qayamat, Qabr aur Aamaal":"⏳", "Nabi ﷺ ki Zindagi aur Seerat":"⭐", "Islamic Battles / Ghazawaat":"🗡️",
   "Quran mein zikr hone wale Mashhoor Log":"📜", "Mashhoor Islamic Titles":"🏷️",
@@ -2467,10 +2520,29 @@ function renderShabdDetail(idx, backFn){
 /* ============================================================
    AAJ KA LAFZ (Daily Word)
    ============================================================ */
+function seededOrder(n, seed){
+  const a = Array.from({length:n}, (_,i)=>i);
+  let t = (seed*2654435761 + 12345) >>> 0;
+  const rnd = ()=>{ t += 0x6D2B79F5; let x = Math.imul(t ^ (t>>>15), 1 | t); x ^= x + Math.imul(x ^ (x>>>7), 61 | x); return ((x ^ (x>>>14)) >>> 0) / 4294967296; };
+  for(let i=n-1;i>0;i--){ const j = Math.floor(rnd()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; }
+  return a;
+}
 function dailyWordIndex(offset){
-  const daysSinceEpoch = Math.floor(Date.now()/86400000);
-  const n = KHAAS_SHABD.length;
-  return ((daysSinceEpoch + (offset||0)) % n + n) % n;
+  const day = Math.floor(Date.now()/86400000) + (offset||0);
+  const cats = [...new Set(KHAAS_SHABD.map(w=>w.cat))];
+  const n = cats.length;
+  const cycle = Math.floor(day / n);
+  const pos = ((day % n) + n) % n;
+  const order = seededOrder(n, cycle);
+  if(pos===0){
+    const prevLast = seededOrder(n, cycle-1)[n-1];
+    if(order[0]===prevLast) [order[0], order[1]] = [order[1], order[0]];
+  }
+  const catIdx = order[pos];
+  const idxs = [];
+  KHAAS_SHABD.forEach((w,i)=>{ if(w.cat===cats[catIdx]) idxs.push(i); });
+  const pick = seededOrder(idxs.length, catIdx*1000 + 7);
+  return idxs[pick[((cycle % idxs.length) + idxs.length) % idxs.length]];
 }
 function wordStatus(tr){
   return (state.wordStatus && state.wordStatus[tr]) || null;
@@ -2556,9 +2628,10 @@ function startWordReview(){
   });
 }
 let dailyWordOffset = 0;
+let dailyWordPin = null;
 function renderDailyWord(){
   document.getElementById('detailTitle').textContent = 'Aaj Ka Lafz';
-  const idx = dailyWordIndex(dailyWordOffset);
+  const idx = dailyWordPin!==null ? dailyWordPin : dailyWordIndex(dailyWordOffset);
   const w = KHAAS_SHABD[idx];
   const st = wordStatus(w.tr);
   const all = KHAAS_SHABD.map((x,i)=>({...x,i}));
@@ -2600,11 +2673,11 @@ function renderDailyWord(){
   document.getElementById('wordImgBtn').onclick = ()=> shareCard({ kind:'Aaj Ka Lafz', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
   document.getElementById('wordKnownBtn').onclick = ()=>{ setWordStatus(w.tr, st==='known'?null:'known'); renderDailyWord(); };
   document.getElementById('wordLearningBtn').onclick = ()=>{ setWordStatus(w.tr, st==='learning'?null:'learning'); renderDailyWord(); };
-  document.getElementById('wordPrevBtn').onclick = ()=>{ dailyWordOffset--; renderDailyWord(); };
-  document.getElementById('wordNextBtn').onclick = ()=>{ dailyWordOffset++; renderDailyWord(); };
+  document.getElementById('wordPrevBtn').onclick = ()=>{ dailyWordPin = null; dailyWordOffset--; renderDailyWord(); };
+  document.getElementById('wordNextBtn').onclick = ()=>{ dailyWordPin = null; dailyWordOffset++; renderDailyWord(); };
   document.querySelectorAll('#detailBody .dw-row').forEach(el=>{
     el.onclick = ()=>{
-      dailyWordOffset = parseInt(el.dataset.i) - dailyWordIndex(0);
+      dailyWordPin = parseInt(el.dataset.i);
       renderDailyWord();
       document.getElementById('detailBody').scrollTop = 0;
     };
@@ -2616,8 +2689,8 @@ function renderDailyWord(){
     if(touchStartX===null) return;
     const dx = e.clientX - touchStartX;
     touchStartX = null;
-    if(dx > 40){ dailyWordOffset--; renderDailyWord(); }
-    else if(dx < -40){ dailyWordOffset++; renderDailyWord(); }
+    if(dx > 40){ dailyWordPin = null; dailyWordOffset--; renderDailyWord(); }
+    else if(dx < -40){ dailyWordPin = null; dailyWordOffset++; renderDailyWord(); }
   });
 }
 
@@ -2632,15 +2705,15 @@ function renderMythBusters(){
       <div style="font-size:15px; font-weight:700; margin-bottom:4px;">Ghalat Fehmi Ka Izala</div>
       <div style="font-size:13px; color:var(--sub); margin-bottom:18px;">50 Islami ghalat-fehmiyon ka izala</div>
     </div>
-    <button class="quiz-cat-btn" id="mythModeQuiz" style="border-color:var(--accent);">
-      <span class="quiz-cat-ic">🧠</span>
-      <span class="quiz-cat-name">Quiz ke Taur Par Khelein</span>
-      <span class="quiz-cat-count">Ek ek sawal, khud jawab dijiye</span>
-    </button>
-    <button class="quiz-cat-btn" id="mythModeRead">
+    <button class="quiz-cat-btn" id="mythModeRead" style="border-color:var(--accent);">
       <span class="quiz-cat-ic">📖</span>
       <span class="quiz-cat-name">Sab Padhein</span>
       <span class="quiz-cat-count">Poori list, jawabon ke saath</span>
+    </button>
+    <button class="quiz-cat-btn" id="mythModeQuiz">
+      <span class="quiz-cat-ic">🧠</span>
+      <span class="quiz-cat-name">Quiz ke Taur Par Khelein</span>
+      <span class="quiz-cat-count">Ek ek sawal, khud jawab dijiye</span>
     </button>
   `;
   document.getElementById('mythModeQuiz').onclick = renderMythCountSelect;
@@ -2921,6 +2994,7 @@ function renderMoreSettings(){
     <div class="cal-toggle" style="padding:0 0 14px;">
       <button id="settingsTabNotif" class="${settingsTab==='notif'?'active':''}">Yaad-dahaniyan</button>
       <button id="settingsTabLoc" class="${settingsTab==='location'?'active':''}">Jagah</button>
+      <button id="settingsTabLang" class="${settingsTab==='lang'?'active':''}">Zubaan</button>
     </div>
     <div id="settingsPane"></div>
   `;
@@ -2994,9 +3068,21 @@ function renderMoreSettings(){
     setupLocationPane();
   }
 
-  if(settingsTab==='notif') renderNotifPane(); else renderLocationPane();
+  function renderLangPane(){
+    pane.innerHTML = `
+      <div class="section-title" style="margin-top:0;">${L({rur:'Zubaan chuniye',en:'Choose language'})}</div>
+      ${[['rur','Hinglish / Roman Urdu',L({rur:'Maujooda zubaan',en:'Current language'})],['en','English',L({rur:'Menu aur buttons English mein',en:'Menus and buttons in English'})]].map(([k,l,sub])=>`
+        <div class="lang-opt ${state.lang===k?'on':''}" data-lang="${k}" role="button" tabindex="0"><div><b>${l}</b><span>${sub}</span></div><div class="lang-check">${state.lang===k?'✓':''}</div></div>`).join('')}
+      <div class="backup-note">${L({rur:"English mein menu aur buttons badal jate hain; dua, hadees, quiz aur Khaas Shabd ka matlab abhi Roman Urdu mein hi rahega.", en:"Menus and buttons switch to English; the meanings in du'as, hadith, quiz and Khaas Shabd stay in Roman Urdu for now."})}</div>
+    `;
+    pane.querySelectorAll('[data-lang]').forEach(el=>{
+      el.onclick = ()=>{ if(state.lang===el.dataset.lang) return; state.lang = el.dataset.lang; saveState(); location.reload(); };
+    });
+  }
+  if(settingsTab==='notif') renderNotifPane(); else if(settingsTab==='lang') renderLangPane(); else renderLocationPane();
   body.querySelector('#settingsTabNotif').onclick = ()=>{ settingsTab='notif'; renderMoreSettings(); };
   body.querySelector('#settingsTabLoc').onclick = ()=>{ settingsTab='location'; renderMoreSettings(); };
+  body.querySelector('#settingsTabLang').onclick = ()=>{ settingsTab='lang'; renderMoreSettings(); };
 
   function setupLocationPane(){
   const cityListEl = body.querySelector('#cityList');
@@ -3959,27 +4045,109 @@ function renderHijriConverter(){
    ISLAMIC MONTHS
    ============================================================ */
 const HIJRI_MONTH_META = [
-  {icon:'🕋', color:'#8e6fd6'}, {icon:'🌫️', color:'#5c8fc9'}, {icon:'🌟', color:'#d4a72c'},
-  {icon:'🌙', color:'#3a9bd9'}, {icon:'❄️', color:'#4fb0c9'}, {icon:'❄️', color:'#4f9fc9'},
-  {icon:'🌌', color:'#6a6fd6'}, {icon:'🌒', color:'#a074e0'}, {icon:'☪️', color:'#3fae6a'},
-  {icon:'🎉', color:'#e0729a'}, {icon:'🕊️', color:'#5cbf8a'}, {icon:'🕋', color:'#c85a4a'},
+  {icon:'🎆', color:'#8e6fd6'}, {icon:'🌫️', color:'#5c8fc9'}, {icon:'🌟', color:'#d4a72c'},
+  {icon:'🌸', color:'#3a9bd9'}, {icon:'❄️', color:'#4fb0c9'}, {icon:'🧊', color:'#4f9fc9'},
+  {icon:'🌌', color:'#6a6fd6'}, {icon:'🌒', color:'#a074e0'}, {icon:'🌕', color:'#3fae6a'},
+  {icon:'🍬', color:'#e0729a'}, {icon:'🛤️', color:'#5cbf8a'}, {icon:'🕋', color:'#c85a4a'},
 ];
 function renderIslamicMonths(){
   document.getElementById('detailTitle').textContent = 'Islami Mahine';
   const curH = gregorianToHijri(new Date());
   document.getElementById('detailBody').innerHTML = `
-    <div class="backup-note">Hijri (Qamri) saal ke 12 mahine, chand ki bunyaad par.</div>
+    <div class="backup-note">Hijri (Qamri) saal ke 12 mahine, chand ki bunyaad par. Kisi mahine par dabayein to us ki maloomat dikhengi.</div>
     ${HIJRI_MONTHS.map((name,i)=>{
       const meta = HIJRI_MONTH_META[i];
       const isCurrent = curH.month===i+1;
-      return `<div class="hmonth-card ${isCurrent?'current':''}">
+      return `<div class="hmonth-card ${isCurrent?'current':''}" data-m="${i}" role="button" tabindex="0">
         <div class="hIcon" style="background:color-mix(in srgb, ${meta.color} 22%, transparent); color:${meta.color};">${meta.icon}</div>
         <div style="flex:1;">
-          <div class="hNo">Mahina ${i+1}${isCurrent?' · Abhi chal raha hai':''}</div>
+          <div class="hNo">Mahina ${i+1}${isCurrent?' · Abhi chal raha hai':''}${HIJRI_MONTH_INFO[i].sacred?' · Haram Mahina':''}</div>
           <div class="hName">${name}</div>
         </div>
+        <div class="hChev">›</div>
       </div>`;
     }).join('')}
+  `;
+  document.querySelectorAll('#detailBody [data-m]').forEach(el=>{
+    el.onclick = ()=> renderMonthDetail(parseInt(el.dataset.m));
+  });
+}
+function renderMonthDetail(i){
+  const info = HIJRI_MONTH_INFO[i], meta = HIJRI_MONTH_META[i];
+  const c = state.lang==='en' ? info.en : info.rur;
+  const curH = gregorianToHijri(new Date());
+  document.getElementById('detailTitle').textContent = HIJRI_MONTHS[i];
+  document.getElementById('detailBody').innerHTML = `
+    <div class="mdetail-head">
+      <div class="hIcon big" style="background:color-mix(in srgb, ${meta.color} 22%, transparent); color:${meta.color};">${meta.icon}</div>
+      <div class="mdetail-ar">${info.ar}</div>
+      <div class="mdetail-name">${HIJRI_MONTHS[i]}</div>
+      <div class="mdetail-badges">
+        <span class="mbadge">${L({rur:'Mahina',en:'Month'})} ${i+1} / 12</span>
+        ${info.sacred ? `<span class="mbadge sacred">🕋 ${L({rur:'Haram Mahina',en:'Sacred Month'})}</span>` : ''}
+        ${curH.month===i+1 ? `<span class="mbadge now">${L({rur:'Abhi chal raha hai',en:'Current month'})}</span>` : ''}
+      </div>
+    </div>
+    <div class="section-title">${L({rur:'Ahem Baatein',en:'Key Points'})}</div>
+    ${c.points.map(t=>`<div class="minfo-card">${t}</div>`).join('')}
+    ${c.events && c.events.length ? `<div class="section-title">${L({rur:'Ahem Waqiat',en:'Notable Events'})}</div>${c.events.map(t=>`<div class="minfo-card ev">${t}</div>`).join('')}` : ''}
+    <div class="backup-note">${L({rur:"Maloomat Quran, Sahih Ahadees aur mash'hoor tareekhi riwayat se hain. Jahan ulama ya muarrikhin mein ikhtilaf hai wahan wazahat ki gayi hai.", en:"Information is drawn from the Quran, authentic hadith and well-known historical accounts. Where scholars or historians differ, this is noted."})}</div>
+  `;
+}
+
+/* ============================================================
+   RAABTA (Contact)
+   ============================================================ */
+const CONTACT_EMAIL = 'contact.waqt24@gmail.com';
+function mailtoLink(subject, extra){
+  const body = `\n\n---\nApp: Waqt24\nZubaan: ${state.lang==='en'?'English':'Hinglish / Roman Urdu'}\nDevice: ${navigator.userAgent}\n${extra||''}`;
+  return 'mailto:'+CONTACT_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+function renderRaabta(){
+  document.getElementById('detailTitle').textContent = 'Raabta';
+  const cards = [
+    { ic:'📝', t:{rur:'Sujhaav Dein', en:'Send a Suggestion'}, d:{rur:'Koi nayi cheez ya behtari ka khayal ho to batayein.', en:'Have an idea for a new feature or an improvement? Tell us.'}, subj:'Waqt24 - Suggestion' },
+    { ic:'🆘', t:{rur:'Madad Chahiye', en:'Need Help'}, d:{rur:'App istemal karne mein koi mushkil ho to likhein.', en:'Facing difficulty using the app? Write to us.'}, subj:'Waqt24 - Help' },
+    { ic:'🐞', t:{rur:'Masla / Ghalti Batayein', en:'Report a Problem'}, d:{rur:'Koi ghalti, ghalat waqt ya ghalat maloomat nazar aaye to zaroor batayein.', en:'Spotted a bug, a wrong time or wrong information? Please let us know.'}, subj:'Waqt24 - Problem report' },
+  ];
+  document.getElementById('detailBody').innerHTML = `
+    <div class="raabta-head">
+      <div class="raabta-ic">✉️</div>
+      <div class="raabta-t">${L({rur:'Hum se raabta karein', en:'Get in touch'})}</div>
+      <div class="raabta-sub">${L({rur:'Sujhaav aur madad ke liye is email par likhein:', en:'For suggestions and help, write to this email:'})}</div>
+      <div class="raabta-mail" data-no-i18n>${CONTACT_EMAIL}</div>
+      <div class="raabta-btns">
+        <a class="raabta-btn primary" href="${mailtoLink('Waqt24')}">${L({rur:'Email Bhejein', en:'Send Email'})}</a>
+        <button class="raabta-btn" id="raabtaCopy">${L({rur:'Email Copy Karein', en:'Copy Email'})}</button>
+      </div>
+    </div>
+    ${cards.map(c=>`<a class="howto-card raabta-card" href="${mailtoLink(c.subj)}">
+      <div class="howto-ic">${c.ic}</div>
+      <div class="howto-body"><div class="howto-t">${L(c.t)}</div><div class="howto-d">${L(c.d)}</div></div>
+      <div class="hChev">›</div>
+    </a>`).join('')}
+    <div class="backup-note">${L({rur:'Hum aapke paighaam ka jald jawab dene ki koshish karenge. Bug batate waqt kaunsa screen tha aur kya hua, yeh likh dein to madad milti hai.', en:'We will try to reply soon. When reporting a problem, mention which screen you were on and what happened.'})}</div>
+  `;
+  document.getElementById('raabtaCopy').onclick = async ()=>{
+    try{ await navigator.clipboard.writeText(CONTACT_EMAIL); showToast(L({rur:'Email copy ho gaya', en:'Email copied'})); }
+    catch(e){ showToast(CONTACT_EMAIL); }
+  };
+}
+
+/* ============================================================
+   ISTEMAL KA TAREEQA (How to Use)
+   ============================================================ */
+function renderHowTo(){
+  document.getElementById('detailTitle').textContent = 'Istemal ka Tareeqa';
+  document.getElementById('detailBody').innerHTML = `
+    <div class="backup-note">${L({rur:"Waqt24 ke har hisse ka mukhtasar tareeqa. Har card mein us hisse ki wazahat hai.", en:"A quick guide to every part of Waqt24. Each card explains one feature."})}</div>
+    ${HOWTO_GROUPS.map(g=>`
+      <div class="section-title">${L(g)}</div>
+      ${HOWTO_CARDS.filter(c=>c.g===g.key).map(c=>`<div class="howto-card">
+        <div class="howto-ic">${c.ic}</div>
+        <div class="howto-body"><div class="howto-t">${L(c.t)}</div><div class="howto-d">${L(c.d)}</div></div>
+      </div>`).join('')}
+    `).join('')}
   `;
 }
 
@@ -4197,6 +4365,8 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='dailyWord') renderDailyWord();
     else if(which==='bookmarks') renderBookmarks();
     else if(which==='qaza') renderQaza();
+    else if(which==='howto') renderHowTo();
+    else if(which==='raabta') renderRaabta();
     else if(which==='install') renderInstall();
     else if(which==='mythBusters') renderMythBusters();
     else if(which==='hijriConv') renderHijriConverter();
@@ -4211,8 +4381,8 @@ document.querySelectorAll('.more-item').forEach(item=>{
   };
 });
 document.getElementById('detailBack').onclick = closeModal;
-['renderMoreDua','renderMoreHadees','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks'].forEach(n=>navWrap(n,0));
-['openDuaDetail','openHadeesDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect'].forEach(n=>navWrap(n,1));
+['renderMoreDua','renderMoreHadees','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderHowTo'].forEach(n=>navWrap(n,0));
+['openDuaDetail','openHadeesDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail'].forEach(n=>navWrap(n,1));
 ['renderShabdDetail','renderQuizQuestion','renderQuizResult','renderMythQuizQuestion','renderMythQuizResult'].forEach(n=>navWrap(n,2));
 navWrap('renderReviewList',3);
 (function(){
@@ -4476,6 +4646,48 @@ function showUpdateBanner(){
   document.body.appendChild(el);
   document.getElementById('updateNow').onclick = ()=> location.reload();
   document.getElementById('updateLater').onclick = ()=> el.remove();
+}
+
+/* ============================================================
+   LANGUAGE — English UI translation layer (dictionary in i18n.js)
+   ============================================================ */
+function i18nCore(str){
+  if(typeof I18N_EN==='undefined') return str;
+  const t = str.trim();
+  if(!t) return str;
+  if(I18N_EN[t]!==undefined) return str.replace(t, I18N_EN[t]);
+  const m = t.match(/^([^\p{L}\p{N}]*)(.*?)([^\p{L}\p{N})?!.']*)$/su);
+  if(m && m[2] && I18N_EN[m[2]]!==undefined) return str.replace(t, m[1]+I18N_EN[m[2]]+m[3]);
+  for(const [re,fn] of (typeof I18N_PATTERNS!=='undefined' ? I18N_PATTERNS : [])){
+    const mm = t.match(re);
+    if(mm) return str.replace(t, fn(mm));
+  }
+  return str;
+}
+function i18nWalk(root){
+  if(state.lang!=='en') return;
+  const walker = document.createTreeWalker(root||document.body, NodeFilter.SHOW_TEXT);
+  const nodes = []; let n;
+  while((n = walker.nextNode())) nodes.push(n);
+  nodes.forEach(node=>{
+    const p = node.parentNode;
+    if(!p || /^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName)) return;
+    if(p.closest && p.closest('[data-no-i18n]')) return;
+    const v = node.nodeValue, nv = i18nCore(v);
+    if(nv!==v) node.nodeValue = nv;
+  });
+  (root||document).querySelectorAll('[placeholder],[title],[aria-label]').forEach(el=>{
+    ['placeholder','title','aria-label'].forEach(a=>{
+      const v = el.getAttribute(a);
+      if(v){ const nv = i18nCore(v); if(nv!==v) el.setAttribute(a, nv); }
+    });
+  });
+}
+if(state.lang==='en'){
+  document.documentElement.lang = 'en';
+  let i18nTimer = null;
+  new MutationObserver(()=>{ clearTimeout(i18nTimer); i18nTimer = setTimeout(()=>i18nWalk(), 30); }).observe(document.body, { childList:true, subtree:true, characterData:true });
+  i18nWalk();
 }
 
 /* ============================================================
