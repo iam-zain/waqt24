@@ -271,7 +271,7 @@ body{
 .cal-dots{ display:flex; gap:2px; }
 .cal-dots span{ width:5px; height:5px; border-radius:50%; background:var(--line); }
 .cal-detail{ margin:10px 14px 20px; padding:12px; background:var(--card); border-radius:12px; border:1px solid var(--line); }
-.cal-dtxt{ min-width:0; }
+.cal-dtxt{ min-width:0; flex:1; text-align:center; padding-left:36px; }
 .cal-dg{ font-weight:700; font-size:13.5px; }
 .cal-dh{ font-weight:700; font-size:12px; color:var(--accent); margin-top:2px; }
 .cal-detail .row{ display:flex; justify-content:space-between; align-items:center; padding:6px 8px; margin:0 -8px; border-radius:8px; border-bottom:1px solid var(--line); font-size:13px; }
@@ -417,7 +417,8 @@ body{
 .nudge-btns{ display:flex; flex-direction:column; gap:6px; }
 .nudge-btns button, #updateBanner button{ padding:7px 12px; border-radius:9px; border:1px solid var(--accent); background:var(--accent); color:var(--fardText,#fff); font-size:12px; font-weight:700; cursor:pointer; }
 .nudge-btns button.ghost, #updateBanner button.ghost{ background:transparent; color:var(--text); border-color:var(--line); }
-#updateBanner{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(74px + env(safe-area-inset-bottom)); z-index:9999; display:flex; align-items:center; gap:10px; max-width:calc(100% - 24px); padding:10px 12px; background:var(--card); color:var(--text); border:1px solid var(--accent); border-radius:14px; box-shadow:0 6px 24px rgba(0,0,0,.25); font-size:13px; font-weight:600; }
+#updateBanner span{ white-space:nowrap; } #updateBanner button{ white-space:nowrap; }
+#updateBanner{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(74px + env(safe-area-inset-bottom)); z-index:9999; display:flex; align-items:center; gap:10px; width:max-content; max-width:calc(100% - 24px); padding:10px 12px; flex-wrap:wrap; justify-content:center; text-align:center; background:var(--card); color:var(--text); border:1px solid var(--accent); border-radius:14px; box-shadow:0 6px 24px rgba(0,0,0,.25); font-size:13px; font-weight:600; }
 .qz-total{ margin:0 0 14px; text-align:center; }
 .qz-big{ font-size:38px; font-weight:800; color:var(--accent); line-height:1.1; }
 .qz-sub{ font-size:12.5px; color:var(--sub); margin:2px 0 8px; }
@@ -667,6 +668,7 @@ body{
 }
 .quiz-cat-ic{ font-size:20px; }
 .quiz-cat-name{ flex:1; font-size:13.5px; font-weight:700; }
+.quiz-cat-sub{ display:block; font-size:11.5px; font-weight:600; color:var(--sub); margin-top:2px; }
 .quiz-cat-count{ font-size:11px; color:var(--sub); font-weight:600; }
 
 /* detail overlay */
@@ -1714,7 +1716,7 @@ function renderCalendar(preserveDetail){
 
   if(calMode==='greg'){
     const y = calViewDate.getFullYear(), m = calViewDate.getMonth();
-    document.getElementById('calMonthLabel').innerHTML = MON[m]+' '+y+'<span class="sub">Gregorian</span>';
+    document.getElementById('calMonthLabel').innerHTML = MON[m]+' '+y+'<span class="sub">'+(()=>{const a=gregorianToHijri(new Date(y,m,1)),b=gregorianToHijri(new Date(y,m+1,0));return a.month===b.month?a.monthName+' '+a.year+' AH':a.monthName+' – '+b.monthName+' '+b.year+' AH';})()+'</span>';
     const first = new Date(y,m,1);
     const startDow = first.getDay();
     const daysInMonth = new Date(y,m+1,0).getDate();
@@ -1746,6 +1748,8 @@ function renderCalendar(preserveDetail){
       d = new Date(d.getTime()+24*3600000);
       count++;
     }
+    const lastG = new Date(d.getTime()-24*3600000);
+    document.getElementById('calMonthLabel').querySelector('.sub').textContent = monthStart.getMonth()===lastG.getMonth() ? MON[monthStart.getMonth()]+' '+monthStart.getFullYear() : MON[monthStart.getMonth()]+' – '+MON[lastG.getMonth()]+' '+lastG.getFullYear();
   }
 
   if(!preserveDetail){
@@ -2686,13 +2690,11 @@ function renderMythBusters(){
     </div>
     <button class="quiz-cat-btn" id="mythModeRead" style="border-color:var(--accent);">
       <span class="quiz-cat-ic">📖</span>
-      <span class="quiz-cat-name">Sab Padhein</span>
-      <span class="quiz-cat-count">Poori list, jawabon ke saath</span>
+      <span class="quiz-cat-name">Sab Padhein<small class="quiz-cat-sub">Poori list, jawabon ke saath</small></span>
     </button>
     <button class="quiz-cat-btn" id="mythModeQuiz">
       <span class="quiz-cat-ic">🧠</span>
-      <span class="quiz-cat-name">Quiz ke Taur Par Khelein</span>
-      <span class="quiz-cat-count">Ek ek sawal, khud jawab dijiye</span>
+      <span class="quiz-cat-name">Quiz ke Taur Par Khelein<small class="quiz-cat-sub">Ek ek sawal, khud jawab dijiye</small></span>
     </button>
   `;
   document.getElementById('mythModeQuiz').onclick = renderMythCountSelect;
