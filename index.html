@@ -806,7 +806,6 @@ body{
       <div class="section-title">Khidmaat</div>
     </div>
     <div class="more-list" style="padding-top:0;">
-      <div class="more-item" data-open="qibla"><div class="ic">🧭</div><div class="lbl">Qibla ka Rukh</div><div class="chev">›</div></div>
       <div class="more-item" data-open="tasbeeh"><div class="ic">📿</div><div class="lbl">Tasbeeh Counter</div><div class="chev">›</div></div>
       <div class="more-item" data-open="ramzan" id="ramzanMoreItem"><div class="ic">☪️</div><div class="lbl">Ramzan<span class="lblSub" id="ramzanSub"></span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="hijriConv"><div class="ic">🔁</div><div class="lbl">Tareekh Badlein (Hijri)</div><div class="chev">›</div></div>
@@ -2976,6 +2975,7 @@ function renderSettingsMenu(){
   document.getElementById('detailTitle').textContent = 'Settings';
   const items = [
     ['location','🏙️','Apna Shahar Chunein', state.location.name],
+    ['qibla','🧭','Qibla ka Rukh', ''],
     ['timefmt','🕒','Waqt ka Andaaz', state.timeFormat==='12' ? '12 Ghante (AM/PM)' : '24 Ghante'],
     ['textsize','🔠','Text ka Size', {m:'Normal',l:'Bara',xl:'Bohot Bara'}[state.textScale]||'Normal'],
     ['lang','🌐','Zubaan', state.lang==='en' ? 'English' : 'Hinglish / Roman Urdu'],
@@ -2990,6 +2990,7 @@ function renderSettingsMenu(){
     el.onclick = ()=>{
       const k = el.dataset.sec;
       if(k==='backup') renderBackup();
+      else if(k==='qibla') renderQibla();
       else if(k==='howto') renderHowTo();
       else if(k==='about') renderMoreAbout();
       else { settingsTab = k; renderMoreSettings(); }
@@ -4401,7 +4402,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
 });
 document.getElementById('detailBack').onclick = closeModal;
 ['renderMoreDua','renderMoreHadees','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
-['openDuaDetail','openHadeesDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo'].forEach(n=>navWrap(n,1));
+['openDuaDetail','openHadeesDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla'].forEach(n=>navWrap(n,1));
 ['renderShabdDetail','renderQuizQuestion','renderQuizResult','renderMythQuizQuestion','renderMythQuizResult'].forEach(n=>navWrap(n,2));
 navWrap('renderReviewList',3);
 (function(){
