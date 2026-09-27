@@ -2312,7 +2312,7 @@ function shuffleArr(arr){
 }
 
 const QUIZ_CAT_ICON = {
-  "Namaz":"🕌", "Akhlaq aur Muashira":"🤝", "Quran aur Ibadaat":"📖",
+  "Namaz":"🕌", "Akhlaq aur Muashira":"🤝", "Qur’an aur Ibadaat":"📖",
   "Seerat-un-Nabi ﷺ":"🌙", "Ambiya-e-Kiram AS":"⭐", "Ahadees aur Sunnat":"📜",
   "Sahaba-e-Kiram RA":"👥", "Akhirat":"🌌", "Khaas Shabd":"📚",
   "Asma-ul-Husna":"💚", "Qur’ani Alfaaz":"📗"
@@ -2385,7 +2385,7 @@ function renderNamesList(which){
   document.getElementById('detailTitle').textContent = title;
   const body = document.getElementById('detailBody');
   const note = which==='prophet'
-    ? `<div class="backup-note" style="margin:0 14px 12px;">Yeh naam/alqaab Quran, Sahih Ahadees aur mash'hoor kitabon (Dala'il-ul-Khayrat, Qasida Burda) se liye gaye hain. Allah ke Asma-ul-Husna ki tarah iski koi ek mutlaq/fixed list nahi hai, isliye yeh 99 naam Dala'il-ul-Khayrat ki fehrist se, Quran-o-Sahih Ahadees mein aaye naamon ko tarjeeh dekar chune gaye hain.</div>`
+    ? `<div class="backup-note" style="margin:0 14px 12px;">Yeh naam/alqaab Qur’an, Sahih Ahadees aur mash'hoor kitabon (Dala'il-ul-Khayrat, Qasida Burda) se liye gaye hain. Allah ke Asma-ul-Husna ki tarah iski koi ek mutlaq/fixed list nahi hai, isliye yeh 99 naam Dala'il-ul-Khayrat ki fehrist se, Qur’an-o-Sahih Ahadees mein aaye naamon ko tarjeeh dekar chune gaye hain.</div>`
     : '';
   body.innerHTML = `
     <div class="view-toggle" style="margin:0 14px 12px;">
@@ -4249,7 +4249,7 @@ function renderMonthDetail(i){
     <div class="section-title">${L({rur:'Ahem Baatein',en:'Key Points'})}</div>
     ${c.points.map(t=>`<div class="minfo-card">${t}</div>`).join('')}
     ${c.events && c.events.length ? `<div class="section-title">${L({rur:'Ahem Waqiat',en:'Notable Events'})}</div>${c.events.map(t=>`<div class="minfo-card ev">${t}</div>`).join('')}` : ''}
-    <div class="backup-note">${L({rur:"Maloomat Quran, Sahih Ahadees aur mash'hoor tareekhi riwayat se hain. Jahan ulama ya muarrikhin mein ikhtilaf hai wahan wazahat ki gayi hai.", en:"Information is drawn from the Quran, authentic hadith and well-known historical accounts. Where scholars or historians differ, this is noted."})}</div>
+    <div class="backup-note">${L({rur:"Maloomat Qur’an, Sahih Ahadees aur mash'hoor tareekhi riwayat se hain. Jahan ulama ya muarrikhin mein ikhtilaf hai wahan wazahat ki gayi hai.", en:"Information is drawn from the Qur’an, authentic hadith and well-known historical accounts. Where scholars or historians differ, this is noted."})}</div>
   `;
 }
 
