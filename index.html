@@ -1100,9 +1100,9 @@ function buildSchedule(date){
     {key:'iftar', name:'Iftar', type:'meal', start:maghrib, end:addMin(maghrib,10)},
     {key:'maghrib', name:'Maghrib', type:'fard', start:maghrib, end:isha},
     {key:'awwabin', name:'Awwabin', type:'nafil', start:awwabin, end:isha},
-    {key:'isha', name:'Isha', type:'fard', start:isha, end:addMin(fajr,24*60)},
-    {key:'tahajjud', name:'Tahajjud', type:'nafil', start:tahajjudStart, end:addMin(fajr,24*60)},
-    {key:'tihai', name:"Du'a Qubooliyat", type:'special', start:tihaiStart, end:addMin(fajr,24*60)},
+    {key:'isha', name:'Isha', type:'fard', start:isha, end:addMin(fajr,24*60-1)},
+    {key:'tahajjud', name:'Tahajjud', type:'nafil', start:tahajjudStart, end:addMin(fajr,24*60-1)},
+    {key:'tihai', name:"Du'a Qubooliyat", type:'special', start:tihaiStart, end:addMin(fajr,24*60-1)},
   ];
 }
 
