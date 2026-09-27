@@ -279,6 +279,7 @@ body{
 .cal-detail .controlCol.bulkCol{ justify-content:space-between; }
 .cal-detail .row:last-child{ border-bottom:none; }
 .cal-detail .tag{ padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700; }
+.zikr-name-link{ cursor:pointer; text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:2px; }
 
 /* ---------- RAMZAN TAB ---------- */
 .ramzan-card{ margin:0 14px 14px; padding:14px; background:var(--card); border-radius:14px; border:1px solid var(--line); }
@@ -1095,8 +1096,8 @@ function buildSchedule(date){
     {key:'maghrib', name:'Maghrib', type:'fard', start:maghrib, end:isha},
     {key:'awwabin', name:'Awwabin', type:'nafil', start:awwabin, end:isha},
     {key:'isha', name:'Isha', type:'fard', start:isha, end:addMin(fajr,24*60-1)},
-    {key:'tahajjud', name:'Tahajjud', type:'nafil', start:tahajjudStart, end:addMin(fajr,24*60)},
     {key:'tihai', name:"Du'a Qubooliyat", type:'special', start:tihaiStart, end:addMin(fajr,24*60)},
+    {key:'tahajjud', name:'Tahajjud', type:'nafil', start:tahajjudStart, end:addMin(fajr,24*60)},
   ];
 }
 
@@ -1834,7 +1835,7 @@ function showDayDetail(date){
     const zikrDisabledAttr = isFuture ? ' style="opacity:0.3; pointer-events:none;" title="Abhi shuru nahi hua"' : '';
     html += `<div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin:12px 0 6px;">📿 Zikr / Tasbeeh</div>
       <div class="row">
-        <span>🌅 Subah ke Azkar</span>
+        <span class="zikr-name-link" data-zprofile="morning" role="button" tabindex="0">🌅 Subah ke Azkar</span>
         <div style="display:flex; align-items:center; gap:8px;"${zikrDisabledAttr}>
           <div class="status-dots">
             <button class="dot-btn ${mDone?'on-green':''}" data-zp="morning" data-zd="done" title="Padh Liye">✓</button>
@@ -1844,7 +1845,7 @@ function showDayDetail(date){
         </div>
       </div>
       <div class="row">
-        <span>🌇 Shaam ke Azkar</span>
+        <span class="zikr-name-link" data-zprofile="evening" role="button" tabindex="0">🌇 Shaam ke Azkar</span>
         <div style="display:flex; align-items:center; gap:8px;"${zikrDisabledAttr}>
           <div class="status-dots">
             <button class="dot-btn ${eDone?'on-green':''}" data-zp="evening" data-zd="done" title="Padh Liye">✓</button>
@@ -1904,6 +1905,9 @@ function showDayDetail(date){
       showToast(pf.name + ': ' + (wantDone ? 'Padh Liye' : 'Padhna Baaki Hai'));
       showDayDetail(calDetailDate);
     };
+  });
+  det.querySelectorAll('[data-zprofile]').forEach(el=>{
+    el.onclick = ()=> openOverlay(()=>{ renderTasbeeh(); renderZikrProfile(el.dataset.zprofile); });
   });
 }
 
