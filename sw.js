@@ -1,9 +1,9 @@
-const CACHE_NAME = 'waqt24-v20';
+const CACHE_NAME = 'waqt24-v21';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './data.js',
-  './i18n.js',
+  './data.js?v=21',
+  './i18n.js?v=21',
   './fonts/scheherazade-400.woff2',
   './fonts/scheherazade-700.woff2',
   './manifest.json',
