@@ -378,8 +378,8 @@ const HOWTO_CARDS = [
         en:"Your full review: cards for Farz Namaz, Azkar, Roza, Quiz and Words, with Paabandi (streaks) at the bottom. Change the period with Maahana/Saalana (monthly/yearly) and Gregorian/Hijri." } },
 
   { g:'deegar', ic:'🕰️', t:{ rur:'Islami Taqweem', en:'Islami Taqweem (Islamic Calendar)' },
-    d:{ rur:"Deegar tab ke 'Islami Taqweem' hisse mein Ramzan, Tareekh Badlein, Islami Mahine aur Khaas Din hain.",
-        en:"The 'Islami Taqweem' section of the Deegar tab holds Ramzan, Tareekh Badlein, Islami Mahine and Khaas Din." } },
+    d:{ rur:"Deegar tab ke 'Khidmaat' hisse mein Ramzan, Tareekh Badlein, Islami Mahine aur Khaas Din hain.",
+        en:"The 'Khidmaat' section of the Deegar tab holds Ramzan, Tareekh Badlein, Islami Mahine and Khaas Din." } },
   { g:'deegar', ic:'☪️', t:{ rur:'Ramzan', en:'Ramzan' },
     d:{ rur:"Ramzan ka poora calendar (Grid ya List) — Hijri aur Gregorian tareekh, sehri khatm aur iftar ke waqt, teen ashre aur Shab-e-Qadr ki raatein. Ramzan ke ilawa yeh sirf jhalak hai; Ramzan mein yahan roza aur namaz mark hoti hai.",
         en:"The full Ramzan calendar (Grid or List) — Hijri and Gregorian dates, sehri and iftar times, the three ashras and the nights of Laylat-ul-Qadr. Outside Ramzan it is a preview; during Ramzan you can mark fasting and prayers here." } },
