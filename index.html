@@ -2828,7 +2828,7 @@ function renderMoreQuiz(){
   quizState = null;
   document.getElementById('detailTitle').textContent = "Quiz";
   const body = document.getElementById('detailBody');
-  const catRows = QUIZ_CATEGORIES.map(cat=>{
+  const catRows = [...QUIZ_CATEGORIES].sort((a,b)=> a.localeCompare(b)).map(cat=>{
     const count = QUIZ_BANK.filter(q=>q[3]===cat).length;
     return `<button class="quiz-cat-btn" data-cat="${cat}">
       <span class="quiz-cat-ic">${QUIZ_CAT_ICON[cat]||'❓'}</span>
