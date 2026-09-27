@@ -405,7 +405,10 @@ body{
 .goal-card{ display:flex; align-items:center; gap:14px; margin:12px 14px 4px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:16px; }
 .goal-ring{ flex:0 0 auto; width:84px; height:84px; }
 .goal-bg{ fill:none; stroke:var(--meterBg); stroke-width:8; }
-.goal-fg{ fill:none; stroke:var(--green); stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset .4s; }
+.goal-fg{ fill:none; stroke:var(--green); stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset .4s, stroke .4s; }
+.goal-fg.n1{ stroke:color-mix(in srgb, var(--green) 40%, var(--meterBg)); }
+.goal-fg.n2{ stroke:color-mix(in srgb, var(--green) 70%, var(--meterBg)); }
+.goal-fg.n3{ stroke:var(--green); }
 .goal-txt{ fill:var(--text); font-size:18px; font-weight:800; }
 .goal-info{ flex:1; min-width:0; }
 .goal-title{ font-size:14px; font-weight:800; margin-bottom:6px; }
@@ -4576,7 +4579,7 @@ function renderGoalCard(){
   el.innerHTML = `<div class="goal-card">
     <svg class="goal-ring" viewBox="0 0 84 84" role="img" aria-label="Rozana Hadaf ${n} / ${tasks.length}">
       <circle cx="42" cy="42" r="${R}" class="goal-bg"></circle>
-      <circle cx="42" cy="42" r="${R}" class="goal-fg" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${(C*(1-n/tasks.length)).toFixed(2)}" transform="rotate(-90 42 42)"></circle>
+      <circle cx="42" cy="42" r="${R}" class="goal-fg${n>0?' n'+n:''}" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${(C*(1-n/tasks.length)).toFixed(2)}" transform="rotate(-90 42 42)"></circle>
       <text x="42" y="47" text-anchor="middle" class="goal-txt">${n}/${tasks.length}</text>
     </svg>
     <div class="goal-info">
