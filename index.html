@@ -1095,9 +1095,9 @@ function buildSchedule(date){
     {key:'iftar', name:'Iftar', type:'meal', start:maghrib, end:addMin(maghrib,10)},
     {key:'maghrib', name:'Maghrib', type:'fard', start:maghrib, end:isha},
     {key:'awwabin', name:'Awwabin', type:'nafil', start:awwabin, end:isha},
-    {key:'isha', name:'Isha', type:'fard', start:isha, end:addMin(fajr,24*60-1)},
-    {key:'tihai', name:"Du'a Qubooliyat", type:'special', start:tihaiStart, end:addMin(fajr,24*60)},
+    {key:'isha', name:'Isha', type:'fard', start:isha, end:addMin(fajr,24*60)},
     {key:'tahajjud', name:'Tahajjud', type:'nafil', start:tahajjudStart, end:addMin(fajr,24*60)},
+    {key:'tihai', name:"Du'a Qubooliyat", type:'special', start:tihaiStart, end:addMin(fajr,24*60)},
   ];
 }
 
@@ -1340,7 +1340,7 @@ function renderHome(){
   if(isToday){
     for(let i=0;i<sched.length;i++){
       if(sched[i].key==='iftar' || sched[i].key==='ghurub') continue; // overlap with Maghrib/Asr; handled separately below
-      if(now >= sched[i].start && now < sched[i].end){ currentIdx = i; break; }
+      if(now >= sched[i].start && now < sched[i].end){ currentIdx = i; } // keep scanning: a later, narrower window (e.g. Du'a Qubooliyat inside Tahajjud) should win
     }
   }
   const maghribRow = sched.find(x=>x.key==='maghrib');
@@ -1365,8 +1365,8 @@ function renderHome(){
       isPast = isToday ? now>=maghribRow.start : isPastDate;
       isFuture = isToday ? now<ghurubRow.start : !isPastDate;
     } else if(isToday){
-      isPast = idx!==currentIdx && now>=p.end;
-      isFuture = idx!==currentIdx && now<p.start;
+      isPast = idx!==currentIdx && (now>=p.end || idx<currentIdx);
+      isFuture = idx!==currentIdx && now<p.start && idx>currentIdx;
       isLive = idx===currentIdx;
     } else {
       isPast = isPastDate;
