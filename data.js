@@ -373,7 +373,7 @@ const HOWTO_CARDS = [
   { g:'deegar', ic:'⭐', t:{ rur:'Mere Pasandeeda', en:'My Favourites' },
     d:{ rur:"Kisi bhi dua, hadees, naam ya lafz par ☆ dabayein — woh yahan jama ho jata hai.",
         en:"Tap ☆ on any du'a, hadith, name or word and it is collected here." } },
-  { g:'marifat', ic:'📊', t:{ rur:'Safar-e-Taraqqi', en:'Safar-e-Taraqqi (Progress)' },
+  { g:'deegar', ic:'📊', t:{ rur:'Safar-e-Taraqqi', en:'Safar-e-Taraqqi (Progress)' },
     d:{ rur:"Aap ka poora jaiza: Farz Namaz, Azkar, Roza, Quiz aur Lafz ke card, aur sabse neeche Paabandi (streaks). Upar Maahana/Saalana aur Gregorian/Hijri se muddat badlein.",
         en:"Your full review: cards for Farz Namaz, Azkar, Roza, Quiz and Words, with Paabandi (streaks) at the bottom. Change the period with Maahana/Saalana (monthly/yearly) and Gregorian/Hijri." } },
 
