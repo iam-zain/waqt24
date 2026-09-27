@@ -807,7 +807,7 @@ body{
     </div>
     <div class="more-list" style="padding-top:0;">
       <div class="more-item" data-open="tasbeeh"><div class="ic">📿</div><div class="lbl">Tasbeeh Counter</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="qaza"><div class="ic">🧎</div><div class="lbl">Qaza Namaz</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="qaza"><div class="ic">🧎</div><div class="lbl">Qaza Namaz<span class="lblSub" id="qazaSub"></span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="hijriConv"><div class="ic">🔁</div><div class="lbl">Tareekh Badlein (Hijri)</div><div class="chev">›</div></div>
       <div class="more-item" data-open="islamicMonths"><div class="ic">🔭</div><div class="lbl">Islami Mahine</div><div class="chev">›</div></div>
       <div class="more-item" data-open="islamicEvents"><div class="ic">🎉</div><div class="lbl">Khaas Din</div><div class="chev">›</div></div>
@@ -1305,6 +1305,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
     if(btn.dataset.tab==='calendar') renderCalendar();
     if(btn.dataset.tab==='explore') renderGoalCard();
+    if(btn.dataset.tab==='more') updateQazaBadge();
   };
 });
 
@@ -3058,11 +3059,20 @@ function renderMoreSettings(){
     pane.innerHTML = `
       <div class="section-title" style="margin-top:0;">Aapki Maujooda Jagah</div>
       <div class="ramzan-card" style="margin:0 0 14px;">
-        <div style="font-size:13.5px; font-weight:700; margin-bottom:2px;">📍 ${loc.name}</div>
-        <div style="font-size:11.5px; color:var(--sub); margin-bottom:12px;">${loc.lat.toFixed(4)}, ${loc.lon.toFixed(4)} ${loc.source==='gps' ? '(GPS)' : ''}</div>
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px;">
+          <div>
+            <div style="font-size:13.5px; font-weight:700; margin-bottom:2px;">📍 ${loc.name}</div>
+            <div style="font-size:11.5px; color:var(--sub); margin-bottom:12px;">${loc.lat.toFixed(4)}, ${loc.lon.toFixed(4)} ${loc.source==='gps' ? '(GPS)' : ''}</div>
+          </div>
+          <button id="saveLocBtn" title="Is jagah ko save karein" style="flex:0 0 auto; width:34px; height:34px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:16px; cursor:pointer;">${(state.savedLocations||[]).some(c=>c.name===loc.name && c.lat===loc.lat && c.lon===loc.lon) ? '★' : '☆'}</button>
+        </div>
         <button id="gpsBtn" style="width:100%; padding:11px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13px; font-weight:700; cursor:pointer;">📡 GPS Se Location Lein</button>
         <div id="gpsStatus" style="font-size:11.5px; color:var(--sub); margin-top:8px;"></div>
       </div>
+      ${(state.savedLocations||[]).length ? `
+      <div class="section-title" style="margin-top:0;">Aapki Saved Jagah</div>
+      <div id="savedLocList" style="margin-bottom:6px;"></div>
+      ` : ''}
       <div class="section-title" style="margin-top:0;">Ya Shehar Chuniye</div>
       <div class="search-bar" style="margin:0 0 10px;"><input id="citySearchInput" placeholder="Shehar dhoondhiye..." value="${citySearch}"></div>
       <div id="cityList"></div>
@@ -3142,6 +3152,50 @@ function renderMoreSettings(){
   }
   renderCityList();
   body.querySelector('#citySearchInput').oninput = (e)=>{ citySearch=e.target.value; renderCityList(); };
+  function renderSavedLocList(){
+    const wrap = body.querySelector('#savedLocList');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    (state.savedLocations||[]).forEach(c=>{
+      const isActive = loc.name===c.name && loc.lat===c.lat && loc.lon===c.lon;
+      const row = document.createElement('div');
+      row.className = 'hadees-item';
+      row.style.cssText = 'margin:0 0 8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px;'+(isActive?' border-color:var(--accent);':'');
+      row.innerHTML = `<span style="font-size:13.5px; font-weight:600; flex:1;">⭐ ${c.name}${c.state ? `<span style="color:var(--sub); font-weight:500;"> - ${c.state}</span>` : ''}${isActive ? ' <span style="color:var(--accent);">✓</span>' : ''}</span>
+        <button data-rm="1" title="Hatayein" style="flex:0 0 auto; width:26px; height:26px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--sub); font-size:12px; cursor:pointer;">✕</button>`;
+      row.onclick = (e)=>{
+        if(e.target.closest('[data-rm]')) return;
+        state.location = {name:c.name, lat:c.lat, lon:c.lon, state:c.state, source:'manual'};
+        saveState();
+        renderHome(); renderCalendar();
+        renderMoreSettings();
+      };
+      row.querySelector('[data-rm]').onclick = (e)=>{
+        e.stopPropagation();
+        state.savedLocations = (state.savedLocations||[]).filter(x=>!(x.name===c.name && x.lat===c.lat && x.lon===c.lon));
+        saveState();
+        renderMoreSettings();
+      };
+      wrap.appendChild(row);
+    });
+  }
+  renderSavedLocList();
+  const saveLocBtn = body.querySelector('#saveLocBtn');
+  if(saveLocBtn){
+    saveLocBtn.onclick = ()=>{
+      if(!state.savedLocations) state.savedLocations = [];
+      const already = state.savedLocations.some(c=>c.name===loc.name && c.lat===loc.lat && c.lon===loc.lon);
+      if(already){
+        state.savedLocations = state.savedLocations.filter(c=>!(c.name===loc.name && c.lat===loc.lat && c.lon===loc.lon));
+        showToast('Jagah saved list se hata di gayi');
+      } else {
+        state.savedLocations.push({name:loc.name, lat:loc.lat, lon:loc.lon, state:loc.state});
+        showToast('Jagah save ho gayi');
+      }
+      saveState();
+      renderMoreSettings();
+    };
+  }
   body.querySelector('#gpsBtn').onclick = ()=>{
     const statusEl = body.querySelector('#gpsStatus');
     if(!navigator.geolocation){
@@ -3357,6 +3411,9 @@ function renderStats(){
   const pct = totalPossible>0 ? Math.round(totalGreen/totalPossible*100) : 0;
 
   document.getElementById('detailBody').innerHTML = `
+    <div class="detail-actions" style="justify-content:flex-end;">
+      <button class="act-btn" id="statsShareBtn" title="Share karein">${SHARE_SVG}</button>
+    </div>
     <div class="cal-toggle" style="padding:0 0 8px;">
       <button id="statsGregBtn" class="${statsCal==='greg'?'active':''}">Gregorian</button>
       <button id="statsHijriBtn" class="${statsCal==='hijri'?'active':''}">Hijri</button>
@@ -3479,6 +3536,27 @@ function renderStats(){
   document.getElementById('statsYearBtn').onclick = ()=>{ statsRange='year'; renderStats(); };
   document.getElementById('statsPrev').onclick = ()=> shiftStatsPeriod(-1);
   document.getElementById('statsNext').onclick = ()=> shiftStatsPeriod(1);
+  document.getElementById('statsShareBtn').onclick = ()=>{
+    const t0 = days[0].getTime(), t1 = days[days.length-1].getTime() + 86400000;
+    const logs = (state.quizLog||[]).filter(x=>x.t>=t0 && x.t<t1);
+    const played = logs.length;
+    const asked = logs.reduce((a,x)=>a+x.total,0);
+    const right = logs.reduce((a,x)=>a+x.score,0);
+    const acc = asked>0 ? Math.round(right/asked*100) : 0;
+    const total = KHAAS_SHABD.length;
+    const ws = state.wordStatus || {};
+    const yaad = KHAAS_SHABD.filter(w=>ws[w.tr]==='known').length;
+    const ns = computeStreak();
+    const lines = [
+      `Farz Namaz waqt par: ${pct}% (${totalGreen}/${totalPossible})`,
+      `Saare 5 Farz wale din: ${allFiveDays} / ${pastDays.length}`,
+      `Roza rakhe gaye din: ${rozaDays}`,
+      `Quiz khele gaye: ${played}${played?' (Durustgi '+acc+'%)':''}`,
+      `Lafz yaad ho gaye: ${yaad} / ${total}`,
+      `Namaz ki Paabandi: ${ns.current} din (sabse lambi ${ns.best})`,
+    ];
+    shareCard({ kind:'Safar-e-Taraqqi', title:'Mera Safar-e-Taraqqi', sub:label, body:lines.join('\n') });
+  };
 }
 
 /* ============================================================
@@ -3600,7 +3678,7 @@ function renderBackup(){
         state = Object.assign(state, incoming);
         if(payload && payload.hijriOffset!==undefined){ try{ localStorage.setItem('hijriOffset', String(payload.hijriOffset)); }catch(e){} }
         saveState();
-        renderHome(); renderCalendar(); updateRamzanLock();
+        renderHome(); renderCalendar(); updateRamzanLock(); updateQazaBadge();
         document.getElementById('backupMsg').textContent = '✅ Data restore ho gaya hai.';
       }catch(e){
         document.getElementById('backupMsg').textContent = '❌ Yeh file valid backup nahi hai.';
@@ -4427,8 +4505,16 @@ function qazaState(){
 }
 function qazaTotal(){ const q = qazaState(); return QAZA_KEYS.reduce((a,[k])=> a + q[k], 0); }
 function qazaDoneOn(d){ return (state.qazaDone||{})[dayKey(d)] || 0; }
+function updateQazaBadge(){
+  const sub = document.getElementById('qazaSub');
+  if(!sub) return;
+  const total = qazaTotal();
+  sub.textContent = total>0 ? `${total} baaki` : '';
+}
+updateQazaBadge();
 function renderQaza(){
   const q = qazaState();
+  updateQazaBadge();
   document.getElementById('detailTitle').textContent = 'Qaza Namaz';
   document.getElementById('detailBody').innerHTML = `
     <div class="ramzan-card qz-total">
