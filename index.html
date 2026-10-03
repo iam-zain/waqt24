@@ -534,6 +534,7 @@ body{
 .dua-quran-lbl{ color:#e0a33a; font-weight:800; }
 /* Four separate colours in the dua detail: title, Arabic, transliteration, Roman Urdu (mid-tones, readable in every theme) */
 .dua-detail .dua-sec-ar{ --sc:#e0a33a; } .dua-detail .dua-sec-tr{ --sc:#5b8def; } .dua-detail .dua-sec-ur{ --sc:#e0709f; } .dua-detail .dua-sec-info{ --sc:#9b6fd6; }
+.hadees-sec{ --sc:#c79a2e; } .hadees-sec .aad-step-lbl{ color:#c79a2e; } .hadees-txt{ font-size:15px; line-height:1.7; }
 .dua-detail .dua-sec-info .aad-step-lbl{ color:#9b6fd6; } .dua-detail .dua-info{ font-size:14px; line-height:1.65; color:var(--text); }
 .dua-detail .dua-sec-ar .aad-step-lbl{ color:#e0a33a; } .dua-detail .dua-sec-tr .aad-step-lbl{ color:#5b8def; } .dua-detail .dua-sec-ur .aad-step-lbl{ color:#e0709f; }
 .dua-detail .aad-step-lbl{ font-size:12.5px; font-weight:800; }
@@ -2639,15 +2640,19 @@ function renderHadeesList(){
   const q = hadeesSearch.trim().toLowerCase();
   const items = HADEES.filter(h=> (hadeesFilter==='All'||h.cat===hadeesFilter) && (h.txt+' '+h.src+' '+h.cat).toLowerCase().includes(q)).sort((a,b)=>a.txt.localeCompare(b.txt));
   if(!items.length){ wrap.innerHTML = `<div class="empty-state">Koi hadees nahi mili.</div>`; return; }
-  wrap.innerHTML = items.map((h,i)=>`<div class="aad-card" data-i="${i}" style="--aad-c:#c79a2e;">
+  wrap.innerHTML = items.map((h,i)=>{
+    const st = duaStatus(hadeesKey(h));
+    return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:#c79a2e;">
       <div class="aad-ic">📜</div>
       <div class="aad-info">
         <div class="aad-title">${h.txt.length>110 ? h.txt.slice(0,110).trimEnd()+'...' : h.txt}</div>
         <div class="aad-tags"><span class="aad-tag">${h.src}</span></div>
         <div class="aad-cat-lbl">${h.cat}</div>
       </div>
+      ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
       <div class="chev">›</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   wrap.querySelectorAll('.aad-card').forEach(el=>{
     el.onclick = ()=>{
       const i = parseInt(el.dataset.i);
@@ -2665,18 +2670,37 @@ async function shareText(text){
     showToast('Copy ho gaya');
   }catch(e){ showToast('Share/Copy nahi ho saka'); }
 }
+/* Yaad status key for a hadees (hadees have no title, so the start of the text identifies it) */
+function hadeesKey(h){ return 'hadees:' + h.txt.slice(0,60); }
 function openHadeesDetail(h){
   markReadDay();
   document.getElementById('detailTitle').textContent = h.cat;
+  const key = hadeesKey(h), st = duaStatus(key);
   document.getElementById('detailBody').innerHTML = `
     <div class="detail-actions">
       ${bmBtn('hadees:'+h.txt.slice(0,40))}
       <button class="act-btn" id="hadeesImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
-    <div class="meaning">${h.txt}</div>
-    <div class="ref">Hawala: ${h.src}</div>
+    <div class="aad-head status-${st||'none'}" style="--aad-c:#c79a2e;">
+      <div class="aad-head-ic">📜</div>
+      <div class="aad-head-title">${h.cat}</div>
+      <div class="ref" style="margin:-4px 0 8px;">Hawala: ${h.src}</div>
+      <div class="aad-cat-pill">📜 Hadees</div>
+    </div>
+    <div class="dua-detail">
+      <div class="aad-guide-sec hadees-sec">
+        <div class="aad-guide-head"><span class="aad-step-lbl">Hadees</span></div>
+        <div class="meaning hadees-txt">${h.txt}</div>
+      </div>
+    </div>
+    <div class="aad-status-row">
+      <button class="aad-status-btn soch ${st==='soch'?'on':''}" id="hadeesSochBtn">⏳ Yaad karna baaqi hai</button>
+      <button class="aad-status-btn amal ${st==='amal'?'on':''}" id="hadeesAmalBtn">✅ Yaad ho chuka hai</button>
+    </div>
     ${pnBarHtml()}
   `;
+  document.getElementById('hadeesSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openHadeesDetail(h); };
+  document.getElementById('hadeesAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openHadeesDetail(h); };
   document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ kind:'Hadees', title:h.cat, body:h.txt, foot:'Hawala: '+h.src });
   wirePnBar();
 }
