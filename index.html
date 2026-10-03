@@ -531,6 +531,14 @@ body{
 .dua-grid.list{ grid-template-columns:1fr; }
 .dua-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; cursor:pointer; }
 .dua-card .aad-tags{ margin-bottom:6px; }
+/* Grid view: word and dua cards become stacked tiles so two fit across a phone */
+.dua-grid:not(.list) .aad-card{ flex-direction:column; align-items:center; text-align:center; padding:14px 10px; min-width:0; }
+.dua-grid:not(.list) .aad-card .aad-info{ width:100%; min-width:0; }
+.dua-grid:not(.list) .aad-card .aad-tags{ justify-content:center; }
+.dua-grid:not(.list) .aad-card .aad-ic{ margin:0 0 8px; }
+.dua-grid:not(.list) .aad-card .chev{ display:none; }
+.dua-grid:not(.list) .aad-card .aad-title{ font-size:13.5px; }
+.dua-grid:not(.list) .aad-card .aad-cat-lbl{ margin-top:4px; }
 .dua-quran-lbl{ color:#e0a33a; font-weight:800; }
 /* Four separate colours in the dua detail: title, Arabic, transliteration, Roman Urdu (mid-tones, readable in every theme) */
 .dua-detail .dua-sec-ar{ --sc:#e0a33a; } .dua-detail .dua-sec-tr{ --sc:#5b8def; } .dua-detail .dua-sec-ur{ --sc:#e0709f; } .dua-detail .dua-sec-info{ --sc:#9b6fd6; }
