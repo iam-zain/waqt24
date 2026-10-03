@@ -2458,15 +2458,28 @@ function renderQwordGrid(){
   if(!filtered.length){ grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Koi lafz nahi mila.</div>`; return; }
   filtered.forEach((w,i)=>{
     const c = document.createElement('div');
-    c.className='dua-card';
-    c.innerHTML = `<div class="cat" dir="rtl">${w.ar}</div><div class="title">${w.tr}</div><div class="prev">${w.m}</div>`;
+    const st = duaStatus(qwordKey(w));
+    c.className = 'aad-card status-' + (st||'none');
+    c.style.setProperty('--aad-c', qwordColor(w));
+    c.innerHTML = `<div class="aad-ic" dir="rtl">${w.ar}</div>
+      <div class="aad-info">
+        <div class="aad-title">${w.tr}</div>
+        <div class="aad-tags"><span class="aad-tag">${w.m}</span></div>
+        <div class="aad-cat-lbl">${w.cat}</div>
+      </div>
+      ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
+      <div class="chev">›</div>`;
     c.onclick = ()=>{ setNavCtx(filtered, i, openQuranWordDetail); openQuranWordDetail(w); };
     grid.appendChild(c);
   });
 }
 /* Yaad status key and colour for a Qur'ani word (colour comes from the quiz palette, by category name) */
 function qwordKey(w){ return 'qword:' + w.tr; }
-function qwordColor(w){ return QUIZ_PALETTE[[...String(w.cat)].reduce((a,c)=>a+c.charCodeAt(0),0) % QUIZ_PALETTE.length]; }
+/* One colour per grammatical category (harf, ism, sifat, zameer, ...), taken in alphabetical order from the palette */
+function qwordColor(w){
+  const cats = [...new Set(QURAN_WORDS.map(x=>String(x.cat)))].sort((a,b)=>a.localeCompare(b));
+  return QUIZ_PALETTE[cats.indexOf(String(w.cat)) % QUIZ_PALETTE.length];
+}
 function openQuranWordDetail(w){
   const key = qwordKey(w), st = duaStatus(key), color = qwordColor(w);
   document.getElementById('detailTitle').textContent = w.tr;
