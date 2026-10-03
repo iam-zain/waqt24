@@ -2311,6 +2311,31 @@ function renderDuaList(){
   });
 }
 
+/* Same tag chip look as Aadaab-e-Zindagi (.aad-tag); duas without explicit tags show their category */
+function duaTagChips(d){ return (d.tags || [d.cat]).map(x=>`<span class="aad-tag">${x}</span>`).join(''); }
+function openDuaDetail(d){
+  markReadDay();
+  document.getElementById('detailTitle').textContent = d.title;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-actions">
+      ${bmBtn('dua:'+d.title)}
+      <button class="act-btn" id="duaImgBtn" title="Share karein">${SHARE_SVG}</button>
+    </div>
+    <div class="dua-detail">
+      <div class="aad-tags center">${duaTagChips(d)}</div>
+      <div class="dua-h">${d.title}</div>
+      <div class="arabic dua-ar">${d.arabic}</div>
+      <div class="translit dua-tr">${d.translit}</div>
+      <div class="meaning dua-ur">${d.meaning}</div>
+      <div class="ref">Hawala: ${d.ref}</div>
+      <div class="dua-amen">آمیــــــــــــــــــــــــــــــــــــــــن يارب العالمیــــــــــــــــــــــــــــــــــــــــن</div>
+    </div>
+    ${pnBarHtml()}
+  `;
+  document.getElementById('duaImgBtn').onclick = ()=> shareCard({ kind:"Du'a", arabic:d.arabic, title:d.title, sub:d.translit, body:d.meaning, foot:'Hawala: '+d.ref });
+  wirePnBar();
+}
+
 let qwordView='grid', qwordSearch='';
 function renderQuranWords(){
   document.getElementById('detailTitle').textContent = "Qur’ani Alfaaz Aur Ma’ani";
