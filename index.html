@@ -2300,6 +2300,16 @@ function duaIcon(d){
   return duaMeta(d.cat)[0];
 }
 function isQuranDua(d){ return /^Qur/.test(d.ref || ''); }
+/* English-or-Roman-Urdu text for content. Keys (titles, names) used for bookmarks and status stay in Roman Urdu. */
+function isEn(){ return state.lang==='en'; }
+function dTitle(d){ return isEn() && d.ent ? d.ent : d.title; }
+function dMean(d){ return isEn() && d.enm ? d.enm : d.meaning; }
+function dInfo(d){ return isEn() && d.eninfo ? d.eninfo : d.info; }
+function hTxt(h){ return isEn() && h.en ? h.en : h.txt; }
+function wMean(w){ return isEn() && w.en ? w.en : w.m; }
+function wEx(w){ return isEn() && w.exen ? w.exen : w.exm; }
+/* Quiz item as [question, options, correct, category]; English version when the language is English */
+function quizLocal(item){ return (isEn() && item[4]) ? [item[4].q, item[4].o, item[2], item[3]] : item; }
 function renderMoreDua(){
   document.getElementById('detailTitle').textContent="Du'a";
   const body = document.getElementById('detailBody');
@@ -2348,7 +2358,7 @@ function renderDuaList(){
     return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${color};">
       <div class="aad-ic">${ic}</div>
       <div class="aad-info">
-        <div class="aad-title">${d.title}</div>
+        <div class="aad-title">${dTitle(d)}</div>
         <div class="aad-tags">${duaTagChips(d)}</div>
         <div class="aad-cat-lbl">${duaCatLabel(d)}</div>
       </div>
@@ -2385,7 +2395,7 @@ function setDuaStatus(title, val){
 }
 function openDuaDetail(d){
   markReadDay();
-  document.getElementById('detailTitle').textContent = d.title;
+  document.getElementById('detailTitle').textContent = dTitle(d);
   document.getElementById('detailBody').innerHTML = `
     <div class="detail-actions">
       ${bmBtn('dua:'+d.title)}
@@ -2393,7 +2403,7 @@ function openDuaDetail(d){
     </div>
     <div class="aad-head status-${duaStatus(d.title)||'none'}" style="--aad-c:${duaMeta(d.cat)[1]};">
       <div class="aad-head-ic">${duaIcon(d)}</div>
-      <div class="aad-head-title">${d.title}</div>
+      <div class="aad-head-title">${dTitle(d)}</div>
       <div class="ref" style="margin:-4px 0 8px;">Hawala: ${d.ref}</div>
       <div class="aad-tags center">${duaTagChips(d)}</div>
       <div class="aad-cat-pill">${duaIcon(d)} ${d.cat}</div>
@@ -2409,11 +2419,11 @@ function openDuaDetail(d){
       </div>
       <div class="aad-guide-sec dua-sec-ur">
         <div class="aad-guide-head"><span class="aad-step-lbl">Tarjuma (Roman Urdu)</span></div>
-        <div class="meaning dua-ur">${d.meaning}</div>
+        <div class="meaning dua-ur">${dMean(d)}</div>
       </div>
       ${d.info ? `<div class="aad-guide-sec dua-sec-info">
         <div class="aad-guide-head"><span class="aad-step-lbl">Hadees aur Fazilat</span></div>
-        <div class="meaning dua-info">${d.info}</div>
+        <div class="meaning dua-info">${dInfo(d)}</div>
       </div>` : ''}
       <div class="dua-amen">آمیــــــــــــــــــــــــــــــــــــــــن یارب العالمیــــــــــــــــــــــــــــــــــــــــن</div>
     </div>
@@ -2425,7 +2435,7 @@ function openDuaDetail(d){
   `;
   document.getElementById('duaSochBtn').onclick = ()=>{ setDuaStatus(d.title, 'soch'); openDuaDetail(d); };
   document.getElementById('duaAmalBtn').onclick = ()=>{ setDuaStatus(d.title, 'amal'); openDuaDetail(d); };
-  document.getElementById('duaImgBtn').onclick = ()=> openCardShareChooser({ kind:"Du'a", arabic:d.arabic, title:d.title, sub:d.translit, body:d.meaning, foot:'Hawala: '+d.ref });
+  document.getElementById('duaImgBtn').onclick = ()=> openCardShareChooser({ kind:"Du'a", arabic:d.arabic, title:dTitle(d), sub:d.translit, body:dMean(d), foot:'Hawala: '+d.ref });
   wirePnBar();
 }
 
@@ -2485,7 +2495,7 @@ function renderQwordGrid(){
     c.innerHTML = `<div class="aad-ic qw-ic" dir="rtl"><span>${w.ar}</span></div>
       <div class="aad-info">
         <div class="aad-title">${w.tr}</div>
-        <div class="aad-tags"><span class="aad-tag">${w.m}</span></div>
+        <div class="aad-tags"><span class="aad-tag">${wMean(w)}</span></div>
         <div class="aad-cat-lbl">${qwordGroup(w)}</div>
       </div>
       ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
@@ -2527,7 +2537,7 @@ function openQuranWordDetail(w){
     <div class="dua-detail">
       <div class="aad-guide-sec qword-sec-m">
         <div class="aad-guide-head"><span class="aad-step-lbl">Matlab</span></div>
-        <div class="meaning qword-m">${w.m}</div>
+        <div class="meaning qword-m">${wMean(w)}</div>
       </div>
       <div class="aad-guide-sec qword-sec-st">
         <div class="aad-guide-head"><span class="aad-step-lbl">Qur’an mein</span></div>
@@ -2537,7 +2547,7 @@ function openQuranWordDetail(w){
       <div class="aad-guide-sec qword-sec-ex">
         <div class="aad-guide-head"><span class="aad-step-lbl">Misaal</span></div>
         <div class="arabic qword-exar">${w.ex}</div>
-        <div class="meaning qword-exm">${w.exm}</div>
+        <div class="meaning qword-exm">${wEx(w)}</div>
       </div>
     </div>
     <div class="aad-status-row">
@@ -2717,7 +2727,7 @@ function renderHadeesList(){
     return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${hadeesMeta(h.cat)[1]};">
       <div class="aad-ic">${hadeesMeta(h.cat)[0]}</div>
       <div class="aad-info">
-        <div class="aad-title">${h.txt.length>110 ? h.txt.slice(0,110).trimEnd()+'...' : h.txt}</div>
+        <div class="aad-title">${hTxt(h).length>110 ? hTxt(h).slice(0,110).trimEnd()+'...' : hTxt(h)}</div>
         <div class="aad-tags"><span class="aad-tag">${h.src}</span></div>
         <div class="aad-cat-lbl">${h.cat}</div>
       </div>
@@ -2765,7 +2775,7 @@ function openHadeesDetail(h){
     <div class="dua-detail">
       <div class="aad-guide-sec hadees-sec">
         <div class="aad-guide-head"><span class="aad-step-lbl">Hadees</span></div>
-        <div class="meaning hadees-txt">${h.txt}</div>
+        <div class="meaning hadees-txt">${hTxt(h)}</div>
       </div>
     </div>
     <div class="aad-status-row">
@@ -3460,7 +3470,7 @@ function quizQHtml(q){
 }
 function renderQuizQuestion(){
   const qs = quizState;
-  const [q, opts, correct] = qs.questions[qs.idx];
+  const [q, opts, correct] = quizLocal(qs.questions[qs.idx]);
   document.getElementById('detailTitle').textContent = `Sawal ${qs.idx+1}/${qs.questions.length}`;
   const body = document.getElementById('detailBody');
   body.innerHTML = `
