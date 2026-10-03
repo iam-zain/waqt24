@@ -537,6 +537,26 @@ body{
 .hadees-item .src{ font-size:11px; color:var(--accent); font-weight:700; margin-bottom:6px; }
 .hadees-item .txt{ font-size:13px; line-height:1.5; }
 
+/* Aadaab-e-Zindagi */
+.aad-card{ display:flex; align-items:center; gap:12px; margin:0 14px 10px; padding:12px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--aad-c, var(--accent)); border-radius:12px; cursor:pointer; }
+.aad-ic{ flex:0 0 auto; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:19px; background:color-mix(in srgb, var(--aad-c, var(--accent)) 20%, var(--card2)); }
+.aad-info{ flex:1; min-width:0; }
+.aad-title{ font-size:13.5px; font-weight:700; margin-bottom:4px; }
+.aad-tags{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:4px; }
+.aad-tags.center{ justify-content:center; }
+.aad-tag{ font-size:10px; font-weight:700; color:var(--sub); background:var(--card2); border:1px solid var(--line); border-radius:7px; padding:2px 7px; }
+.aad-cat-lbl{ font-size:10.5px; color:var(--aad-c, var(--accent)); font-weight:700; }
+.aad-head{ text-align:center; padding:18px 16px; margin:0 0 16px; background:var(--card); border:1px solid var(--line); border-radius:16px; border-top:4px solid var(--aad-c, var(--accent)); }
+.aad-head-ic{ width:60px; height:60px; margin:0 auto 10px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:28px; background:color-mix(in srgb, var(--aad-c, var(--accent)) 20%, var(--card2)); }
+.aad-head-title{ font-size:17px; font-weight:800; margin-bottom:8px; line-height:1.35; }
+.aad-cat-pill{ display:inline-block; margin-top:10px; padding:4px 12px; border-radius:20px; font-size:11.5px; font-weight:700; color:var(--aad-c, var(--accent)); background:color-mix(in srgb, var(--aad-c, var(--accent)) 16%, transparent); }
+.aad-step{ margin:0 0 12px; padding:14px; background:var(--card); border:1px solid var(--line); border-radius:14px; }
+.aad-step-head{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.aad-step-num{ font-size:15px; font-weight:800; color:var(--sub); }
+.aad-step-ic{ font-size:16px; }
+.aad-step-lbl{ font-size:13px; font-weight:800; }
+.aad-step-txt{ font-size:13px; line-height:1.6; color:var(--text); }
+
 /* ---------- 99 NAMES (Allah / Muhammad ﷺ) ---------- */
 .names-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:0 14px 20px; }
 .names-grid.list{ grid-template-columns:1fr; }
@@ -795,6 +815,7 @@ body{
       <div class="more-item" data-open="khaasShabd"><div class="ic">📚</div><div class="lbl">Khaas Shabd</div><div class="chev">›</div></div>
       <div class="more-item" data-open="dailyWord"><div class="ic">🔤</div><div class="lbl">Aaj Ka Lafz</div><div class="chev">›</div></div>
       <div class="more-item" data-open="mythBusters"><div class="ic">💡</div><div class="lbl">Ghalat Fehmi Ka Izala</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="aadaab"><div class="ic">🪴</div><div class="lbl">Aadaab-e-Zindagi</div><div class="chev">›</div></div>
     </div>
   </div>
 
@@ -864,8 +885,8 @@ body{
   </div>
 </div>
 
-<script src="data.js?v=21"></script>
-<script src="i18n.js?v=21"></script>
+<script src="data.js?v=23"></script>
+<script src="i18n.js?v=23"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -2077,6 +2098,7 @@ function bmResolve(k){
   if(t==='prophet'){ const x = PROPHET_NAMES.findIndex(n=>n.tr===id); return x>=0 && { type:'Muhammad ﷺ ke Naam', ar:PROPHET_NAMES[x].ar, title:id, sub:PROPHET_NAMES[x].m, open:()=>renderNameDetail('prophet', x) }; }
   if(t==='word'){ const x = KHAAS_SHABD.findIndex(n=>n.tr===id); return x>=0 && { type:'Khaas Shabd', ar:KHAAS_SHABD[x].ar, title:id, sub:KHAAS_SHABD[x].m, open:()=>{ __navCtx=null; renderShabdDetail(x, renderBookmarks); } }; }
   if(t==='qword'){ const w = QURAN_WORDS.find(n=>n.tr===id); return w && { type:'Qur’ani Alfaaz', ar:w.ar, title:id, sub:w.m, open:()=>{ __navCtx=null; openQuranWordDetail(w); } }; }
+  if(t==='aadaab'){ const a = AADAAB_TOPICS.find(n=>n.id===id); return a && { type:'Aadaab-e-Zindagi', ar:'', title:a.title, sub:aadaabCatInfo(a.cat).label, open:()=>{ __navCtx=null; openAadaabDetail(a); } }; }
   return null;
 }
 function renderBookmarks(){
@@ -2282,6 +2304,103 @@ function openQuranWordDetail(w){
   document.getElementById('qwordImgBtn').onclick = ()=> shareCard({ kind:'Qur’ani Lafz', arabic:w.ar, title:w.tr, sub:w.m, body:w.ex+'\n'+w.exm, foot:'Qur’an mein '+w.occ+' martaba' });
   wirePnBar();
 }
+
+/* ============================================================
+   AADAAB-E-ZINDAGI (daily-life Islamic adab, by category)
+   ============================================================ */
+let aadaabSearch = '', aadaabCat = '__all__';
+function aadaabCatInfo(id){ return AADAAB_CATEGORIES.find(c=>c.id===id) || { label:id, ic:'🪴', color:'#9b6fd6' }; }
+function renderAadaab(){
+  document.getElementById('detailTitle').textContent = 'Aadaab-e-Zindagi';
+  const body = document.getElementById('detailBody');
+  body.innerHTML = `
+    <div style="text-align:center; padding:10px 14px 6px;">
+      <div style="font-size:12.5px; color:var(--sub);">Rozmarra zindagi ko Islami adab aur Sunnah ke mutabiq behtar banane ke liye — safai, huqooq, muashira, akhlaq aur bohot kuch, chhote chhote unwano mein.</div>
+    </div>
+    <div class="search-bar-wrap">
+      <input id="aadaabSearchInput" placeholder="Unwan dhoondhiye..." value="${aadaabSearch}">
+      <button id="aadaabSearchClear" class="search-clear-btn">✕</button>
+    </div>
+    <div class="chip-row" id="aadaabCatRow" style="padding:0 0 10px;"></div>
+    <div id="aadaabList"></div>
+  `;
+  const catRow = body.querySelector('#aadaabCatRow');
+  const allChip = document.createElement('div');
+  allChip.className = 'chip' + (aadaabCat==='__all__' ? ' prayed' : '');
+  allChip.textContent = `🌐 Sabhi (${AADAAB_TOPICS.length})`;
+  allChip.onclick = ()=>{ aadaabCat='__all__'; renderAadaab(); };
+  catRow.appendChild(allChip);
+  AADAAB_CATEGORIES.forEach(c=>{
+    const count = AADAAB_TOPICS.filter(t=>t.cat===c.id).length;
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (aadaabCat===c.id ? ' prayed' : '');
+    chip.textContent = `${c.ic} ${c.label} (${count})`;
+    chip.onclick = ()=>{ aadaabCat = c.id; renderAadaab(); };
+    catRow.appendChild(chip);
+  });
+  wireLiveSearch('aadaabSearchInput', 'aadaabSearchClear', renderAadaabList, v=>{ aadaabSearch = v; });
+  renderAadaabList();
+}
+function renderAadaabList(){
+  const wrap = document.getElementById('aadaabList');
+  const q = aadaabSearch.trim().toLowerCase();
+  const filtered = AADAAB_TOPICS.filter(t=>
+    (aadaabCat==='__all__' || t.cat===aadaabCat) &&
+    (t.title+' '+t.tags.join(' ')+' '+aadaabCatInfo(t.cat).label).toLowerCase().includes(q)
+  );
+  if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi unwan nahi mila.</div>`; return; }
+  wrap.innerHTML = filtered.map((t,i)=>{
+    const c = aadaabCatInfo(t.cat);
+    return `<div class="aad-card" data-i="${i}" style="--aad-c:${t.color};">
+      <div class="aad-ic">${t.ic}</div>
+      <div class="aad-info">
+        <div class="aad-title">${t.title}</div>
+        <div class="aad-tags">${t.tags.map(x=>`<span class="aad-tag">${x}</span>`).join('')}</div>
+        <div class="aad-cat-lbl">${c.ic} ${c.label}</div>
+      </div>
+      <div class="chev">›</div>
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('.aad-card').forEach(el=>{
+    el.onclick = ()=>{
+      const i = parseInt(el.dataset.i);
+      setNavCtx(filtered, i, openAadaabDetail);
+      openAadaabDetail(filtered[i]);
+    };
+  });
+}
+function openAadaabDetail(t){
+  const c = aadaabCatInfo(t.cat);
+  document.getElementById('detailTitle').textContent = t.title;
+  const steps = [
+    { n:'①', ic:'🎬', lbl:'Aaj Hum Kya Karte Hain?', txt:t.scene },
+    { n:'②', ic:'❗', lbl:'Masla Kahan Hai?', txt:t.masla },
+    { n:'③', ic:'📖', lbl:'Islam Humein Kya Sikhata Hai?', txt:t.islam },
+    { n:'④', ic:'🌙', lbl:'Nabi ﷺ Ka Amal', txt:t.nabi },
+    { n:'⑤', ic:'🪞', lbl:'Hum Kahan Galti Karte Hain?', txt:t.galti },
+    { n:'⑥', ic:'✅', lbl:'Aaj Se Ek Chhoti Tabdeeli', txt:t.tabdeeli },
+  ].filter(s=>s.txt);
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-actions">
+      ${bmBtn('aadaab:'+t.id)}
+      <button class="act-btn" id="aadaabImgBtn" title="Share karein">${SHARE_SVG}</button>
+    </div>
+    <div class="aad-head" style="--aad-c:${t.color};">
+      <div class="aad-head-ic">${t.ic}</div>
+      <div class="aad-head-title">${t.title}</div>
+      <div class="aad-tags center">${t.tags.map(x=>`<span class="aad-tag">${x}</span>`).join('')}</div>
+      <div class="aad-cat-pill">${c.ic} ${c.label}</div>
+    </div>
+    ${steps.map(s=>`<div class="aad-step">
+      <div class="aad-step-head"><span class="aad-step-num">${s.n}</span><span class="aad-step-ic">${s.ic}</span><span class="aad-step-lbl">${s.lbl}</span></div>
+      <div class="aad-step-txt">${s.txt}</div>
+    </div>`).join('')}
+    ${pnBarHtml()}
+  `;
+  document.getElementById('aadaabImgBtn').onclick = ()=> shareCard({ kind:'Aadaab-e-Zindagi', title:t.title, sub:c.label, body:t.tabdeeli, foot:'Waqt24 • Aadaab-e-Zindagi' });
+  wirePnBar();
+}
+
 function renderMoreHadees(){
   document.getElementById('detailTitle').textContent="Hadees";
   const cats = ['All', ...new Set(HADEES.map(h=>h.cat))];
@@ -4585,6 +4704,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
     if(which==='dua') renderMoreDua();
     else if(which==='hadees') renderMoreHadees();
     else if(which==='quranWords') renderQuranWords();
+    else if(which==='aadaab') renderAadaab();
     else if(which==='quiz') renderMoreQuiz();
     else if(which==='ramzan') renderMoreRamzan();
     else if(which==='qibla') renderQibla();
@@ -4612,8 +4732,8 @@ document.querySelectorAll('.more-item').forEach(item=>{
   };
 });
 document.getElementById('detailBack').onclick = closeModal;
-['renderMoreDua','renderMoreHadees','renderQuranWords','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
-['openDuaDetail','openHadeesDetail','openQuranWordDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla'].forEach(n=>navWrap(n,1));
+['renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
+['openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla'].forEach(n=>navWrap(n,1));
 ['renderShabdDetail','renderQuizQuestion','renderQuizResult','renderMythQuizQuestion','renderMythQuizResult'].forEach(n=>navWrap(n,2));
 navWrap('renderReviewList',3);
 (function(){
