@@ -1542,12 +1542,12 @@ function renderHome(){
       if(now >= effStart){
         const pct = Math.min(100, Math.max(0, (now-effStart)/(fajrRow.start-effStart)*100));
         meterHtml = `<div class="meterWrap"><div class="meterFill" style="width:${100-pct}%; background:${meterColor}"></div></div>`;
-        remainHtml = `<div class="remainText"><span class="remainLabel">Waqt Baki:</span> <span class="remainValue">${fmtRemain(fajrRow.start-now)}</span></div>`;
+        remainHtml = `<div class="remainText"><span class="remainLabel">Waqt Baaqi:</span> <span class="remainValue">${fmtRemain(fajrRow.start-now)}</span></div>`;
       }
     } else if(isLive){
       const pct = Math.min(100, Math.max(0, (now-p.start)/(p.end-p.start)*100));
       meterHtml = `<div class="meterWrap"><div class="meterFill" style="width:${100-pct}%; background:${meterColor}"></div></div>`;
-      remainHtml = `<div class="remainText"><span class="remainLabel">Waqt Baki:</span> <span class="remainValue">${fmtRemain(p.end-now)}</span></div>`;
+      remainHtml = `<div class="remainText"><span class="remainLabel">Waqt Baaqi:</span> <span class="remainValue">${fmtRemain(p.end-now)}</span></div>`;
     }
 
     let dotsSlot = '';

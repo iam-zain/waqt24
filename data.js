@@ -1537,8 +1537,8 @@ const HOWTO_GROUPS = [
 ];
 const HOWTO_CARDS = [
   { g:'main', ic:'🏡', t:{ rur:'Maskan (Home)', en:'Maskan (Home)' },
-    d:{ rur:"Yahan aaj ki namaz, sehri, iftar aur nawafil ke auqaat ek list mein dikhte hain. Chalta hua waqt highlight hota hai aur neeche 'Waqt Baki' ka bar dikhta hai. Upar ‹ › se doosre din dekh sakte hain; 'Aaj' dabane par wapas aaj par aa jayenge. Sheher ka naam dabane se Jagah ki setting khul jati hai.",
-        en:"Shows today's prayer, sehri, iftar and nafl times in one list. The current time slot is highlighted with a 'Waqt Baki' (time left) bar. Use ‹ › to view other days and tap 'Aaj' to return to today. Tap the city name to open the Location settings." } },
+    d:{ rur:"Yahan aaj ki namaz, sehri, iftar aur nawafil ke auqaat ek list mein dikhte hain. Chalta hua waqt highlight hota hai aur neeche 'Waqt Baaqi' ka bar dikhta hai. Upar ‹ › se doosre din dekh sakte hain; 'Aaj' dabane par wapas aaj par aa jayenge. Sheher ka naam dabane se Jagah ki setting khul jati hai.",
+        en:"Shows today's prayer, sehri, iftar and nafl times in one list. The current time slot is highlighted with a 'Waqt Baaqi' (time left) bar. Use ‹ › to view other days and tap 'Aaj' to return to today. Tap the city name to open the Location settings." } },
   { g:'main', ic:'✅', t:{ rur:'Namaz Tracker (✓ ~ ⏳)', en:'Namaz Tracker (✓ ~ ⏳)' },
     d:{ rur:"Har Farz namaz ke saath 3 nishan hain: ✓ (waqt par padh li), ~ (qaza padhi), ⏳ (baaki hai). Dobara dabane se nishan hat jata hai. Upar '5 Farz Namaz' wale bataon se paanchon ek saath mark ho jati hain.",
         en:"Each Farz prayer has three marks: ✓ (prayed on time), ~ (prayed late/qaza) and ⏳ (pending). Tap again to clear. The '5 Farz Namaz' buttons at the top mark all five at once." } },
