@@ -2258,6 +2258,7 @@ let hadeesFilter='All', hadeesSearch='';
 /* Icon and accent colour per dua category; chips and cards share the Aadaab-e-Zindagi look */
 const DUA_CAT_META = { 'Rabbana':['🤲','#2bb38a'], 'Roz Marra':['🌙','#3a4d8f'], 'Khana':['🍽️','#c0563f'], 'Safar':['🧭','#3f8fe0'], 'Masjid':['🕌','#9b6fd6'], 'Pareshani':['💪','#e0893f'], 'Ghar':['🏠','#d6708f'], 'Ramzan':['🌙','#c79a2e'] };
 function duaMeta(cat){ return DUA_CAT_META[cat] || ['🤲','#5b8def']; }
+function isQuranDua(d){ return /^Qur/.test(d.ref || ''); }
 function renderMoreDua(){
   document.getElementById('detailTitle').textContent="Du'a";
   const body = document.getElementById('detailBody');
@@ -2278,6 +2279,12 @@ function renderMoreDua(){
   allChip.textContent = `🌐 Sabhi (${DUAS.length})`;
   allChip.onclick = ()=>{ duaCat='__all__'; renderMoreDua(); };
   catRow.appendChild(allChip);
+  /* Every dua whose reference is a Quran verse, across all categories (Rabbana included) */
+  const quranChip = document.createElement('div');
+  quranChip.className = 'chip' + (duaCat==='__quran__' ? ' prayed' : '');
+  quranChip.textContent = `📖 Qur'ani Dua (${DUAS.filter(d=>isQuranDua(d)).length})`;
+  quranChip.onclick = ()=>{ duaCat='__quran__'; renderMoreDua(); };
+  catRow.appendChild(quranChip);
   [...new Set(DUAS.map(d=>d.cat))].sort((a,b)=>a.localeCompare(b)).forEach(cat=>{
     const count = DUAS.filter(d=>d.cat===cat).length;
     const chip = document.createElement('div');
@@ -2294,7 +2301,7 @@ function renderDuaList(){
   const wrap = document.getElementById('duaList');
   const q = duaSearch.trim().toLowerCase();
   const filtered = DUAS.filter(d=>
-    (duaCat==='__all__' || d.cat===duaCat) &&
+    (duaCat==='__all__' || (duaCat==='__quran__' ? isQuranDua(d) : d.cat===duaCat)) &&
     (d.title+' '+d.cat+' '+(d.tags||[]).join(' ')+' '+d.translit+' '+d.meaning).toLowerCase().includes(q)
   ).sort((a,b)=>a.title.localeCompare(b.title));
   if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi dua nahi mili.</div>`; return; }
