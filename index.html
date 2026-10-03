@@ -2288,7 +2288,7 @@ function renderDuaList(){
   const filtered = DUAS.filter(d=>
     (duaCat==='__all__' || d.cat===duaCat) &&
     (d.title+' '+d.cat+' '+(d.tags||[]).join(' ')+' '+d.translit+' '+d.meaning).toLowerCase().includes(q)
-  );
+  ).sort((a,b)=>a.title.localeCompare(b.title));
   if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi dua nahi mili.</div>`; return; }
   wrap.innerHTML = filtered.map((d,i)=>{
     const [ic, color] = duaMeta(d.cat);
@@ -2554,7 +2554,7 @@ function renderMoreHadees(){
 function renderHadeesList(){
   const wrap = document.getElementById('hList');
   const q = hadeesSearch.trim().toLowerCase();
-  const items = HADEES.filter(h=> (hadeesFilter==='All'||h.cat===hadeesFilter) && (h.txt+' '+h.src+' '+h.cat).toLowerCase().includes(q));
+  const items = HADEES.filter(h=> (hadeesFilter==='All'||h.cat===hadeesFilter) && (h.txt+' '+h.src+' '+h.cat).toLowerCase().includes(q)).sort((a,b)=>a.txt.localeCompare(b.txt));
   if(!items.length){ wrap.innerHTML = `<div class="empty-state">Koi hadees nahi mili.</div>`; return; }
   wrap.innerHTML = items.map((h,i)=>`<div class="aad-card" data-i="${i}" style="--aad-c:#c79a2e;">
       <div class="aad-ic">📜</div>
