@@ -1,6 +1,6 @@
 /* Static content data for Waqt24 (Du'a, Hadees, Ilm names/words/myths, quiz bank). Loaded before the main script in index.html. */
 const DUAS = [
-  {cat:'Roz Marra', title:'Sone ki Dua', arabic:'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا', translit:"Bismika Allahumma amutu wa ahya", meaning:'Aapke naam se, Ae Allah, main marta hoon aur jeeta hoon.', ref:'Sahih Bukhari'},
+  {cat:'Roz Marra', title:'Sone ki Dua', arabic:'اَللّٰھُمَّ بِاسْمِكَ أَمُوتُ وَأَحْيَا', translit:"Allahumma bismika amutu wa ahya.", meaning:'Aye Allah! Main Tere hi naam par marta (sota) hoon aur zinda hota (jagta) hoon.', ref:'Sahih Bukhari'},
   {cat:'Roz Marra', title:'Jagne ki Dua', arabic:'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ', translit:'Alhamdu lillahil-lazi ahyana ba\'da ma amatana wa ilaihin-nushur', meaning:'Sab tareef Allah ke liye hai jisne humein maut ke baad zinda kiya, aur usi ki taraf lautna hai.', ref:'Sahih Bukhari'},
   {cat:'Khana', title:'Khana Shuru Karne ki Dua', arabic:'بِسْمِ اللَّهِ', translit:'Bismillah', meaning:'Allah ke naam se.', ref:'Sahih Bukhari'},
   {cat:'Khana', title:'Khana Khatam Karne ki Dua', arabic:'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ', translit:'Alhamdu lillahil-lazi at\'amani haza wa razaqanihi min ghairi haulin minni wa la quwwah', meaning:'Sab tareef Allah ke liye hai jisne mujhe yeh khilaya, bagair meri taqat ke.', ref:'Abu Dawood, Tirmidhi'},
