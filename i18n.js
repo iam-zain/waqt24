@@ -401,3 +401,55 @@ I18N_PATTERNS.push(
   [/^(?:📍\s*)?(.+) se Khana Kaaba ki taraf$/, m=>'Towards the Kaaba from ' + m[1]],
   [/^Qibla: (\d+)° \(Shumaal se\)$/, m=>'Qibla: ' + m[1] + '° (from North)']
 );
+
+/* Sweep 2: About, Settings, Backup, Location, Qibla and notification text */
+Object.assign(I18N_EN, {
+ "Iske Baare Mein": "About",
+ "Namaz Timer App: Aapki roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein.": "Namaz Timer App: your daily prayer, sehri, iftar and nafl times at a glance.",
+ "Banaya gaya hai mohabbat se, taake har Musalman apni namaz waqt par ada kar sake. Allah hum sabko namaz ki hifazat karne ki taufeeq de. Ameen.": "Made with love, so that every Muslim can offer their prayer on time. May Allah grant us all the ability to guard our prayer. Ameen.",
+ "Apna Shahar Chunein": "Choose Your City",
+ "Waqt ka Andaaz": "Time Format",
+ "Text ka Size": "Text Size",
+ "Zubaan": "Language",
+ "Yaad-dahaniyan": "Reminders",
+ "Istemal ka Tareeqa": "How to Use",
+ "Data Backup": "Data Backup",
+ "12 Ghante (AM/PM)": "12-hour (AM/PM)",
+ "24 Ghante": "24-hour",
+ "Bohot Bara": "Extra Large",
+ "Bara": "Large",
+ "Aapki Maujooda Jagah": "Your Current Place",
+ "Aapki Saved Jagah": "Your Saved Places",
+ "Ya Shehar Chuniye": "Or Choose a City",
+ "Shehar dhoondhiye...": "Search city...",
+ "Hisaab": "Calculation",
+ "Fajr Angle: 18 darja  |  Isha Angle: 17 darja": "Fajr Angle: 18 degrees  |  Isha Angle: 17 degrees",
+ "Asr Hisaab: Hanafi (standard)": "Asr Calculation: Hanafi (standard)",
+ "Note:": "Note:",
+ "Shafi Asr aur alag Hijri offset ka option future update mein add kiya jayega.": "A Shafi Asr option and a separate Hijri offset will be added in a future update.",
+ "Is jagah ko save karein": "Save this place",
+ "Is browser mein yaad-dahaniyan ka support nahi hai": "Reminders are not supported in this browser",
+ "Yaad-dahaniyan abhi off hain": "Reminders are currently off",
+ "Farz Namaz": "Farz Prayers",
+ "Nafil Namaz": "Nafl Prayers",
+ "Sehri khatm, Iftar shuru": "Sehri ends, Iftar begins",
+ "Tulu / Ghurub / Zawal": "Sunrise / Sunset / Zawal",
+ "Suraj nikalna, doobna, zawal": "Sunrise, sunset, zawal",
+ "Seekhne ki Yaad-dahani": "Learning Reminders",
+ "Yaad-dahani ka waqt": "Reminder time",
+ "Yaad-dahani tab aati hai jab app khuli ho ya background mein ho.": "Reminders arrive whether the app is open or in the background.",
+ "Roz ek naya Islami lafz": "A new Islamic word every day",
+ "Roz ek hadees": "A hadith every day",
+ "Aapka poora data (namaz status, roza, tasbeeh, quiz scores, yaad kiye lafz, pasandeeda, settings) sirf isi phone/browser mein save hota hai. Backup file bana kar rakh lein taake data delete/lost na ho, ya naye phone mein restore kar sakein.": "All your data (prayer status, fasting, tasbeeh, quiz scores, memorised words, favourites, settings) is saved only on this phone or browser. Keep a backup file so the data is not lost, or so you can restore it on a new phone.",
+ "⬇️ Backup Banayein (Export)": "Create Backup (Export)",
+ "Backup Banayein (Export)": "Create Backup (Export)",
+ "Backup file download ho gayi hai.": "Backup file has been downloaded.",
+ "Compass on karne ke liye button dabayein, ya phone ko flat rakh kar upar diya hua angle khud North se naapein.": "Tap the button to turn on the compass, or keep the phone flat and measure the angle above yourself from North.",
+ "Waqt24 ke har hisse ka mukhtasar tareeqa. Har card mein us hisse ki wazahat hai.": "A quick guide to every part of Waqt24. Each card explains one feature."
+});
+
+/* Sweep 2: Qibla labels with values */
+I18N_PATTERNS.push(
+  [/^(?:📍\s*)?(.+) se Khana Kaaba ki taraf$/, m=>'Towards the Kaaba from ' + m[1]],
+  [/^Qibla: (\d+)° \(Shumaal se\)$/, m=>'Qibla: ' + m[1] + '° (from North)']
+);
