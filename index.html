@@ -2465,7 +2465,7 @@ function renderQwordGrid(){
       <div class="aad-info">
         <div class="aad-title">${w.tr}</div>
         <div class="aad-tags"><span class="aad-tag">${w.m}</span></div>
-        <div class="aad-cat-lbl">${w.cat}</div>
+        <div class="aad-cat-lbl">${qwordGroup(w)}</div>
       </div>
       ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
       <div class="chev">›</div>`;
@@ -2475,11 +2475,20 @@ function renderQwordGrid(){
 }
 /* Yaad status key and colour for a Qur'ani word (colour comes from the quiz palette, by category name) */
 function qwordKey(w){ return 'qword:' + w.tr; }
-/* One colour per grammatical category (harf, ism, sifat, zameer, ...), taken in alphabetical order from the palette */
-function qwordColor(w){
-  const cats = [...new Set(QURAN_WORDS.map(x=>String(x.cat)))].sort((a,b)=>a.localeCompare(b));
-  return QUIZ_PALETTE[cats.indexOf(String(w.cat)) % QUIZ_PALETTE.length];
+/* Main grammatical group of a word (its category text is often a mix such as "Harf / zameer") */
+const QWORD_GROUP_COLOR = { 'Ism':'#3f8fe0', 'Sifat':'#e0893f', 'Zameer':'#9b6fd6', 'Harf':'#e0709f', 'Fail (fe\'l)':'#2fb6b0', 'Ism-e-mausool':'#c79a2e', 'Ism-e-ishara':'#5c7cfa', 'Sawaliya lafz':'#c0563f' };
+function qwordGroup(w){
+  const c = String(w.cat).toLowerCase();
+  if(c.includes('zameer')) return 'Zameer';
+  if(c.includes('harf') || c.includes('nida') || c.includes('zarf')) return 'Harf';
+  if(c.includes('sifat')) return 'Sifat';
+  if(c.includes('verb') || c.includes('fail')) return 'Fail (fe\'l)';
+  if(c.includes('mausool')) return 'Ism-e-mausool';
+  if(c.includes('ishara')) return 'Ism-e-ishara';
+  if(c.includes('sawaliya')) return 'Sawaliya lafz';
+  return 'Ism';
 }
+function qwordColor(w){ return QWORD_GROUP_COLOR[qwordGroup(w)]; }
 function openQuranWordDetail(w){
   const key = qwordKey(w), st = duaStatus(key), color = qwordColor(w);
   document.getElementById('detailTitle').textContent = w.tr;
