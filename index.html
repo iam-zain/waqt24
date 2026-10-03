@@ -2629,7 +2629,7 @@ function renderMoreHadees(){
     const count = HADEES.filter(h=>h.cat===c).length;
     const chip = document.createElement('div');
     chip.className = 'chip' + (hadeesFilter===c ? ' prayed' : '');
-    chip.textContent = `📜 ${c} (${count})`;
+    chip.textContent = `${hadeesMeta(c)[0]} ${c} (${count})`;
     chip.onclick = ()=>{ hadeesFilter=c; renderMoreHadees(); };
     catsEl.appendChild(chip);
   });
@@ -2642,8 +2642,8 @@ function renderHadeesList(){
   if(!items.length){ wrap.innerHTML = `<div class="empty-state">Koi hadees nahi mili.</div>`; return; }
   wrap.innerHTML = items.map((h,i)=>{
     const st = duaStatus(hadeesKey(h));
-    return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:#c79a2e;">
-      <div class="aad-ic">📜</div>
+    return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${hadeesMeta(h.cat)[1]};">
+      <div class="aad-ic">${hadeesMeta(h.cat)[0]}</div>
       <div class="aad-info">
         <div class="aad-title">${h.txt.length>110 ? h.txt.slice(0,110).trimEnd()+'...' : h.txt}</div>
         <div class="aad-tags"><span class="aad-tag">${h.src}</span></div>
@@ -2670,6 +2670,9 @@ async function shareText(text){
     showToast('Copy ho gaya');
   }catch(e){ showToast('Share/Copy nahi ho saka'); }
 }
+/* Colour and icon per hadees category */
+const HADEES_CAT_META = { 'Akhlaq':['🤝','#3f8fe0'], 'Ilm':['📚','#9b6fd6'], 'Namaz':['🕌','#2fb6b0'], 'Ramzan':['🌙','#c79a2e'], 'Sadqa':['💝','#e0893f'] };
+function hadeesMeta(cat){ return HADEES_CAT_META[cat] || ['📜','#5c7cfa']; }
 /* Yaad status key for a hadees (hadees have no title, so the start of the text identifies it) */
 function hadeesKey(h){ return 'hadees:' + h.txt.slice(0,60); }
 function openHadeesDetail(h){
@@ -2681,11 +2684,11 @@ function openHadeesDetail(h){
       ${bmBtn('hadees:'+h.txt.slice(0,40))}
       <button class="act-btn" id="hadeesImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
-    <div class="aad-head status-${st||'none'}" style="--aad-c:#c79a2e;">
-      <div class="aad-head-ic">📜</div>
+    <div class="aad-head status-${st||'none'}" style="--aad-c:${hadeesMeta(h.cat)[1]};">
+      <div class="aad-head-ic">${hadeesMeta(h.cat)[0]}</div>
       <div class="aad-head-title">${h.cat}</div>
       <div class="ref" style="margin:-4px 0 8px;">Hawala: ${h.src}</div>
-      <div class="aad-cat-pill">📜 Hadees</div>
+      <div class="aad-cat-pill">${hadeesMeta(h.cat)[0]} Hadees</div>
     </div>
     <div class="dua-detail">
       <div class="aad-guide-sec hadees-sec">
