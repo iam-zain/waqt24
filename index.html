@@ -2429,7 +2429,7 @@ function openDuaDetail(d){
   wirePnBar();
 }
 
-let qwordView='grid', qwordSearch='';
+let qwordView='grid', qwordSearch='', qwordGroupFilter='__all__';
 function renderQuranWords(){
   document.getElementById('detailTitle').textContent = "Qur’ani Alfaaz Aur Ma’ani";
   const body = document.getElementById('detailBody');
@@ -2441,12 +2441,25 @@ function renderQuranWords(){
       <input id="qwordSearchInput" placeholder="Lafz dhoondhiye...">
       <button id="qwordSearchClear" class="search-clear-btn">✕</button>
     </div>
+    <div class="chip-row" id="qwordGroupRow" style="padding:0 0 10px;"></div>
     <div class="view-toggle">
       <button id="qwordGridBtn" class="${qwordView==='grid'?'active':''}">Grid</button>
       <button id="qwordListBtn" class="${qwordView==='list'?'active':''}">List</button>
     </div>
     <div class="dua-grid ${qwordView==='list'?'list':''}" id="qwordGrid"></div>
   `;
+  /* Group tabs: All, then each grammatical group with its count */
+  const groupRow = body.querySelector('#qwordGroupRow');
+  const countOf = g => QURAN_WORDS.filter(w=>qwordGroup(w)===g).length;
+  const tab = (key, label, count, color) => {
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (qwordGroupFilter===key ? ' prayed' : '');
+    chip.textContent = `${label} (${count})`;
+    chip.onclick = ()=>{ qwordGroupFilter = key; renderQuranWords(); };
+    groupRow.appendChild(chip);
+  };
+  tab('__all__', '🌐 Sabhi', QURAN_WORDS.length);
+  Object.keys(QWORD_GROUP_COLOR).forEach(g=> tab(g, g, countOf(g)));
   document.getElementById('qwordSearchInput').value = qwordSearch;
   wireLiveSearch('qwordSearchInput', 'qwordSearchClear', renderQwordGrid, v=>{ qwordSearch = v; });
   body.querySelector('#qwordGridBtn').onclick = ()=>{ qwordView='grid'; renderQuranWords(); };
@@ -2457,7 +2470,10 @@ function renderQwordGrid(){
   const grid = document.getElementById('qwordGrid');
   const q = qwordSearch.trim().toLowerCase();
   grid.innerHTML = '';
-  const filtered = QURAN_WORDS.filter(w=> (w.tr+' '+w.m+' '+w.cat+' '+w.ar).toLowerCase().includes(q));
+  /* Filter by group, then sort by number of occurrences in the Quran (highest first) */
+  const filtered = QURAN_WORDS
+    .filter(w=> (qwordGroupFilter==='__all__' || qwordGroup(w)===qwordGroupFilter) && (w.tr+' '+w.m+' '+w.cat+' '+w.ar).toLowerCase().includes(q))
+    .sort((a,b)=> Number(b.occ) - Number(a.occ));
   if(!filtered.length){ grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Koi lafz nahi mila.</div>`; return; }
   filtered.forEach((w,i)=>{
     const c = document.createElement('div');
@@ -5018,7 +5034,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
     /* Opening a section from the menu starts fresh: "Sabhi" selected and an empty search */
     if(['dua','hadees','aadaab','quranWords'].includes(which)){
       duaCat='__all__'; duaSearch=''; hadeesFilter='All'; hadeesSearch='';
-      aadaabCat='__all__'; aadaabSearch=''; qwordSearch='';
+      aadaabCat='__all__'; aadaabSearch=''; qwordSearch=''; qwordGroupFilter='__all__';
     }
     if(which==='dua') renderMoreDua();
     else if(which==='hadees') renderMoreHadees();
