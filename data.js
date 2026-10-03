@@ -1208,6 +1208,114 @@ const AADAAB_TOPICS = [
     nabi:null,
     galti:"Hum sochte hain '10 minute bol deta hoon, raste mein dekh lenge', phir traffic aa jaata hai, parking nahi milti, koi kaam aur aa jaata hai, aur 10 minute kab 30 ban jaate hain pata hi nahi chalta. Masla sirf late hona nahi, masla unrealistic waada karna hai.",
     tabdeeli:"Aaj se jab koi pooche 'kitni der mein aaoge', toh apni best-case timing nahi, realistic timing bataiye, jaise 'takriban 30 minute, traffic par depend karega'. Thoda zyada waqt batana behtar hai, baar baar 'bas 5 minute' kehkar kisi ko wait karwana nahi." },
+
+  { id:"khane-ke-aadaab", title:"Khane Ke Aadaab", tags:["Khane Ka Saleeqa","Sunnah","Shukr"], ic:"🍽️", cat:"khana", color:"#c0563f", guide:true,
+    intro:"Khana sirf bhook mitane ka zariya nahi, Allah ki ek nemat hai. Isliye khane ka bhi apna saleeqa hai: khane se pehle Allah ko yaad karna, saaf-suthra rehna, dahine haath se khana, apne saamne se khana, israf se bachna, doosron ka khayal rakhna aur Allah ka shukr ada karna.",
+    sections:[
+      { heading:"Khane Se Pehle", ic:"🌿", items:[
+        "Khana khane se pehle dono haath achhi tarah dhoyein aur safai ka khayal rakhein.",
+        "Munh ki safai aur kulla ka bhi khayal rakhein, khaas taur par jab munh mein badbu ho.",
+        "Khana shuru karne se pehle Bismillah padhein.",
+        "Khane ke liye masnoon dua yaad ho toh padh sakte hain.",
+        "Dahine haath se khayein. Nabi ﷺ ne khane ke waqt Allah ka naam lene aur dahine haath se khane ki hidayat di.",
+        "Saleeqe, sukoon aur haya ke saath baith kar khayein.",
+        "Khana khate waqt apni posture aur libaas ka bhi khayal rakhein.",
+        "Khana Allah ki nemat samajh kar shukr ke ehsaas ke saath shuru karein."
+      ] },
+      { heading:"Khana Kaise Khayein", ic:"🍛", items:[
+        "Dahine haath se khayein.",
+        "Shared dish ho toh apne saamne se khayein. Doosron ke saamne haath na le jayein.",
+        "Jab khana haath se khana munasib ho, toh teen ungliyon se khana Sunnah mein milta hai: angutha, shahadat ki ungli aur beech wali ungli.",
+        "Khane ko na bahut jaldi aur na be-wajah bahut dheere khayein. Sukoon aur saleeqe se khayein.",
+        "Luqma chhota aur manageable rakhein.",
+        "Munh mein luqma ho toh baat karne se bachein.",
+        "Munh bhar kar baat na karein.",
+        "Khate waqt aise na khayein ke saamne wale ko ghin ya takleef ho.",
+        "Ungliyon aur haath ko khane ke darmiyan jitna mumkin ho saaf rakhein.",
+        "Shared food ko idhar-udhar na karein aur apni pasand ki cheez dhoondhne ke liye poora bartan na ulat-pulat karein.",
+        "Doosron ke liye bhi khana chhodein; sirf apni pasand ki cheezein jama na karein.",
+        "Saath baith kar khane walon ka khayal rakhein.",
+        "Kisi ke portion ya luqme par nazar na rakhein aur na hi uski plate ko bina zarurat touch karein."
+      ] },
+      { heading:"Khane Ke Saath Dil Ka Rawayya", ic:"🤲", items:[
+        "Khana Allah ki nemat samajh kar khayein.",
+        "Khate waqt Allah ka shukr yaad rakhein.",
+        "Khane ko dekh kar un logon ko bhi yaad karein jo is waqt bhook ya tangdasti ka saamna kar rahe hain.",
+        "Allah se dua karein ke woh zaruratmandon ke liye aasani paida farmaye.",
+        "Khana milne par na-shukri aur shikayat ke bajaye shukr ka rawayya rakhein.",
+        "Kisi khane ko pasand na aaye toh uski burai na karein. Nabi ﷺ kisi khane ko pasand na karte toh use chhod dete, lekin uski burai nahi karte the.",
+        "Khana pasand aaye toh khana banane wale ki tareef aur shukriya karein.",
+        "Khana banane wale ki mehnat ko halka na samjhein."
+      ] },
+      { heading:"Khane Mein Aitidaal", ic:"🍽️", items:[
+        "Zyada na khayein.",
+        "Pet ko har waqt bhar kar rakhna zaroori nahi.",
+        "Nabi ﷺ ne khane mein aitidaal ki taleem di aur ek hissa khane, ek hissa peene aur ek hissa saans ke liye rakhne ka zikr farmaya.",
+        "Khane ko 'paisa vasool' karne ke liye zarurat se zyada na khayein.",
+        "Buffet mein har cheez plate mein bhar lene ke bajaye jitna kha sakte hain utna hi lein.",
+        "Pehle kam lein; zarurat ho toh dobara le sakte hain.",
+        "Plate mein khana chhod kar waste na karein.",
+        "Qur'an ke mutabiq khaaiye aur peejiye, lekin israf na kijiye."
+      ] },
+      { heading:"Saath Khane Ke Aadaab", ic:"🤝", items:[
+        "Mil baith kar khana mohabbat aur apnapan badhata hai.",
+        "Shared dish mein apne saamne se khayein.",
+        "Saamne wale ka bhi khayal rakhein.",
+        "Achhi cheez sirf apne liye na kheench lein.",
+        "Doosre ke portion ko kam na karein.",
+        "Kisi ke luqme, plate ya khane ko bina ijazat na chhuyein.",
+        "Bachchon aur buzurgon ka bhi khayal rakhein.",
+        "Khate waqt doosron ko embarrass na karein.",
+        "Kisi ke khane ki quantity, tareeqa ya speed ka mazaak na banayein.",
+        "Dastarkhwan ko be-wajah gossip, gheebat aur behas ki jagah na banayein."
+      ] },
+      { heading:"Luqma Gir Jaaye Toh", ic:"🫓", items:[
+        "Agar khane ka luqma gir jaaye aur us par lagi gandagi ko saaf karna mumkin ho, toh use saaf karke khaya ja sakta hai.",
+        "Nabi ﷺ ne giray hue luqme ko uthakar uski gandagi door karne aur khane ki taleem di.",
+        "Dastarkhwan par gira hua luqma agar saaf ho sakta hai toh use bekaar na samjhein.",
+        "Agar luqma aisi jagah gira ho jahan use hygienically saaf karna mumkin na ho, toh sehat aur safai ka khayal rakhein.",
+        "Har giray hue luqme ko bina soche uthana maqsad nahi; Sunnah ke saath safai aur sehat ka bhi khayal rakhein."
+      ] },
+      { heading:"Khane Ke Baad Haath Aur Plate", ic:"👅", items:[
+        "Khana khane ke baad plate mein bache hue saaf khane ko be-wajah na chhodein.",
+        "Apne bartan ko jitna mumkin ho saaf karke khayein, khane ko waste na karein.",
+        "Nabi ﷺ se ungliyon aur bartan ko saaf karne ka zikr milta hai, kyunke barkat khane ke kis hisse mein ho, yeh maloom nahi.",
+        "Haath se khaya ho toh ungliyon ko chaatna Sunnah mein milta hai.",
+        "Iske baad haath achhi tarah saaf kar lein.",
+        "Agar spoon ya cutlery use ki ho toh use bhi saleeqe se rakhein.",
+        "Khane ke baad munh ki safai aur kulla karein.",
+        "Zarurat ho toh daanton ki safai bhi karein."
+      ] },
+      { heading:"Agar Aap Mehmaan Hain", ic:"🧑‍🍳", items:[
+        "Mezban ne jo khana pesh kiya hai, uski qadr karein.",
+        "Khane ki kami, miqdar, zaiqa ya intezam par be-wajah tabsira na karein.",
+        "Jitna khana hai utna hi lein.",
+        "Sirf apni pasand ki cheez zyada na lein.",
+        "Khane ke liye baar baar mana karne ke baad bhi zid na karein.",
+        "Mezban ki mehmaan-nawazi ko qadr ki nazar se dekhein.",
+        "Khane ke baad Allah se mezban ke liye dua karein.",
+        "Uthne se pehle munasib taur par ijazat lein."
+      ] },
+      { heading:"Agar Aap Mezban Hain", ic:"🏡", items:[
+        "Mehmaan ko ikhlas ke saath khana pesh karein.",
+        "Khane ke liye peshkash karein, lekin baar baar zid karke mehmaan ko asahaj na karein.",
+        "Mehmaan ki zarurat aur aaram ka khayal rakhein.",
+        "Sirf isliye zyada khana na khilayein ke 'mana karna badtameezi hai'.",
+        "Mehmaan ko izzat aur sukoon dein.",
+        "Dawat ko apni haisiyat se bahar jaakar takalluf ka muqabala na banayein."
+      ] },
+      { heading:"Khane Ke Baad", ic:"🙏", items:[
+        "Allah ka shukr ada karein.",
+        "Khane ke baad ki masnoon dua padhein.",
+        "Dawat mein khaya ho toh mezban ke liye masnoon dua karein.",
+        "Haath dobara dhoyein.",
+        "Kulla karein aur munh ki safai ka khayal rakhein.",
+        "Apni plate/cup ko be-wajah wahin na chhodein.",
+        "Agar aap kisi restaurant, office ya shared dining jagah mein hain, toh jo cheez aap khud safely aur aasani se samet sakte hain, use wahin chhod kar na jayein.",
+        "Mehmaan hon toh shukriya ada karein aur ijazat lekar uthein."
+      ] },
+    ],
+    closing:"Khana sirf bhook mitana nahi hai. Ek Muslim ke liye khane mein bhi Bismillah hai, shukr hai, safai hai, Sunnah hai, aitidaal hai, doosron ka khayal hai, aur Allah ki nemat ki qadr hai. Khana khaiye, nemat ki qadr kijiye, israf se bachiye aur saleeqe ke saath khaiye." },
 ];
 const HOWTO_GROUPS = [
   { key:'main', rur:'Asal Tabs', en:'Main Tabs' },

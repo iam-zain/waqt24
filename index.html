@@ -565,6 +565,13 @@ body{
 .aad-status-btn{ flex:1; display:flex; align-items:center; justify-content:center; gap:5px; min-height:40px; padding:0 8px; border-radius:11px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:11.5px; font-weight:700; cursor:pointer; font-family:inherit; text-align:center; line-height:1.3; }
 .aad-status-btn.soch.on{ background:#e0b43f; border-color:#e0b43f; color:#2b2208; }
 .aad-status-btn.amal.on{ background:var(--green); border-color:var(--green); color:#06210f; }
+.aad-intro{ font-size:13px; line-height:1.6; color:var(--sub); text-align:center; padding:0 4px 16px; }
+.aad-guide-sec{ margin:0 0 14px; padding:14px; background:var(--card); border:1px solid var(--line); border-radius:14px; }
+.aad-guide-head{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.aad-guide-list{ margin:0; padding:0 0 0 18px; list-style:disc; }
+.aad-guide-list li{ font-size:13px; line-height:1.6; color:var(--text); margin-bottom:8px; }
+.aad-guide-list li:last-child{ margin-bottom:0; }
+.aad-guide-closing{ margin:6px 0 0; padding:16px; background:var(--card2); border:1px dashed var(--line); border-radius:14px; font-size:13px; line-height:1.7; text-align:center; font-style:italic; color:var(--text); }
 
 /* ---------- 99 NAMES (Allah / Muhammad ﷺ) ---------- */
 .names-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:0 14px 20px; }
@@ -894,8 +901,8 @@ body{
   </div>
 </div>
 
-<script src="data.js?v=26"></script>
-<script src="i18n.js?v=26"></script>
+<script src="data.js?v=28"></script>
+<script src="i18n.js?v=28"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -2391,14 +2398,27 @@ function openAadaabDetail(t){
   const c = aadaabCatInfo(t.cat);
   const st = aadaabStatus(t.id);
   document.getElementById('detailTitle').textContent = t.title;
-  const steps = [
-    { n:'①', ic:'🎬', lbl:'Aaj Hum Kya Karte Hain?', txt:t.scene },
-    { n:'②', ic:'❗', lbl:'Masla Kahan Hai?', txt:t.masla },
-    { n:'③', ic:'📖', lbl:'Islam Humein Kya Sikhata Hai?', txt:t.islam },
-    { n:'④', ic:'🌙', lbl:'Nabi ﷺ Ka Amal', txt:t.nabi },
-    { n:'⑤', ic:'🪞', lbl:'Hum Kahan Galti Karte Hain?', txt:t.galti },
-    { n:'⑥', ic:'✅', lbl:'Aaj Se Ek Chhoti Tabdeeli', txt:t.tabdeeli },
-  ].filter(s=>s.txt);
+  const bodyHtml = t.guide ? `
+    <div class="aad-intro">${t.intro}</div>
+    ${t.sections.map(s=>`<div class="aad-guide-sec">
+      <div class="aad-guide-head"><span class="aad-step-ic">${s.ic}</span><span class="aad-step-lbl">${s.heading}</span></div>
+      <ul class="aad-guide-list">${s.items.map(it=>`<li>${it}</li>`).join('')}</ul>
+    </div>`).join('')}
+    <div class="aad-guide-closing">${t.closing}</div>
+  ` : (()=>{
+    const steps = [
+      { n:'①', ic:'🎬', lbl:'Aaj Hum Kya Karte Hain?', txt:t.scene },
+      { n:'②', ic:'❗', lbl:'Masla Kahan Hai?', txt:t.masla },
+      { n:'③', ic:'📖', lbl:'Islam Humein Kya Sikhata Hai?', txt:t.islam },
+      { n:'④', ic:'🌙', lbl:'Nabi ﷺ Ka Amal', txt:t.nabi },
+      { n:'⑤', ic:'🪞', lbl:'Hum Kahan Galti Karte Hain?', txt:t.galti },
+      { n:'⑥', ic:'✅', lbl:'Aaj Se Ek Chhoti Tabdeeli', txt:t.tabdeeli },
+    ].filter(s=>s.txt);
+    return steps.map(s=>`<div class="aad-step">
+      <div class="aad-step-head"><span class="aad-step-num">${s.n}</span><span class="aad-step-ic">${s.ic}</span><span class="aad-step-lbl">${s.lbl}</span></div>
+      <div class="aad-step-txt">${s.txt}</div>
+    </div>`).join('');
+  })();
   document.getElementById('detailBody').innerHTML = `
     <div class="detail-actions">
       ${bmBtn('aadaab:'+t.id)}
@@ -2410,17 +2430,14 @@ function openAadaabDetail(t){
       <div class="aad-tags center">${t.tags.map(x=>`<span class="aad-tag">${x}</span>`).join('')}</div>
       <div class="aad-cat-pill">${c.ic} ${c.label}</div>
     </div>
-    ${steps.map(s=>`<div class="aad-step">
-      <div class="aad-step-head"><span class="aad-step-num">${s.n}</span><span class="aad-step-ic">${s.ic}</span><span class="aad-step-lbl">${s.lbl}</span></div>
-      <div class="aad-step-txt">${s.txt}</div>
-    </div>`).join('')}
+    ${bodyHtml}
     <div class="aad-status-row">
       <button class="aad-status-btn soch ${st==='soch'?'on':''}" id="aadaabSochBtn">💭 Is Par Socha Jayega</button>
       <button class="aad-status-btn amal ${st==='amal'?'on':''}" id="aadaabAmalBtn">✅ Is Par Amal Kiya Jayega!</button>
     </div>
     ${pnBarHtml()}
   `;
-  document.getElementById('aadaabImgBtn').onclick = ()=> shareCard({ kind:'Aadaab-e-Zindagi', title:t.title, sub:c.label, body:t.tabdeeli, foot:'Waqt24 • Aadaab-e-Zindagi' });
+  document.getElementById('aadaabImgBtn').onclick = ()=> shareCard({ kind:'Aadaab-e-Zindagi', title:t.title, sub:c.label, body:t.guide ? t.closing : t.tabdeeli, foot:'Waqt24 • Aadaab-e-Zindagi' });
   document.getElementById('aadaabSochBtn').onclick = ()=>{ setAadaabStatus(t.id, 'soch'); openAadaabDetail(t); };
   document.getElementById('aadaabAmalBtn').onclick = ()=>{ setAadaabStatus(t.id, 'amal'); openAadaabDetail(t); };
   wirePnBar();
