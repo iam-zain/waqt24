@@ -2414,15 +2414,15 @@ function openDuaDetail(d){
         <div class="arabic dua-ar">${d.arabic}</div>
       </div>
       <div class="aad-guide-sec dua-sec-tr">
-        <div class="aad-guide-head"><span class="aad-step-lbl">Talaffuz (Transliteration)</span></div>
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Transliteration' : 'Talaffuz (Transliteration)'}</span></div>
         <div class="translit dua-tr">${d.translit}</div>
       </div>
       <div class="aad-guide-sec dua-sec-ur">
-        <div class="aad-guide-head"><span class="aad-step-lbl">Tarjuma (Roman Urdu)</span></div>
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Meaning' : 'Tarjuma (Roman Urdu)'}</span></div>
         <div class="meaning dua-ur">${dMean(d)}</div>
       </div>
       ${d.info ? `<div class="aad-guide-sec dua-sec-info">
-        <div class="aad-guide-head"><span class="aad-step-lbl">Hadees aur Fazilat</span></div>
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Hadith & Virtue' : 'Hadees aur Fazilat'}</span></div>
         <div class="meaning dua-info">${dInfo(d)}</div>
       </div>` : ''}
       <div class="dua-amen">آمیــــــــــــــــــــــــــــــــــــــــن یارب العالمیــــــــــــــــــــــــــــــــــــــــن</div>
