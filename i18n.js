@@ -373,7 +373,12 @@ Object.assign(I18N_EN, {
  "Result Share Karein": "Share Result",
  "Profile Delete Karein": "Delete Profile",
  "Teesra Ashra, Jahannam se Nijat": "Third Ashra: Freedom from Hellfire",
- "Ramzan kal shuru hoga": "Ramzan begins tomorrow"
+ "Ramzan kal shuru hoga": "Ramzan begins tomorrow",
+ "5 Farz Namaz ke Buttons": "5 Farz Prayer Buttons",
+ "Hara (Padh Li)": "Green (Prayed)",
+ "Peela (Qaza Padhi)": "Yellow (Qaza Prayed)",
+ "Paanchon Farz ek saath \"Padh Li\" ho jayenge.": "All five Farz prayers will be marked as \"Prayed\".",
+ "Paanchon Farz ek saath \"Qaza Padhi\" ho jayenge.": "All five Farz prayers will be marked as \"Qaza Prayed\"."
 });
 
 /* Sweep: counted chips, templated labels */
