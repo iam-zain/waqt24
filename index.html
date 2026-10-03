@@ -696,6 +696,8 @@ body{
 .pn-end{ display:flex; gap:8px; margin:18px 0 4px; }
 .pn-end .pn-btn{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:12px; min-height:44px; }
 .pn-btn.pn-nextcat{ color:var(--text); background:var(--card); border-color:var(--line); }
+.pn-end .pn-btn:active{ color:#fff; background:var(--accent); border-color:var(--accent); }
+.pn-btn.pn-nextcat:active{ background:var(--green); border-color:var(--green); color:#06210f; }
 .pn-btn.pn-prev{ background:color-mix(in srgb, #5b8def 16%, transparent); color:#5b8def; }
 .pn-btn.pn-next{ background:color-mix(in srgb, var(--green) 18%, transparent); color:var(--green); }
 .pn-btn .pn-ic{ font-size:12px; }
@@ -2196,8 +2198,8 @@ function pnBarHtml(){
   const nextLbl = isEn() ? 'Next category ›' : 'Agli category ›';
   const hasNext = !!catNextKey();
   return `<div class="pn-end">
-    <button class="pn-btn pn-back" id="pnBackBtn">${backLbl}</button>
-    ${hasNext ? `<button class="pn-btn pn-nextcat" id="pnNextCatBtn">${nextLbl}</button>` : ''}
+    <button class="pn-btn pn-back" id="pnBackBtn"><span class="pn-ic">📂</span>${backLbl}</button>
+    ${hasNext ? `<button class="pn-btn pn-nextcat" id="pnNextCatBtn">${nextLbl}<span class="pn-ic">⏭️</span></button>` : ''}
   </div>`;
 }
 /* Category settings for the in-section navigation (end-of-section buttons) */
