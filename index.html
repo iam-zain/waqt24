@@ -2308,6 +2308,8 @@ function dInfo(d){ return isEn() && d.eninfo ? d.eninfo : d.info; }
 function hTxt(h){ return isEn() && h.en ? h.en : h.txt; }
 function wMean(w){ return isEn() && w.en ? w.en : w.m; }
 function wEx(w){ return isEn() && w.exen ? w.exen : w.exm; }
+/* Myth-buster item in the current language (Roman Urdu or English) */
+function mL(m){ return isEn() && m.enq ? {q:m.enq, optA:m.enA, optB:m.enB, explain:m.enExplain} : m; }
 function sMean(w){ return isEn() && w.en ? w.en : w.m; }
 function sEx(w){ return isEn() && w.exen ? w.exen : w.ex; }
 /* Quiz item as [question, options, correct, category]; English version when the language is English */
@@ -3309,10 +3311,10 @@ function renderMythQuizQuestion(){
   const body = document.getElementById('detailBody');
   body.innerHTML = `
     <div class="quiz-progress"><div class="quiz-progress-fill" style="width:${(qs.idx/qs.questions.length)*100}%"></div></div>
-    <div class="quiz-q">${m.q}</div>
+    <div class="quiz-q">${mL(m).q}</div>
     <div class="quiz-opts" id="mythQuizOpts">
-      <button class="quiz-opt" data-i="0"><b class="opt-letter">A</b> ${m.optA}</button>
-      <button class="quiz-opt" data-i="1"><b class="opt-letter">B</b> ${m.optB}</button>
+      <button class="quiz-opt" data-i="0"><b class="opt-letter">A</b> ${mL(m).optA}</button>
+      <button class="quiz-opt" data-i="1"><b class="opt-letter">B</b> ${mL(m).optB}</button>
     </div>
     <div id="mythQuizRevealWrap"></div>
     <div id="mythQuizNextWrap" style="margin-top:16px; text-align:center;"></div>
@@ -3328,7 +3330,7 @@ function renderMythQuizQuestion(){
         else if(bi===chosen) b.classList.add('wrong');
       });
       if(chosen===m.correctIdx) qs.score++;
-      else qs.wrong.push({ q:m.q, chosenText:(chosen===0?'A. '+m.optA:'B. '+m.optB), correctText:(m.correctIdx===0?'A. '+m.optA:'B. '+m.optB), explain:m.explain });
+      else qs.wrong.push({ q:m.q, chosenText:(chosen===0?'A. '+mL(m).optA:'B. '+mL(m).optB), correctText:(m.correctIdx===0?'A. '+mL(m).optA:'B. '+mL(m).optB), explain:mL(m).explain });
       document.getElementById('mythQuizRevealWrap').innerHTML = `<div class="quiz-reveal"><b>✅ Sahi Jawab: Option ${m.correctIdx===0?'A':'B'}</b><div style="margin-top:6px;">${m.explain}</div></div>`;
       const isLast = qs.idx===qs.questions.length-1;
       document.getElementById('mythQuizNextWrap').innerHTML = `<button id="mythQuizNextBtn" style="padding:12px 28px; border-radius:12px; border:none; background:var(--accent); color:var(--fardText); font-size:14px; font-weight:700; cursor:pointer;">${isLast?'Result Dekhiye':'Agla Sawal'}</button>`;
@@ -3367,15 +3369,15 @@ function renderMythReadList(){
     ` +
     levels.map(level=>{
       const items = MYTH_BUSTERS.map((m,i)=>({...m,i})).filter(m=>m.level===level);
-      return `<div class="myth-level-title">${level}</div>` + items.map(m=>{
+      return `<div class="myth-level-title">${isEn() && (MYTH_BUSTERS.find(x=>x.level===level)||{}).enLevel || level}</div>` + items.map(m=>{
         return `<div class="myth-card">
-          <div class="q">${m.i+1}. ${m.q}</div>
+          <div class="q">${m.i+1}. ${mL(m).q}</div>
           <div class="myth-opt-row">
-            <div class="myth-opt-btn ${m.correctIdx===0?'correct':''}"><b class="opt-letter">A</b> ${m.optA}</div>
-            <div class="myth-opt-btn ${m.correctIdx===1?'correct':''}"><b class="opt-letter">B</b> ${m.optB}</div>
+            <div class="myth-opt-btn ${m.correctIdx===0?'correct':''}"><b class="opt-letter">A</b> ${mL(m).optA}</div>
+            <div class="myth-opt-btn ${m.correctIdx===1?'correct':''}"><b class="opt-letter">B</b> ${mL(m).optB}</div>
           </div>
           <div class="myth-answer">✅ Sahi Jawab: Option ${m.correctIdx===0?'A':'B'}</div>
-          <div class="myth-explain" style="display:block;">${m.explain}</div>
+          <div class="myth-explain" style="display:block;">${mL(m).explain}</div>
         </div>`;
       }).join('');
     }).join('');
