@@ -532,11 +532,14 @@ body{
 .dua-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; cursor:pointer; }
 .dua-card .aad-tags{ margin-bottom:6px; }
 /* Four separate colours in the dua detail: title, Arabic, transliteration, Roman Urdu (mid-tones, readable in every theme) */
-.dua-detail .dua-h{ font-size:17px; font-weight:800; line-height:1.4; text-align:center; color:#2bb38a; margin-bottom:12px; }
-.dua-detail .dua-ar{ color:#e0a33a; }
-.dua-detail .dua-tr{ color:#5b8def; }
-.dua-detail .dua-ur{ color:#e0709f; }
-.dua-detail .dua-amen{ text-align:center; direction:rtl; font-size:18px; font-weight:800; color:#3cc46b; margin-top:20px; line-height:1.8; }
+.dua-detail .dua-sec-ar{ --sc:#e0a33a; } .dua-detail .dua-sec-tr{ --sc:#5b8def; } .dua-detail .dua-sec-ur{ --sc:#e0709f; }
+.dua-detail .dua-sec-ar .aad-step-lbl{ color:#e0a33a; } .dua-detail .dua-sec-tr .aad-step-lbl{ color:#5b8def; } .dua-detail .dua-sec-ur .aad-step-lbl{ color:#e0709f; }
+.dua-detail .aad-step-lbl{ font-size:12.5px; font-weight:800; }
+.dua-detail .dua-ar{ color:#e0a33a; text-align:right; direction:rtl; font-size:24px; line-height:2; }
+.dua-detail .dua-tr{ color:#5b8def; font-style:italic; font-size:14px; line-height:1.6; }
+.dua-detail .dua-ur{ color:#e0709f; font-size:15px; line-height:1.65; }
+.dua-detail .aad-guide-sec .ref{ margin-top:10px; font-size:12px; color:var(--sub); }
+.dua-detail .dua-amen{ text-align:center; direction:rtl; font-size:18px; font-weight:800; color:#3cc46b; margin:4px 0 0; line-height:1.8; }
 .dua-card .title{ font-size:13.5px; font-weight:700; margin-bottom:4px; }
 .dua-card .prev{ font-size:11.5px; color:var(--sub); line-height:1.4; }
 
@@ -2347,13 +2350,26 @@ function openDuaDetail(d){
       ${bmBtn('dua:'+d.title)}
       <button class="act-btn" id="duaImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
-    <div class="dua-detail">
+    <div class="aad-head status-${duaStatus(d.title)||'none'}" style="--aad-c:${duaMeta(d.cat)[1]};">
+      <div class="aad-head-ic">${duaMeta(d.cat)[0]}</div>
+      <div class="aad-head-title">${d.title}</div>
       <div class="aad-tags center">${duaTagChips(d)}</div>
-      <div class="dua-h">${d.title}</div>
-      <div class="arabic dua-ar">${d.arabic}</div>
-      <div class="translit dua-tr">${d.translit}</div>
-      <div class="meaning dua-ur">${d.meaning}</div>
-      <div class="ref">Hawala: ${d.ref}</div>
+      <div class="aad-cat-pill">${duaMeta(d.cat)[0]} ${d.cat}</div>
+    </div>
+    <div class="dua-detail">
+      <div class="aad-guide-sec dua-sec-ar">
+        <div class="aad-guide-head"><span class="aad-step-lbl">Dua (Arabic)</span></div>
+        <div class="arabic dua-ar">${d.arabic}</div>
+      </div>
+      <div class="aad-guide-sec dua-sec-tr">
+        <div class="aad-guide-head"><span class="aad-step-lbl">Talaffuz (Transliteration)</span></div>
+        <div class="translit dua-tr">${d.translit}</div>
+      </div>
+      <div class="aad-guide-sec dua-sec-ur">
+        <div class="aad-guide-head"><span class="aad-step-lbl">Tarjuma (Roman Urdu)</span></div>
+        <div class="meaning dua-ur">${d.meaning}</div>
+        <div class="ref">Hawala: ${d.ref}</div>
+      </div>
       <div class="dua-amen">آمیــــــــــــــــــــــــــــــــــــــــن يارب العالمیــــــــــــــــــــــــــــــــــــــــن</div>
     </div>
     <div class="aad-status-row">
