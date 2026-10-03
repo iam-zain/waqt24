@@ -2365,7 +2365,7 @@ function renderAadaab(){
   allChip.textContent = `🌐 Sabhi (${AADAAB_TOPICS.length})`;
   allChip.onclick = ()=>{ aadaabCat='__all__'; renderAadaab(); };
   catRow.appendChild(allChip);
-  AADAAB_CATEGORIES.forEach(c=>{
+  [...AADAAB_CATEGORIES].sort((a,b)=>a.label.localeCompare(b.label)).forEach(c=>{
     const count = AADAAB_TOPICS.filter(t=>t.cat===c.id).length;
     const chip = document.createElement('div');
     chip.className = 'chip' + (aadaabCat===c.id ? ' prayed' : '');
