@@ -726,6 +726,7 @@ body{
 .quiz-q{ font-size:16px; font-weight:700; line-height:1.6; color:var(--text); }
 .quiz-q-tr{ margin-top:12px; font-family:Consolas,"Courier New",monospace; font-size:13.5px; font-style:normal; letter-spacing:.02em; color:#5b8def; line-height:1.7; }
 .quiz-q-ar{ margin-top:10px; font-size:22px; line-height:2; text-align:right; direction:rtl; color:#e0a33a; }
+.quiz-q-ref{ margin-top:10px; font-size:12px; font-weight:700; color:var(--sub); }
 .quiz-opts{ display:flex; flex-direction:column; gap:10px; }
 .quiz-opt{
   display:flex; align-items:center; gap:10px; text-align:left; padding:12px 14px; border-radius:12px; border:1px solid var(--line); border-left:5px solid var(--qc, var(--line));
@@ -3352,10 +3353,11 @@ function startQuiz(pool, n, cat, hooks){
 /* Dua questions are "prompt / transliteration / Arabic" separated by blank lines; other questions are plain text */
 function quizQHtml(q){
   const parts = String(q).split('\n\n');
-  if(parts.length!==3) return `<div class="quiz-q">${q}</div>`;
+  if(parts.length<3) return `<div class="quiz-q">${q}</div>`;
   return `<div class="quiz-q">${parts[0]}</div>
     <div class="quiz-q-tr">${parts[1]}</div>
-    <div class="quiz-q-ar">${parts[2]}</div>`;
+    <div class="quiz-q-ar">${parts[2]}</div>
+    ${parts[3] ? `<div class="quiz-q-ref">${parts[3]}</div>` : ''}`;
 }
 function renderQuizQuestion(){
   const qs = quizState;
