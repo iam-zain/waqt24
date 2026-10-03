@@ -745,6 +745,10 @@ body{
   padding:14px 22px; border-radius:12px; border:1px solid var(--line); background:var(--card);
   color:var(--text); font-size:14px; font-weight:700; cursor:pointer;
 }
+.quiz-count-btn.c5{ background:#3f8fe0; border-color:#3f8fe0; color:#fff; }
+.quiz-count-btn.c10{ background:#9b6fd6; border-color:#9b6fd6; color:#fff; }
+/* each quiz category gets its own colour bar (palette has no green) */
+.quiz-cat-btn{ border-left:5px solid var(--qc, var(--line)); }
 .quiz-cat-btn{
   display:flex; align-items:center; gap:10px; width:calc(100% - 28px); margin:0 14px 10px;
   padding:13px 14px; border-radius:12px; border:1px solid var(--line); background:var(--card);
@@ -3170,8 +3174,8 @@ function renderMythCountSelect(){
       <div style="font-size:15px; font-weight:700; margin-bottom:6px;">Quiz Mode</div>
       <div style="font-size:13px; color:var(--sub); margin-bottom:24px;">Kitne sawal khelna chahte hain?</div>
       <div style="display:flex; gap:12px; justify-content:center;">
-        <button id="myth5" class="quiz-count-btn">5 Sawal</button>
-        <button id="myth10" class="quiz-count-btn">10 Sawal</button>
+        <button id="myth5" class="quiz-count-btn c5">5 Sawal</button>
+        <button id="myth10" class="quiz-count-btn c10">10 Sawal</button>
       </div>
       <button id="mythBackToHub" style="margin-top:22px; background:none; border:none; color:var(--sub); font-size:12.5px; text-decoration:underline; cursor:pointer;">‹ Wapas</button>
     </div>
@@ -3285,7 +3289,7 @@ function renderMoreQuiz(){
   const body = document.getElementById('detailBody');
   const catRows = [...QUIZ_CATEGORIES].sort((a,b)=> a.localeCompare(b)).map(cat=>{
     const count = QUIZ_BANK.filter(q=>q[3]===cat).length;
-    return `<button class="quiz-cat-btn" data-cat="${cat}">
+    return `<button class="quiz-cat-btn" data-cat="${cat}" style="--qc:${QUIZ_PALETTE[ [...QUIZ_CATEGORIES].sort((a,b)=>a.localeCompare(b)).indexOf(cat) % QUIZ_PALETTE.length ]};">
       <span class="quiz-cat-ic">${QUIZ_CAT_ICON[cat]||'❓'}</span>
       <span class="quiz-cat-name">${cat}</span>
       <span class="quiz-cat-count">${count} sawal</span>
@@ -3309,6 +3313,8 @@ function renderMoreQuiz(){
   });
 }
 
+/* Colours for quiz categories, in alphabetical order; green is left out on purpose */
+const QUIZ_PALETTE = ['#3f8fe0','#e0709f','#e0893f','#9b6fd6','#2fb6b0','#c79a2e','#d6708f','#5c7cfa','#c0563f','#3a4d8f'];
 function renderQuizCountSelect(cat){
   const pool = cat==='__all__' ? QUIZ_BANK : QUIZ_BANK.filter(q=>q[3]===cat);
   document.getElementById('detailTitle').textContent = "Quiz";
@@ -3320,8 +3326,8 @@ function renderQuizCountSelect(cat){
       <div style="font-size:15px; font-weight:700; margin-bottom:6px;">${label}</div>
       <div style="font-size:13px; color:var(--sub); margin-bottom:24px;">Kitne sawal khelna chahte hain?</div>
       <div style="display:flex; gap:12px; justify-content:center;">
-        <button id="quiz5" class="quiz-count-btn">5 Sawal</button>
-        <button id="quiz10" class="quiz-count-btn">10 Sawal</button>
+        <button id="quiz5" class="quiz-count-btn c5">5 Sawal</button>
+        <button id="quiz10" class="quiz-count-btn c10">10 Sawal</button>
       </div>
       <button id="quizBackToCats" style="margin-top:22px; background:none; border:none; color:var(--sub); font-size:12.5px; text-decoration:underline; cursor:pointer;">‹ Category Badlein</button>
     </div>
