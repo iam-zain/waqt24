@@ -291,3 +291,5 @@ Object.assign(I18N_EN, {
  "Jannat ke Naam / Mutalliq Alfaz": "Names of Paradise & Related Words",
  "Kuch aur bohat important Islamic Terms": "Other Important Islamic Terms"
 });
+
+Object.assign(I18N_EN, { "Waqt Baaqi:":"Time Left:", "Waqt Baaqi":"Time Left" });
