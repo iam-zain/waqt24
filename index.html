@@ -531,6 +531,7 @@ body{
 .dua-grid.list{ grid-template-columns:1fr; }
 .dua-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; cursor:pointer; }
 .dua-card .aad-tags{ margin-bottom:6px; }
+.dua-quran-lbl{ color:#2bb38a; font-weight:800; }
 /* Four separate colours in the dua detail: title, Arabic, transliteration, Roman Urdu (mid-tones, readable in every theme) */
 .dua-detail .dua-sec-ar{ --sc:#e0a33a; } .dua-detail .dua-sec-tr{ --sc:#5b8def; } .dua-detail .dua-sec-ur{ --sc:#e0709f; }
 .dua-detail .dua-sec-ar .aad-step-lbl{ color:#e0a33a; } .dua-detail .dua-sec-tr .aad-step-lbl{ color:#5b8def; } .dua-detail .dua-sec-ur .aad-step-lbl{ color:#e0709f; }
@@ -2285,18 +2286,14 @@ function renderMoreDua(){
   allChip.textContent = `🌐 Sabhi (${DUAS.length})`;
   allChip.onclick = ()=>{ duaCat='__all__'; renderMoreDua(); };
   catRow.appendChild(allChip);
-  /* Every dua whose reference is a Quran verse, across all categories (Rabbana included) */
-  const quranChip = document.createElement('div');
-  quranChip.className = 'chip' + (duaCat==='__quran__' ? ' prayed' : '');
-  quranChip.textContent = `📖 Qur'ani Dua (${DUAS.filter(d=>isQuranDua(d)).length})`;
-  quranChip.onclick = ()=>{ duaCat='__quran__'; renderMoreDua(); };
-  catRow.appendChild(quranChip);
-  [...new Set(DUAS.map(d=>d.cat))].sort((a,b)=>a.localeCompare(b)).forEach(cat=>{
-    const count = DUAS.filter(d=>d.cat===cat).length;
+  /* Chips in one alphabetical list. Qur'ani Dua collects every Quran-sourced dua across categories (Rabbana included) */
+  const chipDefs = [...new Set(DUAS.map(d=>d.cat))].map(cat=>({ key:cat, name:cat, ic:duaMeta(cat)[0], count:DUAS.filter(d=>d.cat===cat).length }));
+  chipDefs.push({ key:'__quran__', name:"Qur'ani Dua", ic:'📖', count:DUAS.filter(d=>isQuranDua(d)).length });
+  chipDefs.sort((a,b)=>a.name.localeCompare(b.name)).forEach(c=>{
     const chip = document.createElement('div');
-    chip.className = 'chip' + (duaCat===cat ? ' prayed' : '');
-    chip.textContent = `${duaMeta(cat)[0]} ${cat} (${count})`;
-    chip.onclick = ()=>{ duaCat = cat; renderMoreDua(); };
+    chip.className = 'chip' + (duaCat===c.key ? ' prayed' : '');
+    chip.textContent = `${c.ic} ${c.name} (${c.count})`;
+    chip.onclick = ()=>{ duaCat = c.key; renderMoreDua(); };
     catRow.appendChild(chip);
   });
   document.getElementById('duaSearchInput').value = duaSearch;
@@ -2319,7 +2316,7 @@ function renderDuaList(){
       <div class="aad-info">
         <div class="aad-title">${d.title}</div>
         <div class="aad-tags">${duaTagChips(d)}</div>
-        <div class="aad-cat-lbl">${d.cat}</div>
+        <div class="aad-cat-lbl">${duaCatLabel(d)}</div>
       </div>
       ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
       <div class="chev">›</div>
@@ -2337,9 +2334,12 @@ function renderDuaList(){
 /* Same tag chip look as Aadaab-e-Zindagi (.aad-tag); duas without explicit tags show their category */
 /* Tags that just repeat the category name are dropped; the category is already shown on its own line */
 function duaTagChips(d){
-  let tags = (d.tags || []).filter(x=>x!==d.cat);
-  if(isQuranDua(d) && !tags.includes('Quranic')) tags = ['Quranic', ...tags]; // every Quran-sourced dua carries the Quranic tag
+  const tags = (d.tags || []).filter(x=>x!==d.cat && x!=='Quranic').sort((a,b)=>a.localeCompare(b));
   return tags.map(x=>`<span class="aad-tag">${x}</span>`).join('');
+}
+/* Category line on a dua card; Quran-sourced duas show a green "Quranic" beside it */
+function duaCatLabel(d){
+  return `${d.cat}${isQuranDua(d) ? ' <span class="dua-quran-lbl">• Quranic</span>' : ''}`;
 }
 /* Memorisation status per dua ('soch' = still to memorise, 'amal' = memorised), same pattern as Aadaab */
 function duaStatus(title){ return (state.duaStatus && state.duaStatus[title]) || null; }
