@@ -2429,7 +2429,7 @@ function openDuaDetail(d){
   wirePnBar();
 }
 
-let qwordView='grid', qwordSearch='', qwordGroupFilter='__all__';
+let qwordView='grid', qwordSearch='', qwordGroupFilter='__all__', qwordSortOcc=false;
 function renderQuranWords(){
   document.getElementById('detailTitle').textContent = "Qur’ani Alfaaz Aur Ma’ani";
   const body = document.getElementById('detailBody');
@@ -2445,6 +2445,7 @@ function renderQuranWords(){
     <div class="view-toggle">
       <button id="qwordGridBtn" class="${qwordView==='grid'?'active':''}">Grid</button>
       <button id="qwordListBtn" class="${qwordView==='list'?'active':''}">List</button>
+      <button id="qwordSortBtn" class="${qwordSortOcc?'active':''}" title="Zyada istemal hone wale alfaaz pehle">Sort</button>
     </div>
     <div class="dua-grid ${qwordView==='list'?'list':''}" id="qwordGrid"></div>
   `;
@@ -2464,16 +2465,17 @@ function renderQuranWords(){
   wireLiveSearch('qwordSearchInput', 'qwordSearchClear', renderQwordGrid, v=>{ qwordSearch = v; });
   body.querySelector('#qwordGridBtn').onclick = ()=>{ qwordView='grid'; renderQuranWords(); };
   body.querySelector('#qwordListBtn').onclick = ()=>{ qwordView='list'; renderQuranWords(); };
+  body.querySelector('#qwordSortBtn').onclick = ()=>{ qwordSortOcc=!qwordSortOcc; renderQuranWords(); };
   renderQwordGrid();
 }
 function renderQwordGrid(){
   const grid = document.getElementById('qwordGrid');
   const q = qwordSearch.trim().toLowerCase();
   grid.innerHTML = '';
-  /* Filter by group, then sort by number of occurrences in the Quran (highest first) */
+  /* Filter by group; sort alphabetically, or by occurrences in the Quran (highest first) when the Sort tab is on */
   const filtered = QURAN_WORDS
     .filter(w=> (qwordGroupFilter==='__all__' || qwordGroup(w)===qwordGroupFilter) && (w.tr+' '+w.m+' '+w.cat+' '+w.ar).toLowerCase().includes(q))
-    .sort((a,b)=> Number(b.occ) - Number(a.occ));
+    .sort(qwordSortOcc ? (a,b)=> Number(b.occ) - Number(a.occ) : (a,b)=> a.tr.localeCompare(b.tr));
   if(!filtered.length){ grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Koi lafz nahi mila.</div>`; return; }
   filtered.forEach((w,i)=>{
     const c = document.createElement('div');
