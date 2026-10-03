@@ -2311,7 +2311,13 @@ function wEx(w){ return isEn() && w.exen ? w.exen : w.exm; }
 /* Myth-buster item in the current language (Roman Urdu or English) */
 function mL(m){ return isEn() && m.enq ? {q:m.enq, optA:m.enA, optB:m.enB, explain:m.enExplain} : m; }
 /* Aadaab topic in the current language: English fields replace Roman Urdu ones when the language is English */
-function aL(t){ return isEn() && t.en ? Object.assign({}, t, t.en) : t; }
+function aL(t){
+  if(!(isEn() && t.en)) return t;
+  const o = Object.assign({}, t, t.en);
+  /* guide sections keep their original icon; only heading and items come from the English text */
+  if(t.guide && t.en.sections) o.sections = t.sections.map((s,i)=>Object.assign({}, s, t.en.sections[i] || {}));
+  return o;
+}
 function sMean(w){ return isEn() && w.en ? w.en : w.m; }
 function sEx(w){ return isEn() && w.exen ? w.exen : w.ex; }
 /* Quiz item as [question, options, correct, category]; English version when the language is English */
