@@ -2336,7 +2336,11 @@ function renderDuaList(){
 
 /* Same tag chip look as Aadaab-e-Zindagi (.aad-tag); duas without explicit tags show their category */
 /* Tags that just repeat the category name are dropped; the category is already shown on its own line */
-function duaTagChips(d){ return (d.tags || []).filter(x=>x!==d.cat).map(x=>`<span class="aad-tag">${x}</span>`).join(''); }
+function duaTagChips(d){
+  let tags = (d.tags || []).filter(x=>x!==d.cat);
+  if(isQuranDua(d) && !tags.includes('Quranic')) tags = ['Quranic', ...tags]; // every Quran-sourced dua carries the Quranic tag
+  return tags.map(x=>`<span class="aad-tag">${x}</span>`).join('');
+}
 /* Memorisation status per dua ('soch' = still to memorise, 'amal' = memorised), same pattern as Aadaab */
 function duaStatus(title){ return (state.duaStatus && state.duaStatus[title]) || null; }
 function setDuaStatus(title, val){
