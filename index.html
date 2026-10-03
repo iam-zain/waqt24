@@ -2254,7 +2254,29 @@ function wirePnBar(){
     const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
     if(Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
     const btn = document.getElementById(dx < 0 ? 'pnNextBtn' : 'pnPrevBtn');
-    if(btn && !btn.disabled) btn.click();
+    const dir = dx < 0 ? -1 : 1; // -1: moving to the next item, so the card leaves to the left
+    const box = document.getElementById('detailBody');
+    const ok = btn && !btn.disabled;
+    const ease = 'transform .2s ease, opacity .2s ease';
+    if(!ok){ // first or last item: a small nudge shows there is nothing further
+      box.style.transition = 'transform .12s ease';
+      box.style.transform = `translateX(${dir * -14}px)`;
+      setTimeout(()=>{ box.style.transform = 'none'; }, 120);
+      return;
+    }
+    box.style.transition = ease;
+    box.style.transform = `translateX(${dir * 60}px)`;
+    box.style.opacity = '0';
+    setTimeout(()=>{
+      btn.click(); // renders the new item into detailBody
+      box.style.transition = 'none';
+      box.style.transform = `translateX(${dir * -60}px)`;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        box.style.transition = ease;
+        box.style.transform = 'none';
+        box.style.opacity = '1';
+      }));
+    }, 200);
   }, { passive:true });
 })();
 document.getElementById('detailBody').addEventListener('click', (e)=>{
