@@ -2240,6 +2240,23 @@ function wirePnBar(){
   const nextCatBtn = document.getElementById('pnNextCatBtn');
   if(nextCatBtn) nextCatBtn.onclick = ()=> openNextCategory();
 }
+/* Swipe left/right in an open detail to go to the next/previous item, like Instagram or Facebook stories.
+   It reuses the Agla/Pichla buttons, so it stops at the first and last items. */
+(()=>{
+  const body = document.getElementById('detailBody');
+  let sx = 0, sy = 0, skip = false;
+  body.addEventListener('touchstart', (e)=>{
+    skip = !!e.target.closest('input, textarea, select, .chips, .qword-tabs, .cat-tabs, .hscroll, [data-no-swipe]');
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+  }, { passive:true });
+  body.addEventListener('touchend', (e)=>{
+    if(skip || !__navCtx || !document.getElementById('detailOverlay').classList.contains('active')) return;
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if(Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const btn = document.getElementById(dx < 0 ? 'pnNextBtn' : 'pnPrevBtn');
+    if(btn && !btn.disabled) btn.click();
+  }, { passive:true });
+})();
 document.getElementById('detailBody').addEventListener('click', (e)=>{
   const b = e.target.closest('.bm-btn');
   if(!b) return;
