@@ -2310,6 +2310,8 @@ function wMean(w){ return isEn() && w.en ? w.en : w.m; }
 function wEx(w){ return isEn() && w.exen ? w.exen : w.exm; }
 /* Myth-buster item in the current language (Roman Urdu or English) */
 function mL(m){ return isEn() && m.enq ? {q:m.enq, optA:m.enA, optB:m.enB, explain:m.enExplain} : m; }
+/* Aadaab topic in the current language: English fields replace Roman Urdu ones when the language is English */
+function aL(t){ return isEn() && t.en ? Object.assign({}, t, t.en) : t; }
 function sMean(w){ return isEn() && w.en ? w.en : w.m; }
 function sEx(w){ return isEn() && w.exen ? w.exen : w.ex; }
 /* Quiz item as [question, options, correct, category]; English version when the language is English */
@@ -2617,7 +2619,8 @@ function renderAadaabList(){
     (t.title+' '+t.tags.join(' ')+' '+aadaabCatInfo(t.cat).label).toLowerCase().includes(q)
   );
   if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi unwan nahi mila.</div>`; return; }
-  wrap.innerHTML = filtered.map((t,i)=>{
+  wrap.innerHTML = filtered.map((t0,i)=>{
+    const t = aL(t0);
     const c = aadaabCatInfo(t.cat);
     const st = aadaabStatus(t.id);
     return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${t.color};">
@@ -2639,7 +2642,8 @@ function renderAadaabList(){
     };
   });
 }
-function openAadaabDetail(t){
+function openAadaabDetail(t0){
+  const t = aL(t0);
   const c = aadaabCatInfo(t.cat);
   const st = aadaabStatus(t.id);
   document.getElementById('detailTitle').textContent = t.title;
