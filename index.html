@@ -2353,6 +2353,7 @@ function openDuaDetail(d){
     <div class="aad-head status-${duaStatus(d.title)||'none'}" style="--aad-c:${duaMeta(d.cat)[1]};">
       <div class="aad-head-ic">${duaMeta(d.cat)[0]}</div>
       <div class="aad-head-title">${d.title}</div>
+      <div class="ref" style="margin:-4px 0 8px;">Hawala: ${d.ref}</div>
       <div class="aad-tags center">${duaTagChips(d)}</div>
       <div class="aad-cat-pill">${duaMeta(d.cat)[0]} ${d.cat}</div>
     </div>
@@ -2368,7 +2369,6 @@ function openDuaDetail(d){
       <div class="aad-guide-sec dua-sec-ur">
         <div class="aad-guide-head"><span class="aad-step-lbl">Tarjuma (Roman Urdu)</span></div>
         <div class="meaning dua-ur">${d.meaning}</div>
-        <div class="ref">Hawala: ${d.ref}</div>
       </div>
       <div class="dua-amen">آمیــــــــــــــــــــــــــــــــــــــــن يارب العالمیــــــــــــــــــــــــــــــــــــــــن</div>
     </div>
