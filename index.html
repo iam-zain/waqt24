@@ -871,6 +871,28 @@ body.ramadan .goal-card, body.ramadan .ramzan-card{ border-color:rgba(212,175,55
 .dua-detail .dua-ar{ font-size:27px; line-height:2.2; }
 .dua-detail .dua-tr{ font-style:italic; color:var(--sub); line-height:1.7; }
 .dua-detail [class*="dua-sec-"] + [class*="dua-sec-"]{ border-top:1px solid var(--line); padding-top:12px; margin-top:12px; }
+
+/* Bottom sheets: the help dialog and the share chooser slide up from the bottom, with a grab handle */
+@keyframes sheetUp { from { transform:translateY(100%); } to { transform:none; } }
+@keyframes backdropIn { from { opacity:0; } to { opacity:1; } }
+#infoModal, #shareChooser{ align-items:flex-end; padding:0; }
+#infoModal.active, #shareChooser.active{ animation:backdropIn .2s ease; }
+#infoModal .info-card, #shareChooser .info-card{
+  max-width:560px !important; width:100%; border-radius:20px 20px 0 0; border-bottom:none;
+  padding:12px 20px calc(22px + env(safe-area-inset-bottom)); animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);
+}
+#infoModal .info-card::before, #shareChooser .info-card::before{
+  content:''; display:block; width:40px; height:4px; border-radius:2px; background:var(--dotBorder); margin:0 auto 14px;
+}
+#infoModal .info-close, #shareChooser .info-close{ top:14px; }
+/* Loading placeholder for the GPS lookup */
+@keyframes shimmer { to { background-position:-200% 0; } }
+.skel-line{
+  height:10px; border-radius:5px; margin:8px 0; width:100%;
+  background:linear-gradient(90deg, var(--card2) 25%, var(--line) 50%, var(--card2) 75%);
+  background-size:200% 100%; animation:shimmer 1.2s linear infinite;
+}
+.skel-line.short{ width:60%; }
 </style>
 </head>
 <body>
@@ -1013,7 +1035,7 @@ body.ramadan .goal-card, body.ramadan .ramzan-card{ border-color:rgba(212,175,55
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=35"></script>
+<script src="i18n.js?v=36"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -1376,6 +1398,28 @@ loadState();
 
 function dayKey(d){ return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
 function statusKey(d, prayer){ return dayKey(d)+'_'+prayer; }
+/* Bottom sheets can be dismissed by dragging them down */
+(()=>{
+  document.querySelectorAll('#infoModal .info-card, #shareChooser .info-card').forEach(card=>{
+    let y0 = null;
+    card.addEventListener('touchstart', (e)=>{ y0 = e.touches[0].clientY; card.style.transition = 'none'; }, { passive:true });
+    card.addEventListener('touchmove', (e)=>{
+      if(y0 == null) return;
+      card.style.transform = `translateY(${Math.max(0, e.touches[0].clientY - y0)}px)`;
+    }, { passive:true });
+    card.addEventListener('touchend', (e)=>{
+      if(y0 == null) return;
+      const dy = e.changedTouches[0].clientY - y0; y0 = null;
+      card.style.transition = 'transform .2s ease';
+      if(dy > 90){
+        card.style.transform = 'translateY(100%)';
+        setTimeout(()=>{ closeModal(); card.style.transform = ''; card.style.transition = ''; }, 180);
+      } else {
+        card.style.transform = '';
+      }
+    });
+  });
+})();
 /* Haptic feedback: a short buzz on Android when a prayer is marked or a bead or option is tapped (iPhone ignores it) */
 function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
 document.addEventListener('click', (e)=>{
@@ -3978,7 +4022,7 @@ function renderMoreSettings(){
       statusEl.textContent = 'Is browser mein GPS support nahi hai.';
       return;
     }
-    statusEl.textContent = 'Location maloom ki jaa rahi hai...';
+    statusEl.innerHTML = '<div>Location maloom ki jaa rahi hai...</div><div class="skel-line"></div><div class="skel-line short"></div>';
     navigator.geolocation.getCurrentPosition(
       (pos)=>{
         state.location = {name:'Current Location', lat:pos.coords.latitude, lon:pos.coords.longitude, source:'gps'};
