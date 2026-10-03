@@ -550,12 +550,24 @@ body{
 .aad-head-ic{ width:60px; height:60px; margin:0 auto 10px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:28px; background:color-mix(in srgb, var(--aad-c, var(--accent)) 20%, var(--card2)); }
 .aad-head-title{ font-size:17px; font-weight:800; margin-bottom:8px; line-height:1.35; }
 .aad-cat-pill{ display:inline-block; margin-top:10px; padding:4px 12px; border-radius:20px; font-size:11.5px; font-weight:700; color:var(--aad-c, var(--accent)); background:color-mix(in srgb, var(--aad-c, var(--accent)) 16%, transparent); }
-.aad-step{ margin:0 0 12px; padding:14px; background:var(--card); border:1px solid var(--line); border-radius:14px; }
+.aad-step{ margin:0 0 12px; padding:14px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--sc, var(--line)); border-radius:14px; }
 .aad-step-head{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-.aad-step-num{ font-size:15px; font-weight:800; color:var(--sub); }
-.aad-step-ic{ font-size:16px; }
-.aad-step-lbl{ font-size:13px; font-weight:800; }
+.aad-step-num{ font-size:15px; font-weight:800; color:var(--sc, var(--sub)); }
+.aad-step-ic{ flex:0 0 auto; width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; background:color-mix(in srgb, var(--sc, var(--accent)) 20%, transparent); }
+.aad-step-lbl{ font-size:13px; font-weight:800; color:var(--sc, var(--text)); }
 .aad-step-txt{ font-size:13px; line-height:1.6; color:var(--text); }
+.aad-step.s1{ --sc:#3f8fe0; }
+.aad-step.s2{ --sc:#e0593f; }
+.aad-step.s3{ --sc:#2fb6b0; }
+.aad-step.s4{ --sc:#9b6fd6; }
+.aad-step.s5{ --sc:#c79a2e; }
+.aad-step.s6{ --sc:#4caf7d; }
+.aad-guide-sec .aad-step-lbl{ color:var(--sc, var(--text)); }
+.aad-guide-sec .aad-step-ic{ background:color-mix(in srgb, var(--sc, var(--accent)) 20%, transparent); }
+.aad-guide-sec.g0{ --sc:#3f8fe0; } .aad-guide-sec.g1{ --sc:#e0593f; } .aad-guide-sec.g2{ --sc:#2fb6b0; }
+.aad-guide-sec.g3{ --sc:#9b6fd6; } .aad-guide-sec.g4{ --sc:#c79a2e; } .aad-guide-sec.g5{ --sc:#4caf7d; }
+.aad-guide-sec.g6{ --sc:#d6708f; } .aad-guide-sec.g7{ --sc:#5c7cfa; } .aad-guide-sec.g8{ --sc:#e0893f; }
+.aad-guide-sec.g9{ --sc:#5cb85c; }
 .aad-card.status-amal{ background:color-mix(in srgb, var(--green) 14%, var(--card)); border-color:color-mix(in srgb, var(--green) 45%, var(--line)); border-left-color:var(--green); }
 .aad-card.status-soch{ background:color-mix(in srgb, #e0b43f 12%, var(--card)); border-color:color-mix(in srgb, #e0b43f 40%, var(--line)); border-left-color:#e0b43f; }
 .aad-status-badge{ flex:0 0 auto; font-size:15px; margin-right:2px; }
@@ -566,7 +578,7 @@ body{
 .aad-status-btn.soch.on{ background:#e0b43f; border-color:#e0b43f; color:#2b2208; }
 .aad-status-btn.amal.on{ background:var(--green); border-color:var(--green); color:#06210f; }
 .aad-intro{ font-size:13px; line-height:1.6; color:var(--sub); text-align:center; padding:0 4px 16px; }
-.aad-guide-sec{ margin:0 0 14px; padding:14px; background:var(--card); border:1px solid var(--line); border-radius:14px; }
+.aad-guide-sec{ margin:0 0 14px; padding:14px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--sc, var(--line)); border-radius:14px; }
 .aad-guide-head{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
 .aad-guide-list{ margin:0; padding:0 0 0 18px; list-style:disc; }
 .aad-guide-list li{ font-size:13px; line-height:1.6; color:var(--text); margin-bottom:8px; }
@@ -2400,21 +2412,21 @@ function openAadaabDetail(t){
   document.getElementById('detailTitle').textContent = t.title;
   const bodyHtml = t.guide ? `
     <div class="aad-intro">${t.intro}</div>
-    ${t.sections.map(s=>`<div class="aad-guide-sec">
+    ${t.sections.map((s,i)=>`<div class="aad-guide-sec g${i%10}">
       <div class="aad-guide-head"><span class="aad-step-ic">${s.ic}</span><span class="aad-step-lbl">${s.heading}</span></div>
       <ul class="aad-guide-list">${s.items.map(it=>`<li>${it}</li>`).join('')}</ul>
     </div>`).join('')}
     <div class="aad-guide-closing">${t.closing}</div>
   ` : (()=>{
     const steps = [
-      { n:'①', ic:'🎬', lbl:'Aaj Hum Kya Karte Hain?', txt:t.scene },
-      { n:'②', ic:'❗', lbl:'Masla Kahan Hai?', txt:t.masla },
-      { n:'③', ic:'📖', lbl:'Islam Humein Kya Sikhata Hai?', txt:t.islam },
-      { n:'④', ic:'🌙', lbl:'Nabi ﷺ Ka Amal', txt:t.nabi },
-      { n:'⑤', ic:'🪞', lbl:'Hum Kahan Galti Karte Hain?', txt:t.galti },
-      { n:'⑥', ic:'✅', lbl:'Aaj Se Ek Chhoti Tabdeeli', txt:t.tabdeeli },
+      { sc:1, n:'①', ic:'🎬', lbl:'Aaj Hum Kya Karte Hain?', txt:t.scene },
+      { sc:2, n:'②', ic:'❗', lbl:'Masla Kahan Hai?', txt:t.masla },
+      { sc:3, n:'③', ic:'📖', lbl:'Islam Humein Kya Sikhata Hai?', txt:t.islam },
+      { sc:4, n:'④', ic:'🌙', lbl:'Nabi ﷺ Ka Amal', txt:t.nabi },
+      { sc:5, n:'⑤', ic:'🪞', lbl:'Hum Kahan Galti Karte Hain?', txt:t.galti },
+      { sc:6, n:'⑥', ic:'✅', lbl:'Aaj Se Ek Chhoti Tabdeeli', txt:t.tabdeeli },
     ].filter(s=>s.txt);
-    return steps.map(s=>`<div class="aad-step">
+    return steps.map(s=>`<div class="aad-step s${s.sc}">
       <div class="aad-step-head"><span class="aad-step-num">${s.n}</span><span class="aad-step-ic">${s.ic}</span><span class="aad-step-lbl">${s.lbl}</span></div>
       <div class="aad-step-txt">${s.txt}</div>
     </div>`).join('');
