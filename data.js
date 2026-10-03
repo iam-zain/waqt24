@@ -778,6 +778,7 @@ const AADAAB_CATEGORIES = [
   { id:"maal", label:"Maal Aur Muamlaat", ic:"💰", color:"#b8860b" },
   { id:"ghar", label:"Ghar Aur Rishtey", ic:"🏠", color:"#d6708f" },
   { id:"ibadat", label:"Ibadat Aur Rozmarra Zindagi", ic:"🕋", color:"#9b6fd6" },
+  { id:"neend", label:"Sone Ke Aadaab", ic:"🌙", color:"#3a4d8f" },
 ];
 
 const AADAAB_TOPICS = [
@@ -1317,7 +1318,7 @@ const AADAAB_TOPICS = [
     ],
     closing:"Khana sirf bhook mitana nahi hai. Ek Muslim ke liye khane mein bhi Bismillah hai, shukr hai, safai hai, Sunnah hai, aitidaal hai, doosron ka khayal hai, aur Allah ki nemat ki qadr hai. Khana khaiye, nemat ki qadr kijiye, israf se bachiye aur saleeqe ke saath khaiye." },
 
-  { id:"sone-ke-aadaab", title:"Sone Ke Aadaab", tags:["Neend Ka Saleeqa","Sunnah","Zikr-o-Dua"], ic:"🌙", cat:"ibadat", color:"#9b6fd6", guide:true,
+  { id:"sone-ke-aadaab", title:"Sone Ke Aadaab", tags:["Neend Ka Saleeqa","Sunnah","Zikr-o-Dua"], ic:"🌙", cat:"neend", color:"#3a4d8f", guide:true,
     intro:"Neend sirf thakawat door karne ka naam nahi, yeh Allah ki ek badi nemat hai. Hum har raat apne din ko khatam karte hain aur phir Allah ke hawale hokar sote hain. Nabi ﷺ ne sone ke waqt bhi humein ek khoobsurat saleeqa sikhaya: safai, wuzu, Allah ka zikr, Qur'an ki tilawat, dua, apni hifazat ka intezam aur Allah par bharosa.",
     sections:[
       { heading:"Sone Se Pehle", ic:"🛏️", items:[
