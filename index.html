@@ -135,6 +135,9 @@ body{
 .bulk-yellow{ background:var(--yellow); color:#2b2100; }
 .bulk-red{ background:var(--red); }
 .bulk-clear{ background:transparent; border-color:var(--dotBorder, var(--line)); color:var(--sub); font-size:16px; }
+.bulk-info{ background:transparent; border-color:var(--dotBorder, var(--line)); color:var(--sub); font-size:13px; font-weight:700; }
+.bulk-help-row{ display:flex; align-items:flex-start; gap:10px; margin:8px 0; text-align:left; }
+.bulk-help-row .bulk-btn{ cursor:default; flex:0 0 auto; }
 .roza-mini{
   width:40px; height:23px; border-radius:12px; background:var(--meterBg);
   position:relative; cursor:pointer; border:1px solid var(--line); flex:0 0 auto;
@@ -804,6 +807,7 @@ body{
           <button class="bulk-btn bulk-yellow" id="bulkYellow" title="Sab Qaza Padhi">~</button>
           <button class="bulk-btn bulk-red" id="bulkRed" title="Sab Baaki Hai">⏳</button>
           <button class="bulk-btn bulk-clear" id="bulkClear" title="Sab Clear Karein">↺</button>
+          <button class="bulk-btn bulk-info" id="bulkInfo" title="Buttons ka matlab">ⓘ</button>
         </div>
       </div>
     </div>
@@ -1207,6 +1211,20 @@ function showInfoModal(key){
   document.getElementById('infoModal').classList.add('active');
   pushModalState();
 }
+/* Explains the 5 Farz bulk buttons (green / yellow / red / reset) in the shared info modal */
+function showBulkInfoModal(){
+  document.getElementById('infoTitle').innerHTML = `<span class="pIcon">🕋</span>5 Farz Namaz ke Buttons`;
+  document.getElementById('infoTime').textContent = 'Ek click mein paanchon Farz ka status';
+  document.getElementById('infoText').innerHTML = `
+    <div class="bulk-help-row"><span class="bulk-btn bulk-green">✓</span><div><b>Hara (Padh Li)</b><br>Paanchon Farz ek saath "Padh Li" ho jayenge.</div></div>
+    <div class="bulk-help-row"><span class="bulk-btn bulk-yellow">~</span><div><b>Peela (Qaza Padhi)</b><br>Paanchon Farz ek saath "Qaza Padhi" ho jayenge.</div></div>
+    <div class="bulk-help-row"><span class="bulk-btn bulk-red">⏳</span><div><b>Laal (Baaki Hai)</b><br>Paanchon Farz ek saath "Baaki Hai" mark ho jayenge.</div></div>
+    <div class="bulk-help-row"><span class="bulk-btn bulk-clear">↺</span><div><b>Reset</b><br>Paanchon Farz ka aaj ka status khaali (clear) ho jayega.</div></div>
+    <div style="font-size:12px; opacity:0.75; margin-top:8px;">Yeh buttons sirf paanchon Farz par asar karte hain. Har namaz ko alag se bhi set kar sakte hain.</div>`;
+  document.getElementById('infoModal').classList.add('active');
+  pushModalState();
+}
+document.getElementById('bulkInfo').onclick = showBulkInfoModal;
 document.getElementById('infoClose').onclick = closeModal;
 document.getElementById('infoModal').onclick = (e)=>{ if(e.target.id==='infoModal') closeModal(); };
 
@@ -1882,6 +1900,7 @@ function showDayDetail(date){
         <button class="bulk-btn bulk-yellow" id="calBulkYellow" title="Sab Qaza Padhi">~</button>
         <button class="bulk-btn bulk-red" id="calBulkRed" title="Sab Baaki Hai">⏳</button>
         <button class="bulk-btn bulk-clear" id="calBulkClear" title="Sab Clear Karein">↺</button>
+        <button class="bulk-btn bulk-info" id="calBulkInfo" title="Buttons ka matlab">ⓘ</button>
       </div>
     </div>
   </div>`;
@@ -1940,6 +1959,7 @@ function showDayDetail(date){
     saveState();
     afterCalEdit();
   };
+  det.querySelector('#calBulkInfo').onclick = showBulkInfoModal;
   det.querySelector('#calBulkGreen').onclick = ()=> bulkSetFive('green', calDetailDate, afterCalEdit);
   det.querySelector('#calBulkYellow').onclick = ()=> bulkSetFive('yellow', calDetailDate, afterCalEdit);
   det.querySelector('#calBulkRed').onclick = ()=> bulkSetFive('red', calDetailDate, afterCalEdit);
