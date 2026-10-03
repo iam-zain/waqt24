@@ -3399,9 +3399,13 @@ function renderQuizResult(){
       ${qs.wrong.length ? `<button id="quizReviewBtn" class="res-btn">❌ Galat Jawabon ka Jaiza (${qs.wrong.length})</button>
       <button id="quizRedoWrongBtn" class="res-btn">🔁 Sirf Galat Sawal Dobara</button>` : ''}
       <button id="quizRetry" class="res-btn">${qs.hooks.backLabel || 'Dobara Khelein'}</button>
+      <button id="quizShareBtn" class="res-btn">📤 Result Share Karein</button>
     </div>
   `;
   document.getElementById('quizRetry').onclick = qs.hooks.back || renderMoreQuiz;
+  document.getElementById('quizShareBtn').onclick = ()=> openCardShareChooser({
+    kind:'Quiz Result', title: qs.cat || 'Quiz', sub: `${qs.score} / ${qs.questions.length} (${pct}% Sahi Jawab)`, body: msg
+  });
   const rvb = document.getElementById('quizReviewBtn');
   if(rvb) rvb.onclick = ()=> renderReviewList(qs.wrong, renderQuizResult, true);
   const rdb = document.getElementById('quizRedoWrongBtn');
