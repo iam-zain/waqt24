@@ -1316,6 +1316,116 @@ const AADAAB_TOPICS = [
       ] },
     ],
     closing:"Khana sirf bhook mitana nahi hai. Ek Muslim ke liye khane mein bhi Bismillah hai, shukr hai, safai hai, Sunnah hai, aitidaal hai, doosron ka khayal hai, aur Allah ki nemat ki qadr hai. Khana khaiye, nemat ki qadr kijiye, israf se bachiye aur saleeqe ke saath khaiye." },
+
+  { id:"sone-ke-aadaab", title:"Sone Ke Aadaab", tags:["Neend Ka Saleeqa","Sunnah","Zikr-o-Dua"], ic:"🌙", cat:"ibadat", color:"#9b6fd6", guide:true,
+    intro:"Neend sirf thakawat door karne ka naam nahi, yeh Allah ki ek badi nemat hai. Hum har raat apne din ko khatam karte hain aur phir Allah ke hawale hokar sote hain. Nabi ﷺ ne sone ke waqt bhi humein ek khoobsurat saleeqa sikhaya: safai, wuzu, Allah ka zikr, Qur'an ki tilawat, dua, apni hifazat ka intezam aur Allah par bharosa.",
+    sections:[
+      { heading:"Sone Se Pehle", ic:"🛏️", items:[
+        "Sone se pehle apne badan aur kapdon ki safai ka khayal rakhein.",
+        "Wuzu karke soyein. Nabi ﷺ ne sone ke liye wuzu karne aur phir dahini taraf letne ki hidayat di.",
+        "Apna bistar check aur saaf kar lein.",
+        "Bistar par jaane se pehle use haath ya kapde ke kinare se jhaad lena Sunnah hai, kyunke humein nahi maloom ke hamari ghair-maujoodgi mein us par kya aa gaya ho.",
+        "Kamre ko jitna mumkin ho saaf, comfortable aur sukoon wala rakhein.",
+        "Sone se pehle zaroori cheezein apni jagah rakh dein, taaki raat ko be-wajah disturbance na ho.",
+        "Ghar ke darwaze band karna aur Allah ka naam lena Sunnah mein aata hai.",
+        "Paani ke bartan aur doosre khule containers ko dhak dena bhi Sunnah mein aata hai.",
+        "Agar aag, diya ya koi unsafe flame ho toh use bujha kar soyein. Nabi ﷺ ne sone se pehle fire ko bujhane ki hidayat di."
+      ] },
+      { heading:"Sone Se Pehle Phone Se Bhi Ijazat Lijiye", ic:"📱", items:[
+        "Sone se pehle be-wajah scrolling band karein.",
+        "Bed ko endless social media browsing ki jagah sirf sukoon aur aaram ke liye istemal karne ki aadat banayein.",
+        "Sone se pehle bahas, tez-mizaj chats aur be-zaroorat online guftugu se bachein.",
+        "Kisi zaroori message ka jawab subah bhi diya ja sakta hai.",
+        "Phone ko bistar se thoda door rakhna faida-mand ho sakta hai.",
+        "Notifications ko silent ya sleep mode par rakh sakte hain.",
+        "Sone ke bilkul waqt tak screen dekhte rehne ke bajaye apne zehan ko aaram dene ka waqt dein. (Yeh modern sleep hygiene ki baatein hain, inhe Sunnah ka seedha hukm na samjhein, maqsad sirf yeh hai ke technology hamari neend aur ibadat dono par ghalib na ho.)"
+      ] },
+      { heading:"Isha Ke Baad Raat Ko Be-Wajah Lamba Na Kheenchein", ic:"🕋", items:[
+        "Nabi ﷺ Isha se pehle sone aur Isha ke baad be-zaroorat baat-cheet ko pasand nahi farmate the. Iska matlab yeh nahi ke Isha ke baad har guftugu mana hai, zaroori kaam, ilm, ghar ke maamlaat aur faida-mand baatein is se alag hain.",
+        "Be-zaroorat raat ki gossip, endless scrolling, be-maqsad bahas aur bila wajah der tak jagna hamari neend, Fajr aur agle din ki salahiyat ko mutasir kar sakta hai. Raat ko khatam karna bhi ek saleeqa hai."
+      ] },
+      { heading:"Ayat-ul-Kursi", ic:"📖", items:[
+        "Sone se pehle Ayat-ul-Kursi padhna masnoon hai. Sahih al-Bukhari mein Abu Hurairah RA ki riwayat mein iski hifazat ka zikr aata hai."
+      ] },
+      { heading:"Surah Al-Mulk", ic:"🌙", items:[
+        "Sone se pehle Surah Al-Mulk padhna bhi ek khoobsurat raat ka amal banaya ja sakta hai.",
+        "Surah Al-Mulk ke fazail ke hawale se riwayat milti hai ke 30 ayaat wali ek Surah apne padhne wale ke liye shafa'at karti rahi, yahan tak ke uski maghfirat kar di gayi, aur woh Surah Al-Mulk hai (Jami' at-Tirmidhi).",
+        "Isliye ise sirf 'sone ki Surah' samajhne ke bajaye Qur'an ki tilawat aur Allah ki maghfirat ki umeed ke saath padhein. Raat ka waqt chhota ho sakta hai, lekin Qur'an ke saath guzara hua waqt qeemti hai."
+      ] },
+      { heading:"Surah Ikhlas, Falaq Aur Naas", ic:"🤍", items:[
+        "Sone se pehle Surah Ikhlas, Surah Falaq aur Surah Naas padhein.",
+        "Nabi ﷺ in teenon Surahon ko padhkar apne haathon par halki phoonk karte aur apne jism par pherte, aur teen martaba aisa karte the. Yeh raat ki hifazat aur Allah par tawakkul ka khoobsurat amal hai."
+      ] },
+      { heading:"Surah Baqarah Ki Aakhri Do Ayaat", ic:"📖", items:[
+        "Raat mein Surah Baqarah ki aakhri do ayaat padhna bhi fazilat wala amal hai.",
+        "Nabi ﷺ ne farmaya ke jo shakhs raat mein Surah Baqarah ki aakhri do ayaat padhe, woh uske liye kaafi hain."
+      ] },
+      { heading:"Tasbih-e-Fatima RA", ic:"🌿", items:[
+        "Sone se pehle Tasbih-e-Fatima RA bhi padhein: SubhanAllah 33 martaba, Alhamdulillah 33 martaba, Allahu Akbar 34 martaba, kul 100 martaba.",
+        "Ali RA se riwayat hai ke Fatima RA ne ghar ke kaam ki mushaqqat ki wajah se khadim ki darkhwast ki, toh Nabi ﷺ ne unhein sone ke waqt yeh zikr sikhaya aur farmaya ke yeh tumhare liye khadim se behtar hai.",
+        "Sochiye: Nabi ﷺ ne apni beti ko sirf duniya ki aasani nahi, balki Allah ke zikr se milne wali roohani taqat ka raasta bataya. Is zikr ko raat ki routine ka hissa bana sakte hain."
+      ] },
+      { heading:"Sone Ki Dua", ic:"🤲", items:[
+        "Sone ke waqt Nabi ﷺ yeh dua padhte: 'Bismika Allahumma amutu wa ahya'. Matlab: 'Ae Allah! Tere hi naam ke saath main marta hoon aur jeeta hoon.' Yeh dua Sahih al-Bukhari mein riwayat hai.",
+        "Ek aur lambi masnoon dua bhi Nabi ﷺ ne sone se pehle padhne ki taleem di, jisme Allah ke saamne apne aap ko surrender karna aur apne tamam maamlaat Allah ke hawale karna shamil hai."
+      ] },
+      { heading:"Dahini Taraf Sona", ic:"🛌", items:[
+        "Sone ke waqt dahini taraf letna Sunnah hai.",
+        "Nabi ﷺ ne Al-Bara bin Azib RA ko sone ke liye wuzu karne, phir dahini taraf letne aur masnoon dua padhne ki hidayat di.",
+        "Nabi ﷺ se sone ke waqt dahina haath gaal ke neeche rakhna bhi riwayat hua hai, aur pairon ko halka modna.",
+        "Isliye sone ka ek khoobsurat Sunnah tareeqa ho sakta hai: wuzu, azkaar, dua, dahini taraf letna, aur Allah ke hawale hokar sona."
+      ] },
+      { heading:"Tahajjud Ki Niyyat Karke Sona", ic:"🌃", items:[
+        "Raat ko sote waqt apne dil mein Tahajjud ke liye uthne ka irada rakhein. Alarm lagaiye, jaldi sone ki koshish kijiye aur Allah se dua kijiye: 'Ya Allah, mujhe raat mein apni ibadat ke liye utha dena.'",
+        "Tahajjud ki niyyat karke sona ek khoobsurat intention hai, lekin sirf niyyat par rukna nahi, uthne ke liye practical sabab bhi ikhtiyar karein: alarm lagayein, phone ko bistar se thoda door rakhein, sone ka waqt be-wajah late na karein, aur agar mumkin ho toh kisi ghar wale ko bhi jagane ko keh sakte hain.",
+        "Uthne par wuzu karein aur Tahajjud ada karein. Aur agar kisi raat aankh na khule, toh apne aap ko mayoos na karein, agli raat phir niyyat kijiye."
+      ] },
+      { heading:"Fajr Ke Liye Uthne Ka Irada", ic:"🕌", items:[
+        "Raat ko sote waqt yeh niyyat bhi rakhein: 'Mujhe Fajr ke liye uthna hai.' Fajr ko miss karne ke baad subah ki routine banana maqsad nahi, Fajr ke liye raat se hi tayyari shuru hoti hai.",
+        "Tarteeb kuch yun ho sakti hai: Tahajjud ki niyyat, Fajr ke liye alarm, wuzu, mumkin ho toh Tahajjud, phir Fajr ki namaz. Aur agar Tahajjud ke liye na uth sakein, toh Fajr ke liye zaroor uthna hai.",
+        "Fajr farz hai, Tahajjud nafl ibadat hai, isliye raat ki planning mein dono ka darja alag samajhna zaroori hai."
+      ] },
+      { heading:"Sone Se Pehle Dil Ko Bhi Sulaayein", ic:"🧠", items:[
+        "Kabhi jism bistar par hota hai, lekin zehan abhi bhi 'usne mujhe yeh kyun kaha', 'kal kya hoga', 'mera kaam complete nahi hua' jaisi baaton mein laga hota hai. Sone se pehle apne dil ko bhi release karna seekhein.",
+        "Jo ho gaya, usko Allah ke hawale karein. Jo kal karna hai, uski planning kar lein. Jo aapke ikhtiyar mein nahi, us par tawakkul karein.",
+        "Kisi ke liye baddua aur gusse ko lekar sone ki aadat se bachein, aur apne aap ko yaad dilayein: 'Jo mere bas mein tha, maine koshish ki, ab Allah ke hawale.'"
+      ] },
+      { heading:"Kisi Se Naraz Hain?", ic:"❤️", items:[
+        "Har ikhtilaf ko raat bhar apne dil mein lekar chalna zaroori nahi. Agar kisi se galat-fehmi hui hai aur use suljhana mumkin ho, toh munasib waqt par baat kijiye.",
+        "Lekin raat ko 'main kabhi maaf nahi karunga' ya 'kal usko sabak sikhaunga' jaise khayalat lekar sona aapke apne sukoon ko bhi khatam kar sakta hai.",
+        "Maaf kar dena hamesha masle ko nazar-andaz karna nahi hota, kabhi iska matlab yeh hota hai ke aap apne dil ko be-zaroorat bojh se azaad kar rahe hain."
+      ] },
+      { heading:"Bhari Pet Se Sone Ki Aadat Se Bachein", ic:"🍽️", items:[
+        "Sone se bilkul pehle bahut bhari khana neend aur hazme ko disturb kar sakta hai.",
+        "Raat ko be-zaroorat zyada khana na khayein, aur sirf boriyat ki wajah se late-night snacking se bachein.",
+        "Agar bhook lage toh zarurat ke mutabiq khayein, aur khane ke baad foran bistar par lete jaane ke bajaye apne jism ko settle hone ka waqt dein. (Yeh sehat aur neend se juda mashwara hai, koi khaas Sunnah hukm nahi.)"
+      ] },
+      { heading:"Safai Aur Zaati Hifazat", ic:"🧼", items:[
+        "Sone se pehle jism saaf rakhein, aur zarurat ho toh wash karein.",
+        "Munh aur daanton ki safai ka khayal rakhein, aur apne kapde aaramdeh aur saaf rakhein.",
+        "Paseene ya badbu ke saath kisi shared sone ki jagah par na soyein, aur agar bistar kisi aur ke saath share karte hain toh unke aaram ka bhi khayal rakhein. Safai din ka hi nahi, raat ka bhi adab hai."
+      ] },
+      { heading:"Ghar Ki Hifazat Ka Khayal Rakhein", ic:"🔥", items:[
+        "Sone se pehle ek jaldi check kar lein: gas stove band hai, diya ya candle bujh gayi hai, koi unsafe electrical cheez off hai, darwaza mehfooz hai, charging wires safe hain, bachche mehfooz jagah par hain, aur paani ke bartan dhake hue hain.",
+        "Nabi ﷺ ne raat ko darwaze band karne, bartanon ko dhakne aur chiraghon/aag ko bujhane ki hidayat di. Yani ibadat ke saath practical hifazat bhi Deen ke adab ka hissa ban sakti hai."
+      ] },
+      { heading:"Neend Ko Sanjeedgi Se Lijiye", ic:"⏰", items:[
+        "Neend ko 'waqt ki barbaadi' samajhna bhi sahi nahi, jism ko aaram chahiye. Agar aap roz raat gaye tak jaagte hain aur Fajr, kaam, taleem, warzish aur ghar ki zimmedariyan sab mutasir hone lagti hain, toh apni routine par dobara ghaur karein.",
+        "Apni sone ki timing had tak consistent rakhein, raat ko be-zaroorat jagne ki aadat kam karein, aur subah ke zaroori kaam ko dekhte hue raat ki planning karein. Neend poori karna bhi apni jismani sehat ki zimmedari hai."
+      ] },
+      { heading:"Sone Ka Matlab Kal Se Bhaagna Nahi", ic:"🌅", items:[
+        "Sone se pehle apne aap se teen sawal pooch sakte hain: aaj maine Allah ko kitna yaad kiya? Aaj maine kisi insaan ko takleef toh nahi di? Kal mujhe kya behtar karna hai?",
+        "Phir apne din ko Allah ke hawale karke so jaiye."
+      ] },
+      { heading:"Jaagte Hi", ic:"🌄", items:[
+        "Nabi ﷺ jaagne par Allah ka shukr ada karne ki dua padhte: 'Alhamdu lillahil-lazi ahyana ba'da ma amatana wa ilaihin-nushur.' Matlab: 'Sab tareef Allah ke liye hai jisne humein maut jaisi neend ke baad zinda kiya, aur usi ki taraf laut kar jaana hai.' (Sahih al-Bukhari)",
+        "Yani raat ka ikhtitaam bhi Allah ke zikr se, aur subah ki ibtida bhi Allah ke zikr se."
+      ] },
+      { heading:"Ek Khoobsurat Night Routine", ic:"🌌", items:[
+        "Agar in sab ko ek simple tareeqe mein samete, toh raat kuch yun guzar sakti hai: apna kaam wrap-up karein, phone side par rakhein, safai/zaati hifazat ka khayal rakhein, wuzu karein, bistar check/jhaad lein, Ayat-ul-Kursi padhein, phir Ikhlas, Falaq aur Naas teen martaba, Surah Baqarah ki aakhri do ayaat aur Surah Al-Mulk, Tasbih-e-Fatima RA, masnoon sone ki dua, Tahajjud ki niyyat, Fajr ke liye alarm, aur phir dahini taraf let kar Allah ke hawale hokar so jaiye."
+      ] },
+    ],
+    closing:"Neend bhi Allah ki nemat hai. Raat ko phone, tension aur be-ant scrolling ke hawale karne ke bajaye, apni raat ko sukoon, zikr, dua aur tawakkul ke saath khatam kijiye. Din duniya ke kaam mein guzra ho, toh raat Allah ke zikr se khatam kijiye. Ho sakta hai kal ki subah aapki zindagi ka ek aur behtar din ho." },
 ];
 const HOWTO_GROUPS = [
   { key:'main', rur:'Asal Tabs', en:'Main Tabs' },
