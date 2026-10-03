@@ -693,6 +693,7 @@ body{
 .pn-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:18px 0 4px; padding:6px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
 .pn-btn{ flex:1; display:flex; align-items:center; justify-content:center; gap:4px; min-height:40px; padding:0 10px; border-radius:9px; border:none; background:transparent; color:var(--text); font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
 .pn-btn:disabled{ opacity:0.3; pointer-events:none; }
+.pn-bar-single{ justify-content:center; }
 .pn-btn.pn-prev{ background:color-mix(in srgb, #5b8def 16%, transparent); color:#5b8def; }
 .pn-btn.pn-next{ background:color-mix(in srgb, var(--green) 18%, transparent); color:var(--green); }
 .pn-btn .pn-ic{ font-size:12px; }
@@ -2165,11 +2166,14 @@ function setNavCtx(list, idx, openFn){ __navCtx = { list, idx, openFn }; }
 function pnBarHtml(){
   if(!__navCtx) return '';
   const { list, idx } = __navCtx;
-  if(list.length<2) return '';
+  /* Single item, or the last item of a section: the Agla slot becomes a way back to the section list */
+  const back = `<button class="pn-btn pn-back" id="pnBackBtn">${isEn() ? '‹ Back to list' : '‹ Wapas list mein'}</button>`;
+  if(list.length<2) return `<div class="pn-bar pn-bar-single">${back}</div>`;
+  const last = idx>=list.length-1;
   return `<div class="pn-bar">
-    <button class="pn-btn pn-prev" id="pnPrevBtn" ${idx<=0?'disabled':''}><span class="pn-ic">⬅️</span>Pichla</button>
+    <button class="pn-btn pn-prev" id="pnPrevBtn" ${idx<=0?'disabled':''}><span class="pn-ic">⬅️</span>${isEn() ? 'Previous' : 'Pichla'}</button>
     <span class="pn-pos">${idx+1} / ${list.length}</span>
-    <button class="pn-btn pn-next" id="pnNextBtn" ${idx>=list.length-1?'disabled':''}>Agla<span class="pn-ic">➡️</span></button>
+    ${last ? back : `<button class="pn-btn pn-next" id="pnNextBtn">${isEn() ? 'Next' : 'Agla'}<span class="pn-ic">➡️</span></button>`}
   </div>`;
 }
 /* Star and share sit inside the title card (top-right) so the card keeps its size */
@@ -2187,6 +2191,8 @@ function wirePnBar(){
   const go = (newIdx)=>{ setNavCtx(list, newIdx, openFn); openFn(list[newIdx], newIdx); };
   if(prevBtn) prevBtn.onclick = ()=>{ if(idx>0) go(idx-1); };
   if(nextBtn) nextBtn.onclick = ()=>{ if(idx<list.length-1) go(idx+1); };
+  const backBtn = document.getElementById('pnBackBtn');
+  if(backBtn) backBtn.onclick = ()=> closeModal();
 }
 document.getElementById('detailBody').addEventListener('click', (e)=>{
   const b = e.target.closest('.bm-btn');
