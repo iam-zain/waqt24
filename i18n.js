@@ -196,8 +196,8 @@ const I18N_EN = {
 };
 
 const I18N_PATTERNS = [
-  [/^Ramzan mein (\d+) din baaki$/, m=>`Ramzan in ${m[1]} days`],
-  [/^Ramzan kal shuru hoga$/, ()=>'Ramzan begins tomorrow'],
+  [/^Ramzan mein (\d+) din baaki$/, m=>`Ramadan in ${m[1]} days`],
+  [/^Ramzan kal shuru hoga$/, ()=>'Ramadan begins tomorrow'],
   [/^(\d+) din$/, m=>`${m[1]} ${m[1]==='1'?'day':'days'}`],
   [/^(\d+) sawal$/i, m=>`${m[1]} questions`],
   [/^(\d+) alfaz$/, m=>`${m[1]} words`],
@@ -373,7 +373,7 @@ Object.assign(I18N_EN, {
  "Result Share Karein": "Share Result",
  "Profile Delete Karein": "Delete Profile",
  "Teesra Ashra, Jahannam se Nijat": "Third Ashra: Freedom from Hellfire",
- "Ramzan kal shuru hoga": "Ramzan begins tomorrow",
+ "Ramzan kal shuru hoga": "Ramadan begins tomorrow",
  "5 Farz Namaz ke Buttons": "5 Farz Prayer Buttons",
  "Hara (Padh Li)": "Green (Prayed)",
  "Peela (Qaza Padhi)": "Yellow (Qaza Prayed)",
