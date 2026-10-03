@@ -2427,7 +2427,7 @@ function openAadaabDetail(t){
       { sc:6, n:'⑥', ic:'✅', lbl:'Aaj Se Ek Chhoti Tabdeeli', txt:t.tabdeeli },
     ].filter(s=>s.txt);
     return steps.map(s=>`<div class="aad-step s${s.sc}">
-      <div class="aad-step-head"><span class="aad-step-num">${s.n}</span><span class="aad-step-ic">${s.ic}</span><span class="aad-step-lbl">${s.lbl}</span></div>
+      <div class="aad-step-head"><span class="aad-step-ic">${s.ic}</span><span class="aad-step-lbl">${s.lbl}</span></div>
       <div class="aad-step-txt">${s.txt}</div>
     </div>`).join('');
   })();
