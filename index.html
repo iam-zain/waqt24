@@ -2903,7 +2903,7 @@ function renderNamesList(which){
       <div class="no">${i+1}</div>
       <div class="ar">${w.ar}</div>
       <div class="tr">${w.tr}</div>
-      ${namesView==='list' ? `<div class="m-preview">${w.m}</div>` : ''}
+      ${namesView==='list' ? `<div class="m-preview">${isEn() && w.en ? w.en : w.m}</div>` : ''}
     </div>`).join('');
   grid.querySelectorAll('[data-idx]').forEach(el=>{
     el.onclick = ()=> renderNameDetail(which, parseInt(el.dataset.idx));
@@ -2921,7 +2921,7 @@ function renderNameDetail(which, idx){
     <div class="name-detail">
       <div class="ar">${w.ar}</div>
       <div class="tr">${w.tr}</div>
-      <div class="m">${w.m}</div>
+      <div class="m">${isEn() && w.en ? w.en : w.m}</div>
     </div>
     <div class="daily-word-nav">
       <button id="namePrevBtn" ${idx===0?'disabled style="opacity:0.3;"':''}>‹</button>
