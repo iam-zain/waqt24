@@ -556,6 +556,15 @@ body{
 .aad-step-ic{ font-size:16px; }
 .aad-step-lbl{ font-size:13px; font-weight:800; }
 .aad-step-txt{ font-size:13px; line-height:1.6; color:var(--text); }
+.aad-card.status-amal{ background:color-mix(in srgb, var(--green) 14%, var(--card)); border-color:color-mix(in srgb, var(--green) 45%, var(--line)); border-left-color:var(--green); }
+.aad-card.status-soch{ background:color-mix(in srgb, #e0b43f 12%, var(--card)); border-color:color-mix(in srgb, #e0b43f 40%, var(--line)); border-left-color:#e0b43f; }
+.aad-status-badge{ flex:0 0 auto; font-size:15px; margin-right:2px; }
+.aad-head.status-amal{ background:color-mix(in srgb, var(--green) 16%, var(--card)); border-color:color-mix(in srgb, var(--green) 45%, var(--line)); border-top-color:var(--green); }
+.aad-head.status-soch{ background:color-mix(in srgb, #e0b43f 13%, var(--card)); border-color:color-mix(in srgb, #e0b43f 40%, var(--line)); border-top-color:#e0b43f; }
+.aad-status-row{ display:flex; gap:8px; margin-top:14px; }
+.aad-status-btn{ flex:1; display:flex; align-items:center; justify-content:center; gap:5px; min-height:40px; padding:0 8px; border-radius:11px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:11.5px; font-weight:700; cursor:pointer; font-family:inherit; text-align:center; line-height:1.3; }
+.aad-status-btn.soch.on{ background:#e0b43f; border-color:#e0b43f; color:#2b2208; }
+.aad-status-btn.amal.on{ background:var(--green); border-color:var(--green); color:#06210f; }
 
 /* ---------- 99 NAMES (Allah / Muhammad ﷺ) ---------- */
 .names-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:0 14px 20px; }
@@ -2310,6 +2319,13 @@ function openQuranWordDetail(w){
    ============================================================ */
 let aadaabSearch = '', aadaabCat = '__all__';
 function aadaabCatInfo(id){ return AADAAB_CATEGORIES.find(c=>c.id===id) || { label:id, ic:'🪴', color:'#9b6fd6' }; }
+function aadaabStatus(id){ return (state.aadaabStatus && state.aadaabStatus[id]) || null; }
+function setAadaabStatus(id, val){
+  if(!state.aadaabStatus) state.aadaabStatus = {};
+  if(aadaabStatus(id)===val){ delete state.aadaabStatus[id]; } // tap again to clear
+  else{ state.aadaabStatus[id] = val; }
+  saveState();
+}
 function renderAadaab(){
   document.getElementById('detailTitle').textContent = 'Aadaab-e-Zindagi';
   const body = document.getElementById('detailBody');
@@ -2351,13 +2367,15 @@ function renderAadaabList(){
   if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi unwan nahi mila.</div>`; return; }
   wrap.innerHTML = filtered.map((t,i)=>{
     const c = aadaabCatInfo(t.cat);
-    return `<div class="aad-card" data-i="${i}" style="--aad-c:${t.color};">
+    const st = aadaabStatus(t.id);
+    return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${t.color};">
       <div class="aad-ic">${t.ic}</div>
       <div class="aad-info">
         <div class="aad-title">${t.title}</div>
         <div class="aad-tags">${t.tags.map(x=>`<span class="aad-tag">${x}</span>`).join('')}</div>
         <div class="aad-cat-lbl">${c.ic} ${c.label}</div>
       </div>
+      ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">💭</div>' : ''}
       <div class="chev">›</div>
     </div>`;
   }).join('');
@@ -2371,6 +2389,7 @@ function renderAadaabList(){
 }
 function openAadaabDetail(t){
   const c = aadaabCatInfo(t.cat);
+  const st = aadaabStatus(t.id);
   document.getElementById('detailTitle').textContent = t.title;
   const steps = [
     { n:'①', ic:'🎬', lbl:'Aaj Hum Kya Karte Hain?', txt:t.scene },
@@ -2385,11 +2404,15 @@ function openAadaabDetail(t){
       ${bmBtn('aadaab:'+t.id)}
       <button class="act-btn" id="aadaabImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
-    <div class="aad-head" style="--aad-c:${t.color};">
+    <div class="aad-head status-${st||'none'}" style="--aad-c:${t.color};">
       <div class="aad-head-ic">${t.ic}</div>
       <div class="aad-head-title">${t.title}</div>
       <div class="aad-tags center">${t.tags.map(x=>`<span class="aad-tag">${x}</span>`).join('')}</div>
       <div class="aad-cat-pill">${c.ic} ${c.label}</div>
+      <div class="aad-status-row">
+        <button class="aad-status-btn soch ${st==='soch'?'on':''}" id="aadaabSochBtn">💭 Is Par Socha Jayega</button>
+        <button class="aad-status-btn amal ${st==='amal'?'on':''}" id="aadaabAmalBtn">✅ Is Par Amal Kiya Jayega!</button>
+      </div>
     </div>
     ${steps.map(s=>`<div class="aad-step">
       <div class="aad-step-head"><span class="aad-step-num">${s.n}</span><span class="aad-step-ic">${s.ic}</span><span class="aad-step-lbl">${s.lbl}</span></div>
@@ -2398,6 +2421,8 @@ function openAadaabDetail(t){
     ${pnBarHtml()}
   `;
   document.getElementById('aadaabImgBtn').onclick = ()=> shareCard({ kind:'Aadaab-e-Zindagi', title:t.title, sub:c.label, body:t.tabdeeli, foot:'Waqt24 • Aadaab-e-Zindagi' });
+  document.getElementById('aadaabSochBtn').onclick = ()=>{ setAadaabStatus(t.id, 'soch'); openAadaabDetail(t); };
+  document.getElementById('aadaabAmalBtn').onclick = ()=>{ setAadaabStatus(t.id, 'amal'); openAadaabDetail(t); };
   wirePnBar();
 }
 
