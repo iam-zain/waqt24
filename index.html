@@ -12,16 +12,16 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 
-<meta name="description" content="Roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein — GPS-based accurate prayer times, Hijri calendar, Ramzan tracker, Qibla direction aur bahut kuch.">
+<meta name="description" content="Roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein, GPS-based accurate prayer times, Hijri calendar, Ramzan tracker, Qibla direction aur bahut kuch.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Waqt24 — Namaz Timer">
-<meta property="og:description" content="Roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein — GPS-based accurate prayer times, Hijri calendar, Ramzan tracker, Qibla direction aur bahut kuch.">
+<meta property="og:title" content="Waqt24, Namaz Timer">
+<meta property="og:description" content="Roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein, GPS-based accurate prayer times, Hijri calendar, Ramzan tracker, Qibla direction aur bahut kuch.">
 <meta property="og:url" content="https://iam-zain.github.io/waqt24/">
 <meta property="og:image" content="https://iam-zain.github.io/waqt24/icons/icon-512.png">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Waqt24 — Namaz Timer">
+<meta name="twitter:title" content="Waqt24, Namaz Timer">
 <meta name="twitter:description" content="Roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein.">
 <meta name="twitter:image" content="https://iam-zain.github.io/waqt24/icons/icon-512.png">
 <style>
@@ -808,6 +808,7 @@ body{
     <div class="more-list" style="padding-top:0;">
       <div class="more-item" data-open="asma"><div class="ic">💚</div><div class="lbl">Asma-ul-Husna</div><div class="chev">›</div></div>
       <div class="more-item" data-open="prophetNames"><div class="ic">🌙</div><div class="lbl">Muhammad ﷺ ke 99 Naam</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="aadaab"><div class="ic">🪴</div><div class="lbl">Aadaab-e-Zindagi</div><div class="chev">›</div></div>
       <div class="more-item" data-open="dua"><div class="ic">🤲</div><div class="lbl">Du'a Padhiye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="hadees"><div class="ic">📖</div><div class="lbl">Hadees Dekhiye</div><div class="chev">›</div></div>
       <div class="more-item" data-open="quranWords"><div class="ic">📗</div><div class="lbl">Qur’ani Alfaaz Aur Ma’ani</div><div class="chev">›</div></div>
@@ -815,7 +816,6 @@ body{
       <div class="more-item" data-open="khaasShabd"><div class="ic">📚</div><div class="lbl">Khaas Shabd</div><div class="chev">›</div></div>
       <div class="more-item" data-open="dailyWord"><div class="ic">🔤</div><div class="lbl">Aaj Ka Lafz</div><div class="chev">›</div></div>
       <div class="more-item" data-open="mythBusters"><div class="ic">💡</div><div class="lbl">Ghalat Fehmi Ka Izala</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="aadaab"><div class="ic">🪴</div><div class="lbl">Aadaab-e-Zindagi</div><div class="chev">›</div></div>
     </div>
   </div>
 
@@ -1149,7 +1149,7 @@ const PRAYER_META = {
 };
 
 /* ============================================================
-   INFO MODAL — meaning + timing of each entry
+   INFO MODAL, meaning + timing of each entry
    ============================================================ */
 const INFO_TEXT = {
   sehri:   {time:'Fajr se pehle', text:"Subah sadiq (Fajr) se pehle khaya jaane wala aakhri khana, roze ki niyyat ke saath. Sehri ka waqt Fajr shuru hote hi khatam ho jaata hai."},
@@ -1280,7 +1280,7 @@ setInterval(applyTheme, 30000);
 function setTimeFormat(f){ state.timeFormat = f; saveState(); renderHome(); renderCalendar(); }
 
 /* ============================================================
-   STREAK TRACKER — consecutive days with all 5 Farz prayed on time
+   STREAK TRACKER, consecutive days with all 5 Farz prayed on time
    ============================================================ */
 function isAllFiveGreen(d){
   return FIVE.every(p=> getStatus(d,p)==='green');
@@ -1539,7 +1539,7 @@ document.getElementById('namazModeBtn').onclick=()=>{
 };
 
 /* ============================================================
-   SHARE A DAY'S SCHEDULE — as text or as an image
+   SHARE A DAY'S SCHEDULE, as text or as an image
    ============================================================ */
 function buildDaySchedLines(date){
   const sched = buildSchedule(date);
@@ -1558,7 +1558,7 @@ function buildDaySchedLines(date){
 function buildDayShareText(date){
   const hd = gregorianToHijri(date);
   const lines = buildDaySchedLines(date);
-  let txt = `🕌 Waqt24 — ${DOW[date.getDay()]}, ${date.getDate()} ${MON[date.getMonth()]} ${date.getFullYear()} (${hd.day} ${hd.monthName} ${hd.year} AH)\n📍 ${state.location.name}\n\n`;
+  let txt = `🕌 Waqt24, ${DOW[date.getDay()]}, ${date.getDate()} ${MON[date.getMonth()]} ${date.getFullYear()} (${hd.day} ${hd.monthName} ${hd.year} AH)\n📍 ${state.location.name}\n\n`;
   lines.forEach(l=>{ txt += `${l.icon} ${l.name}: ${l.range}${l.mark}\n`; });
   return txt;
 }
@@ -1676,7 +1676,7 @@ renderHome();
 setInterval(()=>{ if(homeFollowsToday || isSameDay(homeViewDate,new Date())) renderHome(); }, 15000);
 
 /* ============================================================
-   NOTIFICATIONS — local, best-effort while the app is open
+   NOTIFICATIONS, local, best-effort while the app is open
    (browsers do not allow reliable scheduled notifications from a
    static page when it is fully closed; this schedules timers for
    whatever remains of today whenever the app is open/foregrounded)
@@ -2315,7 +2315,7 @@ function renderAadaab(){
   const body = document.getElementById('detailBody');
   body.innerHTML = `
     <div style="text-align:center; padding:10px 14px 6px;">
-      <div style="font-size:12.5px; color:var(--sub);">Rozmarra zindagi ko Islami adab aur Sunnah ke mutabiq behtar banane ke liye — safai, huqooq, muashira, akhlaq aur bohot kuch, chhote chhote unwano mein.</div>
+      <div style="font-size:12.5px; color:var(--sub);">Rozmarra zindagi ko Islami adab aur Sunnah ke mutabiq behtar banane ke liye, safai, huqooq, muashira, akhlaq aur bohot kuch, chhote chhote unwano mein.</div>
     </div>
     <div class="search-bar-wrap">
       <input id="aadaabSearchInput" placeholder="Unwan dhoondhiye..." value="${aadaabSearch}">
@@ -2468,7 +2468,7 @@ function openHadeesDetail(h){
    QUIZ
    ============================================================ */
 /* ============================================================
-   ILM DATA — Asma-ul-Husna, Prophet's Names, Khaas Shabd, Myth Busters
+   ILM DATA, Asma-ul-Husna, Prophet's Names, Khaas Shabd, Myth Busters
    ============================================================ */
 /* (data moved to data.js: ASMA_UL_HUSNA, PROPHET_NAMES, KHAAS_SHABD, MYTH_BUSTERS, QUIZ_CATEGORIES, QUIZ_BANK) */
 
@@ -2519,7 +2519,7 @@ const QUIZ_CAT_ICON = {
     [ASMA_UL_HUSNA, "Asma-ul-Husna", "Allah"],
     [PROPHET_NAMES, "Seerat-un-Nabi ﷺ", "Muhammad ﷺ"]
   ].forEach(([dataset, catName, subject])=>{
-    // 1) meaning questions — full pool
+    // 1) meaning questions, full pool
     shuffleArr(dataset).forEach(w=>{
       const wrongPool = dataset.filter(x=>x.m!==w.m);
       const wrongs = shuffleArr(wrongPool).slice(0,3).map(x=>x.m);
@@ -2548,7 +2548,7 @@ const QUIZ_CAT_ICON = {
 })();
 
 /* ============================================================
-   99 NAMES — Allah ke Naam / Muhammad ﷺ ke Naam
+   99 NAMES, Allah ke Naam / Muhammad ﷺ ke Naam
    ============================================================ */
 let namesView = 'grid';
 function renderNamesList(which){
@@ -2929,7 +2929,7 @@ function renderDailyWord(){
 }
 
 /* ============================================================
-   GHALAT FEHMI KA IZALA (Myth Busters) — quiz mode + read-through mode
+   GHALAT FEHMI KA IZALA (Myth Busters), quiz mode + read-through mode
    ============================================================ */
 function renderMythBusters(){
   document.getElementById('detailTitle').textContent = 'Ghalat Fehmi Ka Izala';
@@ -3212,7 +3212,7 @@ const LEARN_NOTIF = [
 function notifPermLabel(){
   if(!('Notification' in window)) return 'Is browser mein yaad-dahaniyan ka support nahi hai';
   if(Notification.permission==='granted') return '✅ Yaad-dahaniyon ki ijaazat mil gayi hai';
-  if(Notification.permission==='denied') return '⛔ Yaad-dahaniyan block hain — browser settings mein ijaazat dijiye';
+  if(Notification.permission==='denied') return '⛔ Yaad-dahaniyan block hain, browser settings mein ijaazat dijiye';
   return 'Yaad-dahaniyan abhi off hain';
 }
 let settingsTab = 'location'; // location | notif | lang
@@ -3466,7 +3466,7 @@ function renderMoreRamzan(){
   document.getElementById('detailTitle').textContent = 'Ramzan';
   const live = gregorianToHijri(new Date()).month===9;
   document.getElementById('detailBody').innerHTML = `
-    ${live ? '' : `<div class="backup-note" style="margin-bottom:12px;">🌙 Abhi Ramzan nahi hai — yeh sirf jhalak hai. Ramzan mein yahan roza aur namaz mark kar sakenge.</div>`}
+    ${live ? '' : `<div class="backup-note" style="margin-bottom:12px;">🌙 Abhi Ramzan nahi hai, yeh sirf jhalak hai. Ramzan mein yahan roza aur namaz mark kar sakenge.</div>`}
     <div class="${live ? '' : 'ramzan-locked'}">
     <div class="section-title" style="margin-top:0;">Aaj ka Roza</div>
     <div class="ramzan-card" style="margin:0 0 14px;">
@@ -3499,7 +3499,7 @@ function renderRamzanCalendar(){
     rows.push({ n, d, sehri: sehri ? fmtTime(sehri.end) : '--', iftar: iftar ? fmtTime(iftar.start) : '--', isToday: d.getTime()===today.getTime(), qadr: n>=21 && n%2===1 });
   }
   if(rzSel===null || rzSel>count){ const t = rows.find(r=>r.isToday); rzSel = t ? t.n : 1; }
-  const ashra = [[1,10,'🤲 Pehla Ashra — Rehmat'],[11,20,'🕊️ Doosra Ashra — Maghfirat'],[21,count,'🔥 Teesra Ashra — Jahannam se Nijat']];
+  const ashra = [[1,10,'🤲 Pehla Ashra, Rehmat'],[11,20,'🕊️ Doosra Ashra, Maghfirat'],[21,count,'🔥 Teesra Ashra, Jahannam se Nijat']];
   const dateStr = d=> `${DOW[d.getDay()].slice(0,3)}, ${d.getDate()} ${MON[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;
   const detail = r=> `<div class="rz-detail">
       <div class="rz-detail-top"><span class="rz-detail-n">${r.n}</span>
@@ -3692,9 +3692,9 @@ function renderStats(){
 
     <div class="ramzan-card" style="margin:0 0 14px;">
       <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🛐 Namaz ka Jaiza</div>
-      <div class="stats-row"><span>🏆 Sabse Zyada Padhi Gayi</span><b>${highestPrayed || '—'}</b></div>
-      <div class="stats-row"><span>〰️ Sabse Zyada Qaza</span><b>${highestQaza || '—'}</b></div>
-      <div class="stats-row"><span>⚠️ Sabse Zyada Chhooti</span><b>${highestMissed || '—'}</b></div>
+      <div class="stats-row"><span>🏆 Sabse Zyada Padhi Gayi</span><b>${highestPrayed || '-'}</b></div>
+      <div class="stats-row"><span>〰️ Sabse Zyada Qaza</span><b>${highestQaza || '-'}</b></div>
+      <div class="stats-row"><span>⚠️ Sabse Zyada Chhooti</span><b>${highestMissed || '-'}</b></div>
       <div class="stats-row"><span>✅ Saare 5 Farz wale din</span><b>${allFiveDays} / ${pastDays.length}</b></div>
       <div class="stats-row"><span>🔁 Qaza padhi gayi</span><b>${pastDays.reduce((a,d)=> a + qazaDoneOn(d), 0)}</b></div>
       <div class="stats-row"><span>⏳ Qaza abhi baaki</span><b>${qazaTotal()}</b></div>
@@ -3735,8 +3735,8 @@ function renderStats(){
         <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">🧠 Quiz ka Jaiza</div>
         <div class="stats-row"><span>🎮 Quiz khele gaye</span><b>${played}</b></div>
         <div class="stats-row"><span>☑️ Sahi jawab</span><b>${right} / ${asked}</b></div>
-        <div class="stats-row"><span>🎯 Durustgi</span><b>${played ? acc+'%' : '—'}</b></div>
-        <div class="stats-row"><span>🎖️ Sabse behtar nateeja</span><b>${played ? best+'%' : '—'}</b></div>
+        <div class="stats-row"><span>🎯 Durustgi</span><b>${played ? acc+'%' : '-'}</b></div>
+        <div class="stats-row"><span>🎖️ Sabse behtar nateeja</span><b>${played ? best+'%' : '-'}</b></div>
       </div>`;
     })()}
 
@@ -3864,7 +3864,7 @@ function renderQibla(){
         if(heading==null) return;
         dial.style.transform = `rotate(${-heading}deg)`;
         needle.style.transform = `rotate(${bearing}deg)`;
-        statusEl.textContent = 'Compass chalu hai — phone ko seedha pakdein, 🕋 wahi Qibla ki taraf ishara karega.';
+        statusEl.textContent = 'Compass chalu hai, phone ko seedha pakdein, 🕋 wahi Qibla ki taraf ishara karega.';
       };
       const evt = ('ondeviceorientationabsolute' in window) ? 'deviceorientationabsolute' : 'deviceorientation';
       window.addEventListener(evt, qiblaOrientHandler);
@@ -3884,7 +3884,7 @@ function renderQibla(){
 }
 
 /* ============================================================
-   DATA BACKUP — export/import the whole localStorage state as JSON
+   DATA BACKUP, export/import the whole localStorage state as JSON
    ============================================================ */
 function renderBackup(){
   document.getElementById('detailTitle').textContent = 'Data Backup';
@@ -4081,7 +4081,7 @@ function renderTasbeeh(){
 }
 
 /* ============================================================
-   ZIKR PROFILES (Morning/Evening Azkar + custom) — attached to Tasbeeh
+   ZIKR PROFILES (Morning/Evening Azkar + custom), attached to Tasbeeh
    ============================================================ */
 const ZIKR_SUGGESTIONS = ["Subhan Allah","Alhamdulillah","Allahu Akbar","La ilaha illallah","Durud Sharif","Astaghfar","Teesra Kalima","Auzu Billah","Bismillah","La hawla wala quwwata illa billah","Ayat-ul-Kursi","Surah Ikhlas","Surah Al-Falaq","Surah An-Naas","Subhanallahi wa bihamdihi"];
 function defaultAzkarItems(){
@@ -4252,7 +4252,7 @@ function renderZikrProfile(profileId){
   };
 }
 
-/* Full-screen tap/beads counting animation for a single zikr/dua inside a profile — mirrors the main Tasbeeh Counter but counts against that item's own saved progress. */
+/* Full-screen tap/beads counting animation for a single zikr/dua inside a profile, mirrors the main Tasbeeh Counter but counts against that item's own saved progress. */
 function renderZikrItemCounter(profileId, itemId){
   const profile = state.tasbeeh.profiles.find(p=>p.id===profileId);
   if(!profile) return renderTasbeeh();
@@ -4529,7 +4529,7 @@ function islamicEventsList(){
     { name:"Islami Naya Saal (1 Muharram-ul-Haraam)", h:(y)=>hijriToGregorian(1,1,y), ic:"🥳", tag:"newyear" },
     { name:"Muharram-ul-Haraam ki 10 Tareekh", h:(y)=>hijriToGregorian(10,1,y), ic:"🖤", tag:"ashura" },
     { name:"Milad-un-Nabi ﷺ (12 Rabi-ul-Awwal)", h:(y)=>hijriToGregorian(12,3,y), ic:"🌹", tag:"milad" },
-    { name:"Laylat-ul-Miraj (27 Rajab)", h:(y)=>hijriToGregorian(27,7,y), ic:"🌠", tag:"miraj", yr:"Safar-e-Miraj ki mash'hoor raat", note:"Tareekh mein ikhtilaf — mash'hoor riwayat 27 Rajab hai, qatai nahi" },
+    { name:"Laylat-ul-Miraj (27 Rajab)", h:(y)=>hijriToGregorian(27,7,y), ic:"🌠", tag:"miraj", yr:"Safar-e-Miraj ki mash'hoor raat", note:"Tareekh mein ikhtilaf, mash'hoor riwayat 27 Rajab hai, qatai nahi" },
     { name:"Ramzan Shuru (1 Ramzan)", h:(y)=>hijriToGregorian(1,9,y), ic:"🌛", tag:"ramzan" },
     { name:"Ghazwa-e-Badr (17 Ramzan)", h:(y)=>hijriToGregorian(17,9,y), ic:"⚔️", tag:"ghazwa", yr:"2 Hijri" },
     { name:"Shab-e-Qadr ka Ehtimaal", nights:[21,23,25,27,29].map(d=>({day:d, h:(y)=>hijriToGregorian(d,9,y)})), ic:"✨", tag:"qadr" },
@@ -4601,7 +4601,7 @@ function renderIslamicEvents(){
   document.querySelectorAll('#detailBody .he-share').forEach(btn=>{
     btn.onclick = ()=>{
       const e = events[parseInt(btn.dataset.i)];
-      const body = e.nights ? e.nights.map(n=>`${n.day} Ramzan — ${fmtG(n.greg)}`).join('\n') : `${e.hijri}\n${fmtG(e.greg)}`;
+      const body = e.nights ? e.nights.map(n=>`${n.day} Ramzan, ${fmtG(n.greg)}`).join('\n') : `${e.hijri}\n${fmtG(e.greg)}`;
       shareCard({ kind:'Khaas Din', title:e.name, sub:e.yr||'', body, foot:e.note||'' });
     };
   });
@@ -4633,7 +4633,7 @@ function updateRamzanLock(){
 updateRamzanLock();
 
 /* ============================================================
-   BACK-BUTTON HANDLING — make the phone/browser back button close
+   BACK-BUTTON HANDLING, make the phone/browser back button close
    overlays instead of exiting the app, by pushing a history entry
    for each overlay we open and popping it on close.
    ============================================================ */
@@ -4801,7 +4801,7 @@ function renderQaza(){
       <button class="qz-btn danger full" id="qzResetLeft" style="margin-bottom:10px;">↺ Baaki Qaza Reset Karein (sab 0)</button>
       <button class="qz-btn danger full" id="qzResetDone">↺ Padhi Gayi Qaza ka Record Reset Karein</button>
     </div>
-    <div class="backup-note">Yeh aapka apna hisaab hai — sirf isi phone mein save hota hai.</div>
+    <div class="backup-note">Yeh aapka apna hisaab hai, sirf isi phone mein save hota hai.</div>
   `;
   const body = document.getElementById('detailBody');
   body.querySelectorAll('.qz-count').forEach(inp=>{
@@ -4819,7 +4819,7 @@ function renderQaza(){
       state.qazaDone[dk] = (state.qazaDone[dk]||0) + 1;
       saveState();
       renderQaza();
-      showToast('Ek qaza padh li — Allah qubool farmaye');
+      showToast('Ek qaza padh li, Allah qubool farmaye');
     };
   });
   const qzInputs = ['qzYears','qzMonths','qzDays'].map(id=>document.getElementById(id));
@@ -4883,7 +4883,7 @@ function renderInstall(){
     action = `<div class="ramzan-card" style="margin:0 0 14px; line-height:1.8;"><b>Android / Chrome par:</b><br>1. Browser ke menu (⋮) ko kholein.<br>2. <b>Install app</b> ya <b>Add to Home screen</b> chunein.<br>3. <b>Install</b> dabayein.</div>`;
   }
   document.getElementById('detailBody').innerHTML = `
-    <div class="backup-note">Waqt24 ko apni home screen par rakhein — alag app ki tarah khulti hai, tez chalti hai aur internet ke baghair bhi kaam karti hai.</div>
+    <div class="backup-note">Waqt24 ko apni home screen par rakhein, alag app ki tarah khulti hai, tez chalti hai aur internet ke baghair bhi kaam karti hai.</div>
     ${action}
   `;
   const btn = document.getElementById('installBtn');
@@ -5004,7 +5004,7 @@ function showUpdateBanner(){
 }
 
 /* ============================================================
-   LANGUAGE — English UI translation layer (dictionary in i18n.js)
+   LANGUAGE, English UI translation layer (dictionary in i18n.js)
    ============================================================ */
 function i18nCore(str){
   if(typeof I18N_EN==='undefined') return str;
