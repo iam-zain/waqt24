@@ -2458,24 +2458,47 @@ function renderQwordGrid(){
     grid.appendChild(c);
   });
 }
+/* Yaad status key and colour for a Qur'ani word (colour comes from the quiz palette, by category name) */
+function qwordKey(w){ return 'qword:' + w.tr; }
+function qwordColor(w){ return QUIZ_PALETTE[[...String(w.cat)].reduce((a,c)=>a+c.charCodeAt(0),0) % QUIZ_PALETTE.length]; }
 function openQuranWordDetail(w){
+  const key = qwordKey(w), st = duaStatus(key), color = qwordColor(w);
   document.getElementById('detailTitle').textContent = w.tr;
   document.getElementById('detailBody').innerHTML = `
     <div class="detail-actions">
       ${bmBtn('qword:'+w.tr)}
       <button class="act-btn" id="qwordImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
-    <div class="arabic">${w.ar}</div>
-    <div class="translit">${w.tr}</div>
-    <div class="meaning">${w.m}</div>
-    <div class="stats-row"><span>📊 Category</span><b>${w.cat}</b></div>
-    <div class="stats-row"><span>🔁 Qur’an mein aaya hai</span><b>${w.occ} martaba</b></div>
-    <div class="section-title" style="margin-top:14px;">Misaal</div>
-    <div class="arabic" style="font-size:22px;">${w.ex}</div>
-    <div class="meaning">${w.exm}</div>
-    <div class="ref">Doosri shaklein: ${w.comb}</div>
+    <div class="aad-head status-${st||'none'}" style="--aad-c:${color};">
+      <div class="aad-head-ic">🔤</div>
+      <div class="aad-head-title">${w.tr}</div>
+      <div class="arabic qword-ar">${w.ar}</div>
+      <div class="aad-cat-pill">🔤 ${w.cat}</div>
+    </div>
+    <div class="dua-detail">
+      <div class="aad-guide-sec qword-sec-m">
+        <div class="aad-guide-head"><span class="aad-step-lbl">Matlab</span></div>
+        <div class="meaning qword-m">${w.m}</div>
+      </div>
+      <div class="aad-guide-sec qword-sec-st">
+        <div class="aad-guide-head"><span class="aad-step-lbl">Qur’an mein</span></div>
+        <div class="qword-stat">🔁 <b>${w.occ} martaba</b> aaya hai</div>
+        <div class="ref">Doosri shaklein: ${w.comb}</div>
+      </div>
+      <div class="aad-guide-sec qword-sec-ex">
+        <div class="aad-guide-head"><span class="aad-step-lbl">Misaal</span></div>
+        <div class="arabic qword-exar">${w.ex}</div>
+        <div class="meaning qword-exm">${w.exm}</div>
+      </div>
+    </div>
+    <div class="aad-status-row">
+      <button class="aad-status-btn soch ${st==='soch'?'on':''}" id="qwordSochBtn">⏳ Yaad karna baaqi hai</button>
+      <button class="aad-status-btn amal ${st==='amal'?'on':''}" id="qwordAmalBtn">✅ Yaad ho chuka hai</button>
+    </div>
     ${pnBarHtml()}
   `;
+  document.getElementById('qwordSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openQuranWordDetail(w); };
+  document.getElementById('qwordAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openQuranWordDetail(w); };
   document.getElementById('qwordImgBtn').onclick = ()=> openCardShareChooser({ kind:'Qur’ani Lafz', arabic:w.ar, title:w.tr, sub:w.m, body:w.ex+'\n'+w.exm, foot:'Qur’an mein '+w.occ+' martaba' });
   wirePnBar();
 }
