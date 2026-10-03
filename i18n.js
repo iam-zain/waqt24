@@ -453,3 +453,12 @@ I18N_PATTERNS.push(
   [/^(?:📍\s*)?(.+) se Khana Kaaba ki taraf$/, m=>'Towards the Kaaba from ' + m[1]],
   [/^Qibla: (\d+)° \(Shumaal se\)$/, m=>'Qibla: ' + m[1] + '° (from North)']
 );
+
+/* Sweep 3: last English gaps (labels, Tasbeeh tap, Ramadan dates) */
+Object.assign(I18N_EN, {
+ "Khidmaat": "Services",
+ "Dabaiye": "Tap",
+ "Subah Azkar (Morning)": "Morning Azkar",
+ "Shaam Azkar (Evening)": "Evening Azkar",
+ "Ramzan 1448 AH Calendar": "Ramadan 1448 AH Calendar"
+});

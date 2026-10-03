@@ -975,7 +975,7 @@ body{
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=32"></script>
+<script src="i18n.js?v=33"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -5327,9 +5327,9 @@ function renderInstall(){
   } else if(deferredInstall){
     action = `<button id="installBtn" class="backup-btn">📲 Abhi Install Karein</button>`;
   } else if(ios){
-    action = `<div class="ramzan-card" style="margin:0 0 14px; line-height:1.8;"><b>iPhone / iPad par:</b><br>1. Safari mein neeche <b>Share</b> (⬆️) dabayein.<br>2. <b>Add to Home Screen</b> chunein.<br>3. <b>Add</b> dabayein.</div>`;
+    action = `<div class="ramzan-card" style="margin:0 0 14px; line-height:1.8;">${L({rur:'<b>iPhone / iPad par:</b>', en:'<b>On iPhone / iPad:</b>'})}<br>${L({rur:'1. Safari mein neeche <b>Share</b> (⬆️) dabayein.', en:'1. In Safari, tap <b>Share</b> (⬆️) at the bottom.'})}<br>${L({rur:'2. <b>Add to Home Screen</b> chunein.', en:'2. Choose <b>Add to Home Screen</b>.'})}<br>${L({rur:'3. <b>Add</b> dabayein.', en:'3. Tap <b>Add</b>.'})}</div>`;
   } else {
-    action = `<div class="ramzan-card" style="margin:0 0 14px; line-height:1.8;"><b>Android / Chrome par:</b><br>1. Browser ke menu (⋮) ko kholein.<br>2. <b>Install app</b> ya <b>Add to Home screen</b> chunein.<br>3. <b>Install</b> dabayein.</div>`;
+    action = `<div class="ramzan-card" style="margin:0 0 14px; line-height:1.8;">${L({rur:'<b>Android / Chrome par:</b>', en:'<b>On Android / Chrome:</b>'})}<br>${L({rur:'1. Browser ke menu (⋮) ko kholein.', en:'1. Open the browser menu (⋮).'})}<br>${L({rur:'2. <b>Install app</b> ya <b>Add to Home screen</b> chunein.', en:'2. Choose <b>Install app</b> or <b>Add to Home screen</b>.'})}<br>${L({rur:'3. <b>Install</b> dabayein.', en:'3. Tap <b>Install</b>.'})}</div>`;
   }
   document.getElementById('detailBody').innerHTML = `
     <div class="backup-note">Waqt24 ko apni home screen par rakhein, alag app ki tarah khulti hai, tez chalti hai aur internet ke baghair bhi kaam karti hai.</div>
@@ -5473,7 +5473,7 @@ function i18nCore(str){
       if(mm) return str.replace(t, m[1]+fn(mm)+m[3]);
     }
   }
-  return str;
+  return str.replace(/Ramzan/g, 'Ramadan');
 }
 function i18nWalk(root){
   if(state.lang!=='en') return;
