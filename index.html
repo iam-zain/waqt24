@@ -2245,66 +2245,70 @@ async function shareCard(cfg){
   showToast('Image download ho gayi');
 }
 
-let duaView='grid', duaSearch='';
+let duaCat='__all__', duaSearch='';
 let hadeesFilter='All', hadeesSearch='';
-
+/* Icon and accent colour per dua category; chips and cards share the Aadaab-e-Zindagi look */
+const DUA_CAT_META = { 'Rabbana':['🤲','#2bb38a'], 'Roz Marra':['🌙','#3a4d8f'], 'Khana':['🍽️','#c0563f'], 'Safar':['🧭','#3f8fe0'], 'Masjid':['🕌','#9b6fd6'], 'Pareshani':['💪','#e0893f'], 'Ghar':['🏠','#d6708f'], 'Ramzan':['🌙','#c79a2e'] };
+function duaMeta(cat){ return DUA_CAT_META[cat] || ['🤲','#5b8def']; }
 function renderMoreDua(){
   document.getElementById('detailTitle').textContent="Du'a";
   const body = document.getElementById('detailBody');
   body.innerHTML = `
+    <div style="text-align:center; padding:10px 14px 6px;">
+      <div style="font-size:12.5px; color:var(--sub);">Quran aur Sunnah ki duayein, Arabic, transliteration, Roman Urdu tarjuma aur hawale ke saath.</div>
+    </div>
     <div class="search-bar-wrap">
       <input id="duaSearchInput" placeholder="Dua dhoondhiye...">
       <button id="duaSearchClear" class="search-clear-btn">✕</button>
     </div>
-    <div class="view-toggle">
-      <button id="duaGridBtn" class="${duaView==='grid'?'active':''}">Grid</button>
-      <button id="duaListBtn" class="${duaView==='list'?'active':''}">List</button>
-    </div>
-    <div class="dua-grid ${duaView==='list'?'list':''}" id="duaGrid"></div>
+    <div class="chip-row" id="duaCatRow" style="padding:0 0 10px;"></div>
+    <div id="duaList"></div>
   `;
-  document.getElementById('duaSearchInput').value = duaSearch;
-  wireLiveSearch('duaSearchInput', 'duaSearchClear', renderDuaGrid, v=>{ duaSearch = v; });
-  body.querySelector('#duaGridBtn').onclick = ()=>{ duaView='grid'; renderMoreDua(); };
-  body.querySelector('#duaListBtn').onclick = ()=>{ duaView='list'; renderMoreDua(); };
-  renderDuaGrid();
-}
-function renderDuaGrid(){
-  const grid = document.getElementById('duaGrid');
-  const q = duaSearch.trim().toLowerCase();
-  grid.innerHTML = '';
-  const filtered = DUAS.filter(d=> (d.title+' '+d.cat+' '+d.translit+' '+d.meaning).toLowerCase().includes(q));
-  if(!filtered.length){ grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Koi dua nahi mili.</div>`; return; }
-  filtered.forEach((d,i)=>{
-    const c = document.createElement('div');
-    c.className='dua-card';
-    c.innerHTML = `<div class="aad-tags">${duaTagChips(d)}</div><div class="title">${d.title}</div><div class="prev">${d.meaning.slice(0,60)}...</div>`;
-    c.onclick = ()=>{ setNavCtx(filtered, i, openDuaDetail); openDuaDetail(d); };
-    grid.appendChild(c);
+  const catRow = body.querySelector('#duaCatRow');
+  const allChip = document.createElement('div');
+  allChip.className = 'chip' + (duaCat==='__all__' ? ' prayed' : '');
+  allChip.textContent = `🌐 Sabhi (${DUAS.length})`;
+  allChip.onclick = ()=>{ duaCat='__all__'; renderMoreDua(); };
+  catRow.appendChild(allChip);
+  [...new Set(DUAS.map(d=>d.cat))].sort((a,b)=>a.localeCompare(b)).forEach(cat=>{
+    const count = DUAS.filter(d=>d.cat===cat).length;
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (duaCat===cat ? ' prayed' : '');
+    chip.textContent = `${duaMeta(cat)[0]} ${cat} (${count})`;
+    chip.onclick = ()=>{ duaCat = cat; renderMoreDua(); };
+    catRow.appendChild(chip);
   });
+  document.getElementById('duaSearchInput').value = duaSearch;
+  wireLiveSearch('duaSearchInput', 'duaSearchClear', renderDuaList, v=>{ duaSearch = v; });
+  renderDuaList();
 }
-/* Same tag chip look as Aadaab-e-Zindagi (.aad-tag); duas without explicit tags show their category */
-function duaTagChips(d){ return (d.tags || [d.cat]).map(x=>`<span class="aad-tag">${x}</span>`).join(''); }
-function openDuaDetail(d){
-  markReadDay();
-  document.getElementById('detailTitle').textContent = d.title;
-  document.getElementById('detailBody').innerHTML = `
-    <div class="detail-actions">
-      ${bmBtn('dua:'+d.title)}
-      <button class="act-btn" id="duaImgBtn" title="Share karein">${SHARE_SVG}</button>
-    </div>
-    <div class="dua-detail">
-      <div class="aad-tags center">${duaTagChips(d)}</div>
-      <div class="dua-h">${d.title}</div>
-      <div class="arabic dua-ar">${d.arabic}</div>
-      <div class="translit dua-tr">${d.translit}</div>
-      <div class="meaning dua-ur">${d.meaning}</div>
-      <div class="ref">Hawala: ${d.ref}</div>
-      <div class="dua-amen">آمیــــــــــــــــــــــــــــــــــــــــن يارب العالمیــــــــــــــــــــــــــــــــــــــــن</div>
-    </div>
-    ${pnBarHtml()}
-  `;
-  document.getElementById('duaImgBtn').onclick = ()=> shareCard({ kind:"Du'a", arabic:d.arabic, title:d.title, sub:d.translit, body:d.meaning, foot:'Hawala: '+d.ref });
-  wirePnBar();
+function renderDuaList(){
+  const wrap = document.getElementById('duaList');
+  const q = duaSearch.trim().toLowerCase();
+  const filtered = DUAS.filter(d=>
+    (duaCat==='__all__' || d.cat===duaCat) &&
+    (d.title+' '+d.cat+' '+(d.tags||[]).join(' ')+' '+d.translit+' '+d.meaning).toLowerCase().includes(q)
+  );
+  if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi dua nahi mili.</div>`; return; }
+  wrap.innerHTML = filtered.map((d,i)=>{
+    const [ic, color] = duaMeta(d.cat);
+    return `<div class="aad-card" data-i="${i}" style="--aad-c:${color};">
+      <div class="aad-ic">${ic}</div>
+      <div class="aad-info">
+        <div class="aad-title">${d.title}</div>
+        <div class="aad-tags">${duaTagChips(d)}</div>
+        <div class="aad-cat-lbl">${d.cat}</div>
+      </div>
+      <div class="chev">›</div>
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('.aad-card').forEach(el=>{
+    el.onclick = ()=>{
+      const i = parseInt(el.dataset.i);
+      setNavCtx(filtered, i, openDuaDetail);
+      openDuaDetail(filtered[i]);
+    };
+  });
 }
 
 let qwordView='grid', qwordSearch='';
@@ -2491,41 +2495,57 @@ function openAadaabDetail(t){
 
 function renderMoreHadees(){
   document.getElementById('detailTitle').textContent="Hadees";
-  const cats = ['All', ...new Set(HADEES.map(h=>h.cat))];
+  const cats = [...new Set(HADEES.map(h=>h.cat))].sort((a,b)=>a.localeCompare(b));
   const body = document.getElementById('detailBody');
   body.innerHTML = `
+    <div style="text-align:center; padding:10px 14px 6px;">
+      <div style="font-size:12.5px; color:var(--sub);">Nabi ﷺ ki chuni hui hadeesein, mauzoo ke hisaab se, asal hawale ke saath.</div>
+    </div>
     <div class="search-bar-wrap">
       <input id="hSearchInput" placeholder="Hadees dhoondhiye...">
       <button id="hSearchClear" class="search-clear-btn">✕</button>
     </div>
-    <div class="chip-row" style="padding:0 0 10px;" id="hCats"></div>
+    <div class="chip-row" id="hCats" style="padding:0 0 10px;"></div>
     <div id="hList"></div>
   `;
   document.getElementById('hSearchInput').value = hadeesSearch;
   wireLiveSearch('hSearchInput', 'hSearchClear', renderHadeesList, v=>{ hadeesSearch = v; });
   const catsEl = body.querySelector('#hCats');
+  const allChip = document.createElement('div');
+  allChip.className = 'chip' + (hadeesFilter==='All' ? ' prayed' : '');
+  allChip.textContent = `🌐 Sabhi (${HADEES.length})`;
+  allChip.onclick = ()=>{ hadeesFilter='All'; renderMoreHadees(); };
+  catsEl.appendChild(allChip);
   cats.forEach(c=>{
+    const count = HADEES.filter(h=>h.cat===c).length;
     const chip = document.createElement('div');
-    chip.className='chip'+(hadeesFilter===c?' prayed':'');
-    chip.textContent=c;
-    chip.onclick=()=>{ hadeesFilter=c; renderMoreHadees(); };
+    chip.className = 'chip' + (hadeesFilter===c ? ' prayed' : '');
+    chip.textContent = `📜 ${c} (${count})`;
+    chip.onclick = ()=>{ hadeesFilter=c; renderMoreHadees(); };
     catsEl.appendChild(chip);
   });
   renderHadeesList();
 }
 function renderHadeesList(){
-  const list = document.getElementById('hList');
+  const wrap = document.getElementById('hList');
   const q = hadeesSearch.trim().toLowerCase();
-  list.innerHTML = '';
   const items = HADEES.filter(h=> (hadeesFilter==='All'||h.cat===hadeesFilter) && (h.txt+' '+h.src+' '+h.cat).toLowerCase().includes(q));
-  if(!items.length){ list.innerHTML = `<div class="empty-state">Koi hadees nahi mili.</div>`; return; }
-  items.forEach((h,i)=>{
-    const it = document.createElement('div');
-    it.className='hadees-item';
-    it.style.margin='0 0 10px';
-    it.innerHTML = `<div class="src">${h.cat} • ${h.src}</div><div class="txt">${h.txt}</div>`;
-    it.onclick = ()=>{ setNavCtx(items, i, openHadeesDetail); openHadeesDetail(h); };
-    list.appendChild(it);
+  if(!items.length){ wrap.innerHTML = `<div class="empty-state">Koi hadees nahi mili.</div>`; return; }
+  wrap.innerHTML = items.map((h,i)=>`<div class="aad-card" data-i="${i}" style="--aad-c:#c79a2e;">
+      <div class="aad-ic">📜</div>
+      <div class="aad-info">
+        <div class="aad-title">${h.txt.length>110 ? h.txt.slice(0,110).trimEnd()+'...' : h.txt}</div>
+        <div class="aad-tags"><span class="aad-tag">${h.src}</span></div>
+        <div class="aad-cat-lbl">${h.cat}</div>
+      </div>
+      <div class="chev">›</div>
+    </div>`).join('');
+  wrap.querySelectorAll('.aad-card').forEach(el=>{
+    el.onclick = ()=>{
+      const i = parseInt(el.dataset.i);
+      setNavCtx(items, i, openHadeesDetail);
+      openHadeesDetail(items[i]);
+    };
   });
 }
 async function shareText(text){
