@@ -388,3 +388,16 @@ I18N_PATTERNS.push(
   [/^(.+) ka matlab\?$/, m=>'Meaning of ' + m[1] + '?'],
   [/^(\d+)\/2 sahi$/, m=>m[1] + '/2 correct']
 );
+
+/* Sweep 2: About, Settings, Backup, Location, Qibla and notification text */
+Object.assign(I18N_EN, {
+ "Aapki Saved Jagah": "Your Saved Places",
+ "Fajr Angle: 18 darja  |  Isha Angle: 17 darja": "Fajr Angle: 18 degrees  |  Isha Angle: 17 degrees",
+ "Backup Banayein (Export)": "Create Backup (Export)"
+});
+
+/* Sweep 2: Qibla labels with values */
+I18N_PATTERNS.push(
+  [/^(?:📍\s*)?(.+) se Khana Kaaba ki taraf$/, m=>'Towards the Kaaba from ' + m[1]],
+  [/^Qibla: (\d+)° \(Shumaal se\)$/, m=>'Qibla: ' + m[1] + '° (from North)']
+);
