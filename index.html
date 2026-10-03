@@ -2308,6 +2308,8 @@ function dInfo(d){ return isEn() && d.eninfo ? d.eninfo : d.info; }
 function hTxt(h){ return isEn() && h.en ? h.en : h.txt; }
 function wMean(w){ return isEn() && w.en ? w.en : w.m; }
 function wEx(w){ return isEn() && w.exen ? w.exen : w.exm; }
+function sMean(w){ return isEn() && w.en ? w.en : w.m; }
+function sEx(w){ return isEn() && w.exen ? w.exen : w.ex; }
 /* Quiz item as [question, options, correct, category]; English version when the language is English */
 function quizLocal(item){ return (isEn() && item[4]) ? [item[4].q, item[4].o, item[2], item[3]] : item; }
 function renderMoreDua(){
@@ -2985,7 +2987,7 @@ function renderShabdHubList(){
     const results = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> (w.tr+w.m+w.cat).toLowerCase().includes(q));
     wrap.innerHTML = results.map(w=>`<div class="shabd-row" data-idx="${w.i}">
         <div class="ar">${w.ar}</div>
-        <div class="info"><div class="tr">${w.tr}</div><div class="m">${w.m}</div></div>
+        <div class="info"><div class="tr">${w.tr}</div><div class="m">${sMean(w)}</div></div>
       </div>`).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
     const idxList = results.map(w=>w.i);
     wrap.querySelectorAll('[data-idx]').forEach((el,i)=>{
@@ -3036,7 +3038,7 @@ function renderShabdCategory(cat){
     const items = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> (isAll || w.cat===cat) && (w.tr+w.m).toLowerCase().includes(q));
     wrap.innerHTML = items.map(w=>`<div class="shabd-row" data-idx="${w.i}">
         <div class="ar">${w.ar}</div>
-        <div class="info"><div class="tr">${w.tr}</div><div class="m">${w.m}</div></div>
+        <div class="info"><div class="tr">${w.tr}</div><div class="m">${sMean(w)}</div></div>
       </div>`).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
     const idxList = items.map(w=>w.i);
     wrap.querySelectorAll('[data-idx]').forEach((el,i)=>{
@@ -3065,9 +3067,9 @@ function renderShabdDetail(idx, backFn){
       <div class="ar">${w.ar}</div>
       <div class="tr">${w.tr}</div>
       <div class="section-label">Meaning</div>
-      <div class="m">${w.m}</div>
+      <div class="m">${sMean(w)}</div>
       <div class="section-label">Misaal (Example)</div>
-      <div class="ex">${w.ex}</div>
+      <div class="ex">${sEx(w)}</div>
     </div>
     ${pnBarHtml()}
   `;
@@ -3211,8 +3213,8 @@ function renderDailyWord(){
         <div class="cat">${w.cat}</div>
         <div class="ar">${w.ar}</div>
         <div class="tr">${w.tr}</div>
-        <div class="m">${w.m}</div>
-        <div class="ex">${w.ex}</div>
+        <div class="m">${sMean(w)}</div>
+        <div class="ex">${sEx(w)}</div>
       </div>
       <div class="daily-word-status">
         <button id="wordKnownBtn" class="${st==='known'?'active-known':''}">✅ Yaad ho gaya</button>
