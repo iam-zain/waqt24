@@ -693,7 +693,9 @@ body{
 .pn-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:18px 0 4px; padding:6px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
 .pn-btn{ flex:1; display:flex; align-items:center; justify-content:center; gap:4px; min-height:40px; padding:0 10px; border-radius:9px; border:none; background:transparent; color:var(--text); font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
 .pn-btn:disabled{ opacity:0.3; pointer-events:none; }
-.pn-bar-single{ justify-content:center; }
+.pn-end{ display:flex; gap:8px; margin:18px 0 4px; }
+.pn-end .pn-btn{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:12px; min-height:44px; }
+.pn-btn.pn-nextcat{ color:#fff; background:var(--green); }
 .pn-btn.pn-prev{ background:color-mix(in srgb, #5b8def 16%, transparent); color:#5b8def; }
 .pn-btn.pn-next{ background:color-mix(in srgb, var(--green) 18%, transparent); color:var(--green); }
 .pn-btn .pn-ic{ font-size:12px; }
@@ -2162,19 +2164,59 @@ function bmBtn(k, extra){
    list calls setNavCtx(list, idx, openFn) right before opening a detail item;
    the detail screen then drops in pnBarHtml() + calls wirePnBar(). */
 let __navCtx = null;
-function setNavCtx(list, idx, openFn){ __navCtx = { list, idx, openFn }; }
+function setNavCtx(list, idx, openFn, cat){ __navCtx = { list, idx, openFn, cat }; }
+/* Next category after the current item's category, or null */
+function catNextKey(){
+  const c = __navCtx && __navCtx.cat; if(!c) return null;
+  const cur = __navCtx.list[__navCtx.idx];
+  const ci = c.cats.indexOf(c.catOf(cur));
+  return (ci>=0 && ci<c.cats.length-1) ? c.cats[ci+1] : null;
+}
+function openNextCategory(){
+  const c = __navCtx.cat, k = catNextKey(); if(!k) return;
+  const items = c.all.filter(x=>c.catOf(x)===k).sort(c.sortFn);
+  const openFn = __navCtx.openFn;
+  setNavCtx(items, 0, openFn, c);
+  openFn(items[0]);
+}
 function pnBarHtml(){
   if(!__navCtx) return '';
-  const { list, idx } = __navCtx;
-  /* Single item, or the last item of a section: the Agla slot becomes a way back to the section list */
-  const back = `<button class="pn-btn pn-back" id="pnBackBtn">${isEn() ? '‹ Back to list' : '‹ Wapas list mein'}</button>`;
-  if(list.length<2) return `<div class="pn-bar pn-bar-single">${back}</div>`;
+  const { list, idx, cat } = __navCtx;
+  const sec = cat && cat.sec ? (isEn() ? cat.sec.en : cat.sec.ur) : '';
   const last = idx>=list.length-1;
-  return `<div class="pn-bar">
+  if(!last){
+    return `<div class="pn-bar">
     <button class="pn-btn pn-prev" id="pnPrevBtn" ${idx<=0?'disabled':''}><span class="pn-ic">⬅️</span>${isEn() ? 'Previous' : 'Pichla'}</button>
     <span class="pn-pos">${idx+1} / ${list.length}</span>
-    ${last ? back : `<button class="pn-btn pn-next" id="pnNextBtn">${isEn() ? 'Next' : 'Agla'}<span class="pn-ic">➡️</span></button>`}
+    <button class="pn-btn pn-next" id="pnNextBtn">${isEn() ? 'Next' : 'Agla'}<span class="pn-ic">➡️</span></button>
   </div>`;
+  }
+  /* last item of a section: exactly two buttons, back to the section and the next category */
+  const backLbl = isEn() ? `‹ Back to ${sec || 'list'}` : `‹ ${sec ? sec + ' mein' : 'List mein'} wapas`;
+  const nextLbl = isEn() ? 'Next category ›' : 'Agli category ›';
+  const hasNext = !!catNextKey();
+  return `<div class="pn-end">
+    <button class="pn-btn pn-back" id="pnBackBtn">${backLbl}</button>
+    ${hasNext ? `<button class="pn-btn pn-nextcat" id="pnNextCatBtn">${nextLbl}</button>` : ''}
+  </div>`;
+}
+/* Category settings for the in-section navigation (end-of-section buttons) */
+function duaNavCat(){
+  return { sec:{ur:"Du'a", en:"Duas"}, cats:[...new Set(DUAS.map(d=>d.cat))].sort((a,b)=>a.localeCompare(b)),
+    catOf:d=>d.cat, all:DUAS, sortFn:(a,b)=>a.title.localeCompare(b.title) };
+}
+function hadeesNavCat(){
+  return { sec:{ur:"Hadees", en:"Hadith"}, cats:[...new Set(HADEES.map(h=>h.cat))].sort((a,b)=>a.localeCompare(b)),
+    catOf:h=>h.cat, all:HADEES, sortFn:(a,b)=>a.txt.localeCompare(b.txt) };
+}
+function aadaabNavCat(){
+  return { sec:{ur:"Aadaab-e-Zindagi", en:"Aadaab-e-Zindagi"},
+    cats:[...AADAAB_CATEGORIES].sort((a,b)=>a.label.localeCompare(b.label)).map(c=>c.id),
+    catOf:t=>t.cat, all:AADAAB_TOPICS, sortFn:(a,b)=>AADAAB_TOPICS.indexOf(a)-AADAAB_TOPICS.indexOf(b) };
+}
+function qwordNavCat(){
+  return { sec:{ur:"Qur'ani Alfaaz", en:"Quranic Words"}, cats:Object.keys(QWORD_GROUP_COLOR), catOf:qwordGroup, all:QURAN_WORDS,
+    sortFn: qwordSortOcc ? (a,b)=>Number(b.occ)-Number(a.occ) : (a,b)=>a.tr.localeCompare(b.tr) };
 }
 /* Star and share sit inside the title card (top-right) so the card keeps its size */
 function placeActionsInHead(){
@@ -2188,11 +2230,13 @@ function wirePnBar(){
   const { list, idx, openFn } = __navCtx;
   const prevBtn = document.getElementById('pnPrevBtn');
   const nextBtn = document.getElementById('pnNextBtn');
-  const go = (newIdx)=>{ setNavCtx(list, newIdx, openFn); openFn(list[newIdx], newIdx); };
+  const go = (newIdx)=>{ setNavCtx(list, newIdx, openFn, __navCtx.cat); openFn(list[newIdx], newIdx); };
   if(prevBtn) prevBtn.onclick = ()=>{ if(idx>0) go(idx-1); };
   if(nextBtn) nextBtn.onclick = ()=>{ if(idx<list.length-1) go(idx+1); };
   const backBtn = document.getElementById('pnBackBtn');
   if(backBtn) backBtn.onclick = ()=> closeModal();
+  const nextCatBtn = document.getElementById('pnNextCatBtn');
+  if(nextCatBtn) nextCatBtn.onclick = ()=> openNextCategory();
 }
 document.getElementById('detailBody').addEventListener('click', (e)=>{
   const b = e.target.closest('.bm-btn');
@@ -2406,7 +2450,7 @@ function renderDuaList(){
   wrap.querySelectorAll('.aad-card').forEach(el=>{
     el.onclick = ()=>{
       const i = parseInt(el.dataset.i);
-      setNavCtx(filtered, i, openDuaDetail);
+      setNavCtx(filtered, i, openDuaDetail, duaNavCat());
       openDuaDetail(filtered[i]);
     };
   });
@@ -2537,7 +2581,7 @@ function renderQwordGrid(){
       </div>
       ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
       <div class="chev">›</div>`;
-    c.onclick = ()=>{ setNavCtx(filtered, i, openQuranWordDetail); openQuranWordDetail(w); };
+    c.onclick = ()=>{ setNavCtx(filtered, i, openQuranWordDetail, qwordNavCat()); openQuranWordDetail(w); };
     grid.appendChild(c);
   });
 }
@@ -2668,7 +2712,7 @@ function renderAadaabList(){
   wrap.querySelectorAll('.aad-card').forEach(el=>{
     el.onclick = ()=>{
       const i = parseInt(el.dataset.i);
-      setNavCtx(filtered, i, openAadaabDetail);
+      setNavCtx(filtered, i, openAadaabDetail, aadaabNavCat());
       openAadaabDetail(filtered[i]);
     };
   });
@@ -2777,7 +2821,7 @@ function renderHadeesList(){
   wrap.querySelectorAll('.aad-card').forEach(el=>{
     el.onclick = ()=>{
       const i = parseInt(el.dataset.i);
-      setNavCtx(items, i, openHadeesDetail);
+      setNavCtx(items, i, openHadeesDetail, hadeesNavCat());
       openHadeesDetail(items[i]);
     };
   });
