@@ -1136,7 +1136,7 @@ function buildSchedule(date){
   const chaast = addMin(sunrise, 90);
   const zawalStart = addMin(zawal, -15); // makrooh window before zawal
   const iftar = new Date(maghrib);
-  const awwabin = addMin(maghrib, 30); // starts once the Maghrib fard window has passed
+  const awwabin = new Date(maghrib); // same window as Maghrib; shown together with it
   const nightLen = (fajr.getTime()+24*3600000 - maghrib.getTime());
   const tahajjudStart = new Date(maghrib.getTime() + nightLen*0.5); // half the night
   const tihaiStart = new Date(maghrib.getTime() + nightLen*(2/3)); // last third of the night
@@ -1460,7 +1460,8 @@ function renderHome(){
     } else if(isToday){
       isPast = idx!==currentIdx && (now>=p.end || idx<currentIdx);
       isFuture = idx!==currentIdx && now<p.start && idx>currentIdx;
-      isLive = idx===currentIdx;
+      // Awwabin shares Maghrib's exact window, so it lights up together with it
+      isLive = idx===currentIdx || (p.key==='awwabin' && currentIdx>=0 && sched[currentIdx].key==='maghrib');
     } else {
       isPast = isPastDate;
       isFuture = !isPastDate;
