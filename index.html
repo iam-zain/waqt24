@@ -733,6 +733,9 @@ body{
 .quiz-q-tr{ margin-top:12px; font-family:Consolas,"Courier New",monospace; font-size:13.5px; font-style:normal; letter-spacing:.02em; color:#5b8def; line-height:1.7; }
 .quiz-q-ar{ margin-top:10px; font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:22px; line-height:2; text-align:right; direction:rtl; color:#e0a33a; }
 .ar-font{ font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:1.2em; direction:rtl; unicode-bidi:isolate; }
+/* Arabic word inside a list card icon: keep it inside the box */
+.qw-ic{ overflow:hidden; font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:17px; line-height:1; }
+.qw-ic span{ display:block; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:clip; }
 .quiz-q-ref{ margin-top:10px; font-size:12px; font-weight:700; color:var(--sub); }
 .quiz-opts{ display:flex; flex-direction:column; gap:10px; }
 .quiz-opt{
@@ -2461,7 +2464,7 @@ function renderQwordGrid(){
     const st = duaStatus(qwordKey(w));
     c.className = 'aad-card status-' + (st||'none');
     c.style.setProperty('--aad-c', qwordColor(w));
-    c.innerHTML = `<div class="aad-ic" dir="rtl">${w.ar}</div>
+    c.innerHTML = `<div class="aad-ic qw-ic" dir="rtl"><span>${w.ar}</span></div>
       <div class="aad-info">
         <div class="aad-title">${w.tr}</div>
         <div class="aad-tags"><span class="aad-tag">${w.m}</span></div>
