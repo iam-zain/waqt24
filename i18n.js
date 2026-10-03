@@ -232,3 +232,16 @@ const I18N_PATTERNS = [
   [/^(\d+)% Sahi Jawab$/, m=>`${m[1]}% correct`],
   [/^(\d+) Ramzan$/, m=>`${m[1]} Ramzan`],
 ];
+
+/* Quiz categories, Quran word groups, dua/hadith category labels */
+Object.assign(I18N_EN, {
+  "Ahadees aur Sunnat":"Hadith & Sunnah", "Akhirat":"Hereafter", "Akhlaq aur Muashira":"Character & Society",
+  "Ambiya-e-Kiram AS":"Prophets (AS)", "Duain":"Duas", "Namaz":"Prayer", "Qur’an aur Ibadaat":"Quran & Worship",
+  "Qur’ani Alfaaz":"Quranic Words", "Sahaba-e-Kiram RA":"Companions (RA)", "Seerat-un-Nabi ﷺ":"Life of the Prophet ﷺ",
+  "Ism":"Noun", "Sifat":"Adjective", "Zameer":"Pronoun", "Harf":"Particle", "Fail (fe'l)":"Verb",
+  "Ism-e-mausool":"Relative Noun", "Ism-e-ishara":"Demonstrative", "Sawaliya lafz":"Interrogative",
+  "Qur'ani Dua":"Quranic Du'as", "Akhlaq":"Character", "Ilm":"Knowledge", "Sadqa":"Charity", "Ramzan":"Ramadan",
+  "Roz Marra":"Daily Life", "Khana":"Food", "Safar":"Travel", "Masjid":"Masjid", "Pareshani":"Hardship", "Ghar":"Home",
+  "Rabbana":"Rabbana", "Hadees":"Hadith", "Yaad karna baaqi hai":"Still to memorise", "Yaad ho chuka hai":"Memorised",
+  "Hadees aur Fazilat":"Hadith & Virtue", "Tadad":"Count", "Taadaad ke Hisaab se":"By count", "Sabhi":"All"
+});
