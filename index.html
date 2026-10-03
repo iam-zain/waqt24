@@ -1321,14 +1321,25 @@ const FIVE = ['fajr','zuhr','asr','maghrib','isha'];
 const DOW = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-let homeViewDate = new Date();
+/* The namaz "day" runs from Sehri to the following Fajr, not midnight-to-midnight.
+   Before today's own Sehri starts, we're still inside the previous calendar day's
+   overnight schedule (Isha/Tahajjud/Du'a Qubooliyat), so that's the "operating day". */
+function operatingDate(now){
+  const d = new Date(now); d.setHours(0,0,0,0);
+  const todaySched = buildSchedule(d);
+  if(now >= todaySched[0].start) return d;
+  return new Date(d.getTime()-86400000);
+}
+let homeViewDate = operatingDate(new Date());
+let homeFollowsToday = true;
 let lastLiveKey = null;
 function isSameDay(a,b){ return dayKey(a)===dayKey(b); }
 
 function renderHome(){
   const now = new Date();
+  if(homeFollowsToday){ homeViewDate = operatingDate(now); }
   const viewDate = homeViewDate;
-  const isToday = isSameDay(viewDate, now);
+  const isToday = isSameDay(viewDate, now) || isSameDay(viewDate, operatingDate(now));
   const isPastDate = !isToday && viewDate < now;
   const isFutureDate = !isToday && !isPastDate;
   document.getElementById('bulkBtns').classList.toggle('disabled', isFutureDate);
@@ -1344,11 +1355,18 @@ function renderHome(){
   listEl.innerHTML = '';
   listEl.classList.toggle('namaz-mode', state.namazMode);
 
-  let currentIdx = -1;
+  let currentIdx = -1, currentStart = null;
   if(isToday){
     for(let i=0;i<sched.length;i++){
       if(sched[i].key==='iftar' || sched[i].key==='ghurub') continue; // overlap with Maghrib/Asr; handled separately below
-      if(now >= sched[i].start && now < sched[i].end){ currentIdx = i; } // keep scanning: a later, narrower window (e.g. Du'a Qubooliyat inside Tahajjud) should win
+      if(now >= sched[i].start && now < sched[i].end){
+        // prefer the latest-starting match (a narrower window, e.g. Du'a Qubooliyat inside
+        // Tahajjud, should win over the wider one it sits inside); on an exact tie (e.g.
+        // Awwabin shares its whole window with Maghrib) the Fard prayer takes priority.
+        if(currentStart===null || sched[i].start > currentStart || (sched[i].start.getTime()===currentStart.getTime() && sched[i].type==='fard')){
+          currentIdx = i; currentStart = sched[i].start;
+        }
+      }
     }
   }
   const maghribRow = sched.find(x=>x.key==='maghrib');
@@ -1486,9 +1504,9 @@ function renderHome(){
   const rozaActive = !!state.roza[dayKey(viewDate)];
   homeEl.style.background = rozaActive ? 'color-mix(in srgb, var(--roza) 9%, var(--bg))' : '';
 }
-document.getElementById('dateBack').onclick=()=>{ homeViewDate = new Date(homeViewDate.getTime()-24*3600000); renderHome(); };
-document.getElementById('dateFwd').onclick=()=>{ homeViewDate = new Date(homeViewDate.getTime()+24*3600000); renderHome(); };
-document.getElementById('dateCenterBtn').onclick=()=>{ homeViewDate = new Date(); renderHome(); };
+document.getElementById('dateBack').onclick=()=>{ homeFollowsToday = false; homeViewDate = new Date(homeViewDate.getTime()-24*3600000); renderHome(); };
+document.getElementById('dateFwd').onclick=()=>{ homeFollowsToday = false; homeViewDate = new Date(homeViewDate.getTime()+24*3600000); renderHome(); };
+document.getElementById('dateCenterBtn').onclick=()=>{ homeFollowsToday = true; homeViewDate = operatingDate(new Date()); renderHome(); };
 document.getElementById('cityLabel').onclick=(e)=>{ e.stopPropagation(); settingsTab = 'location'; openOverlay(renderMoreSettings); };
 let instantScroll = false;
 document.getElementById('namazModeBtn').onclick=()=>{
@@ -1634,7 +1652,7 @@ document.getElementById('bulkYellow').onclick = ()=> bulkSetFive('yellow', homeV
 document.getElementById('bulkRed').onclick = ()=> bulkSetFive('red', homeViewDate, renderHome);
 document.getElementById('bulkClear').onclick = ()=> bulkClearFive(homeViewDate, renderHome);
 renderHome();
-setInterval(()=>{ if(isSameDay(homeViewDate,new Date())) renderHome(); }, 15000);
+setInterval(()=>{ if(homeFollowsToday || isSameDay(homeViewDate,new Date())) renderHome(); }, 15000);
 
 /* ============================================================
    NOTIFICATIONS — local, best-effort while the app is open
