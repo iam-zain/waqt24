@@ -731,7 +731,8 @@ body{
 .quiz-card{ font-family:Georgia,"Noto Naskh Arabic",serif; }
 .quiz-q{ font-size:16px; font-weight:700; line-height:1.6; color:var(--text); }
 .quiz-q-tr{ margin-top:12px; font-family:Consolas,"Courier New",monospace; font-size:13.5px; font-style:normal; letter-spacing:.02em; color:#5b8def; line-height:1.7; }
-.quiz-q-ar{ margin-top:10px; font-size:22px; line-height:2; text-align:right; direction:rtl; color:#e0a33a; }
+.quiz-q-ar{ margin-top:10px; font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:22px; line-height:2; text-align:right; direction:rtl; color:#e0a33a; }
+.ar-font{ font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:1.2em; direction:rtl; unicode-bidi:isolate; }
 .quiz-q-ref{ margin-top:10px; font-size:12px; font-weight:700; color:var(--sub); }
 .quiz-opts{ display:flex; flex-direction:column; gap:10px; }
 .quiz-opt{
@@ -2488,7 +2489,7 @@ function openQuranWordDetail(w){
       <div class="aad-guide-sec qword-sec-st">
         <div class="aad-guide-head"><span class="aad-step-lbl">Qur’an mein</span></div>
         <div class="qword-stat">🔁 <b>${w.occ} martaba</b> aaya hai</div>
-        <div class="ref">Doosri shaklein: ${w.comb}</div>
+        <div class="ref">Doosri shaklein: <span class="ar-font">${w.comb}</span></div>
       </div>
       <div class="aad-guide-sec qword-sec-ex">
         <div class="aad-guide-head"><span class="aad-step-lbl">Misaal</span></div>
