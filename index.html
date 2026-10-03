@@ -4901,6 +4901,11 @@ document.querySelectorAll('.more-item').forEach(item=>{
   item.onclick = ()=>{
     if(item.classList.contains('disabled')) return;
     const which = item.dataset.open;
+    /* Opening a section from the menu starts fresh: "Sabhi" selected and an empty search */
+    if(['dua','hadees','aadaab','quranWords'].includes(which)){
+      duaCat='__all__'; duaSearch=''; hadeesFilter='All'; hadeesSearch='';
+      aadaabCat='__all__'; aadaabSearch=''; qwordSearch='';
+    }
     if(which==='dua') renderMoreDua();
     else if(which==='hadees') renderMoreHadees();
     else if(which==='quranWords') renderQuranWords();
