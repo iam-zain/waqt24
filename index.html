@@ -673,6 +673,10 @@ body{
 .pn-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:18px 0 4px; padding:6px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
 .pn-btn{ flex:1; display:flex; align-items:center; justify-content:center; gap:4px; min-height:40px; padding:0 10px; border-radius:9px; border:none; background:transparent; color:var(--text); font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
 .pn-btn:disabled{ opacity:0.3; pointer-events:none; }
+.pn-btn.pn-prev{ background:color-mix(in srgb, #5b8def 16%, transparent); color:#5b8def; }
+.pn-btn.pn-next{ background:color-mix(in srgb, var(--green) 18%, transparent); color:var(--green); }
+.pn-btn .pn-ic{ font-size:12px; }
+.pn-pos{ font-size:12px; font-weight:700; color:var(--sub); }
 .pn-pos{ flex:0 0 auto; font-size:11.5px; color:var(--sub); font-weight:700; padding:0 4px; }
 .dw-row .bm-btn{ flex:0 0 auto; height:34px; min-width:34px; padding:0 8px; }
 .dw-section{ margin:22px 0 0; }
@@ -2124,9 +2128,9 @@ function pnBarHtml(){
   const { list, idx } = __navCtx;
   if(list.length<2) return '';
   return `<div class="pn-bar">
-    <button class="pn-btn" id="pnPrevBtn" ${idx<=0?'disabled':''}>‹ Pichla</button>
+    <button class="pn-btn pn-prev" id="pnPrevBtn" ${idx<=0?'disabled':''}><span class="pn-ic">⬅️</span>Pichla</button>
     <span class="pn-pos">${idx+1} / ${list.length}</span>
-    <button class="pn-btn" id="pnNextBtn" ${idx>=list.length-1?'disabled':''}>Agla ›</button>
+    <button class="pn-btn pn-next" id="pnNextBtn" ${idx>=list.length-1?'disabled':''}>Agla<span class="pn-ic">➡️</span></button>
   </div>`;
 }
 function wirePnBar(){
