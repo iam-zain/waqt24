@@ -2244,6 +2244,14 @@ async function shareCard(cfg){
   setTimeout(()=>URL.revokeObjectURL(url), 2000);
   showToast('Image download ho gayi');
 }
+/* Every card share button asks first: Image (card picture) or Text (plain words) */
+function openCardShareChooser(cfg){
+  const plain = [cfg.kind, cfg.arabic, cfg.title, cfg.sub, cfg.body, cfg.foot].filter(Boolean).join('\n\n');
+  document.getElementById('shareChooserImg').onclick = ()=>{ closeModal(); shareCard(cfg); };
+  document.getElementById('shareChooserTxt').onclick = ()=>{ closeModal(); shareText(plain + '\n\nWaqt24: iam-zain.github.io/waqt24'); };
+  document.getElementById('shareChooser').classList.add('active');
+  pushModalState();
+}
 
 let duaCat='__all__', duaSearch='';
 let hadeesFilter='All', hadeesSearch='';
@@ -2348,7 +2356,7 @@ function openDuaDetail(d){
   `;
   document.getElementById('duaSochBtn').onclick = ()=>{ setDuaStatus(d.title, 'soch'); openDuaDetail(d); };
   document.getElementById('duaAmalBtn').onclick = ()=>{ setDuaStatus(d.title, 'amal'); openDuaDetail(d); };
-  document.getElementById('duaImgBtn').onclick = ()=> shareCard({ kind:"Du'a", arabic:d.arabic, title:d.title, sub:d.translit, body:d.meaning, foot:'Hawala: '+d.ref });
+  document.getElementById('duaImgBtn').onclick = ()=> openCardShareChooser({ kind:"Du'a", arabic:d.arabic, title:d.title, sub:d.translit, body:d.meaning, foot:'Hawala: '+d.ref });
   wirePnBar();
 }
 
@@ -2408,7 +2416,7 @@ function openQuranWordDetail(w){
     <div class="ref">Doosri shaklein: ${w.comb}</div>
     ${pnBarHtml()}
   `;
-  document.getElementById('qwordImgBtn').onclick = ()=> shareCard({ kind:'Qur’ani Lafz', arabic:w.ar, title:w.tr, sub:w.m, body:w.ex+'\n'+w.exm, foot:'Qur’an mein '+w.occ+' martaba' });
+  document.getElementById('qwordImgBtn').onclick = ()=> openCardShareChooser({ kind:'Qur’ani Lafz', arabic:w.ar, title:w.tr, sub:w.m, body:w.ex+'\n'+w.exm, foot:'Qur’an mein '+w.occ+' martaba' });
   wirePnBar();
 }
 
@@ -2528,7 +2536,7 @@ function openAadaabDetail(t){
     </div>
     ${pnBarHtml()}
   `;
-  document.getElementById('aadaabImgBtn').onclick = ()=> shareCard({ kind:'Aadaab-e-Zindagi', title:t.title, sub:c.label, body:t.guide ? t.closing : t.tabdeeli, foot:'Waqt24 • Aadaab-e-Zindagi' });
+  document.getElementById('aadaabImgBtn').onclick = ()=> openCardShareChooser({ kind:'Aadaab-e-Zindagi', title:t.title, sub:c.label, body:t.guide ? t.closing : t.tabdeeli, });
   document.getElementById('aadaabSochBtn').onclick = ()=>{ setAadaabStatus(t.id, 'soch'); openAadaabDetail(t); };
   document.getElementById('aadaabAmalBtn').onclick = ()=>{ setAadaabStatus(t.id, 'amal'); openAadaabDetail(t); };
   wirePnBar();
@@ -2610,7 +2618,7 @@ function openHadeesDetail(h){
     <div class="ref">Hawala: ${h.src}</div>
     ${pnBarHtml()}
   `;
-  document.getElementById('hadeesImgBtn').onclick = ()=> shareCard({ kind:'Hadees', title:h.cat, body:h.txt, foot:'Hawala: '+h.src });
+  document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ kind:'Hadees', title:h.cat, body:h.txt, foot:'Hawala: '+h.src });
   wirePnBar();
 }
 /* ============================================================
@@ -2749,7 +2757,7 @@ function renderNameDetail(which, idx){
     </div>
   `;
   document.getElementById('nameBackBtn').onclick = ()=> renderNamesList(which);
-  document.getElementById('nameImgBtn').onclick = ()=> shareCard({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Muhammad ﷺ ke Naam', arabic:w.ar, title:w.tr, body:w.m });
+  document.getElementById('nameImgBtn').onclick = ()=> openCardShareChooser({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Muhammad ﷺ ke Naam', arabic:w.ar, title:w.tr, body:w.m });
   document.getElementById('namePrevBtn').onclick = ()=> idx>0 && renderNameDetail(which, idx-1);
   document.getElementById('nameNextBtn').onclick = ()=> idx<dataset.length-1 && renderNameDetail(which, idx+1);
 }
@@ -2896,7 +2904,7 @@ function renderShabdDetail(idx, backFn){
     ${pnBarHtml()}
   `;
   document.getElementById('shabdBackBtn').onclick = backFn || renderKhaasShabd;
-  document.getElementById('shabdImgBtn').onclick = ()=> shareCard({ kind:'Khaas Shabd', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
+  document.getElementById('shabdImgBtn').onclick = ()=> openCardShareChooser({ kind:'Khaas Shabd', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
   wirePnBar();
 }
 
@@ -3053,7 +3061,7 @@ function renderDailyWord(){
   `;
   const rvBtn = document.getElementById('wordReviewBtn');
   if(rvBtn) rvBtn.onclick = startWordReview;
-  document.getElementById('wordImgBtn').onclick = ()=> shareCard({ kind:'Aaj Ka Lafz', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
+  document.getElementById('wordImgBtn').onclick = ()=> openCardShareChooser({ kind:'Aaj Ka Lafz', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
   document.getElementById('wordKnownBtn').onclick = ()=>{ setWordStatus(w.tr, st==='known'?null:'known'); renderDailyWord(); };
   document.getElementById('wordLearningBtn').onclick = ()=>{ setWordStatus(w.tr, st==='learning'?null:'learning'); renderDailyWord(); };
   document.getElementById('wordPrevBtn').onclick = ()=>{ dailyWordPin = null; dailyWordOffset--; renderDailyWord(); };
@@ -3948,7 +3956,7 @@ function renderStats(){
       `Lafz yaad ho gaye: ${yaad} / ${total}`,
       `Namaz ki Paabandi: ${ns.current} din (sabse lambi ${ns.best})`,
     ];
-    shareCard({ kind:'Safar-e-Taraqqi', title:'Mera Safar-e-Taraqqi', sub:label, body:lines.join('\n') });
+    openCardShareChooser({ kind:'Safar-e-Taraqqi', title:'Mera Safar-e-Taraqqi', sub:label, body:lines.join('\n') });
   };
 }
 
@@ -4751,7 +4759,7 @@ function renderIslamicEvents(){
     btn.onclick = ()=>{
       const e = events[parseInt(btn.dataset.i)];
       const body = e.nights ? e.nights.map(n=>`${n.day} Ramzan, ${fmtG(n.greg)}`).join('\n') : `${e.hijri}\n${fmtG(e.greg)}`;
-      shareCard({ kind:'Khaas Din', title:e.name, sub:e.yr||'', body, foot:e.note||'' });
+      openCardShareChooser({ kind:'Khaas Din', title:e.name, sub:e.yr||'', body, foot:e.note||'' });
     };
   });
 }
