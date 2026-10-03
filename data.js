@@ -1413,6 +1413,14 @@ const AADAAB_TOPICS = [
         "Neend ko 'waqt ki barbaadi' samajhna bhi sahi nahi, jism ko aaram chahiye. Agar aap roz raat gaye tak jaagte hain aur Fajr, kaam, taleem, warzish aur ghar ki zimmedariyan sab mutasir hone lagti hain, toh apni routine par dobara ghaur karein.",
         "Apni sone ki timing had tak consistent rakhein, raat ko be-zaroorat jagne ki aadat kam karein, aur subah ke zaroori kaam ko dekhte hue raat ki planning karein. Neend poori karna bhi apni jismani sehat ki zimmedari hai."
       ] },
+      { heading:"Qailullah, Dopahar Ki Chhoti Neend", ic:"☀️", items:[
+        "Qailullah dopahar ke waqt li jaane wali aaram ki neend ko kaha jata hai. Islam ki riwayat mein dopahar ke aaram ka zikr milta hai, aur yeh jism aur zehan ko dobara taazgi dene ka ek achha zariya ho sakta hai.",
+        "Dopahar mein thodi der aaram karne se thakan kam ho sakti hai, zehni tawajjoh behtar ho sakti hai aur din ke baqi hisson ke liye taqat mil sakti hai.",
+        "Sains mein bhi dopahar ki chhoti neend aur zehni sehat ke darmiyan achhe talluqat report hue hain. Ek paanch saal ki tadreeji tahqeeq mein 65 saal se zyada umar ke afraad mein 1 se 29 minute ki din ki neend zehni girawat ke kam khatre ke saath mutalliq payi gayi (PubMed tahqeeq).",
+        "Isliye yeh kehna zyada durust hai ke takriban 30 minute ki chhoti dopahar ki neend zehni sehat ke liye faida-mand ho sakti hai, lekin tahqeeq abhi yeh sabit nahi karti ke '30 minute ki neend dementia ko door kar deti hai'. Tahqeeqat mein lambi ya zarurat se zyada neend ke saath dementia ya zehni kamzori ke mukhtalif talluqat bhi mile hain (PubMed tahqeeq).",
+        "Qailullah ki koi ek muqarrarah muddat Qur'an ya Sahih Hadith mein tay nahi ki gayi. Amli taur par 30 se 60 minute ka aaram munasib ho sakta hai, lekin agar lambi neend se raat ki neend ya din ki routine mutasir ho, toh is ka waqt kam kar dena chahiye.",
+        "Qailullah ka maqsad poora din sona nahi, balki thodi der aaram karke baqi din ko behtar tareeqe se guzarna hai."
+      ] },
       { heading:"Sone Ka Matlab Kal Se Bhaagna Nahi", ic:"🌅", items:[
         "Sone se pehle apne aap se teen sawal pooch sakte hain: aaj maine Allah ko kitna yaad kiya? Aaj maine kisi insaan ko takleef toh nahi di? Kal mujhe kya behtar karna hai?",
         "Phir apne din ko Allah ke hawale karke so jaiye."
