@@ -2292,13 +2292,15 @@ function renderDuaList(){
   if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi dua nahi mili.</div>`; return; }
   wrap.innerHTML = filtered.map((d,i)=>{
     const [ic, color] = duaMeta(d.cat);
-    return `<div class="aad-card" data-i="${i}" style="--aad-c:${color};">
+    const st = duaStatus(d.title);
+    return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${color};">
       <div class="aad-ic">${ic}</div>
       <div class="aad-info">
         <div class="aad-title">${d.title}</div>
         <div class="aad-tags">${duaTagChips(d)}</div>
         <div class="aad-cat-lbl">${d.cat}</div>
       </div>
+      ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
       <div class="chev">›</div>
     </div>`;
   }).join('');
@@ -2313,6 +2315,14 @@ function renderDuaList(){
 
 /* Same tag chip look as Aadaab-e-Zindagi (.aad-tag); duas without explicit tags show their category */
 function duaTagChips(d){ return (d.tags || [d.cat]).map(x=>`<span class="aad-tag">${x}</span>`).join(''); }
+/* Memorisation status per dua ('soch' = still to memorise, 'amal' = memorised), same pattern as Aadaab */
+function duaStatus(title){ return (state.duaStatus && state.duaStatus[title]) || null; }
+function setDuaStatus(title, val){
+  if(!state.duaStatus) state.duaStatus = {};
+  if(duaStatus(title)===val){ delete state.duaStatus[title]; } // tap again to clear
+  else{ state.duaStatus[title] = val; }
+  saveState();
+}
 function openDuaDetail(d){
   markReadDay();
   document.getElementById('detailTitle').textContent = d.title;
@@ -2330,8 +2340,14 @@ function openDuaDetail(d){
       <div class="ref">Hawala: ${d.ref}</div>
       <div class="dua-amen">آمیــــــــــــــــــــــــــــــــــــــــن يارب العالمیــــــــــــــــــــــــــــــــــــــــن</div>
     </div>
+    <div class="aad-status-row">
+      <button class="aad-status-btn soch ${duaStatus(d.title)==='soch'?'on':''}" id="duaSochBtn">⏳ Yaad karna baaqi hai</button>
+      <button class="aad-status-btn amal ${duaStatus(d.title)==='amal'?'on':''}" id="duaAmalBtn">✅ Yaad ho chuka hai</button>
+    </div>
     ${pnBarHtml()}
   `;
+  document.getElementById('duaSochBtn').onclick = ()=>{ setDuaStatus(d.title, 'soch'); openDuaDetail(d); };
+  document.getElementById('duaAmalBtn').onclick = ()=>{ setDuaStatus(d.title, 'amal'); openDuaDetail(d); };
   document.getElementById('duaImgBtn').onclick = ()=> shareCard({ kind:"Du'a", arabic:d.arabic, title:d.title, sub:d.translit, body:d.meaning, foot:'Hawala: '+d.ref });
   wirePnBar();
 }
