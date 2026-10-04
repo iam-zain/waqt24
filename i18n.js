@@ -462,3 +462,6 @@ Object.assign(I18N_EN, {
  "Shaam Azkar (Evening)": "Evening Azkar",
  "Ramzan 1448 AH Calendar": "Ramadan 1448 AH Calendar"
 });
+
+/* Deegar progress section */
+Object.assign(I18N_EN, { "Taraqqi": "Progress" });

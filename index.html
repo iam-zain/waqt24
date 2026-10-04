@@ -1017,6 +1017,17 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 
 /* Calendar day card: the Zikr section is clearly separate from the five prayers */
 .cal-sec-title{ margin:18px -12px 6px; padding:12px 12px 6px; border-top:2px solid var(--line); font-size:12px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--sub); }
+
+/* Deegar: small daily goal summary */
+.goal-mini-card{ width:calc(100% - 28px); margin:0 14px 10px; display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--card); border:1px solid var(--line); border-radius:14px; cursor:pointer; font:inherit; color:var(--text); text-align:left; transition:transform var(--fx-fast) var(--fx-ease); }
+.goal-mini-card:active{ transform:scale(.98); }
+.gm-left{ flex:1; min-width:0; }
+.gm-title{ font-size:13px; font-weight:800; }
+.gm-sub{ font-size:11.5px; color:var(--sub); margin-top:2px; }
+.gm-week{ display:flex; gap:4px; }
+.gm-week i{ width:8px; height:8px; border-radius:50%; background:var(--meterBg); border:1px solid var(--dotBorder); }
+.gm-week i.ok{ background:var(--green); border-color:var(--green); }
+.gm-week i.today{ outline:2px solid var(--accent); outline-offset:1px; }
 </style>
 </head>
 <body>
@@ -1102,6 +1113,13 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
         <button id="themeAuto">🌓 Auto</button>
         <button id="themeWaqti">🕋 Waqti</button>
       </div>
+      <div class="section-title">Taraqqi</div>
+    </div>
+    <div class="pad" style="padding:0 0 4px;"><div id="goalMini"></div></div>
+    <div class="more-list" style="padding-top:0;">
+      <div class="more-item" data-open="stats"><div class="ic">📊</div><div class="lbl">Safar-e-Taraqqi</div><div class="chev">›</div></div>
+    </div>
+    <div class="pad" style="padding-bottom:0;">
       <div class="section-title">Khidmaat</div>
     </div>
     <div class="more-list" style="padding-top:0;">
@@ -1112,7 +1130,6 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
       <div class="more-item" data-open="islamicEvents"><div class="ic">🎉</div><div class="lbl">Khaas Din</div><div class="chev">›</div></div>
       <div class="more-item" data-open="ramzan" id="ramzanMoreItem"><div class="ic">☪️</div><div class="lbl">Ramzan<span class="lblSub" id="ramzanSub"></span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="bookmarks"><div class="ic">⭐</div><div class="lbl">Mere Pasandeeda</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="stats"><div class="ic">📊</div><div class="lbl">Safar-e-Taraqqi</div><div class="chev">›</div></div>
     </div>
     <div class="pad" style="padding-bottom:0;">
       <div class="section-title">Mazeed</div>
@@ -1160,7 +1177,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=57"></script>
+<script src="i18n.js?v=58"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -1664,7 +1681,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
     if(btn.dataset.tab==='calendar') renderCalendar();
     if(btn.dataset.tab==='explore') renderGoalCard();
-    if(btn.dataset.tab==='more') updateQazaBadge();
+    if(btn.dataset.tab==='more'){ updateQazaBadge(); renderGoalMini(); }
     moveTabIndicator();
   };
 });
@@ -5737,6 +5754,23 @@ function goalWeek(){
     out.push({ d, ok: goalTasksFor(d).every(t=>t.done), today: i===0 });
   }
   return out;
+}
+/* Small summary of today's goal, shown in Deegar; tapping it opens the full card in Ma'rifat */
+function renderGoalMini(){
+  const el = document.getElementById('goalMini');
+  if(!el) return;
+  const tasks = goalTasks();
+  const n = tasks.filter(t=>t.done).length;
+  const week = goalWeek();
+  el.innerHTML = `<button class="goal-mini-card" id="goalMiniBtn">
+    <div class="gm-left">
+      <div class="gm-title">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</div>
+      <div class="gm-sub">${n}/${tasks.length} ${L({rur:'aaj mukammal', en:'done today'})}</div>
+    </div>
+    <div class="gm-week">${week.map(w=>`<i class="${w.ok?'ok':''} ${w.today?'today':''}"></i>`).join('')}</div>
+    <b class="goal-arrow">›</b>
+  </button>`;
+  document.getElementById('goalMiniBtn').onclick = ()=> goTask({ tab:'explore' });
 }
 /* Tapping a task opens the place where it's done */
 function goTask(go){

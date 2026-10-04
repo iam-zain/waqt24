@@ -1,4 +1,4 @@
-const CACHE_NAME = 'waqt24-v143';
+const CACHE_NAME = 'waqt24-v144';
 const CORE_ASSETS = [
   './',
   './index.html',
