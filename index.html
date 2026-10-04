@@ -875,10 +875,11 @@ body.ramadan .goal-card, body.ramadan .ramzan-card{ border-color:rgba(212,175,55
 /* Bottom sheets: the help dialog and the share chooser slide up from the bottom, with a grab handle */
 @keyframes sheetUp { from { transform:translateY(100%); } to { transform:none; } }
 @keyframes backdropIn { from { opacity:0; } to { opacity:1; } }
-#infoModal, #shareChooser{ align-items:flex-end; padding:0; }
+/* The sheet starts just below the middle of the screen and grows downward, so it never reaches the top */
+#infoModal, #shareChooser{ align-items:flex-start; padding:52vh 0 0; }
 #infoModal.active, #shareChooser.active{ animation:backdropIn .2s ease; }
 #infoModal .info-card, #shareChooser .info-card{
-  max-width:560px !important; width:100%; border-radius:20px 20px 0 0; border-bottom:none;
+  max-width:560px !important; width:calc(100% - 24px); margin:0 auto; border-radius:20px; max-height:calc(48vh - 12px); overflow-y:auto;
   padding:12px 20px calc(22px + env(safe-area-inset-bottom)); animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);
 }
 #infoModal .info-card::before, #shareChooser .info-card::before{
@@ -1141,7 +1142,7 @@ body.pop-pending .dot-btn.on-green::after, body.pop-pending .dot-btn.on-yellow::
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=49"></script>
+<script src="i18n.js?v=50"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
