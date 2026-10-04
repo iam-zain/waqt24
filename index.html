@@ -945,6 +945,10 @@ body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1)
 .goal-day.ok i{ background:var(--green); border-color:var(--green); }
 .goal-day small{ font-size:10px; color:var(--sub); font-weight:700; }
 .goal-day.today small{ color:var(--accent); }
+
+/* Daily goal: change today's goal (up to three times a day) */
+.goal-reroll{ margin-top:10px; padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
+.goal-reroll-note{ margin-top:10px; font-size:11.5px; color:var(--sub); }
 </style>
 </head>
 <body>
@@ -1088,7 +1092,7 @@ body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1)
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=44"></script>
+<script src="i18n.js?v=45"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -5617,12 +5621,27 @@ const GOAL_POOL = [
 function goalTasksFor(d){
   const k = dayKey(d);
   let seed = 7; for(const ch of k) seed = (seed*31 + ch.charCodeAt(0)) >>> 0;
+  const round = goalRound(d);
+  seed = (seed + round*7919) >>> 0; // each change of goal today gives a new set
   const rnd = ()=>{ seed = (seed*1664525 + 1013904223) >>> 0; return seed/4294967296; };
   const others = GOAL_POOL.slice(1);
   for(let i=others.length-1; i>0; i--){ const j = Math.floor(rnd()*(i+1)); [others[i], others[j]] = [others[j], others[i]]; }
   return [GOAL_POOL[0], ...others.slice(0,2)].map(t=>({ id:t.id, ic:t.ic, label:t.lbl, go:t.go, done:t.done(d) }));
 }
 function goalTasks(){ return goalTasksFor(new Date()); }
+/* How many times the goal was changed on a day (0 to GOAL_MAX_CHANGES) */
+const GOAL_MAX_CHANGES = 3;
+function goalRound(d){ return ((state.goalRound || {})[dayKey(d)]) || 0; }
+function changeTodayGoal(){
+  if(!state.goalRound) state.goalRound = {};
+  const k = dayKey(new Date());
+  const used = state.goalRound[k] || 0;
+  if(used >= GOAL_MAX_CHANGES) return;
+  state.goalRound[k] = used + 1;
+  saveState();
+  renderGoalCard();
+  showToast(L({rur:'Nayi hadaf aa gayi', en:'New goal set'}));
+}
 /* Last seven days: a dot is filled when that day's goal was completed */
 function goalWeek(){
   const out = [];
@@ -5655,10 +5674,15 @@ function renderGoalCard(){
       <div class="goal-title">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</div>
       ${tasks.map((t,i)=>`<button class="goal-item ${t.done?'done':''}" data-go="${i}"><span>${t.done?'✅':t.ic}</span> ${L(t.label)}<b class="goal-arrow">›</b></button>`).join('')}
       <div class="goal-week">${week.map(w=>`<div class="goal-day ${w.ok?'ok':''} ${w.today?'today':''}" title="${dayKey(w.d)}"><i></i><small>${['S','M','T','W','T','F','S'][w.d.getDay()]}</small></div>`).join('')}</div>
+      ${(()=>{ const left = GOAL_MAX_CHANGES - goalRound(new Date()); return left > 0
+        ? `<button class="goal-reroll" id="goalRerollBtn">🔄 ${L({rur:'Nayi hadaf', en:'New goal'})} (${left} ${L({rur:'baaqi', en:'left'})})</button>`
+        : `<div class="goal-reroll-note">${L({rur:'Aaj ki hadaf teen dafa badal chuki hai', en:'Today’s goal has been changed 3 times'})}</div>`; })()}
       ${n===tasks.length ? `<div class="goal-win">${L({rur:'Mashallah! Aaj ka hadaf mukammal 🎉', en:'Mashallah! Today’s goal is complete 🎉'})}</div>` : ''}
     </div>
   </div>`;
   el.querySelectorAll('[data-go]').forEach(btn=>{ btn.onclick = ()=> goTask(tasks[+btn.dataset.go].go); });
+  const rr = document.getElementById('goalRerollBtn');
+  if(rr) rr.onclick = changeTodayGoal;
   if(n===tasks.length) celebrate(el);
 }
 /* Confetti once per day, when the daily goal is first completed */
