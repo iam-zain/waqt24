@@ -951,6 +951,34 @@ body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1)
 .goal-day.today.ok i{ box-shadow:0 0 0 3px color-mix(in srgb, var(--green) 30%, transparent); }
 .goal-day.today small{ font-size:11px; font-weight:800; }
 
+/* ===== Shared button motion: prayer status (green, yellow, red, reset), Roza, and Yaad buttons =====
+   One set of timings and effects, so every marking control moves the same way. */
+:root{ --fx-fast:.15s; --fx-mid:.32s; --fx-ease:cubic-bezier(.2,.8,.2,1); --fx-spring:cubic-bezier(.34,1.56,.64,1); }
+@keyframes ripple { 0% { transform:scale(.3); opacity:.55; } 100% { transform:scale(1.9); opacity:0; } }
+/* Press: every marking control squishes under the finger */
+.bulk-btn, .dot-btn, .roza-mini, .aad-status-btn{ position:relative; transition:background-color var(--fx-mid) var(--fx-ease), border-color var(--fx-mid) var(--fx-ease), color var(--fx-mid) var(--fx-ease), transform var(--fx-fast) var(--fx-ease), filter var(--fx-mid) ease; }
+.bulk-btn:active, .dot-btn:active, .roza-mini:active, .aad-status-btn:active{ transform:scale(.9); }
+/* Ripple: a colour ring spreads out on press, and again when a status is set */
+.bulk-btn::after, .dot-btn::after, .roza-mini::after{ content:''; position:absolute; inset:0; border-radius:inherit; background:var(--rip, var(--accent)); opacity:0; pointer-events:none; }
+.bulk-btn:active::after, .dot-btn:active::after, .roza-mini:active::after{ animation:ripple .45s ease-out; }
+body.pop-pending .dot-btn.on-green::after, body.pop-pending .dot-btn.on-yellow::after, body.pop-pending .dot-btn.on-red::after{ animation:ripple .5s ease-out; }
+.bulk-green{ --rip:var(--green); } .bulk-yellow{ --rip:var(--yellow); } .bulk-red{ --rip:var(--red); } .bulk-clear, .bulk-info{ --rip:var(--sub); }
+.dot-btn.on-green{ --rip:var(--green); } .dot-btn.on-yellow{ --rip:var(--yellow); } .dot-btn.on-red{ --rip:var(--red); }
+.roza-mini{ --rip:var(--roza); }
+/* Roza: the knob springs across and the track fills with colour */
+.roza-mini{ transition:background-color var(--fx-mid) var(--fx-ease), border-color var(--fx-mid) var(--fx-ease); }
+.roza-mini-knob{ transition:left var(--fx-mid) var(--fx-spring), width var(--fx-fast) var(--fx-ease); }
+.roza-mini:active .roza-mini-knob{ width:21px; }
+.roza-mini.on .roza-mini-knob{ left:20px; }
+/* Yaad buttons: a colour sweeps across the button when it is chosen */
+.aad-status-btn{ background:linear-gradient(90deg, var(--fill, var(--accent)) 50%, var(--card2) 50%) right center / 200% 100% no-repeat; transition:background-position var(--fx-mid) var(--fx-ease), color var(--fx-mid) ease, border-color var(--fx-mid) ease, transform var(--fx-fast) var(--fx-ease); }
+.aad-status-btn.soch{ --fill:#e0b43f; }
+.aad-status-btn.amal{ --fill:var(--green); }
+.aad-status-btn.on{ background-position:left center; border-color:var(--fill, var(--accent)); }
+.aad-status-btn.soch.on{ background:linear-gradient(90deg, #e0b43f 50%, var(--card2) 50%) left center / 200% 100% no-repeat; color:#2b2208; }
+.aad-status-btn.amal.on{ background:linear-gradient(90deg, var(--green) 50%, var(--card2) 50%) left center / 200% 100% no-repeat; color:#06210f; }
+.aad-status-btn.on{ animation:popIn .3s ease; }
+
 /* Daily goal, compact: small ring, one row per task with a clear check circle */
 .goal-card{ padding:14px 14px 12px; gap:14px; align-items:center; }
 .goal-card .goal-ring{ width:64px; height:64px; flex:0 0 64px; }
@@ -1113,7 +1141,7 @@ body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1)
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=48"></script>
+<script src="i18n.js?v=49"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
