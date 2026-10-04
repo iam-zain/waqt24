@@ -945,6 +945,11 @@ body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1)
 .goal-day.ok i{ background:var(--green); border-color:var(--green); }
 .goal-day small{ font-size:10px; color:var(--sub); font-weight:700; }
 .goal-day.today small{ color:var(--accent); }
+/* Today stands out: bigger dot with an accent ring and a brighter label; other days fade back */
+.goal-day:not(.today){ opacity:.55; }
+.goal-day.today i{ width:14px; height:14px; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+.goal-day.today.ok i{ box-shadow:0 0 0 3px color-mix(in srgb, var(--green) 30%, transparent); }
+.goal-day.today small{ font-size:11px; font-weight:800; }
 
 /* Daily goal, compact: small ring, one row per task with a clear check circle */
 .goal-card{ padding:14px 14px 12px; gap:14px; align-items:center; }
@@ -1108,7 +1113,7 @@ body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1)
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=47"></script>
+<script src="i18n.js?v=48"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
