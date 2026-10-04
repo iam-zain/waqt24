@@ -305,8 +305,8 @@ body{
 
 /* ---------- MORE TAB ---------- */
 .more-list{ padding:6px 14px 20px; }
-.more-item{ display:flex; align-items:center; gap:12px; padding:14px 6px; border-bottom:1px solid var(--line); cursor:pointer; }
-.more-item .ic{ font-size:20px; width:26px; text-align:center; }
+.more-item{ display:flex; align-items:center; gap:12px; padding:11px 14px 11px 11px; margin-bottom:8px; background:var(--card); border:1px solid var(--line); border-radius:14px; cursor:pointer; }
+.more-item .ic{ font-size:18px; width:38px; height:38px; flex:0 0 38px; display:flex; align-items:center; justify-content:center; border-radius:11px; background:color-mix(in srgb, var(--accent) 14%, var(--card2)); }
 .more-item .lbl{ font-size:14.5px; font-weight:600; flex:1; }
 .more-item .chev{ color:var(--sub); }
 .more-item.disabled{ cursor:not-allowed; opacity:0.5; }
@@ -865,7 +865,7 @@ body.ramadan .goal-card, body.ramadan .ramzan-card{ border-color:rgba(212,175,55
 #tabbar{ box-shadow:0 -1px 0 color-mix(in srgb, var(--accent) 35%, transparent); }
 .date-bar{ background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent); border-radius:12px; }
 /* Colour: one accent edge on every card, so the sections look alike */
-.dua-card, .aad-card, .hadees-item, .more-item, .shabd-row, .name-tile{ border-left:3px solid color-mix(in srgb, var(--accent) 55%, transparent); }
+.dua-card, .aad-card, .hadees-item, .shabd-row, .name-tile{ border-left:3px solid color-mix(in srgb, var(--accent) 55%, transparent); }
 /* Typography: Arabic is larger and airier, the transliteration is set apart, and detail sections have dividers */
 .ar-font{ font-size:1.35em; line-height:2.1; }
 .dua-detail .dua-ar{ font-size:27px; line-height:2.2; }
@@ -1042,7 +1042,7 @@ body.ramadan .goal-card, body.ramadan .ramzan-card{ border-color:rgba(212,175,55
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=39"></script>
+<script src="i18n.js?v=40"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
