@@ -930,6 +930,11 @@ body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1)
 .aad-status-btn:active{ transform:scale(.96); }
 .aad-status-btn.on{ animation:popIn .3s ease; }
 .aad-status-badge{ animation:popIn .3s ease both; }
+
+/* Taadaad button: dark-to-light gradient for most used first, light-to-dark for least used first */
+#qwordSortBtn.sort-m1, #qwordSortBtn.sort-m2{ color:#fff; border-color:transparent; transition:background .35s ease; }
+#qwordSortBtn.sort-m1{ background:linear-gradient(90deg,#6b4c10,#d4a72c); }
+#qwordSortBtn.sort-m2{ background:linear-gradient(90deg,#d4a72c,#6b4c10); }
 </style>
 </head>
 <body>
@@ -1073,7 +1078,7 @@ body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1)
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=41"></script>
+<script src="i18n.js?v=42"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -2358,7 +2363,7 @@ function aadaabNavCat(){
 }
 function qwordNavCat(){
   return { sec:{ur:"Qur'ani Alfaaz", en:"Quranic Words"}, cats:Object.keys(QWORD_GROUP_COLOR), catOf:qwordGroup, all:QURAN_WORDS,
-    sortFn: qwordSortOcc ? (a,b)=>Number(b.occ)-Number(a.occ) : (a,b)=>a.tr.localeCompare(b.tr) };
+    sortFn: qwordSortFn() };
 }
 /* Star and share sit inside the title card (top-right) so the card keeps its size */
 function placeActionsInHead(){
@@ -2723,7 +2728,13 @@ function openDuaDetail(d){
   wirePnBar();
 }
 
-let qwordView='grid', qwordSearch='', qwordGroupFilter='__all__', qwordSortOcc=false;
+let qwordView='grid', qwordSearch='', qwordGroupFilter='__all__', qwordSortMode=0;
+/* Taadaad button cycles: 0 = A to Z, 1 = most used first, 2 = least used first */
+function qwordSortFn(){
+  if(qwordSortMode===1) return (a,b)=>Number(b.occ)-Number(a.occ);
+  if(qwordSortMode===2) return (a,b)=>Number(a.occ)-Number(b.occ);
+  return (a,b)=>a.tr.localeCompare(b.tr);
+}
 function renderQuranWords(){
   document.getElementById('detailTitle').textContent = "Qur’ani Alfaaz Aur Ma’ani";
   const body = document.getElementById('detailBody');
@@ -2739,7 +2750,7 @@ function renderQuranWords(){
     <div class="view-toggle">
       <button id="qwordGridBtn" class="${qwordView==='grid'?'active':''}">Grid</button>
       <button id="qwordListBtn" class="${qwordView==='list'?'active':''}">List</button>
-      <button id="qwordSortBtn" class="${qwordSortOcc?'active':''}" title="Zyada istemal hone wale alfaaz pehle">Taadaad ke Hisaab se</button>
+      <button id="qwordSortBtn" class="${qwordSortMode>0?'active':''} sort-m${qwordSortMode}" title="Zyada istemal hone wale alfaaz pehle">Taadaad ke Hisaab se</button>
     </div>
     <div class="dua-grid ${qwordView==='list'?'list':''}" id="qwordGrid"></div>
   `;
@@ -2759,7 +2770,7 @@ function renderQuranWords(){
   wireLiveSearch('qwordSearchInput', 'qwordSearchClear', renderQwordGrid, v=>{ qwordSearch = v; });
   body.querySelector('#qwordGridBtn').onclick = ()=>{ qwordView='grid'; renderQuranWords(); };
   body.querySelector('#qwordListBtn').onclick = ()=>{ qwordView='list'; renderQuranWords(); };
-  body.querySelector('#qwordSortBtn').onclick = ()=>{ qwordSortOcc=!qwordSortOcc; renderQuranWords(); };
+  body.querySelector('#qwordSortBtn').onclick = ()=>{ qwordSortMode=(qwordSortMode+1)%3; renderQuranWords(); };
   renderQwordGrid();
 }
 function renderQwordGrid(){
@@ -2769,7 +2780,7 @@ function renderQwordGrid(){
   /* Filter by group; sort alphabetically, or by occurrences in the Quran (highest first) when the Sort tab is on */
   const filtered = QURAN_WORDS
     .filter(w=> (qwordGroupFilter==='__all__' || qwordGroup(w)===qwordGroupFilter) && (w.tr+' '+w.m+' '+w.cat+' '+w.ar).toLowerCase().includes(q))
-    .sort(qwordSortOcc ? (a,b)=> Number(b.occ) - Number(a.occ) : (a,b)=> a.tr.localeCompare(b.tr));
+    .sort(qwordSortFn());
   if(!filtered.length){ grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Koi lafz nahi mila.</div>`; return; }
   filtered.forEach((w,i)=>{
     const c = document.createElement('div');
