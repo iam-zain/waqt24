@@ -1042,7 +1042,7 @@ body.ramadan .goal-card, body.ramadan .ramzan-card{ border-color:rgba(212,175,55
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=37"></script>
+<script src="i18n.js?v=38"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -3142,7 +3142,7 @@ function renderNamesList(which){
   grid.innerHTML = dataset.map((w,i)=>{
     const st = duaStatus(nameKey(which, w));
     return `<div class="aad-card status-${st||'none'}" data-idx="${i}" style="--aad-c:${nameAccent(which)};">
-      <div class="aad-ic">${i+1}</div>
+      <div class="aad-ic">🔤</div>
       <div class="aad-info">
         <div class="aad-title">${w.ar}</div>
         <div class="aad-cat-lbl">${w.tr}</div>
@@ -3173,7 +3173,7 @@ function renderNameDetail(which, idx){
       <button class="act-btn" id="nameImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
     <div class="aad-head status-${st||'none'}" style="--aad-c:${nameAccent(which)};">
-      <div class="aad-head-ic">${idx+1}</div>
+      <div class="aad-head-ic">🔤</div>
       <div class="aad-head-title ar-font">${w.ar}</div>
       <div class="aad-cat-pill">${w.tr}</div>
     </div>
