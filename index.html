@@ -1014,6 +1014,9 @@ body.pop-pending .aad-card, body.pop-pending .time-row, body.pop-pending .cal-ce
 .cal-detail.roza-on .row{ border-bottom-color:color-mix(in srgb, var(--roza) 45%, transparent); }
 @keyframes rozaFill { from { background-color:var(--card); } to { background-color:color-mix(in srgb, var(--roza) 17%, var(--card)); } }
 body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
+
+/* Calendar day card: the Zikr section is clearly separate from the five prayers */
+.cal-sec-title{ margin:18px -12px 6px; padding:12px 12px 6px; border-top:2px solid var(--line); font-size:12px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--sub); }
 </style>
 </head>
 <body>
@@ -1157,7 +1160,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=55"></script>
+<script src="i18n.js?v=56"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -2225,7 +2228,7 @@ function showDayDetail(date){
     const mMarked = zikrDayMarkedBaaki(date, morningPf.id);
     const eMarked = zikrDayMarkedBaaki(date, eveningPf.id);
     const zikrDisabledAttr = isFuture ? ' style="opacity:0.3; pointer-events:none;" title="Abhi shuru nahi hua"' : '';
-    html += `<div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin:12px 0 6px;">📿 Zikr / Tasbeeh</div>
+    html += `<div class="cal-sec-title">📿 Zikr / Tasbeeh</div>
       <div class="row">
         <span class="zikr-name-link" data-zprofile="morning" role="button" tabindex="0">🌅 Subah ke Azkar</span>
         <div style="display:flex; align-items:center; gap:8px;"${zikrDisabledAttr}>
