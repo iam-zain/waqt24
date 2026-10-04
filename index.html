@@ -122,8 +122,8 @@ body{
   padding:8px 2px; margin-top:2px; border-bottom:1px solid var(--line);
 }
 .controlCol{ flex:0 0 auto; display:flex; align-items:center; justify-content:center; padding:3px; gap:6px; min-width:0; }
-.controlCol.bulkCol{ flex:1; gap:5px; }
-.controlDivider{ width:1px; background:var(--line); margin:2px 0; }
+.controlCol.bulkCol{ flex:1; gap:5px; justify-content:space-between; padding-left:12px; }
+.controlDivider{ width:1.5px; background:color-mix(in srgb, var(--text) 24%, transparent); margin:2px 0; border-radius:1px; }
 .bulkLabel{ font-size:12.5px; color:var(--sub); font-weight:600; white-space:nowrap; }
 .bulkBtns{ display:flex; gap:5px; transition:opacity .2s; flex:0 0 auto; }
 .bulkBtns.disabled{ opacity:0.3; pointer-events:none; filter:grayscale(0.6); }
@@ -1160,7 +1160,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=56"></script>
+<script src="i18n.js?v=57"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
