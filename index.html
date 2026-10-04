@@ -893,6 +893,13 @@ body.ramadan .goal-card, body.ramadan .ramzan-card{ border-color:rgba(212,175,55
   background-size:200% 100%; animation:shimmer 1.2s linear infinite;
 }
 .skel-line.short{ width:60%; }
+
+/* Names use the same card look as duas and Aadaab, with Arabic titles */
+.names-cards .aad-title{ font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:19px; direction:rtl; text-align:right; line-height:1.6; }
+.names-cards .aad-ic{ font-size:13px; font-weight:800; color:var(--aad-c, var(--accent)); }
+.names-cards:not(.list) .aad-card .aad-title{ font-size:19px; text-align:center; }
+.names-cards:not(.list) .aad-card .aad-cat-lbl{ direction:ltr; }
+.names-cards.list .aad-card .aad-cat-lbl{ direction:ltr; text-align:left; }
 </style>
 </head>
 <body>
@@ -1035,7 +1042,7 @@ body.ramadan .goal-card, body.ramadan .ramzan-card{ border-color:rgba(212,175,55
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=36"></script>
+<script src="i18n.js?v=37"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -3110,6 +3117,9 @@ const QUIZ_CAT_ICON = {
    99 NAMES, Allah ke Naam / Muhammad ﷺ ke Naam
    ============================================================ */
 let namesView = 'grid';
+/* Yaad status for a name, stored with the other memorisation statuses */
+function nameKey(which, w){ return 'name:' + which + ':' + w.tr; }
+function nameAccent(which){ return which==='asma' ? '#c99a4a' : '#3fa8a0'; }
 function renderNamesList(which){
   const dataset = which==='asma' ? ASMA_UL_HUSNA : PROPHET_NAMES;
   const title = which==='asma' ? 'Asma-ul-Husna' : "Muhammad ﷺ ke 99 Naam";
@@ -3124,44 +3134,73 @@ function renderNamesList(which){
       <button id="namesListBtn" class="${namesView==='list'?'active':''}">List</button>
     </div>
     ${note}
-    <div class="names-grid ${namesView==='list'?'list':''}" id="namesGrid"></div>
+    <div class="dua-grid names-cards ${namesView==='list'?'list':''}" id="namesGrid"></div>
   `;
   document.getElementById('namesGridBtn').onclick = ()=>{ namesView='grid'; renderNamesList(which); };
   document.getElementById('namesListBtn').onclick = ()=>{ namesView='list'; renderNamesList(which); };
   const grid = document.getElementById('namesGrid');
-  grid.innerHTML = dataset.map((w,i)=>`<div class="name-tile" data-idx="${i}">
-      <div class="no">${i+1}</div>
-      <div class="ar">${w.ar}</div>
-      <div class="tr">${w.tr}</div>
-      ${namesView==='list' ? `<div class="m-preview">${isEn() && w.en ? w.en : w.m}</div>` : ''}
-    </div>`).join('');
+  grid.innerHTML = dataset.map((w,i)=>{
+    const st = duaStatus(nameKey(which, w));
+    return `<div class="aad-card status-${st||'none'}" data-idx="${i}" style="--aad-c:${nameAccent(which)};">
+      <div class="aad-ic">${i+1}</div>
+      <div class="aad-info">
+        <div class="aad-title">${w.ar}</div>
+        <div class="aad-cat-lbl">${w.tr}</div>
+        ${namesView==='list' ? `<div class="m-preview">${isEn() && w.en ? w.en : w.m}</div>` : ''}
+      </div>
+      ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
+      <div class="chev">›</div>
+    </div>`;
+  }).join('');
   grid.querySelectorAll('[data-idx]').forEach(el=>{
-    el.onclick = ()=> renderNameDetail(which, parseInt(el.dataset.idx));
+    el.onclick = ()=>{
+      const i = parseInt(el.dataset.idx);
+      setNavCtx(dataset, i, (w,j)=>renderNameDetail(which, j), null);
+      renderNameDetail(which, i);
+    };
   });
 }
 function renderNameDetail(which, idx){
   const dataset = which==='asma' ? ASMA_UL_HUSNA : PROPHET_NAMES;
   const w = dataset[idx];
+  const key = nameKey(which, w);
+  const st = duaStatus(key);
+  setNavCtx(dataset, idx, (x,j)=>renderNameDetail(which, j), null);
   document.getElementById('detailTitle').textContent = `${idx+1} / ${dataset.length}`;
   document.getElementById('detailBody').innerHTML = `
-    <div class="detail-actions between" style="margin:0 14px 14px;">
-      <button id="nameBackBtn" class="back-pill">‹ Fehrist</button>
-      <span class="act-group">${bmBtn((which==='asma'?'asma:':'prophet:')+w.tr)}<button class="act-btn" id="nameImgBtn" title="Share karein">${SHARE_SVG}</button></span>
+    <div class="detail-actions">
+      ${bmBtn((which==='asma'?'asma:':'prophet:')+w.tr)}
+      <button class="act-btn" id="nameImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
-    <div class="name-detail">
-      <div class="ar">${w.ar}</div>
-      <div class="tr">${w.tr}</div>
-      <div class="m">${isEn() && w.en ? w.en : w.m}</div>
+    <div class="aad-head status-${st||'none'}" style="--aad-c:${nameAccent(which)};">
+      <div class="aad-head-ic">${idx+1}</div>
+      <div class="aad-head-title ar-font">${w.ar}</div>
+      <div class="aad-cat-pill">${w.tr}</div>
     </div>
-    <div class="daily-word-nav">
-      <button id="namePrevBtn" ${idx===0?'disabled style="opacity:0.3;"':''}>‹</button>
-      <button id="nameNextBtn" ${idx===dataset.length-1?'disabled style="opacity:0.3;"':''}>›</button>
+    <div class="dua-detail">
+      <div class="aad-guide-sec dua-sec-ar">
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Name (Arabic)' : 'Naam (Arabic)'}</span></div>
+        <div class="arabic dua-ar">${w.ar}</div>
+      </div>
+      <div class="aad-guide-sec dua-sec-tr">
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Transliteration' : 'Talaffuz (Transliteration)'}</span></div>
+        <div class="translit dua-tr">${w.tr}</div>
+      </div>
+      <div class="aad-guide-sec dua-sec-ur">
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Meaning' : 'Maana (Roman Urdu)'}</span></div>
+        <div class="meaning dua-ur">${isEn() && w.en ? w.en : w.m}</div>
+      </div>
     </div>
+    <div class="aad-status-row">
+      <button class="aad-status-btn soch ${st==='soch'?'on':''}" id="nameSochBtn">⏳ Yaad karna baaqi hai</button>
+      <button class="aad-status-btn amal ${st==='amal'?'on':''}" id="nameAmalBtn">✅ Yaad ho chuka hai</button>
+    </div>
+    ${pnBarHtml()}
   `;
-  document.getElementById('nameBackBtn').onclick = ()=> renderNamesList(which);
-  document.getElementById('nameImgBtn').onclick = ()=> openCardShareChooser({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Muhammad ﷺ ke Naam', arabic:w.ar, title:w.tr, body:w.m });
-  document.getElementById('namePrevBtn').onclick = ()=> idx>0 && renderNameDetail(which, idx-1);
-  document.getElementById('nameNextBtn').onclick = ()=> idx<dataset.length-1 && renderNameDetail(which, idx+1);
+  document.getElementById('nameSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); renderNameDetail(which, idx); };
+  document.getElementById('nameAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); renderNameDetail(which, idx); };
+  document.getElementById('nameImgBtn').onclick = ()=> openCardShareChooser({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Muhammad ﷺ ke Naam', arabic:w.ar, title:w.tr, body:isEn() && w.en ? w.en : w.m });
+  wirePnBar();
 }
 
 /* ============================================================
