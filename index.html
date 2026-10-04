@@ -980,6 +980,13 @@ body.pop-pending .dot-btn.on-green::after, body.pop-pending .dot-btn.on-yellow::
 .aad-status-btn.amal.on{ background:linear-gradient(90deg, var(--green) 50%, var(--card2) 50%) left center / 200% 100% no-repeat; color:#06210f; }
 .aad-status-btn.on{ animation:popIn .3s ease; }
 
+/* Fill and empty: cards, calendar cells and status dots animate while a status change is in progress */
+@keyframes fillIn { from { transform:scale(.6); opacity:.35; } to { transform:none; opacity:1; } }
+@keyframes tintIn { from { opacity:.55; } to { opacity:1; } }
+.aad-card, .time-row, .cal-cell, .hadees-item, .dua-card{ transition:background-color .35s ease, border-color .35s ease, box-shadow .35s ease, opacity .35s ease; }
+body.pop-pending .dot-btn{ animation:fillIn .35s var(--fx-spring); }
+body.pop-pending .aad-card, body.pop-pending .time-row, body.pop-pending .cal-cell, body.pop-pending .hadees-item, body.pop-pending .dua-card{ animation:tintIn .4s ease; }
+
 /* Daily goal, compact: small ring, one row per task with a clear check circle */
 .goal-card{ padding:14px 14px 12px; gap:14px; align-items:center; }
 .goal-card .goal-ring{ width:64px; height:64px; flex:0 0 64px; }
@@ -1142,7 +1149,7 @@ body.pop-pending .dot-btn.on-green::after, body.pop-pending .dot-btn.on-yellow::
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=50"></script>
+<script src="i18n.js?v=51"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -1531,6 +1538,16 @@ function statusKey(d, prayer){ return dayKey(d)+'_'+prayer; }
 function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
 document.addEventListener('click', (e)=>{
   if(e.target.closest('.tasbeeh-tap, .bulk-btn, .quiz-opt, .bm-btn, .switch, .lang-opt')) buzz(8);
+}, true);
+/* Fill and empty motion: a short window after any status change, so the dots, cards and calendar cells animate */
+let pendTimer = null;
+function markStatusChange(){
+  document.body.classList.add('pop-pending');
+  clearTimeout(pendTimer);
+  pendTimer = setTimeout(()=>document.body.classList.remove('pop-pending'), 520);
+}
+document.addEventListener('click', (e)=>{
+  if(e.target.closest('.dot-btn, .bulk-btn, .aad-status-btn, .roza-mini, #duaSochBtn, #duaAmalBtn')) markStatusChange();
 }, true);
 function cycleStatus(d, prayer){
   buzz(12);
