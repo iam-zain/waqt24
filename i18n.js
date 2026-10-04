@@ -464,4 +464,4 @@ Object.assign(I18N_EN, {
 });
 
 /* Deegar progress section */
-Object.assign(I18N_EN, { "Taraqqi": "Progress" });
+Object.assign(I18N_EN, { "Jaiza": "Review" });
