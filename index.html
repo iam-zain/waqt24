@@ -946,6 +946,22 @@ body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1)
 .goal-day small{ font-size:10px; color:var(--sub); font-weight:700; }
 .goal-day.today small{ color:var(--accent); }
 
+/* Daily goal, compact: small ring, one row per task with a clear check circle */
+.goal-card{ padding:14px 14px 12px; gap:14px; align-items:center; }
+.goal-card .goal-ring{ width:64px; height:64px; flex:0 0 64px; }
+.goal-card .goal-info{ flex:1; min-width:0; }
+.goal-card .goal-title{ font-size:13px; font-weight:800; margin-bottom:2px; }
+.goal-item{ padding:7px 0; font-size:13px; border-bottom:1px solid var(--line); }
+.goal-item:last-of-type{ border-bottom:none; }
+.gi-check{ flex:0 0 20px; width:20px; height:20px; border-radius:50%; border:2px solid var(--dotBorder); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; transition:background .25s ease, border-color .25s ease; }
+.goal-item.done .gi-check{ background:var(--green); border-color:var(--green); animation:popIn .35s ease; }
+.gi-txt{ flex:1; min-width:0; line-height:1.35; }
+.goal-item.done .gi-txt{ color:var(--sub); }
+.goal-week{ margin-top:8px; gap:4px; }
+.goal-day i{ width:9px; height:9px; }
+.goal-day small{ font-size:9px; }
+.goal-reroll{ margin-top:8px; padding:6px 10px; font-size:11.5px; }
+.goal-reroll-note{ margin-top:8px; font-size:11px; }
 /* Daily goal: change today's goal (up to three times a day) */
 .goal-reroll{ margin-top:10px; padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
 .goal-reroll-note{ margin-top:10px; font-size:11.5px; color:var(--sub); }
@@ -1092,7 +1108,7 @@ body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1)
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=46"></script>
+<script src="i18n.js?v=47"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -5672,7 +5688,7 @@ function renderGoalCard(){
     </svg>
     <div class="goal-info">
       <div class="goal-title">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</div>
-      ${tasks.map((t,i)=>`<button class="goal-item ${t.done?'done':''}" data-go="${i}"><span>${t.done?'✅':t.ic}</span> ${L(t.label)}<b class="goal-arrow">›</b></button>`).join('')}
+      ${tasks.map((t,i)=>`<button class="goal-item ${t.done?'done':''}" data-go="${i}"><span class="gi-check">${t.done?'✓':''}</span><span class="gi-txt">${L(t.label)}</span><b class="goal-arrow">›</b></button>`).join('')}
       <div class="goal-week">${week.map(w=>`<div class="goal-day ${w.ok?'ok':''} ${w.today?'today':''}" title="${dayKey(w.d)}"><i></i><small>${['S','M','T','W','T','F','S'][w.d.getDay()]}</small></div>`).join('')}</div>
       ${(()=>{ const left = GOAL_MAX_CHANGES - goalRound(new Date()); return left > 0
         ? `<button class="goal-reroll" id="goalRerollBtn">🔄 ${L({rur:'Nayi hadaf', en:'New goal'})} (${left} ${L({rur:'baaqi', en:'left'})})</button>`
