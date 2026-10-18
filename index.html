@@ -1759,6 +1759,11 @@ function renderHome(){
       }
     }
   }
+  // Tahajjud sits inside Isha's time, and Du'a Qubooliyat (tihai) sits inside Tahajjud's: when the
+  // narrowest one is current, its parents stay live too, instead of switching off.
+  const NEST_PARENT = { tahajjud:'isha', tihai:'tahajjud' };
+  const liveParents = new Set();
+  for(let k = currentIdx>=0 ? sched[currentIdx].key : null; NEST_PARENT[k]; k = NEST_PARENT[k]) liveParents.add(NEST_PARENT[k]);
   const maghribRow = sched.find(x=>x.key==='maghrib');
   const ishaRow = sched.find(x=>x.key==='isha');
   const fajrRow = sched.find(x=>x.key==='fajr');
@@ -1781,10 +1786,11 @@ function renderHome(){
       isPast = isToday ? now>=maghribRow.start : isPastDate;
       isFuture = isToday ? now<ghurubRow.start : !isPastDate;
     } else if(isToday){
-      isPast = idx!==currentIdx && (now>=p.end || idx<currentIdx);
-      isFuture = idx!==currentIdx && now<p.start && idx>currentIdx;
+      const isLiveParent = liveParents.has(p.key);
+      isPast = idx!==currentIdx && !isLiveParent && (now>=p.end || idx<currentIdx);
+      isFuture = idx!==currentIdx && !isLiveParent && now<p.start && idx>currentIdx;
       // Awwabin shares Maghrib's exact window, so it lights up together with it
-      isLive = idx===currentIdx || (p.key==='awwabin' && currentIdx>=0 && sched[currentIdx].key==='maghrib');
+      isLive = idx===currentIdx || isLiveParent || (p.key==='awwabin' && currentIdx>=0 && sched[currentIdx].key==='maghrib');
     } else {
       isPast = isPastDate;
       isFuture = !isPastDate;
