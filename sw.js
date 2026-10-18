@@ -1,4 +1,7 @@
-const CACHE_NAME = 'waqt24-v153';
+const CACHE_NAME = 'waqt24-v154';
+// Quran page images live in their own cache that survives every CACHE_NAME bump above, so a reader
+// who already downloaded a page never re-downloads it just because something else in the app changed.
+const QURAN_CACHE = 'waqt24-quran-v1';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -20,7 +23,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== QURAN_CACHE).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
@@ -42,6 +45,22 @@ self.addEventListener('fetch', (event) => {
           return res;
         })
         .catch(() => caches.match(event.request).then((r) => r || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // Quran page images: fetched on demand the first time they're viewed, then kept in their own
+  // cache indefinitely (not part of the app's install-time download).
+  if (url.pathname.includes('/quran/pages/')) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) return cached;
+        return fetch(event.request).then((res) => {
+          const clone = res.clone();
+          caches.open(QURAN_CACHE).then((cache) => cache.put(event.request, clone));
+          return res;
+        });
+      })
     );
     return;
   }
