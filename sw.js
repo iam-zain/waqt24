@@ -1,4 +1,4 @@
-const CACHE_NAME = 'waqt24-v156';
+const CACHE_NAME = 'waqt24-v157';
 // Quran page images live in their own cache that survives every CACHE_NAME bump above, so a reader
 // who already downloaded a page never re-downloads it just because something else in the app changed.
 const QURAN_CACHE = 'waqt24-quran-v1';
@@ -51,7 +51,7 @@ self.addEventListener('fetch', (event) => {
 
   // Quran page images: fetched on demand the first time they're viewed, then kept in their own
   // cache indefinitely (not part of the app's install-time download).
-  if (url.pathname.includes('/quran/pages/')) {
+  if (url.pathname.includes('/quran/pages/') || url.pathname.includes('/azan/')) {
     event.respondWith(
       caches.match(event.request).then((cached) => {
         if (cached) return cached;

@@ -1061,6 +1061,32 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .page-leaf.turning{ transition:transform .54s cubic-bezier(.35,.08,.25,1), box-shadow .54s ease, opacity .2s ease .38s; opacity:0; box-shadow:0 18px 40px rgba(0,0,0,.35); }
 .page-leaf.turning .page-leaf-shade{ transition:opacity .45s ease; opacity:1; }
 #detailBody{ backface-visibility:visible; }
+
+/* Azaan screen */
+.az-text{ margin:0 0 6px; }
+.az-line{ background:var(--card); border:1px solid var(--line); border-radius:13px; padding:12px 14px; margin:0 0 8px; }
+.az-line.fajr{ border-color:color-mix(in srgb, var(--yellow) 55%, var(--line)); background:color-mix(in srgb, var(--yellow) 8%, var(--card)); }
+.az-ar{ font-size:24px; line-height:1.9; text-align:right; color:var(--text); }
+.az-tr{ font-size:13px; font-style:italic; color:var(--accent); margin-top:2px; }
+.az-tr b{ font-style:normal; color:var(--sub); font-size:11.5px; margin-left:4px; }
+.az-m{ font-size:13px; line-height:1.55; margin-top:4px; }
+.az-fajr{ font-size:11px; color:var(--sub); margin-top:6px; font-weight:600; }
+.az-list{ margin:0 0 10px; }
+.az-rec{ display:flex; gap:12px; align-items:flex-start; background:var(--card); border:1px solid var(--line); border-radius:13px; padding:10px 12px; margin:0 0 8px; }
+.az-play{ flex:0 0 38px; width:38px; height:38px; border-radius:50%; border:none; background:var(--accent); color:var(--fardText); font-size:14px; font-weight:800; cursor:pointer; transition:transform var(--fx-fast) var(--fx-ease), background-color var(--fx-mid) ease; }
+.az-play:active{ transform:scale(.9); }
+.az-play.on{ background:var(--red); color:#fff; animation:popIn .3s ease; }
+.az-info{ flex:1; min-width:0; }
+.az-name{ font-size:13.5px; font-weight:700; }
+.az-sub{ font-size:11.5px; color:var(--sub); margin-top:2px; }
+.az-credit{ font-size:10.5px; color:var(--sub); margin-top:3px; line-height:1.4; overflow-wrap:anywhere; }
+.az-credit a{ color:var(--accent); }
+.az-pick-row{ display:flex; gap:10px; align-items:center; }
+.az-select{ flex:1; min-width:0; padding:9px 10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; }
+.az-warn{ font-size:11px; color:var(--sub); margin-top:8px; line-height:1.45; }
+#azaanBar{ position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom, 0px) + 84px); transform:translateX(-50%); z-index:450; display:flex; align-items:center; gap:10px; max-width:calc(100vw - 32px); padding:9px 10px 9px 14px; border-radius:14px; background:var(--card2); border:1px solid var(--line); box-shadow:0 8px 24px rgba(0,0,0,.25); animation:fadeUp .3s ease; }
+#azaanBar .azb-txt{ font-size:12.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+#azaanBar button{ flex:0 0 auto; padding:7px 12px; border-radius:10px; border:none; background:var(--red); color:#fff; font-size:12px; font-weight:800; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -1171,6 +1197,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
     <div class="more-list" style="padding-top:0;">
       <div class="more-item" data-open="install"><div class="ic">📲</div><div class="lbl">App Install Karein</div><div class="chev">›</div></div>
       <div class="more-item" data-open="settings"><div class="ic">⚙️</div><div class="lbl">Settings</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="azaan"><div class="ic">🔊</div><div class="lbl">Azaan</div><div class="chev">›</div></div>
       <div class="more-item" data-open="raabta"><div class="ic">📧</div><div class="lbl">Raabta</div><div class="chev">›</div></div>
     </div>
   </div>
@@ -2927,6 +2954,164 @@ function qwordSortFn(){
   return (a,b)=>a.tr.localeCompare(b.tr);
 }
 /* ============================================================
+   AZAAN: text with meaning, recordings from around the world, and playback at prayer time
+   (recordings: freely licensed, from Wikimedia Commons; credits shown on the Azaan screen)
+   ============================================================ */
+const AZAAN_RECS = [{"id": "makkah", "ic": "🕋", "rur": "Makkah · Masjid al-Haram", "en": "Makkah · Masjid al-Haram", "sec": 197, "excerpt": false, "fajr": false, "artist": "Seyfula Islam", "license": "CC BY 3.0", "page": "https://commons.wikimedia.org/wiki/File%3AAdhan%2C_Great_Mosque_of_Mecca_-_Jan_21%2C_2013.webm"}, {"id": "makkah-maghrib", "ic": "🕋", "rur": "Makkah · Masjid al-Haram (Maghrib)", "en": "Makkah · Masjid al-Haram (Maghrib)", "sec": 301, "excerpt": false, "fajr": false, "artist": "3omar Faruq", "license": "CC BY 3.0", "page": "https://commons.wikimedia.org/wiki/File%3AMaghrib_Adhan_at_the_Masjid_al_Haram%2C_Mecca_-_25_Feb%2C_2012.webm"}, {"id": "madinah", "ic": "🕌", "rur": "Madinah · Masjid an-Nabawi", "en": "Madinah · Prophet's Mosque", "sec": 187, "excerpt": false, "fajr": false, "artist": "ejaz215", "license": "CC BY 3.0", "page": "https://commons.wikimedia.org/wiki/File%3A33937_ejaz215_call-to-prayer-from-the-prophet-s-mo.ogg"}, {"id": "malmo-fajr", "ic": "🌅", "rur": "Malmö, Sweden · Fajr ki Azaan", "en": "Malmö, Sweden · Fajr Azaan", "sec": 248, "excerpt": false, "fajr": true, "artist": "Islamic Center Malmö", "license": "CC BY 3.0", "page": "https://commons.wikimedia.org/wiki/File%3AEid_al-Fitr_Fajr_azan_at_Malm%C3%B6_Mosque_-_19_August_2012.webm"}, {"id": "aleppo", "ic": "🇸🇾", "rur": "Halab (Aleppo), Syria · Sabah Fakhri", "en": "Aleppo, Syria · Sabah Fakhri", "sec": 158, "excerpt": false, "fajr": false, "artist": "Sabah Fakhri", "license": "Public domain", "page": "https://commons.wikimedia.org/wiki/File%3ACall_to_prayer_by_Sabah_Fakhry.mp3"}, {"id": "casablanca", "ic": "🇲🇦", "rur": "Casablanca, Morocco · Hassan II Masjid", "en": "Casablanca, Morocco · Hassan II Mosque", "sec": 176, "excerpt": false, "fajr": false, "artist": "Fraguando", "license": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File%3ALlamada_a_oraci%C3%B3n_Mezquita_Hassan_II.wav"}, {"id": "kazakhstan", "ic": "🇰🇿", "rur": "Shalqar, Kazakhstan", "en": "Shalqar, Kazakhstan", "sec": 155, "excerpt": false, "fajr": false, "artist": "Esetok", "license": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File%3AAdhan_in_Shalqar_mosque.webm"}, {"id": "istanbul", "ic": "🇹🇷", "rur": "Istanbul, Turkey", "en": "Istanbul, Turkey", "sec": 50, "excerpt": true, "fajr": false, "artist": "Viceskeeni2", "license": "CC0", "page": "https://commons.wikimedia.org/wiki/File%3AAdhan_in_Istanbul.webm"}, {"id": "konya", "ic": "🇹🇷", "rur": "Konya, Turkey", "en": "Konya, Turkey", "sec": 60, "excerpt": true, "fajr": false, "artist": "Frans van der Vaart", "license": "CC BY 3.0", "page": "https://commons.wikimedia.org/wiki/File%3AHminsec150_Konya.webm"}, {"id": "nigeria", "ic": "🇳🇬", "rur": "Nigeria", "en": "Nigeria", "sec": 65, "excerpt": true, "fajr": false, "artist": "Isaacayodele32", "license": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File%3ACall_to_prayer.ogg"}, {"id": "aaqib", "ic": "🎙️", "rur": "Aaqib Azeez ki awaaz mein", "en": "Recited by Aaqib Azeez", "sec": 87, "excerpt": false, "fajr": false, "artist": "Atcovi", "license": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File%3AThe_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3"}, {"id": "adam", "ic": "🎙️", "rur": "Azaan (Adam-synagda ki recording)", "en": "Azaan (recorded by Adam-synagda)", "sec": 154, "excerpt": false, "fajr": false, "artist": "Adam-synagda", "license": "CC0", "page": "https://commons.wikimedia.org/wiki/File%3ABeautiful_adhan.ogg"}, {"id": "andrewler", "ic": "🎙️", "rur": "Azaan (Andrewler ki recording)", "en": "Azaan (recorded by Andrewler)", "sec": 184, "excerpt": false, "fajr": false, "artist": "Andrewler", "license": "CC BY-SA 4.0", "page": "https://commons.wikimedia.org/wiki/File%3AAzan.ogg"}];
+const AZAAN_TEXT = [
+  { ar:'اللّٰهُ أَكْبَرُ', tr:'Allahu Akbar', n:4, m:{rur:'Allah sab se bada hai', en:'Allah is the Greatest'} },
+  { ar:'أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللّٰهُ', tr:'Ash-hadu an la ilaha illallah', n:2, m:{rur:'Main gawahi deta hoon ke Allah ke siwa koi ibadat ke laaiq nahi', en:'I bear witness that there is no god but Allah'} },
+  { ar:'أَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللّٰهِ', tr:'Ash-hadu anna Muhammadan Rasulullah', n:2, m:{rur:'Main gawahi deta hoon ke Muhammad ﷺ Allah ke Rasool hain', en:'I bear witness that Muhammad ﷺ is the Messenger of Allah'} },
+  { ar:'حَيَّ عَلَى الصَّلَاةِ', tr:"Hayya 'alas-Salah", n:2, m:{rur:'Aao namaz ki taraf', en:'Come to prayer'} },
+  { ar:'حَيَّ عَلَى الْفَلَاحِ', tr:"Hayya 'alal-Falah", n:2, m:{rur:'Aao kamyabi ki taraf', en:'Come to success'} },
+  { ar:'الصَّلَاةُ خَيْرٌ مِنَ النَّوْمِ', tr:'As-Salatu khairum minan-nawm', n:2, fajr:true, m:{rur:'Namaz neend se behtar hai', en:'Prayer is better than sleep'} },
+  { ar:'اللّٰهُ أَكْبَرُ', tr:'Allahu Akbar', n:2, m:{rur:'Allah sab se bada hai', en:'Allah is the Greatest'} },
+  { ar:'لَا إِلٰهَ إِلَّا اللّٰهُ', tr:'La ilaha illallah', n:1, m:{rur:'Allah ke siwa koi ibadat ke laaiq nahi', en:'There is no god but Allah'} },
+];
+const AZAAN_DUA = {
+  ar:'اللّٰهُمَّ رَبَّ هٰذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ',
+  tr:"Allahumma Rabba hazihid-da'watit-tammah, was-salatil-qa'imah, aati Muhammadanil-waseelata wal-fadeelah, wab'ath-hu maqamam mahmudanil-lazi wa'adtah",
+  m:{rur:'Aye Allah, is mukammal pukaar aur qaaim hone wali namaz ke Rab! Muhammad ﷺ ko Waseela aur Fazeelat ata farma, aur unhein us Maqam-e-Mahmood par pahuncha jiska Tu ne un se waada kiya hai.',
+     en:'O Allah, Lord of this perfect call and of the prayer about to be established, grant Muhammad ﷺ al-Waseelah and excellence, and raise him to the praised station You have promised him.'},
+  ref:'Sahih al-Bukhari 614'
+};
+/* Default: a different recording for each prayer, so the sound itself tells which prayer it is */
+const AZAAN_DEFAULT_PICK = { fajr:'malmo-fajr', zuhr:'madinah', asr:'aleppo', maghrib:'makkah-maghrib', isha:'makkah' };
+function azaanState(){
+  if(!state.azaan) state.azaan = { on:false, prayers:{fajr:true, zuhr:true, asr:true, maghrib:true, isha:true}, pick:Object.assign({}, AZAAN_DEFAULT_PICK) };
+  const a = state.azaan;
+  if(!a.prayers) a.prayers = {fajr:true, zuhr:true, asr:true, maghrib:true, isha:true};
+  if(!a.pick) a.pick = Object.assign({}, AZAAN_DEFAULT_PICK);
+  FIVE.forEach(k=>{ if(!AZAAN_RECS.some(r=>r.id===a.pick[k])) a.pick[k] = AZAAN_DEFAULT_PICK[k]; });
+  if(!a.played) a.played = {};
+  return a;
+}
+function azaanRec(id){ return AZAAN_RECS.find(r=>r.id===id) || AZAAN_RECS[0]; }
+function fmtSecs(n){ return Math.floor(n/60) + ':' + String(n%60).padStart(2,'0'); }
+const PRAYER_LABEL = { fajr:'Fajr', zuhr:'Zuhr', asr:'Asr', maghrib:'Maghrib', isha:'Isha' };
+
+/* One shared player for previews and prayer-time Azaan, with a floating Stop bar */
+let azaanAudio = null, azaanPlayingId = null;
+function stopAzaan(){
+  if(azaanAudio){ azaanAudio.pause(); azaanAudio = null; }
+  azaanPlayingId = null;
+  const bar = document.getElementById('azaanBar'); if(bar) bar.remove();
+  document.querySelectorAll('.az-play.on').forEach(b=>{ b.classList.remove('on'); b.textContent = '▶'; });
+}
+function playAzaan(id, label){
+  stopAzaan();
+  const rec = azaanRec(id);
+  azaanAudio = new Audio(`azan/${rec.id}.mp3`);
+  azaanPlayingId = rec.id;
+  azaanAudio.onended = stopAzaan;
+  const p = azaanAudio.play();
+  if(p && p.catch) p.catch(()=>{ stopAzaan(); showToast(L({rur:'Azaan chalaane ke liye app par ek baar tap karein', en:'Tap the app once to allow the Azaan to play'})); });
+  const bar = document.createElement('div');
+  bar.id = 'azaanBar';
+  bar.innerHTML = `<span class="azb-ic">🔊</span><span class="azb-txt">${label || L({rur:rec.rur, en:rec.en})}</span><button id="azaanStopBtn">■ ${L({rur:'Band karein', en:'Stop'})}</button>`;
+  document.body.appendChild(bar);
+  document.getElementById('azaanStopBtn').onclick = stopAzaan;
+  document.querySelectorAll(`.az-play[data-id="${rec.id}"]`).forEach(b=>{ b.classList.add('on'); b.textContent = '■'; });
+}
+/* At each chosen prayer's start time, play its Azaan once (only while the app is open) */
+function checkAzaanTime(){
+  const a = azaanState();
+  if(!a.on) return;
+  const now = new Date();
+  const sched = buildSchedule(operatingDate(now));
+  FIVE.forEach(k=>{
+    if(!a.prayers[k]) return;
+    const p = sched.find(x=>x.key===k); if(!p) return;
+    const key = dayKey(p.start) + '_' + k;
+    const late = now - p.start;
+    if(late >= 0 && late < 90*1000 && !a.played[key]){
+      a.played[key] = true;
+      // keep only the last few days of "already played" marks
+      Object.keys(a.played).forEach(x=>{ if(x.slice(0, x.lastIndexOf('_')) < dayKey(new Date(now - 3*86400000))) delete a.played[x]; });
+      saveState();
+      playAzaan(a.pick[k], `${PRAYER_LABEL[k]} ${L({rur:'ki Azaan', en:'Azaan'})}`);
+    }
+  });
+}
+setInterval(checkAzaanTime, 5000);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) checkAzaanTime(); });
+
+function azaanRecRow(r){
+  return `<div class="az-rec">
+    <button class="az-play ${azaanPlayingId===r.id?'on':''}" data-id="${r.id}">${azaanPlayingId===r.id?'■':'▶'}</button>
+    <div class="az-info">
+      <div class="az-name">${r.ic} ${L({rur:r.rur, en:r.en})}</div>
+      <div class="az-sub">${fmtSecs(r.sec)}${r.excerpt ? ' · ' + L({rur:'hissa (poori nahi)', en:'excerpt'}) : ''}${r.fajr ? ' · ' + L({rur:'Fajr ke liye', en:'for Fajr'}) : ''}</div>
+      <div class="az-credit">${L({rur:'Recording', en:'Recording'})}: ${r.artist} · ${r.license} · <a href="${r.page}" target="_blank" rel="noopener">Wikimedia Commons</a></div>
+    </div>
+  </div>`;
+}
+function wireAzaanPlay(){
+  document.querySelectorAll('#detailBody .az-play').forEach(b=>{
+    b.onclick = ()=>{ if(azaanPlayingId===b.dataset.id) stopAzaan(); else playAzaan(b.dataset.id); };
+  });
+}
+function renderAzaan(){
+  document.getElementById('detailTitle').textContent = 'Azaan';
+  const a = azaanState();
+  document.getElementById('detailBody').innerHTML = `
+    <div class="backup-note">${L({rur:'Azaan ke alfaaz, unka talaffuz aur maana, aur duniya bhar ki masjidon se Azaan suniye.', en:'The words of the Azaan with pronunciation and meaning, and Azaan recordings from mosques around the world.'})}</div>
+    <button class="backup-btn" id="azaanSetBtn">⚙️ ${L({rur:'Namaz ke waqt Azaan', en:'Azaan at prayer times'})}: ${a.on ? L({rur:'On', en:'On'}) : L({rur:'Off', en:'Off'})}</button>
+    <div class="section-title">${L({rur:'Azaan ke Alfaaz', en:'Words of the Azaan'})}</div>
+    <div class="az-text">${AZAAN_TEXT.map(x=>`<div class="az-line ${x.fajr?'fajr':''}">
+      <div class="az-ar ar-font">${x.ar}</div>
+      <div class="az-tr">${x.tr} <b>×${x.n}</b></div>
+      <div class="az-m">${L(x.m)}</div>
+      ${x.fajr ? `<div class="az-fajr">${L({rur:'Sirf Fajr ki Azaan mein, Hayya alal-Falah ke baad', en:'Only in the Fajr Azaan, after Hayya alal-Falah'})}</div>` : ''}
+    </div>`).join('')}</div>
+    <div class="section-title">${L({rur:'Azaan ke baad ki Dua', en:'Dua after the Azaan'})}</div>
+    <div class="az-text"><div class="az-line">
+      <div class="az-ar ar-font">${AZAAN_DUA.ar}</div>
+      <div class="az-tr">${AZAAN_DUA.tr}</div>
+      <div class="az-m">${L(AZAAN_DUA.m)}</div>
+      <div class="az-fajr">${L({rur:'Hawala', en:'Reference'})}: ${AZAAN_DUA.ref}</div>
+    </div></div>
+    <div class="section-title">${L({rur:'Duniya bhar ki Azaan', en:'Azaan from around the world'})}</div>
+    <div class="az-list">${AZAAN_RECS.map(azaanRecRow).join('')}</div>
+    <div class="backup-note">${L({rur:'Recordings Wikimedia Commons se hain, free license (CC0, Public domain, CC BY, CC BY-SA) ke saath. Har recording ke saath uske banane wale aur license ka zikr hai.', en:'Recordings are from Wikimedia Commons under free licences (CC0, public domain, CC BY, CC BY-SA). Each recording lists its author and licence.'})}</div>
+  `;
+  document.getElementById('azaanSetBtn').onclick = renderAzaanSettings;
+  wireAzaanPlay();
+}
+function renderAzaanSettings(){
+  document.getElementById('detailTitle').textContent = L({rur:'Azaan Settings', en:'Azaan Settings'});
+  const a = azaanState();
+  const allOn = FIVE.every(k=>a.prayers[k]);
+  const opts = (sel)=> AZAAN_RECS.map(r=>`<option value="${r.id}" ${r.id===sel?'selected':''}>${r.ic} ${L({rur:r.rur, en:r.en})}${r.excerpt?' ('+L({rur:'hissa', en:'excerpt'})+')':''}</option>`).join('');
+  document.getElementById('detailBody').innerHTML = `
+    <div class="ramzan-card" style="margin:0 0 14px;">
+      <div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">${L({rur:'Namaz ke waqt Azaan chalaayein', en:'Play Azaan at prayer times'})}</span><div class="switch ${a.on?'on':''}" id="azOnSw"><div class="knob"></div></div></div>
+      <div class="roza-toggle"><span style="font-size:13px; font-weight:600;">${L({rur:'Sab namazon ke liye', en:'For all prayers'})}</span><div class="switch ${allOn?'on':''}" id="azAllSw"><div class="knob"></div></div></div>
+    </div>
+    <div class="section-title" style="margin-top:0;">${L({rur:'Har namaz ki Azaan', en:'Azaan for each prayer'})}</div>
+    ${FIVE.map(k=>`<div class="ramzan-card az-pray" style="margin:0 0 10px;">
+      <div class="roza-toggle" style="padding:0 0 8px;"><span style="font-size:13.5px; font-weight:700;">${(PRAYER_META[k]||{}).icon||''} ${PRAYER_LABEL[k]}</span><div class="switch ${a.prayers[k]?'on':''}" data-az-pray="${k}"><div class="knob"></div></div></div>
+      <div class="az-pick-row">
+        <select class="az-select" data-az-pick="${k}">${opts(a.pick[k])}</select>
+        <button class="az-play ${azaanPlayingId===a.pick[k]?'on':''}" data-id="${a.pick[k]}">${azaanPlayingId===a.pick[k]?'■':'▶'}</button>
+      </div>
+      ${k==='fajr' && !azaanRec(a.pick[k]).fajr ? `<div class="az-warn">${L({rur:'Is recording mein "As-Salatu khairum minan-nawm" nahi hai, jo Fajr ki Azaan mein hota hai.', en:'This recording does not include "As-Salatu khairum minan-nawm", which the Fajr Azaan has.'})}</div>` : ''}
+      ${k!=='fajr' && azaanRec(a.pick[k]).fajr ? `<div class="az-warn">${L({rur:'Yeh Fajr ki Azaan hai, is mein "As-Salatu khairum minan-nawm" bhi hai.', en:'This is a Fajr Azaan; it includes "As-Salatu khairum minan-nawm".'})}</div>` : ''}
+    </div>`).join('')}
+    <div class="backup-note">${L({rur:'Azaan sirf tab chalti hai jab app khuli ho. App band ho ya phone lock ho to browser poori Azaan chalaane nahi deta; tab Yaad-dahani (notification) aati hai, agar Settings mein On ho.', en:'The Azaan plays only while the app is open. When the app is closed or the phone is locked, browsers do not allow a full Azaan; a reminder notification comes instead, if it is on in Settings.'})}</div>
+  `;
+  document.getElementById('azOnSw').onclick = ()=>{
+    a.on = !a.on; saveState();
+    if(a.on) showToast(L({rur:'Azaan On: namaz ke waqt app khuli ho to Azaan chalegi', en:'Azaan on: it plays at prayer time while the app is open'}));
+    renderAzaanSettings();
+  };
+  document.getElementById('azAllSw').onclick = ()=>{ const v = !allOn; FIVE.forEach(k=> a.prayers[k] = v); saveState(); renderAzaanSettings(); };
+  document.querySelectorAll('#detailBody [data-az-pray]').forEach(sw=>{ sw.onclick = ()=>{ const k = sw.dataset.azPray; a.prayers[k] = !a.prayers[k]; saveState(); renderAzaanSettings(); }; });
+  document.querySelectorAll('#detailBody [data-az-pick]').forEach(sel=>{ sel.onchange = ()=>{ a.pick[sel.dataset.azPick] = sel.value; saveState(); renderAzaanSettings(); }; });
+  wireAzaanPlay();
+}
+
+/* ============================================================
    QUR'AN MAJEED, page-by-page reader (15-line Mushaf page images)
    ============================================================ */
 const QURAN_PAGE_COUNT = 616;
@@ -4166,6 +4351,7 @@ function renderSettingsMenu(){
     ['textsize','🔠','Text ka Size', {m:'Normal',l:'Bara',xl:'Bohot Bara'}[state.textScale]||'Normal'],
     ['lang','🌐','Zubaan', state.lang==='en' ? 'English' : 'Hinglish / Roman Urdu'],
     ['notif','🔔','Yaad-dahaniyan', ''],
+    ['azaan','🔊','Azaan', azaanState().on ? 'On' : 'Off'],
     ['howto','📘','Istemal ka Tareeqa', ''],
     ['backup','💾','Data Backup', ''],
     ['about','ℹ️','Iske Baare Mein', ''],
@@ -4179,6 +4365,7 @@ function renderSettingsMenu(){
       else if(k==='qibla') renderQibla();
       else if(k==='howto') renderHowTo();
       else if(k==='about') renderMoreAbout();
+      else if(k==='azaan') renderAzaanSettings();
       else { settingsTab = k; renderMoreSettings(); }
     };
   });
@@ -5687,6 +5874,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='qaza') renderQaza();
     else if(which==='howto') renderHowTo();
     else if(which==='raabta') renderRaabta();
+    else if(which==='azaan') renderAzaan();
     else if(which==='install') renderInstall();
     else if(which==='mythBusters') renderMythBusters();
     else if(which==='hijriConv') renderHijriConverter();
@@ -5704,6 +5892,8 @@ document.getElementById('detailBack').onclick = closeModal;
 ['renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
 ['openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla','renderQuranReader'].forEach(n=>navWrap(n,1));
 navWrap('renderQuranIndex',2);
+navWrap('renderAzaan',0);
+navWrap('renderAzaanSettings',1);
 ['renderShabdDetail','renderQuizQuestion','renderQuizResult','renderMythQuizQuestion','renderMythQuizResult'].forEach(n=>navWrap(n,2));
 navWrap('renderReviewList',3);
 (function(){
