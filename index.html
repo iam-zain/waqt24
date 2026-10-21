@@ -1150,6 +1150,17 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .cal-legend i{ display:inline-block; vertical-align:middle; margin-right:5px; }
 .cal-legend .lg-farz{ width:7px; height:7px; border-radius:50%; background:var(--green); }
 .cal-legend .lg-nafil{ width:6px; height:6px; border-radius:1px; transform:rotate(45deg); background:var(--nafil); }
+
+/* Qur'an home and Tajweed menu */
+.quran-choices{ display:flex; flex-direction:column; gap:10px; padding:4px 14px 14px; }
+.quran-choice{ display:flex; align-items:center; gap:14px; width:100%; padding:16px 14px; border-radius:16px; border:1px solid var(--line); background:var(--card); color:var(--text); font:inherit; text-align:left; cursor:pointer; transition:transform var(--fx-fast) var(--fx-ease); }
+.quran-choice:active{ transform:scale(.98); }
+.qc-ic{ font-size:28px; width:48px; height:48px; flex:0 0 48px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:color-mix(in srgb, var(--accent) 14%, var(--card2)); }
+.qc-txt{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.qc-txt b{ font-size:15px; }
+.qc-txt span{ font-size:12px; color:var(--sub); line-height:1.4; }
+/* Night reading for the colour (Tajweed) edition: dimmed instead of inverted, so the colours keep their meaning */
+.quran-page-wrap.night-color .quran-page-img{ filter:brightness(.72) contrast(1.05); }
 </style>
 </head>
 <body>
@@ -2746,7 +2757,9 @@ function wirePnBar(){
     leaf.style.cssText = `left:${r.left}px; top:${r.top}px; width:${r.width}px; height:${r.height}px;`;
     leaf.innerHTML = `<img src="${img.currentSrc || img.src}" alt="" style="filter:${getComputedStyle(img).filter}"><i class="page-leaf-shade"></i>`;
     document.body.appendChild(leaf);
-    change(); // the next page renders underneath the leaf
+    // the next page renders underneath the leaf. Deferred by a tick: when this runs inside a button's click,
+    // the browser ignores a second click() on that same button until the first one has finished.
+    setTimeout(change, 0);
     const y = (typeof yFrac === 'number') ? yFrac : 0.5;
     const corner = y < 0.4 ? 'top' : y > 0.6 ? 'bottom' : 'center';
     const tilt = corner === 'top' ? 12 : corner === 'bottom' ? -12 : 0;
@@ -3102,7 +3115,7 @@ function renderContinueCard(){
 }
 function openLastRead(){
   const r = state.lastRead; if(!r) return;
-  if(r.k==='quran') return openOverlay(()=> renderQuranReader(r.id));
+  if(r.k==='quran'){ if(r.ed) state.quranEd = r.ed; return openOverlay(()=> renderQuranReader(r.id)); }
   if(r.k==='name') return openOverlay(()=> renderNameDetail(r.which, r.id));
   const find = { dua:()=>DUAS.find(x=>x.title===r.id), hadees:()=>HADEES.find(x=>hadeesKey(x)===r.id),
     aadaab:()=>AADAAB_TOPICS.find(x=>x.id===r.id), qword:()=>QURAN_WORDS.find(x=>x.tr===r.id) }[r.k];
@@ -3489,6 +3502,13 @@ const QURAN_MANZILS = [1, 5, 10, 17, 26, 37, 50].map((s, i, arr)=>{
 function quranParaOf(page){ let r = QURAN_PARAS[0]; for(const x of QURAN_PARAS) if(x.page<=page) r = x; return r; }
 function quranManzilOf(page){ let r = QURAN_MANZILS[0]; for(const x of QURAN_MANZILS) if(x.page<=page) r = x; return r; }
 function quranSurahOf(page){ let r = QURAN_SURAHS[0]; for(const x of QURAN_SURAHS) if(x.page<=page) r = x; return r; }
+/* Two Mushaf editions with identical page numbering, so Para / Surah / Manzil lists, bookmarks and the
+   last page are shared. Tajweed page n is PDF page n+8 of the source (its first 8 pages are the rules guide). */
+function quranEd(){ return state.quranEd==='tajweed' ? 'tajweed' : 'normal'; }
+function quranEdLabel(ed){ return (ed||quranEd())==='tajweed' ? L({rur:"Qur'an (Tajweed)", en:'Quran (Tajweed)'}) : "Qur'an Majeed"; }
+function quranImg(n, ed){ const pad = String(n).padStart(3,'0'); return (ed||quranEd())==='tajweed' ? `quran/tajweed/${pad}.webp` : `quran/pages/${pad}.png`; }
+const TAJWEED_GUIDE_COUNT = 8;
+const TAJWEED_GUIDE_LIST = Array.from({ length: TAJWEED_GUIDE_COUNT }, (_, i) => i + 1);
 function quranMarked(p){ return (state.quranMarks||[]).includes(p); }
 /* Night page: white text on black. Follows the app's dark theme unless the reader switched it */
 function quranNightOn(){
@@ -3498,20 +3518,21 @@ function quranNightOn(){
 }
 let quranDl = null; // offline download in progress: { done, total, stop }
 async function quranCachedCount(){
-  try{ const c = await caches.open('waqt24-quran-v1'); return (await c.keys()).filter(r=>r.url.includes('/quran/pages/')).length; }catch(e){ return 0; }
+  const dir = quranEd()==='tajweed' ? '/quran/tajweed/' : '/quran/pages/';
+  try{ const c = await caches.open('waqt24-quran-v1'); return (await c.keys()).filter(r=>r.url.includes(dir) && /\/\d{3}\.(png|webp)/.test(r.url)).length; }catch(e){ return 0; }
 }
 async function startQuranDownload(onProgress){
   if(quranDl) return;
   let have = new Set();
-  try{ const c = await caches.open('waqt24-quran-v1'); (await c.keys()).forEach(r=>{ const m = r.url.match(/\/quran\/pages\/(\d+)\.png/); if(m) have.add(+m[1]); }); }catch(e){}
+  try{ const c = await caches.open('waqt24-quran-v1'); const dir = quranEd()==='tajweed' ? 'tajweed' : 'pages'; (await c.keys()).forEach(r=>{ const m = r.url.match(new RegExp('/quran/' + dir + '/(\\d{3})\\.')); if(m) have.add(+m[1]); }); }catch(e){}
   const todo = QURAN_PAGE_LIST.filter(n=>!have.has(n));
-  quranDl = { done: QURAN_PAGE_COUNT - todo.length, total: QURAN_PAGE_COUNT, stop:false };
+  quranDl = { done: QURAN_PAGE_COUNT - todo.length, total: QURAN_PAGE_COUNT, stop:false, ed:quranEd() };
   onProgress();
   let next = 0;
   const worker = async ()=>{
     while(!quranDl.stop && next < todo.length){
       const n = todo[next++];
-      try{ await fetch(`quran/pages/${String(n).padStart(3,'0')}.png`); quranDl.done++; }catch(e){}
+      try{ await fetch(quranImg(n, quranDl.ed)); quranDl.done++; }catch(e){}
       onProgress();
     }
   };
@@ -3523,11 +3544,11 @@ function quranLastPage(){ return (state.quranPage>=1 && state.quranPage<=QURAN_P
 function renderQuranReader(page){
   page = Math.max(1, Math.min(QURAN_PAGE_COUNT, page || quranLastPage()));
   state.quranPage = page;
-  state.lastRead = { k:'quran', id:page, label:`Qur'an · Page ${page} · ${quranSurahOf(page).name}` };
+  state.lastRead = { k:'quran', id:page, ed:quranEd(), label:`${quranEdLabel()} · Page ${page} · ${quranSurahOf(page).name}` };
   saveState();
   setNavCtx(QURAN_PAGE_LIST, page - 1, (p, i)=> renderQuranReader(p), null);
   __navCtx.rtl = true; // Arabic reads right to left, so page turns run the other way
-  document.getElementById('detailTitle').textContent = `Qur'an Majeed · ${page}/${QURAN_PAGE_COUNT}`;
+  document.getElementById('detailTitle').textContent = `${quranEdLabel()} · ${page}/${QURAN_PAGE_COUNT}`;
   const pad = String(page).padStart(3, '0');
   const para = quranParaOf(page), surah = quranSurahOf(page), manzil = quranManzilOf(page);
   document.getElementById('detailBody').innerHTML = `
@@ -3536,13 +3557,14 @@ function renderQuranReader(page){
       <button class="quran-index-btn" id="quranSurahBtn"><span>📜</span> ${surah.n}. ${surah.name}</button>
       <button class="quran-index-btn qi-short" id="quranManzilBtn"><span>🏷️</span> ${L({rur:'Manzil', en:'Manzil'})} ${manzil.n}</button>
     </div>
-    <div class="quran-page-wrap${quranNightOn() ? ' night' : ''}" id="quranWrap">
-      <img class="quran-page-img" src="quran/pages/${pad}.png" alt="Quran page ${page}" draggable="false">
+    <div class="quran-page-wrap${quranNightOn() ? (quranEd()==='tajweed' ? ' night-color' : ' night') : ''}" id="quranWrap">
+      <img class="quran-page-img" src="${quranImg(page)}" alt="Quran page ${page}" draggable="false">
     </div>
     <div class="quran-tools">
       <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
       <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Raat', en:'Night'})}</button>
       <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
+      <button class="quran-tool" id="quranEdBtn">${quranEd()==='tajweed' ? '📖 Normal' : '🌈 Tajweed'}</button>
     </div>
     <div class="quran-jump">
       <span>${L({rur:'Page par jaayein', en:'Go to page'})}</span>
@@ -3567,15 +3589,52 @@ function renderQuranReader(page){
   const wrap = document.getElementById('quranWrap');
   const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); };
   document.getElementById('quranZoomBtn').onclick = toggleZoom;
+  document.getElementById('quranEdBtn').onclick = ()=>{ state.quranEd = quranEd()==='tajweed' ? 'normal' : 'tajweed'; saveState(); renderQuranReader(page); };
   let lastTap = 0;
   wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) toggleZoom(); lastTap = t; });
   document.getElementById('quranParaBtn').onclick = ()=> renderQuranIndex('para');
   document.getElementById('quranSurahBtn').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('quranManzilBtn').onclick = ()=> renderQuranIndex('manzil');
   wirePnBar();
-  [page - 1, page + 1].forEach(n=>{ if(n>=1 && n<=QURAN_PAGE_COUNT){ const im = new Image(); im.src = `quran/pages/${String(n).padStart(3,'0')}.png`; } });
+  [page - 1, page + 1].forEach(n=>{ if(n>=1 && n<=QURAN_PAGE_COUNT){ const im = new Image(); im.src = quranImg(n); } });
   const sub = document.getElementById('quranSub');
   if(sub) sub.textContent = L({rur:`Page ${page}/${QURAN_PAGE_COUNT}`, en:`Page ${page}/${QURAN_PAGE_COUNT}`});
+}
+function quranChoice(id, ic, title, sub){
+  return `<button class="quran-choice" id="${id}"><span class="qc-ic">${ic}</span><span class="qc-txt"><b>${title}</b><span>${sub}</span></span><span class="chev">›</span></button>`;
+}
+function renderQuranHome(){
+  document.getElementById('detailTitle').textContent = "Qur'an Majeed";
+  const last = quranLastPage();
+  document.getElementById('detailBody').innerHTML = `
+    <div class="quran-choices">
+      ${quranChoice('qhNormal', '📖', L({rur:"Qur'an Majeed (Normal)", en:'Quran (Normal)'}), L({rur:'15 line Mushaf, saada', en:'15-line Mushaf, plain'}))}
+      ${quranChoice('qhTajweed', '🌈', 'Tajweed', L({rur:"Rangon wala Qur'an aur Tajweed ke Qawaid", en:'Colour-coded Quran and the Tajweed rules'}))}
+    </div>
+    <div class="backup-note">${L({rur:`Dono mein page number ek jaise hain, isliye aapka aakhri page (${last}) aur nishaan dono mein kaam karte hain.`, en:`Both use the same page numbers, so your last page (${last}) and bookmarks work in both.`})}</div>`;
+  document.getElementById('qhNormal').onclick = ()=>{ state.quranEd = 'normal'; saveState(); renderQuranReader(); };
+  document.getElementById('qhTajweed').onclick = renderTajweedMenu;
+}
+function renderTajweedMenu(){
+  document.getElementById('detailTitle').textContent = 'Tajweed';
+  document.getElementById('detailBody').innerHTML = `
+    <div class="quran-choices">
+      ${quranChoice('tjQuran', '🌈', L({rur:"Qur'an (Tajweed)", en:'Quran (Tajweed)'}), L({rur:'Tajweed ke rangon ke saath poora Qur\'an', en:'The whole Quran with Tajweed colours'}))}
+      ${quranChoice('tjRules', '📘', L({rur:'Tajweed ke Qawaid', en:'Tajweed Rules'}), L({rur:'Har rang ka matlab aur padhne ka tareeqa (8 page)', en:'What each colour means and how to read it (8 pages)'}))}
+    </div>`;
+  document.getElementById('tjQuran').onclick = ()=>{ state.quranEd = 'tajweed'; saveState(); renderQuranReader(); };
+  document.getElementById('tjRules').onclick = ()=> renderTajweedGuide(1);
+}
+function renderTajweedGuide(i){
+  i = Math.max(1, Math.min(TAJWEED_GUIDE_COUNT, i || 1));
+  setNavCtx(TAJWEED_GUIDE_LIST, i - 1, (g)=> renderTajweedGuide(g), null);
+  __navCtx.rtl = true;
+  document.getElementById('detailTitle').textContent = `${L({rur:'Tajweed ke Qawaid', en:'Tajweed Rules'})} · ${i}/${TAJWEED_GUIDE_COUNT}`;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="quran-page-wrap" id="quranWrap"><img class="quran-page-img" src="quran/tajweed/g${i}.webp" alt="Tajweed rules page ${i}" draggable="false"></div>
+    ${pnBarHtml()}`;
+  wirePnBar();
+  [i - 1, i + 1].forEach(n=>{ if(n>=1 && n<=TAJWEED_GUIDE_COUNT){ const im = new Image(); im.src = `quran/tajweed/g${n}.webp`; } });
 }
 function renderQuranIndex(kind){
   const cur = quranLastPage();
@@ -3600,7 +3659,7 @@ function renderQuranIndex(kind){
         <div class="qi-page">${L({rur:'Page', en:'Page'})} ${x.page}</div>
       </div>`).join('')}</div>
     <div class="ramzan-card" style="margin:14px 14px 10px;">
-      <div style="font-size:13px; font-weight:800; margin-bottom:4px;">⬇️ ${L({rur:"Poora Qur'an offline", en:'Whole Quran offline'})}</div>
+      <div style="font-size:13px; font-weight:800; margin-bottom:4px;">⬇️ ${L({rur:"Poora Qur'an offline", en:'Whole Quran offline'})} · ${quranEdLabel()}</div>
       <div class="su-sub" id="qDlMsg" style="text-align:left;">…</div>
       <button class="backup-btn" id="qDlBtn" style="margin-top:8px;"></button>
     </div>`;
@@ -3614,7 +3673,7 @@ function renderQuranIndex(kind){
     } else {
       const n = await quranCachedCount();
       dlMsg.textContent = n >= QURAN_PAGE_COUNT ? L({rur:"Poora Qur'an is phone par save hai, internet ke baghair bhi khulega.", en:'The whole Quran is saved on this phone and opens without internet.'})
-        : `${n} / ${QURAN_PAGE_COUNT} ${L({rur:'page save hain. Baaqi download karein (lagbhag 25 MB).', en:'pages saved. Download the rest (about 25 MB).'})}`;
+        : `${n} / ${QURAN_PAGE_COUNT} ${quranEd()==='tajweed' ? L({rur:'page save hain. Baaqi download karein (lagbhag 60 MB).', en:'pages saved. Download the rest (about 60 MB).'}) : L({rur:'page save hain. Baaqi download karein (lagbhag 25 MB).', en:'pages saved. Download the rest (about 25 MB).'})}`;
       dlBtn.style.display = n >= QURAN_PAGE_COUNT ? 'none' : '';
       dlBtn.textContent = L({rur:'Download karein', en:'Download'});
       dlBtn.onclick = ()=> startQuranDownload(showDl);
@@ -6320,7 +6379,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='qibla') renderQibla();
     else if(which==='stats') renderStats();
     else if(which==='tasbeeh') renderTasbeeh();
-    else if(which==='quran') renderQuranReader();
+    else if(which==='quran') renderQuranHome();
     else if(which==='asma') renderNamesList('asma');
     else if(which==='prophetNames') renderNamesList('prophet');
     else if(which==='khaasShabd') renderKhaasShabd();
@@ -6345,8 +6404,12 @@ document.querySelectorAll('.more-item').forEach(item=>{
 });
 document.getElementById('detailBack').onclick = closeModal;
 ['renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
-['openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla','renderQuranReader'].forEach(n=>navWrap(n,1));
-navWrap('renderQuranIndex',2);
+['openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla',].forEach(n=>navWrap(n,1));
+navWrap('renderQuranHome',0);
+navWrap('renderTajweedMenu',1);
+navWrap('renderQuranReader',2);
+navWrap('renderTajweedGuide',2);
+navWrap('renderQuranIndex',3);
 navWrap('renderGlobalSearch',0);
 navWrap('renderAzaan',0);
 navWrap('renderAzaanSettings',1);
