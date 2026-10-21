@@ -4021,13 +4021,29 @@ function playPageSound(){
   if(!state.quranTurnSound) return;
   try{
     pageSoundCtx = pageSoundCtx || new (window.AudioContext || window.webkitAudioContext)();
-    const ctx = pageSoundCtx, dur = 0.32, n = Math.floor(ctx.sampleRate * dur);
-    const buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
-    for(let i=0;i<n;i++){ const t = i/n; d[i] = (Math.random()*2-1) * Math.pow(Math.sin(Math.PI*t), 1.6) * (0.6 + 0.4*Math.sin(t*40)); }
+    const ctx = pageSoundCtx, sr = ctx.sampleRate, dur = 0.55, n = Math.floor(sr * dur);
+    const buf = ctx.createBuffer(1, n, sr), d = buf.getChannelData(0);
+    // paper rustle: broadband noise broken into tiny random "crinkle" grains, swelling then fading
+    let grain = 0, gLeft = 0, prev = 0;
+    for(let i=0;i<n;i++){
+      const t = i / sr;
+      if(gLeft-- <= 0){ grain = 0.25 + Math.random()*0.75; gLeft = Math.floor(sr * (0.002 + Math.random()*0.006)); }
+      const swish = t < 0.09 ? t/0.09 : Math.exp(-(t-0.09)*7.5);          // quick lift, slower fall
+      const settle = Math.exp(-Math.pow((t-0.40)/0.045, 2)) * 0.35;        // soft second rustle as the page lands
+      const white = Math.random()*2 - 1;
+      prev = prev*0.55 + white*0.45;                                        // slightly darker than pure white noise
+      d[i] = prev * grain * (swish + settle);
+    }
     const src = ctx.createBufferSource(); src.buffer = buf;
-    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = 0.7;
-    const g = ctx.createGain(); g.gain.value = 0.22;
-    src.connect(bp).connect(g).connect(ctx.destination); src.start();
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 350; hp.Q.value = 0.5;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.4;
+    const t0 = ctx.currentTime;
+    lp.frequency.setValueAtTime(1800, t0);                                  // brightens as the page sweeps, then dulls
+    lp.frequency.linearRampToValueAtTime(5200, t0 + 0.12);
+    lp.frequency.linearRampToValueAtTime(2200, t0 + dur);
+    const g = ctx.createGain(); g.gain.value = 0.5;
+    src.connect(hp).connect(lp).connect(g).connect(ctx.destination);
+    src.start(t0);
   }catch(e){}
 }
 
