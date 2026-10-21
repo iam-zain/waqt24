@@ -465,3 +465,13 @@ Object.assign(I18N_EN, {
 
 /* Deegar progress section */
 Object.assign(I18N_EN, { "Jaiza": "Review" });
+
+/* Daily goal (Hadaf) streak rows in Safar-e-Taraqqi */
+Object.assign(I18N_EN, {
+ "Aaj ka Hadaf": "Today's Goal",
+ "aaj ke 3 kaam mein se kitne mukammal": "how many of today's 3 tasks are done",
+ "Hadaf ki Paabandi": "Goal consistency",
+ "Lagatar din jab aaj ki hadaf ke sab kaam mukammal kiye": "Consecutive days all of the day's goal tasks were completed",
+ "Sabse Lambi Hadaf Paabandi": "Longest goal streak",
+ "Rozana Hadaf: pichle 7 din": "Daily Goal: last 7 days"
+});
