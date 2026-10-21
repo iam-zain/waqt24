@@ -1053,6 +1053,14 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .quran-idx-item.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, var(--card)); }
 .quran-idx-item .lblSub.ar-font{ font-size:15px; text-align:left; direction:rtl; unicode-bidi:plaintext; }
 #detailBody{ backface-visibility:hidden; }
+
+/* Page-turn leaf: a copy of the page that curls away over the next one */
+.page-leaf{ position:fixed; z-index:400; pointer-events:none; border-radius:10px; overflow:hidden; backface-visibility:hidden; will-change:transform; box-shadow:0 6px 22px rgba(0,0,0,.22); }
+.page-leaf img{ width:100%; height:100%; display:block; background:#fff; }
+.page-leaf-shade{ position:absolute; inset:0; background:linear-gradient(to var(--shade-from, left), rgba(0,0,0,0), rgba(0,0,0,.35)); opacity:0; }
+.page-leaf.turning{ transition:transform .54s cubic-bezier(.35,.08,.25,1), box-shadow .54s ease, opacity .2s ease .38s; opacity:0; box-shadow:0 18px 40px rgba(0,0,0,.35); }
+.page-leaf.turning .page-leaf-shade{ transition:opacity .45s ease; opacity:1; }
+#detailBody{ backface-visibility:visible; }
 </style>
 </head>
 <body>
@@ -2550,9 +2558,9 @@ function wirePnBar(){
   const ease = 'transform .2s ease, opacity .2s ease';
   let bypass = false, busy = false;
   // dir -1: moving to the next item (card leaves to the left); 1: previous item
-  window.slideDetail = (dir, change)=>{
+  window.slideDetail = (dir, change, yFrac)=>{
     if(busy) return; busy = true;
-    if(__navCtx && __navCtx.rtl) return pageTurn(dir, change);
+    if(__navCtx && __navCtx.rtl) return pageTurn(dir, change, yFrac);
     body.style.transition = ease;
     body.style.transform = `translateX(${dir * 60}px)`;
     body.style.opacity = '0';
@@ -2568,25 +2576,29 @@ function wirePnBar(){
       setTimeout(()=>{ busy = false; }, 200);
     }, 200);
   };
-  // Book-style page turn: the page swings away on its spine edge, and the new page settles in
-  const turnEase = 'transform .32s cubic-bezier(.4,.1,.3,1), opacity .32s ease';
-  const pageTurn = (dir, change)=>{
-    body.style.transformOrigin = dir > 0 ? 'right center' : 'left center';
-    body.style.transition = turnEase;
-    body.style.transform = `perspective(1400px) rotateY(${dir * -70}deg)`;
-    body.style.opacity = '0.15';
-    setTimeout(()=>{
-      change();
-      body.style.transition = 'none';
-      body.style.transformOrigin = dir > 0 ? 'left center' : 'right center';
-      body.style.transform = `perspective(1400px) rotateY(${dir * 25}deg)`;
-      body.style.opacity = '0.4';
-      void body.offsetWidth;
-      body.style.transition = turnEase;
-      body.style.transform = 'none';
-      body.style.opacity = '1';
-      setTimeout(()=>{ body.style.transformOrigin = ''; busy = false; }, 330);
-    }, 320);
+  // Book-style page turn. Only the page moves: a copy of the current page sits on top and curls away,
+  // while the next page (already preloaded) is rendered underneath, so buttons and text never jump.
+  // yFrac is where the finger started on the page: top half curls from the top corner, bottom half from the bottom.
+  const pageTurn = (dir, change, yFrac)=>{
+    const img = body.querySelector('.quran-page-img');
+    if(!img){ change(); busy = false; return; }
+    const r = img.getBoundingClientRect();
+    const leaf = document.createElement('div');
+    leaf.className = 'page-leaf';
+    leaf.style.cssText = `left:${r.left}px; top:${r.top}px; width:${r.width}px; height:${r.height}px;`;
+    leaf.innerHTML = `<img src="${img.currentSrc || img.src}" alt=""><i class="page-leaf-shade"></i>`;
+    document.body.appendChild(leaf);
+    change(); // the next page renders underneath the leaf
+    const y = (typeof yFrac === 'number') ? yFrac : 0.5;
+    const corner = y < 0.4 ? 'top' : y > 0.6 ? 'bottom' : 'center';
+    const tilt = corner === 'top' ? 12 : corner === 'bottom' ? -12 : 0;
+    leaf.style.transformOrigin = `${dir > 0 ? 'right' : 'left'} ${corner}`;
+    void leaf.offsetWidth;
+    leaf.classList.add('turning');
+    leaf.style.transform = `perspective(1600px) rotateY(${dir * -108}deg) rotateZ(${dir * tilt}deg) translateY(${tilt * -1.2}px)`;
+    leaf.style.setProperty('--shade-from', dir > 0 ? 'left' : 'right');
+    // a timer, not an animation event: it still fires if the tab is hidden mid-turn
+    setTimeout(()=>{ leaf.remove(); busy = false; }, 560);
   };
   // First or last item: a small nudge shows there is nothing further
   const nudge = (dir)=>{
@@ -2618,7 +2630,10 @@ function wirePnBar(){
     const forward = (__navCtx && __navCtx.rtl) ? dir > 0 : dir < 0;
     const b = document.getElementById(forward ? 'pnNextBtn' : 'pnPrevBtn');
     if(!b || b.disabled){ nudge(dir); return; }
-    slideDetail(dir, ()=>{ bypass = true; b.click(); bypass = false; });
+    const pg = body.querySelector('.quran-page-img');
+    let yFrac = 0.5;
+    if(pg){ const pr = pg.getBoundingClientRect(); yFrac = (sy - pr.top) / Math.max(1, pr.height); }
+    slideDetail(dir, ()=>{ bypass = true; b.click(); bypass = false; }, yFrac);
   }, { passive:true });
   let sx = 0, sy = 0, sxSkip = false;
 })();
@@ -2954,6 +2969,7 @@ function renderQuranReader(page){
   document.getElementById('quranParaBtn').onclick = ()=> renderQuranIndex('para');
   document.getElementById('quranSurahBtn').onclick = ()=> renderQuranIndex('surah');
   wirePnBar();
+  [page - 1, page + 1].forEach(n=>{ if(n>=1 && n<=QURAN_PAGE_COUNT){ const im = new Image(); im.src = `quran/pages/${String(n).padStart(3,'0')}.png`; } });
   const sub = document.getElementById('quranSub');
   if(sub) sub.textContent = L({rur:`Page ${page}/${QURAN_PAGE_COUNT}`, en:`Page ${page}/${QURAN_PAGE_COUNT}`});
 }
