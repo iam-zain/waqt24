@@ -478,3 +478,6 @@ Object.assign(I18N_EN, {
 
 /* Nafil marking */
 Object.assign(I18N_EN, { "Nafil Namaz Mark Karein": "Mark Nafl Prayers", "Nahi Padhi": "Not prayed" });
+
+/* Settings: calculation and jamaat */
+Object.assign(I18N_EN, { "Namaz ka Hisaab": "Prayer Calculation", "Jamaat ka Waqt (Iqamah)": "Jamaat Times (Iqamah)" });
