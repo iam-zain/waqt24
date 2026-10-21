@@ -1161,6 +1161,36 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .qc-txt span{ font-size:12px; color:var(--sub); line-height:1.4; }
 /* Night reading for the colour (Tajweed) edition: dimmed instead of inverted, so the colours keep their meaning */
 .quran-page-wrap.night-color .quran-page-img{ filter:brightness(.72) contrast(1.05); }
+
+/* Qur'an ki Alamaat */
+.ws-levels{ display:flex; flex-direction:column; gap:6px; margin:0 0 6px; }
+.ws-level{ display:flex; gap:10px; align-items:flex-start; padding:9px 12px; border-radius:12px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--lvc); }
+.ws-level b{ display:block; font-size:13px; }
+.ws-level span{ font-size:12px; color:var(--sub); line-height:1.45; }
+.ws-lic{ font-size:16px; line-height:1.3; }
+.ws-card{ display:flex; gap:12px; align-items:flex-start; padding:11px 12px; margin:0 0 8px; border-radius:13px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--lvc, var(--line)); }
+.ws-sign{ flex:0 0 64px; min-height:48px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:26px; line-height:1.4; border-radius:11px; background:var(--card2); color:var(--text); }
+.ws-sign.sm{ font-size:14px; padding:4px; }
+.ws-body{ flex:1; min-width:0; }
+.ws-name{ font-size:13.5px; font-weight:800; }
+.ws-tag{ display:inline-block; font-size:10.5px; font-weight:700; color:var(--sub); margin-left:4px; }
+.ws-m{ font-size:13px; margin-top:3px; line-height:1.5; }
+.ws-x{ font-size:12px; color:var(--sub); margin-top:3px; line-height:1.5; }
+.lv-red{ --lvc:#d9534f; } .lv-amber{ --lvc:#e8963a; } .lv-yellow{ --lvc:#d4b52c; } .lv-green{ --lvc:#3fae6a; } .lv-nostop{ --lvc:#7a1f1f; }
+
+/* Tajweed rules */
+.tj-card{ background:var(--card); border:1px solid var(--line); border-left:5px solid var(--tjc); border-radius:14px; padding:12px 14px; margin:0 0 10px; }
+.tj-head{ display:flex; align-items:center; gap:8px; }
+.tj-head b{ font-size:14.5px; flex:1; min-width:0; }
+.tj-dot{ width:14px; height:14px; border-radius:4px; transform:rotate(45deg); background:var(--tjc); flex:0 0 auto; }
+.tj-ar{ font-size:18px; color:var(--tjc); }
+.tj-crop{ display:block; max-width:100%; height:30px; margin:8px 0 4px; border-radius:6px; background:#fff; }
+.tj-row{ display:flex; gap:10px; font-size:13px; line-height:1.5; margin-top:6px; }
+.tj-lbl{ flex:0 0 54px; color:var(--sub); font-weight:700; font-size:12px; padding-top:1px; }
+.tj-letters{ font-size:19px; letter-spacing:2px; color:var(--tjc); }
+.tj-ex{ display:flex; flex-direction:column; align-items:flex-end; margin-top:8px; padding:8px 10px; border-radius:10px; background:var(--card2); }
+.tj-ex .ar-font{ font-size:21px; }
+.tj-exr{ font-size:11.5px; color:var(--sub); font-style:italic; }
 </style>
 </head>
 <body>
@@ -2760,6 +2790,7 @@ function wirePnBar(){
     // the next page renders underneath the leaf. Deferred by a tick: when this runs inside a button's click,
     // the browser ignores a second click() on that same button until the first one has finished.
     setTimeout(change, 0);
+    playPageSound();
     const y = (typeof yFrac === 'number') ? yFrac : 0.5;
     const corner = y < 0.4 ? 'top' : y > 0.6 ? 'bottom' : 'center';
     const tilt = corner === 'top' ? 12 : corner === 'bottom' ? -12 : 0;
@@ -3564,6 +3595,8 @@ function renderQuranReader(page){
       <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
       <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Raat', en:'Night'})}</button>
       <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
+      <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
+      <button class="quran-tool" id="quranSignsBtn">🛑 ${L({rur:'Alamaat', en:'Signs'})}</button>
       <button class="quran-tool" id="quranEdBtn">${quranEd()==='tajweed' ? '📖 Normal' : '🌈 Tajweed'}</button>
     </div>
     <div class="quran-jump">
@@ -3589,6 +3622,8 @@ function renderQuranReader(page){
   const wrap = document.getElementById('quranWrap');
   const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); };
   document.getElementById('quranZoomBtn').onclick = toggleZoom;
+  document.getElementById('quranSignsBtn').onclick = renderQuranSigns;
+  document.getElementById('quranSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranReader(page); if(state.quranTurnSound) playPageSound(); };
   document.getElementById('quranEdBtn').onclick = ()=>{ state.quranEd = quranEd()==='tajweed' ? 'normal' : 'tajweed'; saveState(); renderQuranReader(page); };
   let lastTap = 0;
   wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) toggleZoom(); lastTap = t; });
@@ -3600,6 +3635,170 @@ function renderQuranReader(page){
   const sub = document.getElementById('quranSub');
   if(sub) sub.textContent = L({rur:`Page ${page}/${QURAN_PAGE_COUNT}`, en:`Page ${page}/${QURAN_PAGE_COUNT}`});
 }
+/* ============================================================
+   QUR'AN KI ALAMAAT: stopping signs (waqf) and the other marks on a Mushaf page, explained in Roman Urdu
+   (waqf rules follow the Understand Quran "Asan Qaidah, Lesson 21: Stopping Signs" sheet)
+   ============================================================ */
+// level: red = rukna zaroori / ek jagah, amber = rukna behtar, yellow = dono jaaiz, green = milaana behtar, nostop = mat rukiye
+const WAQF_SIGNS = [
+  { s:'۝', name:{rur:'Aayat ka khatma', en:'End of an ayah'}, lvl:'amber',
+    m:{rur:'Aayat yahan poori hoti hai; is ke andar aayat ka number hota hai.', en:'The ayah ends here; the circle holds the ayah number.'},
+    x:{rur:'Har aayat ke aakhir par rukna Nabi ﷺ ki Sunnat hai.', en:'Stopping at the end of every ayah is the Sunnah of the Prophet ﷺ.'} },
+  { s:'م', name:{rur:'Waqf-e-Laazim', en:'Waqf Lazim (compulsory stop)'}, lvl:'red',
+    m:{rur:'Yahan rukna zaroori hai.', en:'You must stop here.'},
+    x:{rur:'Agar yahan na ruken aur aage mila kar padhein to maana badal sakta hai.', en:'Joining it to what follows can change the meaning.'} },
+  { s:'س · سكتة', name:{rur:'Saktah', en:'Saktah (short pause)'}, lvl:'red',
+    m:{rur:'Saans liye baghair zara sa ruk jaayein.', en:'Pause briefly without taking a breath.'},
+    x:{rur:'Lagbhag do harkat ke barabar ruk kar, saans liye baghair, aage padhein.', en:'Pause for about two harakah without breathing, then carry on.'} },
+  { s:'وقفة', name:{rur:'Waqfah', en:'Waqfah (longer pause)'}, lvl:'amber',
+    m:{rur:'Saktah se thoda lamba rukna.', en:'A longer pause than a saktah.'},
+    x:{rur:'Saktah se zyada der rukiye, lekin saans na lijiye; phir aage padhein.', en:'Pause longer than a saktah, still without a breath, then continue.'} },
+  { s:'∴ ∴', name:{rur:'Mu\u2019aanaqah (teen nuqte, do jagah)', en:'Mu\u2019anaqah (pair of three dots)'}, lvl:'red',
+    m:{rur:'Do jagah teen teen nuqte: in mein se kisi ek par ruk jaayein.', en:'Three dots in two places: stop at one of them.'},
+    x:{rur:'Dono jagah na rukiye aur dono jagah se aage bhi na nikal jaayein; sirf ek par rukna hai.', en:'Do not stop at both, and do not skip both; stop at only one.'} },
+  { s:'ط', name:{rur:'Waqf-e-Mutlaq', en:'Waqf Mutlaq'}, lvl:'amber',
+    m:{rur:'Yahan rukna behtar hai.', en:'It is better to stop here.'},
+    x:{rur:'Baat yahan poori ho jaati hai, is liye ruk jaana behtar hai.', en:'The thought is complete here, so stopping is preferred.'} },
+  { s:'قف', name:{rur:'Qif', en:'Qif'}, lvl:'amber',
+    m:{rur:'"Ruk jaao": yahan ruk jaayein.', en:'"Stop": stop here.'},
+    x:{rur:'Yeh rukne ki hidayat hai; rukna behtar hai, aage milana bhi jaaiz hai.', en:'It is an instruction to stop; stopping is better, though continuing is allowed.'} },
+  { s:'قلے', name:{rur:'Qeela alaihil-waqf', en:'Qila alayhil-waqf'}, lvl:'amber',
+    m:{rur:'Yahan rukna behtar hai.', en:'It is better to stop here.'},
+    x:{rur:'Kai ulama ne yahan rukne ko pasand kiya hai; milana bhi jaaiz hai.', en:'Many scholars preferred stopping here; continuing is also allowed.'} },
+  { s:'ج', name:{rur:'Waqf-e-Jaaiz', en:'Waqf Jaiz (permissible)'}, lvl:'yellow',
+    m:{rur:'Rukna bhi jaaiz, milana bhi jaaiz.', en:'You may stop or continue.'},
+    x:{rur:'Dono tarah sahi hai; jo aasaan ho woh kijiye.', en:'Both are correct; do whichever is easier.'} },
+  { s:'صلے', name:{rur:'Al-waslu aula', en:'Al-waslu awla'}, lvl:'yellow',
+    m:{rur:'Rukna jaaiz hai, lekin milana behtar.', en:'Stopping is allowed, but joining is better.'},
+    x:{rur:'Zaroorat ho to ruk sakte hain, warna aage mila kar padhein.', en:'You may stop if needed; otherwise read on.'} },
+  { s:'لا ۝', name:{rur:'Aayat ke nishaan par لا', en:'لا over the ayah circle'}, lvl:'yellow',
+    m:{rur:'Aayat ke aakhir par rukna bhi jaaiz, milana bhi.', en:'At the ayah end you may stop or continue.'},
+    x:{rur:'Aayat khatam hai, is liye ruk sakte hain; lekin maana agli aayat se juda hai, is liye milana bhi theek hai.', en:'The ayah ends, so you may stop; the meaning continues, so joining is also fine.'} },
+  { s:'ز', name:{rur:'Waqf-e-Mujawwaz', en:'Waqf Mujawwaz'}, lvl:'green',
+    m:{rur:'Milana behtar hai.', en:'Better to continue.'},
+    x:{rur:'Rukna jaaiz hai, lekin aage mila kar padhna behtar.', en:'Stopping is allowed, but continuing is better.'} },
+  { s:'ص', name:{rur:'Waqf-e-Murakhkhas', en:'Waqf Murakhkhas'}, lvl:'green',
+    m:{rur:'Milana behtar hai.', en:'Better to continue.'},
+    x:{rur:'Lambi aayat ho aur saans toote to yahan rukne ki ijaazat hai.', en:'In a long ayah you may stop here if you run out of breath.'} },
+  { s:'ق', name:{rur:'Qeela (kaha gaya)', en:'Qila (it is said)'}, lvl:'green',
+    m:{rur:'Milana behtar hai.', en:'Better to continue.'},
+    x:{rur:'Kuch ulama ke nazdeek yahan rukna hai, lekin aksar ke nazdeek mila kar padhna behtar.', en:'A few scholars stop here, but most prefer continuing.'} },
+  { s:'لا', name:{rur:'Laa (mat rukiye)', en:'La (do not stop)'}, lvl:'nostop',
+    m:{rur:'Yahan na rukiye.', en:'Do not stop here.'},
+    x:{rur:'Yahan rukne se maana bigad sakta hai. Majboori mein ruk jaayein to do teen lafz peeche se (ya aayat ke shuru se) dohra kar padhein.', en:'Stopping here can distort the meaning. If you are forced to stop, repeat from two or three words back (or from the start of the ayah).'} },
+];
+const WAQF_LEVELS = [
+  { lvl:'red', ic:'🔴', t:{rur:'Rukna zaroori', en:'Must stop'}, d:{rur:'م, سكتة, ∴ ∴: aage milana mana hai (saktah mein saans liye baghair rukna, ∴ mein sirf ek jagah).', en:'م, Saktah, ∴ ∴: continuing is not allowed (saktah: pause without breath; ∴: stop at one place only).'} },
+  { lvl:'amber', ic:'🟠', t:{rur:'Rukna behtar', en:'Better to stop'}, d:{rur:'۝, ط, قف, قلے, وقفة: rukna behtar, milana jaaiz.', en:'۝, ط, قف, قلے, وقفة: stopping is better, continuing allowed.'} },
+  { lvl:'yellow', ic:'🟡', t:{rur:'Dono jaaiz', en:'Stop or continue'}, d:{rur:'ج, صلے, لا ۝: rukna aur milana dono theek.', en:'ج, صلے, لا ۝: both are fine.'} },
+  { lvl:'green', ic:'🟢', t:{rur:'Milana behtar', en:'Better to continue'}, d:{rur:'ز, ص, ق: milana behtar, rukna jaaiz.', en:'ز, ص, ق: continuing is better, stopping allowed.'} },
+  { lvl:'nostop', ic:'⛔', t:{rur:'Mat rukiye', en:'Do not stop'}, d:{rur:'لا: rukna mana hai.', en:'لا: stopping is not allowed.'} },
+];
+const PAGE_MARKS = [
+  { s:'سورة … مكية / مدنية', t:{rur:'Surah ka unwaan', en:'Surah title band'}, m:{rur:'Beech mein Surah ka naam aur yeh ke woh Makki hai ya Madani. Daayein khaane mein "Aayaatuha" (kitni aayatein) aur baayein mein "Rukoo\u2019aatuha" (kitne rukoo) likhe hote hain.', en:'The Surah\u2019s name and whether it is Makki or Madani in the middle; one box gives "Ayatuha" (number of ayahs), the other "Ruku\u2019atuha" (number of rukus).'} },
+  { s:'بسم الله الرحمن الرحيم', t:{rur:'Bismillah', en:'Bismillah'}, m:{rur:'Har Surah se pehle, siwaye Surah At-Tawbah (9) ke.', en:'Before every Surah except Surah At-Tawbah (9).'} },
+  { s:'ع', t:{rur:'Rukoo ka nishaan', en:'Ruku mark'}, m:{rur:'Haashiye (kinaare) par "ع" ek rukoo, yaani ek mazmoon ka hissa, khatam hone ki nishaani hai. Upar ka number Surah mein rukoo ka number, beech ka us rukoo ki aayatein, neeche ka Paare mein rukoo ka number.', en:'"ع" in the margin marks the end of a ruku, a section of the text. The top number is the ruku\u2019s number in the Surah, the middle its ayahs, the bottom its number in the Para.'} },
+  { s:'السجدة', t:{rur:'Sajda-e-Tilawat', en:'Prostration of recitation'}, m:{rur:'Haashiye par "سجدة" ho to woh aayat padhne ya sunne par Sajda-e-Tilawat wajib hai (Hanafi). Poore Qur\u2019an mein 14 jagah.', en:'"سجدة" in the margin marks an ayah of prostration; reciting or hearing it requires the Sajdah of recitation (Hanafi). There are 14 in the Quran.'} },
+  { s:'الربع · النصف · الثلثة', t:{rur:'Paare ke hisse', en:'Quarters of a Para'}, m:{rur:'Haashiye par Paare ka chauthai (ربع), aadha (نصف) aur teen chauthai (ثلثة) hissa.', en:'Margin marks for a quarter (ربع), half (نصف) and three quarters (ثلثة) of a Para.'} },
+  { s:'منزل', t:{rur:'Manzil', en:'Manzil'}, m:{rur:'Qur\u2019an 7 Manzilon mein bata hai, taake hafte mein ek baar poora padha ja sake. Page ke neeche "منزل" aur number.', en:'The Quran is divided into 7 Manzils so it can be read in a week; "منزل" and its number appear at the foot of the page.'} },
+  { s:'سرخی · صفحہ', t:{rur:'Page ke upar', en:'Top of the page'}, m:{rur:'Ek taraf Paare ka naam aur number, doosri taraf Surah ka naam aur number, beech mein page number.', en:'The Para name and number on one side, the Surah name and number on the other, the page number in the middle.'} },
+];
+function renderQuranSigns(){
+  document.getElementById('detailTitle').textContent = L({rur:"Qur'an ki Alamaat", en:'Signs in the Quran'});
+  const lvlName = {}; WAQF_LEVELS.forEach(x=> lvlName[x.lvl] = x);
+  document.getElementById('detailBody').innerHTML = `
+    <div class="backup-note">${L({rur:"Tilawat ke dauran kahan rukna hai aur kahan nahi, yeh Qur'an mein likhi alamaat batati hain. Ek jagah ek se zyada alamat ho to sab se upar wali par amal karein.", en:'The signs written in the Quran tell you where to stop while reciting and where not to. If more than one sign appears together, follow the uppermost one.'})}</div>
+    <div class="section-title">${L({rur:'Rukne ke darje', en:'Kinds of stop'})}</div>
+    <div class="ws-levels">${WAQF_LEVELS.map(x=>`<div class="ws-level lv-${x.lvl}"><span class="ws-lic">${x.ic}</span><div><b>${L(x.t)}</b><span>${L(x.d)}</span></div></div>`).join('')}</div>
+    <div class="section-title">${L({rur:'Waqf ki Alamaat', en:'Stopping signs'})}</div>
+    ${WAQF_SIGNS.map(x=>`<div class="ws-card lv-${x.lvl}">
+      <div class="ws-sign ar-font">${x.s}</div>
+      <div class="ws-body"><div class="ws-name">${L(x.name)} <span class="ws-tag">${lvlName[x.lvl].ic} ${L(lvlName[x.lvl].t)}</span></div>
+        <div class="ws-m">${L(x.m)}</div><div class="ws-x">${L(x.x)}</div></div>
+    </div>`).join('')}
+    <div class="section-title">${L({rur:'Page ki doosri alamaat', en:'Other marks on the page'})}</div>
+    ${PAGE_MARKS.map(x=>`<div class="ws-card"><div class="ws-sign ar-font sm">${x.s}</div><div class="ws-body"><div class="ws-name">${L(x.t)}</div><div class="ws-m">${L(x.m)}</div></div></div>`).join('')}
+    <div class="backup-note">${L({rur:'Hawala: Understand Quran Academy, "Asan Qaidah", Sabaq 21: Rukne ki Alamaat. Alag Mushaf mein alamaat thodi mukhtalif ho sakti hain.', en:'Source: Understand Quran Academy, "Asan Qaidah", Lesson 21: Stopping Signs. Signs can differ slightly between Mushaf prints.'})}</div>`;
+}
+
+/* ============================================================
+   TAJWEED KE QAWAID in easy Roman Urdu (the 7 colour rules of this Mushaf, and where letters come from)
+   ============================================================ */
+const TAJWEED_RULES = [
+  { k:'ikhfa', c:'#0b6b2e', name:'Ikhfa', ar:'إخفاء', letters:'ت ث ج د ذ ز س ش ص ض ط ظ ف ق ك',
+    when:{rur:'Noon saakin (نْ) ya tanween (ــًــٍــٌ) ke baad in 15 haroof mein se koi harf aaye.', en:'A noon saakin (نْ) or tanween is followed by one of these 15 letters.'},
+    how:{rur:'Noon ki awaaz poori na nikaalein, use naak mein "chhupa" dein, aur halki gunjaar (ghunna) ke saath lagbhag do harkat tak padhein. Zubaan noon ki jagah na lagaayein.', en:'Do not pronounce the noon fully: hide it in the nose with a light hum (ghunnah) for about two counts, without the tongue touching the noon\u2019s place.'},
+    ex:'مِنْ قَبْلِ · أَنْتُمْ', exr:'min qabli → "mi(n͂) qabli"' },
+  { k:'ghunna', c:'#1a7fd0', name:'Ghunna', ar:'غنّہ', letters:'نّ مّ',
+    when:{rur:'Noon ya meem par tashdeed (ّ) ho.', en:'A noon or meem carries a shaddah (ّ).'},
+    how:{rur:'Awaaz ko naak mein do harkat tak rok kar gunjaar ke saath padhein, phir aage badhein.', en:'Hold the sound in the nose with a hum for about two counts, then carry on.'},
+    ex:'إِنَّ · ثُمَّ', exr:'in-na · thum-ma' },
+  { k:'ikhfa-meem', c:'#9cc43a', name:'Ikhfa Meem Saakin (Ikhfa Shafawi)', ar:'إخفاء شفوی', letters:'مْ ← ب',
+    when:{rur:'Meem saakin (مْ) ke baad harf "ب" aaye.', en:'A meem saakin (مْ) is followed by "ب".'},
+    how:{rur:'Hont halke se milaayein, meem ko poora na dabaayein, aur naak mein ghunna ke saath do harkat padh kar "ب" se milaayein.', en:'Close the lips lightly, do not press the meem fully, hum through the nose for two counts and join it to the "ب".'},
+    ex:'تَرْمِيهِمْ بِحِجَارَةٍ', exr:'tarmeehim bi-hijaarah' },
+  { k:'idghaam', c:'#e0451b', name:'Idghaam', ar:'إدغام', letters:'ی و م ن',
+    when:{rur:'Noon saakin ya tanween ke baad (do alag lafzon mein) ی، و، م، ن mein se koi harf aaye.', en:'A noon saakin or tanween is followed, in the next word, by ی، و، م or ن.'},
+    how:{rur:'Noon ko alag na padhein, use agle harf mein mila dein ("idghaam" yaani milaana), aur ghunna ke saath padhein.', en:'Do not read the noon separately: merge it into the next letter and read with ghunnah.'},
+    note:{rur:'ل aur ر se pehle bhi noon milaya jaata hai, lekin baghair ghunna ke.', en:'Before ل and ر the noon is also merged, but without ghunnah.'},
+    ex:'مَنْ يَقُولُ · مِنْ وَالٍ', exr:'man yaqoolu → "may-yaqoolu"' },
+  { k:'qalqala', c:'#f08a1c', name:'Qalqala', ar:'قلقلہ', letters:'ق ط ب ج د',
+    when:{rur:'Yeh 5 haroof (yaad rakhne ke liye: "قُطْبُ جَدٍّ") saakin hon, ya inhi par waqf (ruk) karein.', en:'These 5 letters (remember them as "قُطْبُ جَدٍّ") are saakin, or you stop on them.'},
+    how:{rur:'Harf ki awaaz ko halka sa "uchhaal" dein, jaise awaaz takra kar wapas aaye. Ruk kar padhne par yeh uchhaal zyada saaf hoti hai.', en:'Give the letter a slight bounce, as if the sound strikes and echoes back. It is clearest when you stop on it.'},
+    ex:'يَخْلُقْ · أَحَدْ', exr:'yakhluq(q) · ahad(d)' },
+  { k:'qalb', c:'#6a2c7a', name:'Qalb (Iqlaab)', ar:'قلب', letters:'نْ / تنوین ← ب',
+    when:{rur:'Noon saakin ya tanween ke baad "ب" aaye. Aksar wahan chhota sa "م" likha hota hai.', en:'A noon saakin or tanween is followed by "ب"; a small "م" is often written there.'},
+    how:{rur:'Noon ko "meem" se badal dein ("qalb" yaani badalna), aur naak mein ghunna ke saath do harkat padh kar "ب" se milaayein.', en:'Change the noon into a meem and read it with ghunnah for two counts before the "ب".'},
+    ex:'مِنْ بَعْدِ · سَمِيعٌ بَصِيرٌ', exr:'min ba\u2019di → "mim ba\u2019di"' },
+  { k:'idghaam-meem', c:'#e0559a', name:'Idghaam Meem Saakin (Idghaam Shafawi)', ar:'إدغام شفوی', letters:'مْ ← م',
+    when:{rur:'Meem saakin (مْ) ke baad doosra "م" aaye.', en:'A meem saakin (مْ) is followed by another "م".'},
+    how:{rur:'Dono meem mila kar ek tashdeed wale meem ki tarah, ghunna ke saath do harkat padhein.', en:'Merge both meems into one doubled meem and read with ghunnah for two counts.'},
+    ex:'لَهُمْ مَا · كُمْ مِنْ', exr:'lahum-maa' },
+];
+const MAKHARIJ = [
+  { t:{rur:'Munh ka khaali hissa (Jauf)', en:'Empty space of the mouth (Jawf)'}, h:'ا و ي', d:{rur:'Madd ke haroof: lambi awaaz munh ki khaali jagah se.', en:'The madd letters: the long sound comes from the hollow of the mouth.'} },
+  { t:{rur:'Halq (gala)', en:'Throat'}, h:'ء ه · ع ح · غ خ', d:{rur:'Gale ka neeche ka hissa (ء ه), beech (ع ح), aur upar ka hissa (غ خ).', en:'Lower throat (ء ه), middle (ع ح) and upper throat (غ خ).'} },
+  { t:{rur:'Zubaan', en:'Tongue'}, h:'ق ك · ج ش ي · ض · ل ن ر · ط د ت · ظ ذ ث · ص س ز', d:{rur:'Zubaan ki jad (ق ك), beech (ج ش ي), kinaara (ض), nok ke paas (ل ن ر), nok aur daanton ki jad (ط د ت), nok aur daanton ka kinaara (ظ ذ ث), aur nok neeche ke daanton ke paas (ص س ز).', en:'Back of the tongue (ق ك), middle (ج ش ي), side (ض), near the tip (ل ن ر), tip at the tooth roots (ط د ت), tip at the tooth edges (ظ ذ ث) and tip near the lower teeth (ص س ز).'} },
+  { t:{rur:'Hont', en:'Lips'}, h:'ب م و · ف', d:{rur:'Dono hont mila kar (ب م), gol kar ke (و), aur neeche ka hont upar ke daanton se (ف).', en:'Both lips together (ب م), rounded (و), and the lower lip on the upper teeth (ف).'} },
+  { t:{rur:'Naak (Khaishoom)', en:'Nose'}, h:'غنّہ', d:{rur:'Ghunna ki gunjaar naak se nikalti hai.', en:'The hum of ghunnah comes from the nose.'} },
+];
+function renderTajweedRules(){
+  document.getElementById('detailTitle').textContent = L({rur:'Tajweed ke Qawaid', en:'Tajweed Rules'});
+  document.getElementById('detailBody').innerHTML = `
+    <div class="backup-note">${L({rur:"Is Tajweed wale Qur'an mein 7 rang hain. Har rang batata hai ke us lafz ko kaise padhna hai. Neeche har rang ka matlab aasaan alfaaz mein. \"Harkat\" yaani lagbhag ek ungli band ya khol ne jitna waqt.", en:'This Tajweed Quran uses 7 colours. Each colour tells you how to read that word. Below is what each colour means, in simple words. A "count" (harakah) is about the time it takes to fold or open a finger.'})}</div>
+    ${TAJWEED_RULES.map((r,i)=>`<div class="tj-card" style="--tjc:${r.c};">
+      <div class="tj-head"><span class="tj-dot"></span><b>${i+1}. ${r.name}</b><span class="tj-ar ar-font">${r.ar}</span></div>
+      <img class="tj-crop" src="quran/tajweed/r-${r.k}.webp" alt="${r.name}" loading="lazy">
+      <div class="tj-row"><span class="tj-lbl">${L({rur:'Haroof', en:'Letters'})}</span><span class="tj-letters ar-font">${r.letters}</span></div>
+      <div class="tj-row"><span class="tj-lbl">${L({rur:'Kab?', en:'When?'})}</span><span>${L(r.when)}</span></div>
+      <div class="tj-row"><span class="tj-lbl">${L({rur:'Kaise?', en:'How?'})}</span><span>${L(r.how)}</span></div>
+      ${r.note ? `<div class="tj-row"><span class="tj-lbl">${L({rur:'Note', en:'Note'})}</span><span>${L(r.note)}</span></div>` : ''}
+      <div class="tj-ex"><span class="ar-font">${r.ex}</span><span class="tj-exr">${r.exr}</span></div>
+    </div>`).join('')}
+    <div class="section-title">${L({rur:'Huroof ke Makharij (harf kahan se nikalta hai)', en:'Makharij (where each letter comes from)'})}</div>
+    <div class="backup-note">${L({rur:'Arabi ke 29 haroof 17 jagahon se ada hote hain. Mukhtasar mein 5 hisse:', en:'The 29 Arabic letters are pronounced from 17 places, grouped into 5 areas:'})}</div>
+    ${MAKHARIJ.map(m=>`<div class="ws-card"><div class="ws-sign ar-font sm">${m.h}</div><div class="ws-body"><div class="ws-name">${L(m.t)}</div><div class="ws-m">${L(m.d)}</div></div></div>`).join('')}
+    <button class="backup-btn" id="tjGuideBtn">📘 ${L({rur:"Qur'an mein diye asal 8 page dekhein", en:'See the original 8 guide pages'})}</button>
+    <div class="backup-note">${L({rur:"Aasaan samjhaane ke liye mukhtasar kiya gaya hai. Sahi talaffuz ke liye kisi qaari se seekhna behtar hai.", en:'Simplified for easy understanding. Learning from a qualified teacher is best for correct pronunciation.'})}</div>`;
+  document.getElementById('tjGuideBtn').onclick = ()=> renderTajweedGuide(1);
+}
+
+/* Page-turn sound (off by default): a short paper rustle made in the browser, no audio file */
+let pageSoundCtx = null;
+function playPageSound(){
+  if(!state.quranTurnSound) return;
+  try{
+    pageSoundCtx = pageSoundCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = pageSoundCtx, dur = 0.32, n = Math.floor(ctx.sampleRate * dur);
+    const buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
+    for(let i=0;i<n;i++){ const t = i/n; d[i] = (Math.random()*2-1) * Math.pow(Math.sin(Math.PI*t), 1.6) * (0.6 + 0.4*Math.sin(t*40)); }
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = 0.7;
+    const g = ctx.createGain(); g.gain.value = 0.22;
+    src.connect(bp).connect(g).connect(ctx.destination); src.start();
+  }catch(e){}
+}
+
 function quranChoice(id, ic, title, sub){
   return `<button class="quran-choice" id="${id}"><span class="qc-ic">${ic}</span><span class="qc-txt"><b>${title}</b><span>${sub}</span></span><span class="chev">›</span></button>`;
 }
@@ -3610,20 +3809,24 @@ function renderQuranHome(){
     <div class="quran-choices">
       ${quranChoice('qhNormal', '📖', L({rur:"Qur'an Majeed (Normal)", en:'Quran (Normal)'}), L({rur:'15 line Mushaf, saada', en:'15-line Mushaf, plain'}))}
       ${quranChoice('qhTajweed', '🌈', 'Tajweed', L({rur:"Rangon wala Qur'an aur Tajweed ke Qawaid", en:'Colour-coded Quran and the Tajweed rules'}))}
+      ${quranChoice('qhSigns', '🛑', L({rur:"Qur'an ki Alamaat", en:'Signs in the Quran'}), L({rur:'Waqf (rukne) ki alamaat aur page ke nishaanon ka matlab', en:'What the stopping signs and page marks mean'}))}
     </div>
+    <div class="ramzan-card" style="margin:0 14px 12px;"><div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">🔈 ${L({rur:'Page palatne ki awaaz', en:'Page-turn sound'})}</span><div class="switch ${state.quranTurnSound?'on':''}" id="qhSoundSw"><div class="knob"></div></div></div></div>
     <div class="backup-note">${L({rur:`Dono mein page number ek jaise hain, isliye aapka aakhri page (${last}) aur nishaan dono mein kaam karte hain.`, en:`Both use the same page numbers, so your last page (${last}) and bookmarks work in both.`})}</div>`;
   document.getElementById('qhNormal').onclick = ()=>{ state.quranEd = 'normal'; saveState(); renderQuranReader(); };
   document.getElementById('qhTajweed').onclick = renderTajweedMenu;
+  document.getElementById('qhSigns').onclick = renderQuranSigns;
+  document.getElementById('qhSoundSw').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranHome(); if(state.quranTurnSound) playPageSound(); };
 }
 function renderTajweedMenu(){
   document.getElementById('detailTitle').textContent = 'Tajweed';
   document.getElementById('detailBody').innerHTML = `
     <div class="quran-choices">
       ${quranChoice('tjQuran', '🌈', L({rur:"Qur'an (Tajweed)", en:'Quran (Tajweed)'}), L({rur:'Tajweed ke rangon ke saath poora Qur\'an', en:'The whole Quran with Tajweed colours'}))}
-      ${quranChoice('tjRules', '📘', L({rur:'Tajweed ke Qawaid', en:'Tajweed Rules'}), L({rur:'Har rang ka matlab aur padhne ka tareeqa (8 page)', en:'What each colour means and how to read it (8 pages)'}))}
+      ${quranChoice('tjRules', '📘', L({rur:'Tajweed ke Qawaid', en:'Tajweed Rules'}), L({rur:'Har rang ka matlab, aasaan Roman Urdu mein', en:'What each colour means, in simple words'}))}
     </div>`;
   document.getElementById('tjQuran').onclick = ()=>{ state.quranEd = 'tajweed'; saveState(); renderQuranReader(); };
-  document.getElementById('tjRules').onclick = ()=> renderTajweedGuide(1);
+  document.getElementById('tjRules').onclick = renderTajweedRules;
 }
 function renderTajweedGuide(i){
   i = Math.max(1, Math.min(TAJWEED_GUIDE_COUNT, i || 1));
@@ -6407,8 +6610,10 @@ document.getElementById('detailBack').onclick = closeModal;
 ['openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla',].forEach(n=>navWrap(n,1));
 navWrap('renderQuranHome',0);
 navWrap('renderTajweedMenu',1);
+navWrap('renderQuranSigns',3);
 navWrap('renderQuranReader',2);
-navWrap('renderTajweedGuide',2);
+navWrap('renderTajweedRules',2);
+navWrap('renderTajweedGuide',3);
 navWrap('renderQuranIndex',3);
 navWrap('renderGlobalSearch',0);
 navWrap('renderAzaan',0);
