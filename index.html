@@ -1066,12 +1066,12 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 /* Azaan screen */
 .az-text{ margin:0 0 6px; }
 .az-line{ background:var(--card); border:1px solid var(--line); border-radius:13px; padding:12px 14px; margin:0 0 8px; }
-.az-line.fajr{ border-color:color-mix(in srgb, var(--yellow) 55%, var(--line)); background:color-mix(in srgb, var(--yellow) 8%, var(--card)); }
 .az-ar{ font-size:24px; line-height:1.9; text-align:right; color:var(--text); }
 .az-tr{ font-size:13px; font-style:italic; color:var(--accent); margin-top:2px; }
 .az-tr b{ font-style:normal; color:var(--sub); font-size:11.5px; margin-left:4px; }
 .az-m{ font-size:13px; line-height:1.55; margin-top:4px; }
 .az-fajr{ font-size:11px; color:var(--sub); margin-top:6px; font-weight:600; }
+.az-line.fajr .az-fajr::before{ content:'🌅 '; }
 .az-list{ margin:0 0 10px; }
 .az-rec{ display:flex; gap:12px; align-items:flex-start; background:var(--card); border:1px solid var(--line); border-radius:13px; padding:10px 12px; margin:0 0 8px; }
 .az-play{ flex:0 0 38px; width:38px; height:38px; border-radius:50%; border:none; background:var(--accent); color:var(--fardText); font-size:14px; font-weight:800; cursor:pointer; transition:transform var(--fx-fast) var(--fx-ease), background-color var(--fx-mid) ease; }
