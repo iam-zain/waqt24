@@ -109,7 +109,7 @@ body{
   padding:8px 2px 12px; border-bottom:1px solid var(--line);
 }
 .date-bar .greg{ font-size:14px; color:var(--sub); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.date-bar .hijri{ font-size:14.5px; color:var(--accent); font-weight:700; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.date-bar .hijri{ font-size:14.5px; color:var(--accentInk); font-weight:700; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .dateCenter{ min-width:0; }
 .dateNav{
   width:30px; height:30px; flex:0 0 auto; border-radius:9px; border:1px solid var(--line);
@@ -242,7 +242,7 @@ body{
   flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:4px; padding:13px 0 11px; background:none; border:none; color:var(--sub); cursor:pointer;
 }
-.tab-btn.active{ color:var(--accent); }
+.tab-btn.active{ color:var(--accentInk); }
 .tab-btn .ic{ font-size:27px; line-height:1; filter:grayscale(1) opacity(0.45); transition:filter .15s ease; }
 .tab-btn.active .ic{ filter:none; }
 .tab-btn .lb{ font-size:13.5px; font-weight:600; }
@@ -276,7 +276,7 @@ body{
 .cal-detail{ margin:10px 14px 20px; padding:12px; background:var(--card); border-radius:12px; border:1px solid var(--line); }
 .cal-dtxt{ min-width:0; flex:1; text-align:center; padding-left:36px; }
 .cal-dg{ font-weight:700; font-size:13.5px; }
-.cal-dh{ font-weight:700; font-size:12px; color:var(--accent); margin-top:2px; }
+.cal-dh{ font-weight:700; font-size:12px; color:var(--accentInk); margin-top:2px; }
 .cal-detail .row{ display:flex; justify-content:space-between; align-items:center; padding:6px 8px; margin:0 -8px; border-radius:8px; border-bottom:1px solid color-mix(in srgb, var(--text) 18%, transparent); font-size:13px; }
 .cal-detail .row.roza-tint{ background:color-mix(in srgb, var(--roza) 16%, transparent); border-bottom-color:color-mix(in srgb, var(--roza) 30%, var(--line)); }
 .cal-detail .controlCol.bulkCol{ justify-content:space-between; }
@@ -427,7 +427,7 @@ body{
 #updateBanner span{ white-space:nowrap; } #updateBanner button{ white-space:nowrap; }
 #updateBanner{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(74px + env(safe-area-inset-bottom)); z-index:9999; display:flex; align-items:center; gap:10px; width:max-content; max-width:calc(100% - 24px); padding:10px 12px; flex-wrap:wrap; justify-content:center; text-align:center; background:var(--card); color:var(--text); border:1px solid var(--accent); border-radius:14px; box-shadow:0 6px 24px rgba(0,0,0,.25); font-size:13px; font-weight:600; }
 .qz-total{ margin:0 0 14px; text-align:center; }
-.qz-big{ font-size:38px; font-weight:800; color:var(--accent); line-height:1.1; }
+.qz-big{ font-size:38px; font-weight:800; color:var(--accentInk); line-height:1.1; }
 .qz-sub{ font-size:12.5px; color:var(--sub); margin:2px 0 8px; }
 .qz-today{ font-size:12.5px; }
 .qz-row{ display:grid; grid-template-columns:1fr 64px 40px auto; align-items:center; gap:8px; padding:8px 12px; margin-bottom:8px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
@@ -448,7 +448,7 @@ body{
 .raabta-ic{ width:56px; height:56px; margin:0 auto 8px; border-radius:16px; background:var(--card2); display:flex; align-items:center; justify-content:center; font-size:28px; }
 .raabta-t{ font-size:16px; font-weight:800; margin-bottom:4px; }
 .raabta-sub{ font-size:12.5px; color:var(--sub); margin-bottom:8px; }
-.raabta-mail{ font-size:14.5px; font-weight:800; color:var(--accent); word-break:break-all; margin-bottom:12px; }
+.raabta-mail{ font-size:14.5px; font-weight:800; color:var(--accentInk); word-break:break-all; margin-bottom:12px; }
 .raabta-btns{ display:flex; gap:8px; }
 .raabta-btn{ flex:1; display:flex; align-items:center; justify-content:center; min-height:42px; padding:0 10px; border-radius:11px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; font-weight:700; text-decoration:none; cursor:pointer; font-family:inherit; }
 .raabta-btn.primary{ background:var(--accent); border-color:var(--accent); color:var(--fardText,#fff); }
@@ -459,7 +459,7 @@ body{
 .hIcon.big{ width:64px; height:64px; font-size:32px; margin:0 auto 8px; }
 .mdetail-head{ text-align:center; padding:6px 0 4px; }
 .mdetail-ar{ font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:34px; line-height:1.6; }
-.mdetail-name{ font-size:16px; font-weight:800; color:var(--accent); margin-bottom:8px; }
+.mdetail-name{ font-size:16px; font-weight:800; color:var(--accentInk); margin-bottom:8px; }
 .mdetail-badges{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
 .mbadge{ padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; background:var(--card2); border:1px solid var(--line); }
 .mbadge.sacred{ background:color-mix(in srgb, var(--special,#a8762a) 18%, var(--card)); border-color:var(--special,#a8762a); }
@@ -474,7 +474,7 @@ body{
 .lang-opt{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; margin-bottom:8px; border:1px solid var(--line); border-radius:12px; background:var(--card); cursor:pointer; }
 .lang-opt.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, var(--card)); }
 .lang-opt span{ display:block; font-size:11px; color:var(--sub); margin-top:2px; }
-.lang-check{ font-size:18px; font-weight:800; color:var(--accent); }
+.lang-check{ font-size:18px; font-weight:800; color:var(--accentInk); }
 .rz-ashra{ margin:16px 0 8px; font-size:13px; font-weight:800; }
 .rz-row{ display:grid; grid-template-columns:34px 1fr auto; align-items:center; column-gap:10px; padding:9px 12px; margin-bottom:6px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--line); border-radius:12px; }
 .rz-row.qadr{ border-left-color:#d4a72c; }
@@ -497,7 +497,7 @@ body{
 .hevent-card .heIc{ position:absolute; top:12px; right:13px; font-size:30px; line-height:1; }
 .hevent-card .heName{ font-size:14px; font-weight:700; margin-bottom:3px; }
 .hevent-card .heHijri{ font-size:11.5px; color:var(--sub); margin-bottom:2px; }
-.hevent-card .heGreg{ font-size:12px; color:var(--accent); font-weight:700; }
+.hevent-card .heGreg{ font-size:12px; color:var(--accentInk); font-weight:700; }
 .hevent-card .heNightRow{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:6px 0; border-top:1px solid var(--line); }
 .hevent-card .heNightRow:first-of-type{ border-top:1px solid var(--line); margin-top:4px; }
 .hevent-card .heNightLeft{ display:flex; flex-direction:column; gap:1px; min-width:0; flex:1 1 auto; }
@@ -509,7 +509,7 @@ body{
 .hconv-box input, .hconv-box select{ width:100%; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13.5px; margin-bottom:10px; }
 .hconv-row{ display:flex; gap:8px; }
 .hconv-row > div{ flex:1; }
-.hconv-result{ text-align:center; font-size:14.5px; font-weight:700; color:var(--accent); padding:6px 0 2px; }
+.hconv-result{ text-align:center; font-size:14.5px; font-weight:700; color:var(--accentInk); padding:6px 0 2px; }
 
 .search-bar{ margin:10px 14px; }
 .search-bar input{
@@ -562,7 +562,7 @@ body{
 .hadees-cat{ padding:0 14px 6px; }
 .hadees-cat .chip-row{ margin-bottom:10px; }
 .hadees-item{ margin:0 14px 10px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:12px; cursor:pointer; }
-.hadees-item .src{ font-size:11px; color:var(--accent); font-weight:700; margin-bottom:6px; }
+.hadees-item .src{ font-size:11px; color:var(--accentInk); font-weight:700; margin-bottom:6px; }
 .hadees-item .txt{ font-size:13px; line-height:1.5; }
 
 /* Aadaab-e-Zindagi */
@@ -622,7 +622,7 @@ body{
   font-family:'Scheherazade New', 'Noto Naskh Arabic', serif;
 }
 .name-tile .ar{ font-size:19px; color:var(--text); margin:4px 0 2px; line-height:1.3; direction:rtl; }
-.name-tile .tr{ font-size:10.5px; color:var(--accent); font-weight:700; }
+.name-tile .tr{ font-size:10.5px; color:var(--accentInk); font-weight:700; }
 .names-grid:not(.list) .name-tile{ display:flex; flex-direction:column; align-items:center; min-height:104px; padding:8px 4px 8px; }
 .names-grid:not(.list) .name-tile .ar{ flex:1 1 auto; display:flex; align-items:center; justify-content:center; width:100%; margin:2px 0; text-align:center; }
 .names-grid:not(.list) .name-tile .tr{ flex:0 0 auto; min-height:2.6em; display:flex; align-items:flex-start; justify-content:center; text-align:center; line-height:1.3; word-break:break-word; }
@@ -633,7 +633,7 @@ body{
 .names-grid.list .name-tile .m-preview{ flex:1; font-size:11px; color:var(--sub); padding-top:2px; }
 .name-detail{ text-align:center; padding:20px 10px; }
 .name-detail .ar{ font-size:40px; line-height:1.6; margin-bottom:14px; direction:rtl; }
-.name-detail .tr{ font-size:16px; font-weight:700; color:var(--accent); margin-bottom:10px; }
+.name-detail .tr{ font-size:16px; font-weight:700; color:var(--accentInk); margin-bottom:10px; }
 .name-detail .m{ font-size:14.5px; line-height:1.6; color:var(--text); padding:0 8px; }
 
 /* ---------- KHAAS SHABD ---------- */
@@ -649,7 +649,7 @@ body{
 .shabd-row .m{ font-size:11.5px; color:var(--sub); margin-top:2px; }
 .shabd-detail{ padding:10px 4px; }
 .shabd-detail .ar{ font-size:34px; text-align:center; margin-bottom:14px; direction:rtl; }
-.shabd-detail .tr{ font-size:16px; font-weight:700; color:var(--accent); text-align:center; margin-bottom:14px; }
+.shabd-detail .tr{ font-size:16px; font-weight:700; color:var(--accentInk); text-align:center; margin-bottom:14px; }
 .shabd-detail .section-label{ font-size:11px; color:var(--sub); font-weight:700; text-transform:uppercase; margin:14px 0 4px; }
 .shabd-detail .m, .shabd-detail .ex{ font-size:14px; line-height:1.6; }
 
@@ -666,7 +666,7 @@ body{
 .dw-wrap .daily-word-nav{ gap:10px; padding:6px 0 0; }
 .dw-wrap .daily-word-nav button{ flex:1; width:auto; height:44px; border-radius:12px; font-size:14px; font-weight:700; border:1.5px solid var(--dotBorder,var(--line)); background:var(--card); }
 .dw-streak{ text-align:center; font-size:12.5px; font-weight:700; color:var(--special,#a8762a); background:var(--card2); border:1px solid var(--line); border-radius:20px; padding:6px 12px; margin:0 auto 12px; width:fit-content; max-width:100%; }
-.review-start-btn{ width:100%; margin-top:14px; min-height:46px; border-radius:12px; border:1.5px solid var(--accent); background:var(--card); color:var(--accent); font-size:13.5px; font-weight:800; cursor:pointer; }
+.review-start-btn{ width:100%; margin-top:14px; min-height:46px; border-radius:12px; border:1.5px solid var(--accent); background:var(--card); color:var(--accentInk); font-size:13.5px; font-weight:800; cursor:pointer; }
 .review-note{ font-size:13px; line-height:1.5; margin:0 0 18px; padding:10px 12px; border-radius:10px; background:var(--card2); border:1px solid var(--line); }
 .res-btn{ display:block; width:100%; max-width:320px; margin:0 auto 10px; padding:12px 16px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:13.5px; font-weight:700; cursor:pointer; }
 .review-card{ padding:14px; margin-bottom:10px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
@@ -713,12 +713,12 @@ body{
 .dw-section.learning .dw-row{ border-left-color:var(--yellow,#d4a72c); }
 .dw-row .ar{ flex:0 0 76px; text-align:center; font-size:21px; line-height:1.4; direction:rtl; }
 .dw-row .info{ flex:1; min-width:0; }
-.dw-row .tr{ font-size:13px; font-weight:700; color:var(--accent); }
+.dw-row .tr{ font-size:13px; font-weight:700; color:var(--accentInk); }
 .dw-row .m{ font-size:12px; color:var(--sub); line-height:1.4; margin-top:2px; }
 .empty-state{ text-align:center; padding:40px 20px; color:var(--sub); font-size:13.5px; line-height:1.6; }
 .daily-word-card .cat{ font-size:11px; color:var(--sub); font-weight:700; text-transform:uppercase; margin-bottom:10px; }
 .daily-word-card .ar{ font-size:38px; margin-bottom:10px; direction:rtl; }
-.daily-word-card .tr{ font-size:18px; font-weight:800; color:var(--accent); margin-bottom:10px; }
+.daily-word-card .tr{ font-size:18px; font-weight:800; color:var(--accentInk); margin-bottom:10px; }
 .daily-word-card .m{ font-size:14px; line-height:1.6; margin-bottom:8px; }
 .daily-word-card .ex{ font-size:12.5px; color:var(--sub); line-height:1.5; }
 .daily-word-status{ display:flex; gap:8px; padding:14px 14px 6px; }
@@ -800,7 +800,7 @@ body{
 .detail-body .arabic{ font-size:22px; text-align:right; line-height:2; margin-bottom:16px; direction:rtl; color:var(--text); }
 .detail-body .translit{ font-size:13.5px; color:var(--sub); font-style:italic; margin-bottom:10px; line-height:1.6; }
 .detail-body .meaning{ font-size:14px; line-height:1.6; }
-.detail-body .ref{ margin-top:16px; font-size:12px; color:var(--accent); }
+.detail-body .ref{ margin-top:16px; font-size:12px; color:var(--accentInk); }
 
 /* info modal */
 #infoModal{
@@ -818,7 +818,7 @@ body{
   border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:16px; cursor:pointer;
 }
 .info-title{ font-size:17px; font-weight:800; margin-bottom:2px; display:flex; align-items:center; gap:8px; padding-right:30px; }
-.info-time{ font-size:12.5px; color:var(--accent); font-weight:700; margin-bottom:12px; }
+.info-time{ font-size:12.5px; color:var(--accentInk); font-weight:700; margin-bottom:12px; }
 .info-text{ font-size:13.5px; line-height:1.65; color:var(--text); }
 
 /* share chooser modal */
@@ -945,7 +945,7 @@ body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1)
 .goal-day i{ width:12px; height:12px; border-radius:50%; background:var(--meterBg); border:1px solid var(--dotBorder); }
 .goal-day.ok i{ background:var(--green); border-color:var(--green); }
 .goal-day small{ font-size:10px; color:var(--sub); font-weight:700; }
-.goal-day.today small{ color:var(--accent); }
+.goal-day.today small{ color:var(--accentInk); }
 /* Today stands out: bigger dot with an accent ring and a brighter label; other days fade back */
 .goal-day:not(.today){ opacity:.55; }
 .goal-day.today i{ width:14px; height:14px; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
@@ -1049,7 +1049,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .quran-index-btn:active{ transform:scale(.96); }
 .quran-index-btn.qi-short{ flex:0 0 auto; }
 .pn-bar.rtl{ flex-direction:row-reverse; }
-.quran-idx-item .ic{ font-size:13px; font-weight:800; color:var(--accent); }
+.quran-idx-item .ic{ font-size:13px; font-weight:800; color:var(--accentInk); }
 .quran-idx-item .qi-page{ font-size:11px; color:var(--sub); font-weight:700; white-space:nowrap; }
 .quran-idx-item.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, var(--card)); }
 .quran-idx-item .lblSub.ar-font{ font-size:15px; text-align:left; direction:rtl; unicode-bidi:plaintext; }
@@ -1067,7 +1067,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .az-text{ margin:0 0 6px; }
 .az-line{ background:var(--card); border:1px solid var(--line); border-radius:13px; padding:12px 14px; margin:0 0 8px; }
 .az-ar{ font-size:24px; line-height:1.9; text-align:right; color:var(--text); }
-.az-tr{ font-size:13px; font-style:italic; color:var(--accent); margin-top:2px; }
+.az-tr{ font-size:13px; font-style:italic; color:var(--accentInk); margin-top:2px; }
 .az-tr b{ font-style:normal; color:var(--sub); font-size:11.5px; margin-left:4px; }
 .az-m{ font-size:13px; line-height:1.55; margin-top:4px; }
 .az-fajr{ font-size:11px; color:var(--sub); margin-top:6px; font-weight:600; }
@@ -1081,7 +1081,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .az-name{ font-size:13.5px; font-weight:700; }
 .az-sub{ font-size:11.5px; color:var(--sub); margin-top:2px; }
 .az-credit{ font-size:10.5px; color:var(--sub); margin-top:3px; line-height:1.4; overflow-wrap:anywhere; }
-.az-credit a{ color:var(--accent); }
+.az-credit a{ color:var(--accentInk); }
 .az-pick-row{ display:flex; gap:10px; align-items:center; }
 .az-select{ flex:1; min-width:0; padding:9px 10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; }
 .az-warn{ font-size:11px; color:var(--sub); margin-top:8px; line-height:1.45; }
@@ -1191,6 +1191,37 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .tj-ex{ display:flex; flex-direction:column; align-items:flex-end; margin-top:8px; padding:8px 10px; border-radius:10px; background:var(--card2); }
 .tj-ex .ar-font{ font-size:21px; }
 .tj-exr{ font-size:11.5px; color:var(--sub); font-style:italic; }
+
+/* Text-safe accent shades (contrast ≥ 4.5:1 on that theme's background and cards) */
+:root{ --accentInk:#3a9bd9; }
+[data-theme="light"]{ --accentInk:#1f6597; }
+[data-theme="waqt-morning"]{ --accentInk:#3a64ad; }
+[data-theme="waqt-bright"]{ --accentInk:#7d5c12; }
+[data-theme="waqt-dim"]{ --accentInk:#844a1c; }
+[data-theme="waqt-grey"]{ --accentInk:#ffe3cf; }
+[data-theme="waqt-dark"]{ --accentInk:#86a8e6; }
+[data-theme="waqt-darkest"]{ --accentInk:#7d9be0; }
+/* Prayer calculation, jamaat, tilawat */
+.hij-adj{ display:flex; gap:8px; justify-content:center; }
+.hij-adj button{ width:46px; padding:9px 0; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-weight:800; cursor:pointer; }
+.hij-adj button.on{ background:var(--accent); border-color:var(--accent); color:var(--fardText); }
+.jamaat-chip{ flex:0 0 auto; margin-left:6px; padding:1px 7px; border-radius:8px; font-size:10.5px; font-weight:700; color:var(--accentInk); background:color-mix(in srgb, var(--accent) 12%, transparent); white-space:nowrap; }
+.iq-row b{ display:block; font-size:13.5px; margin-bottom:8px; }
+.iq-inputs{ display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; }
+.iq-inputs label{ display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--sub); font-weight:700; }
+.iq-inputs input{ padding:7px 8px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; width:118px; }
+.iq-or{ font-size:11px; color:var(--sub); padding-bottom:9px; }
+.tl-head{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.tl-head b{ font-size:13.5px; }
+.tl-count{ font-size:12.5px; font-weight:800; color:var(--sub); }
+.tl-count.ok{ color:var(--green); }
+.tl-sub{ font-size:11.5px; color:var(--sub); font-weight:500; line-height:1.5; }
+.tl-bar{ height:7px; border-radius:4px; background:var(--meterBg); overflow:hidden; margin:8px 0; }
+.tl-bar i{ display:block; height:100%; background:var(--green); border-radius:4px; transition:width .6s var(--fx-ease); }
+.tl-target{ display:flex; align-items:center; gap:10px; font-size:12px; color:var(--sub); font-weight:700; }
+.tl-target span{ flex:1; }
+.tl-target button{ width:30px; height:30px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:16px; font-weight:800; cursor:pointer; }
+.tl-target b{ color:var(--text); font-size:14px; min-width:18px; text-align:center; }
 </style>
 </head>
 <body>
@@ -1494,7 +1525,7 @@ function computeDayTimes(date, lat, lon, tz){
   const sunrise = timeFor(0.833, true);
   const dhuhr = fixHour(solarNoon() + (1/60)); // +1 min safety after zawal
   const zawalEnd = solarNoon(); // moment of zawal (istawa) - zuhr starts right after
-  const asr = asrTime(2); // Hanafi factor 2 (standard for India)
+  const asr = asrTime(state.asrMethod==='shafi' ? 1 : 2); // Hanafi: shadow twice the length (default); Shafi'i: shadow equal to length
   const maghrib = timeFor(0.833, false);
   const isha = timeFor(ISHA_ANGLE, false);
 
@@ -1659,7 +1690,7 @@ document.getElementById('infoModal').onclick = (e)=>{ if(e.target.id==='infoModa
    ============================================================ */
 const HIJRI_MONTHS = ["Muharram-ul-Haraam","Safar-ul-Muzaffar","Rabi-ul-Awwal","Rabi-ul-Aakhir","Jamadi-ul-Awwal","Jamadi-ul-Aakhir","Rajab-ul-Murajjab","Sha'ban-ul-Muazzam","Ramzan-ul-Mubarak","Shawwal-ul-Mukarram","Zul-Qa'dah","Zul-Hijjah"];
 function gregorianToHijri(date){
-  const jd = Math.floor(julianDate(date.getFullYear(), date.getMonth()+1, date.getDate())) + 1;
+  const jd = Math.floor(julianDate(date.getFullYear(), date.getMonth()+1, date.getDate())) + 1 + hijriOffset();
   let l = jd - 1948440 + 10632;
   const n = Math.floor((l-1)/10631);
   l = l - 10631*n + 354;
@@ -1670,9 +1701,12 @@ function gregorianToHijri(date){
   const year = 30*n + j - 30;
   return { day, month, year, monthName: HIJRI_MONTHS[month-1] };
 }
+/* Hijri date adjustment in days (moon sighting can differ by a day or two from the calculation) */
 function hijriOffset(){
-  try{ return parseInt(localStorage.getItem('hijriOffset')||'0'); }catch(e){ return 0; }
+  if(hijriOffset._v === undefined){ try{ hijriOffset._v = parseInt(localStorage.getItem('hijriOffset')||'0') || 0; }catch(e){ hijriOffset._v = 0; } }
+  return hijriOffset._v;
 }
+function setHijriOffset(v){ hijriOffset._v = v; try{ localStorage.setItem('hijriOffset', String(v)); }catch(e){} }
 
 /* ============================================================
    STATE
@@ -2031,6 +2065,7 @@ function renderHome(){
       <div class="rowMain">
         <div class="name"><span class="pIcon">${icon}</span><span class="nameTxt">${p.name}</span></div>
         <div class="clock">${fmtRange(p)}</div>
+        ${jamaatChip(p, viewDate)}
         <div style="flex:1;"></div>
         ${dotsSlot}
       </div>
@@ -2284,6 +2319,17 @@ function scheduleNotifications(force){
     }, delay);
     notifTimers.push(id);
   });
+  const iq = iqamahState();
+  if(iq.on && iq.remind > 0){
+    sched.filter(p=>FIVE.includes(p.key)).forEach(p=>{
+      const j = jamaatTime(p, operatingDate(now)); if(!j) return;
+      const delay = j.getTime() - iq.remind*60000 - now.getTime();
+      if(delay<=0 || delay>24*3600000) return;
+      notifTimers.push(setTimeout(()=>{
+        try{ new Notification(`🕌 ${p.name} ki jamaat ${fmtTimeCompact(j)} par`, { body:`${iq.remind} minute baaqi hain.`, icon:'icons/icon-192.png', tag:'waqt24-iq-'+p.key }); }catch(e){}
+      }, delay));
+    });
+  }
   const lt = String(state.notif.learnTime || '08:00').split(':').map(Number);
   const at = new Date(now); at.setHours(lt[0]||0, lt[1]||0, 0, 0);
   const learnDelay = at - now;
@@ -3468,6 +3514,78 @@ function renderAzaan(){
   document.getElementById('azaanSetBtn').onclick = renderAzaanSettings;
   wireAzaanPlay();
 }
+
+/* ============================================================
+   SETTINGS: prayer calculation (Asr method, Hijri adjustment) and Iqamah (jamaat) times
+   ============================================================ */
+function afterCalcChange(){ renderHome(); renderCalendar(); updateRamzanLock(); scheduleNotifications(true); }
+function renderCalcSettings(){
+  document.getElementById('detailTitle').textContent = L({rur:'Namaz ka Hisaab', en:'Prayer Calculation'});
+  const hd = gregorianToHijri(new Date());
+  const off = hijriOffset();
+  document.getElementById('detailBody').innerHTML = `
+    <div class="section-title" style="margin-top:0;">${L({rur:'Asr ka waqt', en:'Asr time'})}</div>
+    <div class="theme-row" style="padding:0 0 6px;">
+      <button data-asr="hanafi" class="${state.asrMethod!=='shafi'?'active':''}">Hanafi</button>
+      <button data-asr="shafi" class="${state.asrMethod==='shafi'?'active':''}">Shafi'i / Maliki / Hanbali</button>
+    </div>
+    <div class="backup-note" style="margin-top:0;">${L({rur:"Hanafi: jab saaya cheez se do guna ho jaaye. Shafi'i: jab saaya cheez ke barabar ho. Shafi'i mein Asr lagbhag ek ghanta pehle shuru hoti hai.", en:"Hanafi: when a shadow is twice an object's length. Shafi'i: when it equals the length. Shafi'i Asr starts about an hour earlier."})}</div>
+    <div class="section-title">${L({rur:'Hijri tareekh', en:'Hijri date'})}</div>
+    <div class="ramzan-card" style="margin:0 0 8px;">
+      <div style="font-size:15px; font-weight:800; text-align:center; margin-bottom:10px;">${hd.day} ${hd.monthName} ${hd.year} AH</div>
+      <div class="hij-adj">${[-2,-1,0,1,2].map(v=>`<button data-hoff="${v}" class="${v===off?'on':''}">${v>0?'+':''}${v}</button>`).join('')}</div>
+    </div>
+    <div class="backup-note" style="margin-top:0;">${L({rur:'Chaand dikhne ke hisaab se agar aapke yahan tareekh ek do din aage ya peeche ho to yahan theek karein. Ramzan, Khaas Din aur Taareekh sab is ke saath badlenge.', en:'If your local moon sighting puts the date a day or two ahead or behind, adjust it here. Ramzan, Special Days and the Calendar all follow it.'})}</div>
+    <div class="section-title">${L({rur:'Fajr aur Isha', en:'Fajr and Isha'})}</div>
+    <div class="backup-note" style="margin-top:0;">Muslim World League: Fajr 18°, Isha 17°. ${L({rur:'Yeh waqt AlAdhan ke hisaab se 1 minute ke andar milte hain.', en:'These times match AlAdhan within a minute.'})}</div>`;
+  document.querySelectorAll('#detailBody [data-asr]').forEach(b=>{ b.onclick = ()=>{ state.asrMethod = b.dataset.asr; saveState(); afterCalcChange(); renderCalcSettings(); }; });
+  document.querySelectorAll('#detailBody [data-hoff]').forEach(b=>{ b.onclick = ()=>{ setHijriOffset(+b.dataset.hoff); afterCalcChange(); renderCalcSettings(); }; });
+}
+function iqamahState(){
+  if(!state.iqamah) state.iqamah = { on:false, t:{}, after:{}, remind:10 };
+  const q = state.iqamah; if(!q.t) q.t = {}; if(!q.after) q.after = {};
+  return q;
+}
+/* Jamaat time for a prayer on a date: a fixed clock time, or minutes after the prayer starts */
+function jamaatTime(prayerRow, date){
+  const q = iqamahState(); if(!q.on || !prayerRow) return null;
+  const k = prayerRow.key, fixed = q.t[k], after = parseInt(q.after[k]);
+  if(fixed){ const [h,m] = fixed.split(':').map(Number); const d = new Date(date); d.setHours(h, m, 0, 0); return d; }
+  if(after > 0) return new Date(prayerRow.start.getTime() + after*60000);
+  return null;
+}
+function jamaatChip(p, date){
+  if(!FIVE.includes(p.key)) return '';
+  const j = jamaatTime(p, date);
+  return j ? `<div class="jamaat-chip" title="${L({rur:'Jamaat', en:'Congregation'})}">🕌 ${fmtTimeCompact(j)}</div>` : '';
+}
+function renderIqamahSettings(){
+  document.getElementById('detailTitle').textContent = L({rur:'Jamaat ka Waqt (Iqamah)', en:'Jamaat Times (Iqamah)'});
+  const q = iqamahState();
+  document.getElementById('detailBody').innerHTML = `
+    <div class="ramzan-card" style="margin:0 0 14px;">
+      <div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">${L({rur:'Apni masjid ki jamaat ka waqt dikhayein', en:'Show my masjid\u2019s jamaat times'})}</span><div class="switch ${q.on?'on':''}" id="iqOn"><div class="knob"></div></div></div>
+      <div class="roza-toggle"><span style="font-size:13px; font-weight:600;">${L({rur:'Jamaat se pehle yaad-dahani', en:'Reminder before jamaat'})}</span>
+        <select id="iqRemind" class="az-select" style="flex:0 0 auto; width:auto;">${[0,5,10,15,20,30].map(m=>`<option value="${m}" ${q.remind===m?'selected':''}>${m ? m+' min' : L({rur:'Off', en:'Off'})}</option>`).join('')}</select></div>
+    </div>
+    <div class="backup-note" style="margin-top:0;">${L({rur:'Har namaz ke liye ya to jamaat ka waqt likhein, ya yeh ke Azaan ke kitne minute baad jamaat hoti hai.', en:'For each prayer, enter either the jamaat time, or how many minutes after the Azaan it starts.'})}</div>
+    ${FIVE.map(k=>`<div class="ramzan-card iq-row" style="margin:0 0 8px;">
+      <b>${(PRAYER_META[k]||{}).icon||''} ${PRAYER_LABEL[k]}</b>
+      <div class="iq-inputs">
+        <label>${L({rur:'Waqt', en:'Time'})}<input type="time" data-iq-t="${k}" value="${q.t[k]||''}"></label>
+        <span class="iq-or">${L({rur:'ya', en:'or'})}</span>
+        <label>${L({rur:'Azaan ke baad', en:'After Azaan'})}<input type="number" min="0" max="120" placeholder="min" data-iq-a="${k}" value="${q.after[k]||''}"></label>
+      </div>
+    </div>`).join('')}`;
+  document.getElementById('iqOn').onclick = async ()=>{
+    q.on = !q.on; saveState();
+    if(q.on && q.remind && 'Notification' in window && Notification.permission==='default'){ try{ await Notification.requestPermission(); }catch(e){} }
+    renderHome(); scheduleNotifications(true); renderIqamahSettings();
+  };
+  document.getElementById('iqRemind').onchange = (e)=>{ q.remind = +e.target.value; saveState(); scheduleNotifications(true); };
+  document.querySelectorAll('#detailBody [data-iq-t]').forEach(inp=>{ inp.onchange = ()=>{ q.t[inp.dataset.iqT] = inp.value; saveState(); renderHome(); scheduleNotifications(true); }; });
+  document.querySelectorAll('#detailBody [data-iq-a]').forEach(inp=>{ inp.onchange = ()=>{ q.after[inp.dataset.iqA] = inp.value; saveState(); renderHome(); scheduleNotifications(true); }; });
+}
 function renderNafilSettings(){
   document.getElementById('detailTitle').textContent = L({rur:'Nafil Namaz', en:'Nafl Prayers'});
   document.getElementById('detailBody').innerHTML = `
@@ -3572,9 +3690,85 @@ async function startQuranDownload(onProgress){
   quranDl = null; onProgress(finished);
 }
 function quranLastPage(){ return (state.quranPage>=1 && state.quranPage<=QURAN_PAGE_COUNT) ? state.quranPage : 1; }
+
+/* ============================================================
+   TILAWAT: a page counts as read after 8 seconds on it; daily target and Khatm progress
+   ============================================================ */
+let quranReadTimer = null;
+const KHATM_FIRST = 2, KHATM_LAST = 611, KHATM_PAGES = KHATM_LAST - KHATM_FIRST + 1;
+function tilawatTarget(){ return Math.max(1, Math.min(40, state.tilawatTarget || 2)); }
+function tilawatCount(d){ return ((state.qread||{})[dayKey(d||new Date())] || []).length; }
+function khatmState(){ if(!state.khatm) state.khatm = { start: Date.now(), pages:{}, done:0 }; return state.khatm; }
+function markQuranPageRead(page){
+  if(!state.qread) state.qread = {};
+  const k = dayKey(new Date());
+  const list = state.qread[k] || (state.qread[k] = []);
+  if(!list.includes(page)) list.push(page);
+  if(page >= KHATM_FIRST && page <= KHATM_LAST) khatmState().pages[page] = 1;
+  // keep about 90 days of daily reading
+  const cutoff = Date.now() - 90*86400000;
+  Object.keys(state.qread).forEach(x=>{ const [y,m,dd] = x.split('-').map(Number); if(new Date(y, m-1, dd).getTime() < cutoff) delete state.qread[x]; });
+  saveState();
+  if(tilawatCount() === tilawatTarget()) showToast(L({rur:'Mashallah! Aaj ka tilawat ka target poora 🎉', en:'Mashallah! Today\u2019s reading target is done 🎉'}));
+}
+function khatmInfo(){
+  const k = khatmState();
+  const read = Object.keys(k.pages).length;
+  const days = Math.max(1, Math.ceil((Date.now() - k.start) / 86400000));
+  const pace = read / days;
+  const left = KHATM_PAGES - read;
+  const eta = pace > 0 && left > 0 ? new Date(Date.now() + Math.ceil(left / pace) * 86400000) : null;
+  return { read, left, pct: Math.min(100, Math.round(read / KHATM_PAGES * 100)), pace, eta, days, done: k.done || 0 };
+}
+function tilawatCardsHtml(){
+  const n = tilawatCount(), t = tilawatTarget(), kh = khatmInfo();
+  const etaTxt = kh.left <= 0 ? L({rur:'Khatm mukammal! Mashallah', en:'Khatm complete! Mashallah'})
+    : kh.eta ? `${L({rur:'Is raftaar se mukammal', en:'At this pace, done by'})}: ${kh.eta.getDate()} ${MON[kh.eta.getMonth()]} ${kh.eta.getFullYear()}` : L({rur:'Padhna shuru karein to andaaza dikhega', en:'Start reading to see an estimate'});
+  return `<div class="ramzan-card tl-card" style="margin:0 14px 10px;">
+      <div class="tl-head"><b>📖 ${L({rur:'Aaj ki Tilawat', en:'Today\u2019s Reading'})}</b><span class="tl-count ${n>=t?'ok':''}">${n} / ${t} ${L({rur:'page', en:'pages'})}</span></div>
+      <div class="tl-bar"><i style="width:${Math.min(100, n/t*100)}%"></i></div>
+      <div class="tl-target"><span>${L({rur:'Rozana target', en:'Daily target'})}</span><button id="tlMinus">−</button><b>${t}</b><button id="tlPlus">+</button></div>
+    </div>
+    <div class="ramzan-card tl-card" style="margin:0 14px 12px;">
+      <div class="tl-head"><b>🏁 ${L({rur:'Khatm', en:'Khatm'})}${kh.done ? ` <span class="tl-sub">(${kh.done} ${L({rur:'mukammal', en:'completed'})})</span>` : ''}</b><span class="tl-count">${kh.pct}%</span></div>
+      <div class="tl-bar"><i style="width:${kh.pct}%"></i></div>
+      <div class="tl-sub">${kh.read} / ${KHATM_PAGES} ${L({rur:'page', en:'pages'})} · ${kh.pace.toFixed(1)} ${L({rur:'page rozana', en:'pages a day'})} · ${etaTxt}</div>
+      <button class="quran-tool" id="khatmNew" style="margin-top:8px;">${L({rur:'Naya Khatm shuru karein', en:'Start a new Khatm'})}</button>
+    </div>`;
+}
+function wireTilawatCards(rerender){
+  const t = tilawatTarget();
+  document.getElementById('tlMinus').onclick = ()=>{ state.tilawatTarget = Math.max(1, t-1); saveState(); rerender(); };
+  document.getElementById('tlPlus').onclick = ()=>{ state.tilawatTarget = Math.min(40, t+1); saveState(); rerender(); };
+  document.getElementById('khatmNew').onclick = async ()=>{
+    const kh = khatmInfo();
+    if(!(await appConfirm(L({rur:'Naya Khatm shuru karein? Abhi ka hisaab (' + kh.read + ' page) saaf ho jayega.', en:'Start a new Khatm? The current count (' + kh.read + ' pages) will be cleared.'})))) return;
+    const done = (state.khatm && state.khatm.done || 0) + (kh.left <= 0 ? 1 : 0);
+    state.khatm = { start: Date.now(), pages:{}, done }; saveState(); rerender();
+  };
+}
+/* Share the page as a JPEG (widely accepted by chat apps), or download it where sharing files isn't supported */
+async function shareQuranPage(page){
+  try{
+    const img = new Image(); img.src = quranImg(page);
+    await img.decode();
+    const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0);
+    const blob = await new Promise(r=> c.toBlob(r, 'image/jpeg', 0.9));
+    const s = quranSurahOf(page);
+    const name = `quran-${quranEd()}-page-${page}.jpg`;
+    const file = new File([blob], name, { type:'image/jpeg' });
+    const text = `${quranEdLabel()} · Page ${page} · ${s.n}. ${s.name} (Waqt24)`;
+    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], title:text, text }); return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
+    showToast(L({rur:'Page download ho gaya', en:'Page downloaded'}));
+  }catch(e){ if(e && e.name==='AbortError') return; showToast(L({rur:'Share nahi ho saka', en:'Could not share'})); }
+}
 function renderQuranReader(page){
   page = Math.max(1, Math.min(QURAN_PAGE_COUNT, page || quranLastPage()));
   state.quranPage = page;
+  clearTimeout(quranReadTimer); quranReadTimer = setTimeout(()=> markQuranPageRead(page), 8000);
   state.lastRead = { k:'quran', id:page, ed:quranEd(), label:`${quranEdLabel()} · Page ${page} · ${quranSurahOf(page).name}` };
   saveState();
   setNavCtx(QURAN_PAGE_LIST, page - 1, (p, i)=> renderQuranReader(p), null);
@@ -3595,6 +3789,7 @@ function renderQuranReader(page){
       <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
       <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Raat', en:'Night'})}</button>
       <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
+      <button class="quran-tool" id="quranShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool" id="quranSignsBtn">🛑 ${L({rur:'Alamaat', en:'Signs'})}</button>
       <button class="quran-tool" id="quranEdBtn">${quranEd()==='tajweed' ? '📖 Normal' : '🌈 Tajweed'}</button>
@@ -3623,6 +3818,7 @@ function renderQuranReader(page){
   const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); };
   document.getElementById('quranZoomBtn').onclick = toggleZoom;
   document.getElementById('quranSignsBtn').onclick = renderQuranSigns;
+  document.getElementById('quranShareBtn').onclick = ()=> shareQuranPage(page);
   document.getElementById('quranSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranReader(page); if(state.quranTurnSound) playPageSound(); };
   document.getElementById('quranEdBtn').onclick = ()=>{ state.quranEd = quranEd()==='tajweed' ? 'normal' : 'tajweed'; saveState(); renderQuranReader(page); };
   let lastTap = 0;
@@ -3811,11 +4007,13 @@ function renderQuranHome(){
       ${quranChoice('qhTajweed', '🌈', 'Tajweed', L({rur:"Rangon wala Qur'an aur Tajweed ke Qawaid", en:'Colour-coded Quran and the Tajweed rules'}))}
       ${quranChoice('qhSigns', '🛑', L({rur:"Qur'an ki Alamaat", en:'Signs in the Quran'}), L({rur:'Waqf (rukne) ki alamaat aur page ke nishaanon ka matlab', en:'What the stopping signs and page marks mean'}))}
     </div>
+    ${tilawatCardsHtml()}
     <div class="ramzan-card" style="margin:0 14px 12px;"><div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">🔈 ${L({rur:'Page palatne ki awaaz', en:'Page-turn sound'})}</span><div class="switch ${state.quranTurnSound?'on':''}" id="qhSoundSw"><div class="knob"></div></div></div></div>
     <div class="backup-note">${L({rur:`Dono mein page number ek jaise hain, isliye aapka aakhri page (${last}) aur nishaan dono mein kaam karte hain.`, en:`Both use the same page numbers, so your last page (${last}) and bookmarks work in both.`})}</div>`;
   document.getElementById('qhNormal').onclick = ()=>{ state.quranEd = 'normal'; saveState(); renderQuranReader(); };
   document.getElementById('qhTajweed').onclick = renderTajweedMenu;
   document.getElementById('qhSigns').onclick = renderQuranSigns;
+  wireTilawatCards(renderQuranHome);
   document.getElementById('qhSoundSw').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranHome(); if(state.quranTurnSound) playPageSound(); };
 }
 function renderTajweedMenu(){
@@ -5068,6 +5266,8 @@ function renderSettingsMenu(){
     ['notif','🔔','Yaad-dahaniyan', ''],
     ['azaan','🔊','Azaan', azaanState().on ? 'On' : 'Off'],
     ['nafil','🌙','Nafil Namaz Mark Karein', nafilOn() ? 'On' : 'Off'],
+    ['calc','🧮','Namaz ka Hisaab', (state.asrMethod==='shafi' ? "Asr: Shafi'i" : 'Asr: Hanafi') + (hijriOffset() ? ` · Hijri ${hijriOffset()>0?'+':''}${hijriOffset()}` : '')],
+    ['iqamah','🕌','Jamaat ka Waqt (Iqamah)', iqamahState().on ? 'On' : 'Off'],
     ['howto','📘','Istemal ka Tareeqa', ''],
     ['backup','💾','Data Backup', ''],
     ['about','ℹ️','Iske Baare Mein', ''],
@@ -5083,6 +5283,8 @@ function renderSettingsMenu(){
       else if(k==='about') renderMoreAbout();
       else if(k==='azaan') renderAzaanSettings();
       else if(k==='nafil') renderNafilSettings();
+      else if(k==='calc') renderCalcSettings();
+      else if(k==='iqamah') renderIqamahSettings();
       else { settingsTab = k; renderMoreSettings(); }
     };
   });
@@ -5168,8 +5370,8 @@ function renderMoreSettings(){
       <div class="section-title">Hisaab</div>
       <div style="font-size:13px; line-height:1.8; color:var(--sub); padding-bottom:10px;">
         Fajr Angle: 18 darja &nbsp;|&nbsp; Isha Angle: 17 darja<br>
-        Asr Hisaab: Hanafi (standard)<br><br>
-        <span style="color:var(--text)">Note:</span> Shafi Asr aur alag Hijri offset ka option future update mein add kiya jayega.
+        Asr Hisaab: ${state.asrMethod==='shafi' ? "Shafi'i" : 'Hanafi'} · Hijri: ${hijriOffset()>0?'+':''}${hijriOffset()} din<br>
+        <span style="color:var(--text)">Settings › Namaz ka Hisaab</span> mein badal sakte hain.
       </div>
     `;
     setupLocationPane();
@@ -5215,7 +5417,7 @@ function renderMoreSettings(){
     row.style.justifyContent = 'space-between';
     row.style.alignItems = 'center';
     if(isActive){ row.style.borderColor = 'var(--accent)'; }
-    row.innerHTML = `<span style="font-size:13.5px; font-weight:600;">${c.name}${c.state ? `<span style="color:var(--sub); font-weight:500;"> - ${c.state}</span>` : ''}</span>${isActive ? '<span style="color:var(--accent); font-size:13px;">✓</span>' : ''}`;
+    row.innerHTML = `<span style="font-size:13.5px; font-weight:600;">${c.name}${c.state ? `<span style="color:var(--sub); font-weight:500;"> - ${c.state}</span>` : ''}</span>${isActive ? '<span style="color:var(--accentInk); font-size:13px;">✓</span>' : ''}`;
     row.onclick = ()=>{
       state.location = {name:c.name, lat:c.lat, lon:c.lon, state:c.state, source:'manual'};
       saveState();
@@ -5250,7 +5452,7 @@ function renderMoreSettings(){
       const row = document.createElement('div');
       row.className = 'hadees-item';
       row.style.cssText = 'margin:0 0 8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px;'+(isActive?' border-color:var(--accent);':'');
-      row.innerHTML = `<span style="font-size:13.5px; font-weight:600; flex:1;">⭐ ${c.name}${c.state ? `<span style="color:var(--sub); font-weight:500;"> - ${c.state}</span>` : ''}${isActive ? ' <span style="color:var(--accent);">✓</span>' : ''}</span>
+      row.innerHTML = `<span style="font-size:13.5px; font-weight:600; flex:1;">⭐ ${c.name}${c.state ? `<span style="color:var(--sub); font-weight:500;"> - ${c.state}</span>` : ''}${isActive ? ' <span style="color:var(--accentInk);">✓</span>' : ''}</span>
         <button data-rm="1" title="Hatayein" style="flex:0 0 auto; width:26px; height:26px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--sub); font-size:12px; cursor:pointer;">✕</button>`;
       row.onclick = (e)=>{
         if(e.target.closest('[data-rm]')) return;
@@ -5533,7 +5735,7 @@ function renderStats(){
     </div>
 
     <div class="ramzan-card" style="margin:0 0 14px; text-align:center;">
-      <div style="font-size:32px; font-weight:800; color:var(--accent);">${pct}%</div>
+      <div style="font-size:32px; font-weight:800; color:var(--accentInk);">${pct}%</div>
       <div style="font-size:12px; color:var(--sub); margin-top:2px;">Farz Namaz waqt par mukammal (${totalGreen}/${totalPossible})</div>
     </div>
 
@@ -5758,7 +5960,7 @@ function renderBackup(){
     <div class="backup-note" id="backupMsg"></div>
   `;
   document.getElementById('backupExportBtn').onclick = ()=>{
-    state.lastBackup = Date.now(); saveState();
+    state.lastBackup = Date.now(); state.backupDataCount = backupDataCount(); saveState();
     const payload = { app:'waqt24', exportedAt: new Date().toISOString(), state, hijriOffset: hijriOffset() };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
     const url = URL.createObjectURL(blob);
@@ -5782,7 +5984,7 @@ function renderBackup(){
         const incoming = payload && payload.state ? payload.state : payload;
         if(!incoming || typeof incoming !== 'object') throw new Error('bad file');
         state = Object.assign(state, incoming);
-        if(payload && payload.hijriOffset!==undefined){ try{ localStorage.setItem('hijriOffset', String(payload.hijriOffset)); }catch(e){} }
+        if(payload && payload.hijriOffset!==undefined){ try{ localStorage.setItem('hijriOffset', String(payload.hijriOffset)); }catch(e){} hijriOffset._v = undefined; }
         saveState();
         renderHome(); renderCalendar(); updateRamzanLock(); updateQazaBadge();
         document.getElementById('backupMsg').textContent = '✅ Data restore ho gaya hai.';
@@ -6619,6 +6821,8 @@ navWrap('renderGlobalSearch',0);
 navWrap('renderAzaan',0);
 navWrap('renderAzaanSettings',1);
 navWrap('renderNafilSettings',1);
+navWrap('renderCalcSettings',1);
+navWrap('renderIqamahSettings',1);
 ['renderShabdDetail','renderQuizQuestion','renderQuizResult','renderMythQuizQuestion','renderMythQuizResult'].forEach(n=>navWrap(n,2));
 navWrap('renderReviewList',3);
 (function(){
@@ -6801,7 +7005,9 @@ const GOAL_POOL = [
   {id:'shabd',  ic:'📚', lbl:{rur:'Ek Khaas Shabd padhein', en:'Read one Special Word'}, go:{tab:'explore', open:'khaasShabd'}, done:d=>flagOn('shabdDays', d)},
   {id:'qword',  ic:'📗', lbl:{rur:"Ek Qur'ani lafz ka matlab padhein", en:'Read the meaning of one Quranic word'}, go:{tab:'explore', open:'quranWords'}, done:d=>flagOn('qwordDays', d)},
   {id:'qaza',   ic:'🧎', lbl:{rur:'Ek qaza namaz ada karein', en:'Make up one qaza prayer'}, go:{tab:'more', open:'qaza'}, done:d=>qazaDoneOn(d)>0},
+  {id:'tilawat', ic:'📖', lbl:{rur:"Aaj ki Qur'an tilawat ka target poora karein", en:'Meet today’s Quran reading target'}, go:{tab:'explore', open:'quran'}, done:d=>tilawatCount(d) >= tilawatTarget()},
 ];
+const GOAL_TILAWAT_FROM = new Date(2026, 9, 22).getTime();
 /* The same date always gives the same three tasks, and different dates give different ones */
 function goalTasksFor(d){
   const k = dayKey(d);
@@ -6809,7 +7015,7 @@ function goalTasksFor(d){
   const round = goalRound(d);
   seed = (seed + round*7919) >>> 0; // each change of goal today gives a new set
   const rnd = ()=>{ seed = (seed*1664525 + 1013904223) >>> 0; return seed/4294967296; };
-  const others = GOAL_POOL.slice(1);
+  const others = GOAL_POOL.slice(1).filter(t=> t.id!=='tilawat' || d.getTime() >= GOAL_TILAWAT_FROM);
   for(let i=others.length-1; i>0; i--){ const j = Math.floor(rnd()*(i+1)); [others[i], others[j]] = [others[j], others[i]]; }
   return [GOAL_POOL[0], ...others.slice(0,2)].map(t=>({ id:t.id, ic:t.ic, label:t.lbl, go:t.go, done:t.done(d) }));
 }
@@ -6916,14 +7122,21 @@ function openOverlay(fn){
   document.getElementById('detailBody').scrollTop = 0;
   pushModalState();
 }
+function backupDataCount(){
+  const n = o => o && typeof o === 'object' ? Object.keys(o).length : 0;
+  return n(state.status) + n(state.duaStatus) + n(state.roza) + (Array.isArray(state.bookmarks) ? state.bookmarks.length : n(state.bookmarks))
+    + (state.quranMarks||[]).length + Object.values(state.qread||{}).reduce((a,x)=>a + x.length, 0) + n(state.learnDays) + (state.quizLog||[]).length;
+}
 function renderBackupNudge(){
   const el = document.getElementById('backupNudge');
   if(!el) return;
   if(!state.firstUse){ state.firstUse = Date.now(); saveState(); }
   const now = Date.now(), DAY = 86400000;
-  const due = state.lastBackup ? (now - state.lastBackup > 30*DAY) : (now - state.firstUse > 7*DAY);
+  // also due when a lot has been saved since the last backup (prayer marks, Yaad, bookmarks, reading...)
+  const grown = state.lastBackup ? backupDataCount() - (state.backupDataCount || 0) : 0;
+  const due = state.lastBackup ? (now - state.lastBackup > 30*DAY || (grown >= 40 && now - state.lastBackup > 3*DAY)) : (now - state.firstUse > 7*DAY);
   if(!due || now < (state.backupSnooze||0)){ el.style.display = 'none'; return; }
-  const ago = state.lastBackup ? `Aakhri backup ${Math.floor((now-state.lastBackup)/DAY)} din pehle tha.` : 'Abhi tak koi backup nahi liya.';
+  const ago = !state.lastBackup ? 'Abhi tak koi backup nahi liya.' : grown >= 40 ? `Pichle backup ke baad ${grown} nayi cheezein save hui hain.` : `Aakhri backup ${Math.floor((now-state.lastBackup)/DAY)} din pehle tha.`;
   el.style.display = 'flex';
   el.innerHTML = `<div class="nudge-txt">💾 <b>Backup le lein</b><span>${ago} Data sirf isi phone mein hai.</span></div>
     <div class="nudge-btns"><button id="nudgeNow">Abhi</button><button id="nudgeLater" class="ghost">Baad mein</button></div>`;
@@ -6934,8 +7147,8 @@ function renderBackupNudge(){
 /* ============================================================
    ACCESSIBILITY helpers (labels + keyboard access) and TEXT SIZE
    ============================================================ */
-const A11Y_SYMBOL_LABELS = { '‹':'Wapas', '›':'Aage', '✕':'Saaf karein', '↺':'Reset', '⤴':'Share', '☆':'Pasandeeda', '★':'Pasandeeda', '＋':'Jodein', '🖼':'Image share' };
-const A11Y_CLICKABLE = '.more-item, .chip, .name-tile, .shabd-row, .dw-row, .dua-card, .hadees-item, .shabd-cat-card, .quiz-cat-btn';
+const A11Y_SYMBOL_LABELS = { '✓':'Padh Li', '~':'Qaza Padhi', '⏳':'Baaki Hai', '✗':'Nahi Padhi', '▶':'Chalaayein', '■':'Band karein', 'ⓘ':'Maloomat', '−':'Kam karein', '+':'Zyada karein', '‹':'Wapas', '›':'Aage', '✕':'Saaf karein', '↺':'Reset', '⤴':'Share', '☆':'Pasandeeda', '★':'Pasandeeda', '＋':'Jodein', '🖼':'Image share' };
+const A11Y_CLICKABLE = '.aad-card, .quran-idx-item, .gs-item, .lang-opt, .more-item, .chip, .name-tile, .shabd-row, .dw-row, .dua-card, .hadees-item, .shabd-cat-card, .quiz-cat-btn';
 function a11yFix(root){
   (root||document).querySelectorAll('button:not([aria-label])').forEach(b=>{
     const t = (b.getAttribute('title') || A11Y_SYMBOL_LABELS[(b.textContent||'').trim()] || '');
