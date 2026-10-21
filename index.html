@@ -1234,6 +1234,12 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .qbook-note{ font-size:11.5px; color:var(--sub); text-align:center; padding:0 18px 12px; line-height:1.45; }
 .quran-tool.qt-ed{ display:inline-flex; align-items:center; gap:6px; }
 .quran-tool.qt-ed svg{ color:var(--text); }
+
+/* Tajweed rule badge, drawn like the Mushaf's own colour headings */
+.tj-badge{ display:inline-flex; align-items:center; gap:8px; margin:8px 0 4px; padding:5px 12px 5px 9px; border-radius:9px; background:color-mix(in srgb, var(--tjc) 9%, #fffdf3); border:1px solid color-mix(in srgb, var(--tjc) 30%, transparent); max-width:100%; }
+.tj-badge i{ width:11px; height:11px; flex:0 0 11px; transform:rotate(45deg); border-radius:2px; background:var(--tjc); box-shadow:0 0 0 2px #fff, 0 0 0 3px color-mix(in srgb, var(--tjc) 60%, transparent); }
+.tj-badge b{ color:var(--tjc); font-size:14px; white-space:nowrap; }
+.tj-badge span{ color:var(--tjc); font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
 </style>
 </head>
 <body>
@@ -3709,7 +3715,18 @@ function quranLastPage(){ return (state.quranPage>=1 && state.quranPage<=QURAN_P
 let quranReadTimer = null;
 const KHATM_FIRST = 2, KHATM_LAST = 611, KHATM_PAGES = KHATM_LAST - KHATM_FIRST + 1;
 function tilawatTarget(){ return Math.max(1, Math.min(40, state.tilawatTarget || 2)); }
-function tilawatCount(d){ return ((state.qread||{})[dayKey(d||new Date())] || []).length; }
+function tilawatCount(d){ const k = dayKey(d||new Date()); return ((state.qread||{})[k] || []).length + ((state.qmanual||{})[k] || 0); }
+/* Pages read from a printed Qur'an (or anywhere outside the app), entered by hand */
+function addManualPages(n){
+  if(!state.qmanual) state.qmanual = {};
+  const k = dayKey(new Date());
+  const before = tilawatCount();
+  const cur = state.qmanual[k] || 0, next = Math.max(0, cur + n);
+  state.qmanual[k] = next;
+  const kh = khatmState(); kh.extra = Math.max(0, (kh.extra || 0) + (next - cur)); // hardcopy pages also count toward the Khatm
+  saveState();
+  if(before < tilawatTarget() && tilawatCount() >= tilawatTarget()) showToast(L({rur:'Mashallah! Aaj ka tilawat ka target poora 🎉', en:'Mashallah! Today’s reading target is done 🎉'}));
+}
 function khatmState(){ if(!state.khatm) state.khatm = { start: Date.now(), pages:{}, done:0 }; return state.khatm; }
 function markQuranPageRead(page){
   if(!state.qread) state.qread = {};
@@ -3725,7 +3742,7 @@ function markQuranPageRead(page){
 }
 function khatmInfo(){
   const k = khatmState();
-  const read = Object.keys(k.pages).length;
+  const read = Math.min(KHATM_PAGES, Object.keys(k.pages).length + (k.extra || 0));
   const days = Math.max(1, Math.ceil((Date.now() - k.start) / 86400000));
   const pace = read / days;
   const left = KHATM_PAGES - read;
@@ -3740,6 +3757,8 @@ function tilawatCardsHtml(){
       <div class="tl-head"><b>📖 ${L({rur:'Aaj ki Tilawat', en:'Today\u2019s Reading'})}</b><span class="tl-count ${n>=t?'ok':''}">${n} / ${t} ${L({rur:'page', en:'pages'})}</span></div>
       <div class="tl-bar"><i style="width:${Math.min(100, n/t*100)}%"></i></div>
       <div class="tl-target"><span>${L({rur:'Rozana target', en:'Daily target'})}</span><button id="tlMinus">−</button><b>${t}</b><button id="tlPlus">+</button></div>
+      <div class="tl-target"><span>📕 ${L({rur:'Kitab (hardcopy) se padhe page', en:'Pages read from a printed copy'})}</span><button id="tlManMinus">−</button><b>${(state.qmanual||{})[dayKey(new Date())] || 0}</b><button id="tlManPlus">+</button></div>
+      ${n < t ? `<button class="quran-tool" id="tlDone" style="margin-top:8px;">✅ ${L({rur:'Aaj ka target poora (hardcopy se padha)', en:'Mark today’s target done (read on paper)'})}</button>` : ''}
     </div>
     <div class="ramzan-card tl-card" style="margin:0 14px 12px;">
       <div class="tl-head"><b>🏁 ${L({rur:'Khatm', en:'Khatm'})}${kh.done ? ` <span class="tl-sub">(${kh.done} ${L({rur:'mukammal', en:'completed'})})</span>` : ''}</b><span class="tl-count">${kh.pct}%</span></div>
@@ -3752,6 +3771,10 @@ function wireTilawatCards(rerender){
   const t = tilawatTarget();
   document.getElementById('tlMinus').onclick = ()=>{ state.tilawatTarget = Math.max(1, t-1); saveState(); rerender(); };
   document.getElementById('tlPlus').onclick = ()=>{ state.tilawatTarget = Math.min(40, t+1); saveState(); rerender(); };
+  document.getElementById('tlManPlus').onclick = ()=>{ addManualPages(1); rerender(); };
+  document.getElementById('tlManMinus').onclick = ()=>{ addManualPages(-1); rerender(); };
+  const done = document.getElementById('tlDone');
+  if(done) done.onclick = ()=>{ addManualPages(Math.max(0, tilawatTarget() - tilawatCount())); rerender(); };
   document.getElementById('khatmNew').onclick = async ()=>{
     const kh = khatmInfo();
     if(!(await appConfirm(L({rur:'Naya Khatm shuru karein? Abhi ka hisaab (' + kh.read + ' page) saaf ho jayega.', en:'Start a new Khatm? The current count (' + kh.read + ' pages) will be cleared.'})))) return;
@@ -3976,7 +3999,7 @@ function renderTajweedRules(){
     <div class="backup-note">${L({rur:"Is Tajweed wale Qur'an mein 7 rang hain. Har rang batata hai ke us lafz ko kaise padhna hai. Neeche har rang ka matlab aasaan alfaaz mein. \"Harkat\" yaani lagbhag ek ungli band ya khol ne jitna waqt.", en:'This Tajweed Quran uses 7 colours. Each colour tells you how to read that word. Below is what each colour means, in simple words. A "count" (harakah) is about the time it takes to fold or open a finger.'})}</div>
     ${TAJWEED_RULES.map((r,i)=>`<div class="tj-card" style="--tjc:${r.c};">
       <div class="tj-head"><span class="tj-dot"></span><b>${i+1}. ${r.name}</b><span class="tj-ar ar-font">${r.ar}</span></div>
-      <img class="tj-crop" src="quran/tajweed/r-${r.k}.webp" alt="${r.name}" loading="lazy">
+      <div class="tj-badge"><i></i><b>${r.name.split(' (')[0]}</b><span class="ar-font">(${r.letters})</span></div>
       <div class="tj-row"><span class="tj-lbl">${L({rur:'Haroof', en:'Letters'})}</span><span class="tj-letters ar-font">${r.letters}</span></div>
       <div class="tj-row"><span class="tj-lbl">${L({rur:'Kab?', en:'When?'})}</span><span>${L(r.when)}</span></div>
       <div class="tj-row"><span class="tj-lbl">${L({rur:'Kaise?', en:'How?'})}</span><span>${L(r.how)}</span></div>
@@ -7152,7 +7175,7 @@ function openOverlay(fn){
 function backupDataCount(){
   const n = o => o && typeof o === 'object' ? Object.keys(o).length : 0;
   return n(state.status) + n(state.duaStatus) + n(state.roza) + (Array.isArray(state.bookmarks) ? state.bookmarks.length : n(state.bookmarks))
-    + (state.quranMarks||[]).length + Object.values(state.qread||{}).reduce((a,x)=>a + x.length, 0) + n(state.learnDays) + (state.quizLog||[]).length;
+    + (state.quranMarks||[]).length + Object.values(state.qread||{}).reduce((a,x)=>a + x.length, 0) + n(state.learnDays) + (state.quizLog||[]).length + Object.values(state.qmanual||{}).reduce((a,x)=>a + x, 0);
 }
 function renderBackupNudge(){
   const el = document.getElementById('backupNudge');
