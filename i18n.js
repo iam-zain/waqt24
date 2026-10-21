@@ -475,3 +475,6 @@ Object.assign(I18N_EN, {
  "Sabse Lambi Hadaf Paabandi": "Longest goal streak",
  "Rozana Hadaf: pichle 7 din": "Daily Goal: last 7 days"
 });
+
+/* Nafil marking */
+Object.assign(I18N_EN, { "Nafil Namaz Mark Karein": "Mark Nafl Prayers", "Nahi Padhi": "Not prayed" });

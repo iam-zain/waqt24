@@ -1137,6 +1137,19 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .quran-page-wrap.zoomed{ overflow:auto; justify-content:flex-start; max-height:70vh; -webkit-overflow-scrolling:touch; }
 .quran-page-wrap.zoomed .quran-page-img{ max-height:none; max-width:none; width:200%; }
 .az-vol{ width:46%; accent-color:var(--accent); }
+
+/* Nafil marks: green / red buttons on Home; small diamonds in the Calendar (Farz stay round dots) */
+.status-dots.nafil-dots .dot-btn{ border-style:dashed; }
+.status-dots.nafil-dots .dot-btn.on-green, .status-dots.nafil-dots .dot-btn.on-red{ border-style:solid; }
+.cal-dots.nafil{ margin-top:3px; gap:3px; }
+.cal-dots.nafil span{ width:4px; height:4px; border-radius:1px; transform:rotate(45deg); background:transparent; border:1px solid color-mix(in srgb, var(--nafil) 55%, transparent); }
+.cal-dots.nafil span.ok{ background:var(--nafil); border-color:var(--nafil); }
+.cal-dots.nafil span.no{ background:var(--red); border-color:var(--red); }
+.cal-legend{ display:flex; gap:16px; justify-content:center; font-size:11px; color:var(--sub); font-weight:600; margin:6px 0 0; }
+.cal-legend:empty{ display:none; }
+.cal-legend i{ display:inline-block; vertical-align:middle; margin-right:5px; }
+.cal-legend .lg-farz{ width:7px; height:7px; border-radius:50%; background:var(--green); }
+.cal-legend .lg-nafil{ width:6px; height:6px; border-radius:1px; transform:rotate(45deg); background:var(--nafil); }
 </style>
 </head>
 <body>
@@ -1188,6 +1201,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
     </div>
     <div class="cal-grid" id="calDow"></div>
     <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend" id="calLegend"></div>
     <div class="cal-detail" id="calDetail" style="display:none;"></div>
   </div>
 
@@ -1289,7 +1303,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 </div>
 
 <script src="data.js?v=28"></script>
-<script src="i18n.js?v=69"></script>
+<script src="i18n.js?v=70"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -1702,6 +1716,16 @@ function cycleStatus(d, prayer){
   saveState();
 }
 function getStatus(d, prayer){ return state.status[statusKey(d,prayer)]; }
+/* Nafil marking (off by default, turned on in Settings): only "prayed" (green) or "not prayed" (red).
+   Stored next to the Farz marks, but every statistic and streak still counts only the five Farz. */
+const NAFIL_KEYS = ['ishraq','chaast','awwabin','tahajjud','tihai'];
+const NAFIL_NAMES = { ishraq:'Ishraq', chaast:'Chaast', awwabin:'Awwabin', tahajjud:'Tahajjud', tihai:"Du'a Qubooliyat" };
+function nafilOn(){ return !!state.nafilMark; }
+function markToast(prayer, want, cleared){
+  const isNafil = NAFIL_KEYS.includes(prayer);
+  const label = isNafil ? NAFIL_NAMES[prayer] : prayer.charAt(0).toUpperCase()+prayer.slice(1);
+  showToast(label + ': ' + (cleared ? 'Clear ho gaya' : isNafil ? (want==='green' ? 'Padh Li' : 'Nahi Padhi') : NAMAZ_STATUS_LABEL[want]));
+}
 
 /* ============================================================
    THEME
@@ -1904,7 +1928,7 @@ function renderHome(){
       isFuture = !isPastDate;
     }
     const stateClass = isLive ? 'current' : isPastDate ? 'normal' : isPast ? 'past' : 'future';
-    const rowStatus = FIVE.includes(p.key) ? getStatus(viewDate, p.key) : undefined;
+    const rowStatus = (FIVE.includes(p.key) || (nafilOn() && NAFIL_KEYS.includes(p.key))) ? getStatus(viewDate, p.key) : undefined;
     const statusClass = rowStatus ? ' status-'+rowStatus : '';
     row.className = 'time-row '+p.type+' '+stateClass+statusClass;
     row.dataset.key = p.key;
@@ -1917,6 +1941,12 @@ function renderHome(){
         <button class="dot-btn ${st==='green'?'on-green':''}" data-prayer="${p.key}" data-set="green" title="Padh Li">✓</button>
         <button class="dot-btn ${st==='yellow'?'on-yellow':''}" data-prayer="${p.key}" data-set="yellow" title="Qaza Padhi">~</button>
         <button class="dot-btn ${st==='red'?'on-red':''}" data-prayer="${p.key}" data-set="red" title="Baaki Hai">⏳</button>
+      </div>`;
+    } else if(nafilOn() && NAFIL_KEYS.includes(p.key) && !isFuture){
+      const st = rowStatus;
+      dotsHtml = `<div class="status-dots nafil-dots">
+        <button class="dot-btn ${st==='green'?'on-green':''}" data-prayer="${p.key}" data-set="green" title="Padh Li">✓</button>
+        <button class="dot-btn ${st==='red'?'on-red':''}" data-prayer="${p.key}" data-set="red" title="Nahi Padhi">✗</button>
       </div>`;
     } else if(p.key==='sehri' && !isFutureDate){
       const rozaOn = !!state.roza[dayKey(viewDate)];
@@ -1996,9 +2026,8 @@ function renderHome(){
       const prayer = btn.dataset.prayer, want = btn.dataset.set;
       const cur = getStatus(viewDate, prayer);
       const k = statusKey(viewDate, prayer);
-      const label = prayer.charAt(0).toUpperCase()+prayer.slice(1);
-      if(cur===want){ delete state.status[k]; showToast(label+': Clear ho gaya'); }
-      else{ state.status[k]=want; showToast(label+': '+NAMAZ_STATUS_LABEL[want]); }
+      if(cur===want){ delete state.status[k]; markToast(prayer, want, true); }
+      else{ state.status[k]=want; markToast(prayer, want, false); }
       saveState();
       renderHome();
     };
@@ -2262,6 +2291,7 @@ function shiftCalMonth(dir){
 }
 
 function renderCalendar(preserveDetail){
+  renderCalLegend();
   const dowEl = document.getElementById('calDow');
   dowEl.innerHTML = ['S','M','T','W','T','F','S'].map(d=>`<div class="cal-dow">${d}</div>`).join('');
   const grid = document.getElementById('calGrid');
@@ -2314,6 +2344,10 @@ function renderCalendar(preserveDetail){
     if(todayCell) showDayDetail(new Date());
   }
 }
+function renderCalLegend(){
+  const el = document.getElementById('calLegend'); if(!el) return;
+  el.innerHTML = nafilOn() ? `<span><i class="lg-farz"></i> ${L({rur:'Farz', en:'Farz'})}</span><span><i class="lg-nafil"></i> ${L({rur:'Nafil', en:'Nafil'})}</span>` : '';
+}
 function emptyCell(){ const c=document.createElement('div'); c.className='cal-cell empty'; return c; }
 function dayCell(date){
   const c = document.createElement('div');
@@ -2328,6 +2362,9 @@ function dayCell(date){
     dotsHtml += `<span style="background:${color}"></span>`;
   });
   dotsHtml += '</div>';
+  if(nafilOn()){
+    dotsHtml += '<div class="cal-dots nafil">' + NAFIL_KEYS.map(k=>{ const st = getStatus(date, k); return `<span class="${st==='green'?'ok':st==='red'?'no':''}"></span>`; }).join('') + '</div>';
+  }
   const rozaMark = rozaOn ? '<span class="cal-roza-mark">☪️</span>' : '';
   c.innerHTML = `${rozaMark}<div>${label}</div>${dotsHtml}`;
   c.onclick = ()=> showDayDetail(date);
@@ -2382,6 +2419,22 @@ function showDayDetail(date){
       </div>
     </div>`;
   });
+  if(nafilOn()){
+    const fullSched = buildSchedule(date);
+    html += `<div class="cal-sec-title">🌙 ${L({rur:'Nafil Namaz', en:'Nafl Prayers'})}</div>`;
+    NAFIL_KEYS.forEach(k=>{
+      const st = getStatus(date, k);
+      const ps = fullSched.find(x=>x.key===k);
+      const notStarted = isFuture || (isSameDay(date, now) && ps && now < ps.start);
+      html += `<div class="row">
+        <span>${icon(k)} ${NAFIL_NAMES[k]}</span>
+        <div class="status-dots nafil-dots"${notStarted ? ' style="opacity:0.3; pointer-events:none;" title="Abhi shuru nahi hua"' : ''}>
+          <button class="dot-btn ${st==='green'?'on-green':''}" data-prayer="${k}" data-set="green" title="Padh Li">✓</button>
+          <button class="dot-btn ${st==='red'?'on-red':''}" data-prayer="${k}" data-set="red" title="Nahi Padhi">✗</button>
+        </div>
+      </div>`;
+    });
+  }
   ensureZikrProfiles();
   const morningPf = state.tasbeeh.profiles.find(p=>p.id==='morning');
   const eveningPf = state.tasbeeh.profiles.find(p=>p.id==='evening');
@@ -2437,9 +2490,8 @@ function showDayDetail(date){
       const prayer = btn.dataset.prayer, want = btn.dataset.set;
       const cur = getStatus(calDetailDate, prayer);
       const k = statusKey(calDetailDate, prayer);
-      const label = prayer.charAt(0).toUpperCase()+prayer.slice(1);
-      if(cur===want){ delete state.status[k]; showToast(label+': Clear ho gaya'); }
-      else{ state.status[k]=want; showToast(label+': '+NAMAZ_STATUS_LABEL[want]); }
+      if(cur===want){ delete state.status[k]; markToast(prayer, want, true); }
+      else{ state.status[k]=want; markToast(prayer, want, false); }
       saveState();
       renderCalendar(true);
       showDayDetail(calDetailDate);
@@ -3371,6 +3423,19 @@ function renderAzaan(){
   `;
   document.getElementById('azaanSetBtn').onclick = renderAzaanSettings;
   wireAzaanPlay();
+}
+function renderNafilSettings(){
+  document.getElementById('detailTitle').textContent = L({rur:'Nafil Namaz', en:'Nafl Prayers'});
+  document.getElementById('detailBody').innerHTML = `
+    <div class="ramzan-card" style="margin:0 0 14px;">
+      <div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">${L({rur:'Nafil namaz bhi mark karein', en:'Mark nafl prayers too'})}</span><div class="switch ${nafilOn()?'on':''}" id="nafilSw"><div class="knob"></div></div></div>
+    </div>
+    <div class="backup-note">${L({rur:'On karne par Maskan par Ishraq, Chaast, Awwabin, Tahajjud aur Du\'a Qubooliyat ke saath ✓ (padh li) aur ✗ (nahi padhi) ke buttons aa jayenge. Taareekh mein yeh Farz ke gol nishaan ke neeche chhote ◆ nishaan se dikhengi. Namaz Mode aur Farz ke hisaab (Paabandi, Jaiza) par is ka asar nahi hota.', en:'When on, Ishraq, Chaast, Awwabin, Tahajjud and Du\'a Qubooliyat get ✓ (prayed) and ✗ (not prayed) buttons on Home. In the Calendar they show as small ◆ marks under the round Farz dots. Namaz Mode and the Farz statistics (streaks, reviews) are not affected.'})}</div>`;
+  document.getElementById('nafilSw').onclick = ()=>{
+    state.nafilMark = !nafilOn(); saveState();
+    renderHome(); renderCalendar(); renderNafilSettings();
+    showToast(nafilOn() ? L({rur:'Nafil marking On', en:'Nafl marking on'}) : L({rur:'Nafil marking Off', en:'Nafl marking off'}));
+  };
 }
 function renderAzaanSettings(){
   document.getElementById('detailTitle').textContent = L({rur:'Azaan Settings', en:'Azaan Settings'});
@@ -4740,6 +4805,7 @@ function renderSettingsMenu(){
     ['lang','🌐','Zubaan', state.lang==='en' ? 'English' : 'Hinglish / Roman Urdu'],
     ['notif','🔔','Yaad-dahaniyan', ''],
     ['azaan','🔊','Azaan', azaanState().on ? 'On' : 'Off'],
+    ['nafil','🌙','Nafil Namaz Mark Karein', nafilOn() ? 'On' : 'Off'],
     ['howto','📘','Istemal ka Tareeqa', ''],
     ['backup','💾','Data Backup', ''],
     ['about','ℹ️','Iske Baare Mein', ''],
@@ -4754,6 +4820,7 @@ function renderSettingsMenu(){
       else if(k==='howto') renderHowTo();
       else if(k==='about') renderMoreAbout();
       else if(k==='azaan') renderAzaanSettings();
+      else if(k==='nafil') renderNafilSettings();
       else { settingsTab = k; renderMoreSettings(); }
     };
   });
@@ -6283,6 +6350,7 @@ navWrap('renderQuranIndex',2);
 navWrap('renderGlobalSearch',0);
 navWrap('renderAzaan',0);
 navWrap('renderAzaanSettings',1);
+navWrap('renderNafilSettings',1);
 ['renderShabdDetail','renderQuizQuestion','renderQuizResult','renderMythQuizQuestion','renderMythQuizResult'].forEach(n=>navWrap(n,2));
 navWrap('renderReviewList',3);
 (function(){
