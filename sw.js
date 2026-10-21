@@ -1,7 +1,9 @@
-const CACHE_NAME = 'waqt24-v160';
+const CACHE_NAME = 'waqt24-v161';
 // Quran page images live in their own cache that survives every CACHE_NAME bump above, so a reader
 // who already downloaded a page never re-downloads it just because something else in the app changed.
 const QURAN_CACHE = 'waqt24-quran-v1';
+// Fonts, icons and other static files: kept across updates; only the page and data files refresh
+const STATIC_CACHE = 'waqt24-static-v1';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -16,14 +18,17 @@ const CORE_ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)).then(() => self.skipWaiting())
+    // only fetch what isn't saved yet, so an update doesn't re-download the fonts and icons
+    caches.open(STATIC_CACHE).then(async (cache) => {
+      for (const a of CORE_ASSETS) { if (!(await caches.match(a))) { try { await cache.add(a); } catch (e) {} } }
+    }).then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== QURAN_CACHE).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== QURAN_CACHE && k !== STATIC_CACHE).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
@@ -70,7 +75,7 @@ self.addEventListener('fetch', (event) => {
       if (cached) return cached;
       return fetch(event.request).then((res) => {
         const clone = res.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        caches.open(STATIC_CACHE).then((cache) => cache.put(event.request, clone));
         return res;
       });
     })

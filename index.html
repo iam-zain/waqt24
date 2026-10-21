@@ -1100,6 +1100,43 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 #azbRange::-moz-range-progress{ height:5px; border-radius:3px; background:var(--accent); }
 #azbRange::-webkit-slider-thumb{ -webkit-appearance:none; width:15px; height:15px; margin-top:-5px; border-radius:50%; background:var(--accent); border:2px solid var(--card2); box-shadow:0 1px 4px rgba(0,0,0,.3); }
 #azbRange::-moz-range-thumb{ width:13px; height:13px; border-radius:50%; background:var(--accent); border:2px solid var(--card2); }
+
+/* Continue card and search entry */
+.cont-card{ margin-top:0 !important; }
+.cont-txt{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.cont-lbl{ font-size:11px; color:var(--sub); font-weight:700; }
+.cont-name{ font-size:13px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.gs-entry{ width:calc(100% - 28px); margin:0 14px 6px; padding:10px 14px; border-radius:14px; border:1px solid var(--line); background:var(--card2); color:var(--sub); font:inherit; font-size:12.5px; text-align:left; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.gs-count{ font-size:11px; color:var(--sub); font-weight:700; margin-left:4px; }
+/* In-app confirm / info sheet */
+.app-confirm{ position:fixed; inset:0; z-index:600; background:rgba(0,0,0,.5); display:flex; align-items:flex-end; justify-content:center; animation:backdropIn .2s ease; }
+.app-confirm .info-card{ width:calc(100% - 24px); max-width:520px; margin:0 0 calc(14px + env(safe-area-inset-bottom)); border-radius:20px; animation:sheetUp .26s cubic-bezier(.2,.8,.2,1); }
+.ac-btns{ display:flex; gap:10px; margin-top:16px; }
+.ac-btns button{ flex:1; padding:11px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13.5px; font-weight:800; cursor:pointer; }
+.ac-btns .ac-yes{ background:var(--accent); border-color:var(--accent); color:var(--fardText); }
+.ac-pre{ white-space:pre-wrap; font:inherit; font-size:12.5px; max-height:50vh; overflow:auto; }
+/* First-run setup */
+#setupOverlay{ position:fixed; inset:0; z-index:700; background:var(--bg); display:flex; justify-content:center; overflow-y:auto; animation:screenIn .3s ease; }
+.su-card{ width:100%; max-width:520px; padding:16px 18px calc(24px + env(safe-area-inset-bottom)); }
+.su-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.su-dots{ display:flex; gap:6px; }
+.su-dots i{ width:22px; height:5px; border-radius:3px; background:var(--line); }
+.su-dots i.on{ background:var(--accent); }
+.su-skip{ border:none; background:none; color:var(--sub); font-size:13px; font-weight:700; cursor:pointer; padding:6px 4px; }
+.su-ic{ font-size:42px; text-align:center; margin:6px 0 8px; }
+.su-title{ font-size:19px; font-weight:800; text-align:center; margin-bottom:6px; }
+.su-sub{ font-size:12.5px; color:var(--sub); text-align:center; margin:0 0 12px; line-height:1.5; }
+.su-note{ display:block; font-size:10.5px; color:var(--sub); font-weight:500; margin-top:2px; }
+.su-list{ max-height:42vh; overflow-y:auto; }
+/* Qur'an tools, night page and zoom */
+.quran-tools{ display:flex; gap:8px; justify-content:center; padding:0 14px 12px; flex-wrap:wrap; }
+.quran-tool{ padding:7px 12px; border-radius:11px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12px; font-weight:700; cursor:pointer; transition:background-color var(--fx-mid) ease, transform var(--fx-fast) var(--fx-ease); }
+.quran-tool:active{ transform:scale(.95); }
+.quran-tool.on{ background:color-mix(in srgb, var(--accent) 16%, var(--card)); border-color:var(--accent); }
+.quran-page-wrap.night .quran-page-img{ filter:invert(.92) hue-rotate(180deg); background:#000; }
+.quran-page-wrap.zoomed{ overflow:auto; justify-content:flex-start; max-height:70vh; -webkit-overflow-scrolling:touch; }
+.quran-page-wrap.zoomed .quran-page-img{ max-height:none; max-width:none; width:200%; }
+.az-vol{ width:46%; accent-color:var(--accent); }
 </style>
 </head>
 <body>
@@ -1158,6 +1195,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
   <!-- ILM TAB (Du'a / Hadees / Quiz) -->
   <div class="screen scrollable" id="tab-explore">
     <div id="goalMini"></div>
+    <div id="continueCard"></div>
     <div class="pad" style="padding-bottom:0;">
       <div class="section-title" style="margin-top:6px;">Ma'rifat o Ibadat</div>
     </div>
@@ -1584,6 +1622,8 @@ function hijriOffset(){
 /* ============================================================
    STATE
    ============================================================ */
+let IS_FIRST_RUN = false;
+try{ IS_FIRST_RUN = !localStorage.getItem('namazState'); }catch(e){}
 let state = {
   theme: 'waqti',
   timeFormat: '24',
@@ -1754,7 +1794,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.classList.add('active');
     document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
     if(btn.dataset.tab==='calendar') renderCalendar();
-    if(btn.dataset.tab==='explore'){ renderGoalMini(); const qs=document.getElementById('quranSub'); if(qs) qs.textContent = `Page ${quranLastPage()}/${QURAN_PAGE_COUNT}`; }
+    if(btn.dataset.tab==='explore'){ renderGoalMini(); renderContinueCard(); const qs=document.getElementById('quranSub'); if(qs) qs.textContent = `Page ${quranLastPage()}/${QURAN_PAGE_COUNT}`; }
     if(btn.dataset.tab==='more'){ updateQazaBadge(); renderGoalCard(); }
     moveTabIndicator();
   };
@@ -2021,9 +2061,9 @@ async function shareDayText(date){
   }
   try{
     await navigator.clipboard.writeText(text);
-    alert('Schedule copy ho gaya, ab kahin bhi paste kar sakte hain.');
+    showToast('Schedule copy ho gaya, ab kahin bhi paste kar sakte hain.');
   }catch(e){
-    alert(text);
+    appInfo(text);
   }
 }
 function drawDayShareCanvas(date){
@@ -2652,7 +2692,7 @@ function wirePnBar(){
     const leaf = document.createElement('div');
     leaf.className = 'page-leaf';
     leaf.style.cssText = `left:${r.left}px; top:${r.top}px; width:${r.width}px; height:${r.height}px;`;
-    leaf.innerHTML = `<img src="${img.currentSrc || img.src}" alt=""><i class="page-leaf-shade"></i>`;
+    leaf.innerHTML = `<img src="${img.currentSrc || img.src}" alt="" style="filter:${getComputedStyle(img).filter}"><i class="page-leaf-shade"></i>`;
     document.body.appendChild(leaf);
     change(); // the next page renders underneath the leaf
     const y = (typeof yFrac === 'number') ? yFrac : 0.5;
@@ -2684,7 +2724,7 @@ function wirePnBar(){
     slideDetail(rtl ? (fwd ? 1 : -1) : (fwd ? -1 : 1), ()=>{ bypass = true; b.click(); bypass = false; });
   }, true);
   body.addEventListener('touchstart', (e)=>{
-    sxSkip = !!e.target.closest('input, textarea, select, .chips, .qword-tabs, .cat-tabs, .hscroll, [data-no-swipe]');
+    sxSkip = !!e.target.closest('input, textarea, select, .chips, .qword-tabs, .cat-tabs, .hscroll, [data-no-swipe], .quran-page-wrap.zoomed');
     sx = e.touches[0].clientX; sy = e.touches[0].clientY;
   }, { passive:true });
   body.addEventListener('touchend', (e)=>{
@@ -2940,6 +2980,7 @@ function setDuaStatus(title, val){
   saveState();
 }
 function openDuaDetail(d){
+  state.lastRead = { k:'dua', id:d.title, label:dTitle(d) }; saveState();
   markReadDay();
   document.getElementById('detailTitle').textContent = dTitle(d);
   document.getElementById('detailBody').innerHTML = `
@@ -2991,6 +3032,179 @@ function qwordSortFn(){
   if(qwordSortMode===1) return (a,b)=>Number(b.occ)-Number(a.occ);
   if(qwordSortMode===2) return (a,b)=>Number(a.occ)-Number(b.occ);
   return (a,b)=>a.tr.localeCompare(b.tr);
+}
+
+/* ============================================================
+   CONTINUE CARD and SEARCH EVERYTHING (Ma'rifat)
+   ============================================================ */
+function renderContinueCard(){
+  const el = document.getElementById('continueCard');
+  if(!el) return;
+  const r = state.lastRead;
+  const ic = r ? ({quran:'📖', dua:'🤲', hadees:'📜', aadaab:'🪴', name:'💚', qword:'📗'}[r.k] || '📖') : '';
+  el.innerHTML = `${r ? `<button class="goal-mini-card cont-card" id="contBtn"><span class="gm-ic">${ic}</span>
+      <span class="cont-txt"><span class="cont-lbl">${L({rur:'Jaari rakhein', en:'Continue'})}</span><span class="cont-name">${r.label}</span></span><b class="goal-arrow">›</b></button>` : ''}
+    <button class="gs-entry" id="gsEntryBtn">🔍 ${L({rur:'Sab kuch dhoondhiye: dua, hadees, lafz, naam, surah...', en:'Search everything: duas, hadith, words, names, surahs...'})}</button>`;
+  const c = document.getElementById('contBtn'); if(c) c.onclick = openLastRead;
+  document.getElementById('gsEntryBtn').onclick = ()=> openOverlay(()=>{ gsQuery = ''; renderGlobalSearch(); });
+}
+function openLastRead(){
+  const r = state.lastRead; if(!r) return;
+  if(r.k==='quran') return openOverlay(()=> renderQuranReader(r.id));
+  if(r.k==='name') return openOverlay(()=> renderNameDetail(r.which, r.id));
+  const find = { dua:()=>DUAS.find(x=>x.title===r.id), hadees:()=>HADEES.find(x=>hadeesKey(x)===r.id),
+    aadaab:()=>AADAAB_TOPICS.find(x=>x.id===r.id), qword:()=>QURAN_WORDS.find(x=>x.tr===r.id) }[r.k];
+  const open = { dua:openDuaDetail, hadees:openHadeesDetail, aadaab:openAadaabDetail, qword:openQuranWordDetail }[r.k];
+  const item = find && find();
+  if(item) openOverlay(()=>{ __navCtx = null; open(item); });
+}
+let gsQuery = '';
+function gsNorm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f'’ʿʾ`]/g,'').replace(/[\s-]+/g,''); } // spaces and hyphens ignored: "yasin" finds Ya-Sin
+function renderGlobalSearch(){
+  document.getElementById('detailTitle').textContent = L({rur:'Sab mein dhoondhiye', en:'Search everything'});
+  document.getElementById('detailBody').innerHTML = `
+    <div class="search-bar" style="margin:0 14px 12px;"><input id="gsInput" type="search" placeholder="${L({rur:'Dua, hadees, lafz, naam, surah...', en:'Dua, hadith, word, name, surah...'})}" value="${gsQuery.replace(/"/g,'&quot;')}"></div>
+    <div id="gsResults"></div>`;
+  const inp = document.getElementById('gsInput');
+  inp.oninput = ()=>{ gsQuery = inp.value; drawGlobalSearch(); };
+  drawGlobalSearch();
+  setTimeout(()=>{ try{ inp.focus(); }catch(e){} }, 60);
+}
+function drawGlobalSearch(){
+  const out = document.getElementById('gsResults'); if(!out) return;
+  const q = gsNorm(gsQuery.trim());
+  if(q.length < 2){ out.innerHTML = `<div class="empty-state">${L({rur:'Kam az kam 2 harf likhiye', en:'Type at least 2 letters'})}</div>`; return; }
+  const has = (...f)=> f.some(x=> gsNorm(x).includes(q));
+  const groups = [
+    { k:'surah', t:L({rur:'Qur\'an: Surah', en:'Quran: Surahs'}), ic:'📖', items:QURAN_SURAHS.filter(x=>has(x.name, x.ar)).map(x=>({ i:x.n, t:`${x.n}. ${x.name}`, s:`${x.ar} · Page ${x.page}` })) },
+    { k:'dua', t:L({rur:'Duain', en:'Duas'}), ic:'🤲', items:DUAS.map((d,i)=>({d,i})).filter(({d})=>has(d.title, dTitle(d), d.translit, d.meaning, dMean(d))).map(({d,i})=>({ i, t:dTitle(d), s:d.cat })) },
+    { k:'hadees', t:L({rur:'Hadees', en:'Hadith'}), ic:'📜', items:HADEES.map((h,i)=>({h,i})).filter(({h})=>has(h.txt, hTxt(h), h.src)).map(({h,i})=>({ i, t:(hTxt(h)||'').slice(0,70)+'…', s:h.src })) },
+    { k:'aadaab', t:'Aadaab-e-Zindagi', ic:'🪴', items:AADAAB_TOPICS.map((t,i)=>({t,i})).filter(({t})=>has(t.title, t.en && t.en.title)).map(({t,i})=>({ i, t:(isEn() && t.en && t.en.title) || t.title, s:'' })) },
+    { k:'qword', t:L({rur:"Qur'ani Alfaaz", en:'Quranic Words'}), ic:'📗', items:QURAN_WORDS.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
+    { k:'shabd', t:L({rur:'Khaas Shabd', en:'Special Words'}), ic:'📚', items:KHAAS_SHABD.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
+    { k:'asma', t:'Asma-ul-Husna', ic:'💚', items:ASMA_UL_HUSNA.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
+    { k:'prophet', t:L({rur:'Muhammad ﷺ ke Naam', en:'Names of Muhammad ﷺ'}), ic:'🌙', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
+  ].filter(g=>g.items.length);
+  if(!groups.length){ out.innerHTML = `<div class="empty-state">${L({rur:'Kuch nahi mila', en:'Nothing found'})}</div>`; return; }
+  out.innerHTML = groups.map(g=>`<div class="section-title" style="margin:6px 14px 8px;">${g.ic} ${g.t} <span class="gs-count">${g.items.length}</span></div>
+    <div class="more-list" style="padding-top:0;">${g.items.slice(0,15).map(x=>`<div class="more-item gs-item" data-g="${g.k}" data-i="${x.i}"><div class="lbl">${x.t}${x.s?`<span class="lblSub">${String(x.s).slice(0,90)}</span>`:''}</div><div class="chev">›</div></div>`).join('')}</div>`).join('');
+  out.querySelectorAll('.gs-item').forEach(el=>{
+    el.onclick = ()=>{
+      const i = +el.dataset.i, g = el.dataset.g;
+      if(g==='surah') return renderQuranReader(QURAN_SURAHS[i-1].page);
+      if(g==='asma' || g==='prophet') return renderNameDetail(g, i);
+      if(g==='shabd') return renderShabdDetail(i, renderGlobalSearch);
+      __navCtx = null;
+      if(g==='dua') openDuaDetail(DUAS[i]);
+      else if(g==='hadees') openHadeesDetail(HADEES[i]);
+      else if(g==='aadaab') openAadaabDetail(AADAAB_TOPICS[i]);
+      else if(g==='qword') openQuranWordDetail(QURAN_WORDS[i]);
+    };
+  });
+}
+
+/* ============================================================
+   IN-APP SHEETS in place of the browser's own alert/confirm pop-ups
+   ============================================================ */
+function appConfirm(msg, okLabel){
+  return new Promise(res=>{
+    const w = document.createElement('div');
+    w.className = 'app-confirm';
+    w.innerHTML = `<div class="info-card"><div class="info-text">${msg}</div><div class="ac-btns">
+      <button class="ac-no">${L({rur:'Rehne dein', en:'Cancel'})}</button><button class="ac-yes">${okLabel || L({rur:'Haan', en:'Yes'})}</button></div></div>`;
+    document.body.appendChild(w);
+    const done = v=>{ w.remove(); res(v); };
+    w.querySelector('.ac-no').onclick = ()=> done(false);
+    w.querySelector('.ac-yes').onclick = ()=> done(true);
+    w.onclick = e=>{ if(e.target===w) done(false); };
+  });
+}
+function appInfo(text){
+  const w = document.createElement('div');
+  w.className = 'app-confirm';
+  w.innerHTML = `<div class="info-card"><pre class="ac-pre"></pre><div class="ac-btns"><button class="ac-yes">OK</button></div></div>`;
+  w.querySelector('.ac-pre').textContent = text;
+  document.body.appendChild(w);
+  w.querySelector('.ac-yes').onclick = ()=> w.remove();
+  w.onclick = e=>{ if(e.target===w) w.remove(); };
+}
+
+/* ============================================================
+   FIRST-RUN SETUP: city, language, Azaan and reminders (every step can be skipped)
+   ============================================================ */
+let setupCityQuery = '';
+function closeSetup(){ state.setupDone = true; delete state.setupStep; saveState(); const o = document.getElementById('setupOverlay'); if(o) o.remove(); renderHome(); }
+function showSetup(step){
+  let o = document.getElementById('setupOverlay');
+  if(!o){ o = document.createElement('div'); o.id = 'setupOverlay'; document.body.appendChild(o); }
+  state.setupStep = step; saveState();
+  const steps = ['city','lang','alerts'];
+  const n = steps.indexOf(step);
+  const head = `<div class="su-top"><div class="su-dots">${steps.map((x,i)=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div>
+    <button class="su-skip" id="suSkip">${L({rur:'Skip karein', en:'Skip'})}</button></div>`;
+  let body = '';
+  if(step==='city'){
+    body = `<div class="su-ic">🕌</div><div class="su-title">${L({rur:'Assalamu Alaikum! Apna shahar chunein', en:'Assalamu Alaikum! Choose your city'})}</div>
+      <div class="su-sub">${L({rur:'Namaz ke sahi auqaat ke liye.', en:'For accurate prayer times.'})}</div>
+      <button class="backup-btn" id="suGps">📡 ${L({rur:'GPS se location lein', en:'Use my location (GPS)'})}</button>
+      <div class="su-sub" id="suGpsMsg"></div>
+      <div class="search-bar" style="margin:8px 0 10px;"><input id="suCity" placeholder="${L({rur:'Shahar dhoondhiye...', en:'Search city...'})}" value="${setupCityQuery.replace(/"/g,'&quot;')}"></div>
+      <div id="suCityList" class="su-list"></div>`;
+  } else if(step==='lang'){
+    body = `<div class="su-ic">🌐</div><div class="su-title">${L({rur:'Zubaan chunein', en:'Choose language'})}</div>
+      ${[['rur','Hinglish / Roman Urdu'],['en','English']].map(([k,l])=>`<div class="lang-opt ${state.lang===k?'on':''}" data-su-lang="${k}" role="button" tabindex="0"><div><b>${l}</b></div><div class="lang-check">${state.lang===k?'✓':''}</div></div>`).join('')}
+      <button class="backup-btn" id="suNext">${L({rur:'Aage', en:'Next'})} ›</button>`;
+  } else {
+    const a = azaanState();
+    body = `<div class="su-ic">🔔</div><div class="su-title">${L({rur:'Azaan aur yaad-dahani', en:'Azaan and reminders'})}</div>
+      <div class="ramzan-card" style="margin:0 0 12px;">
+        <div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">${L({rur:'Namaz ke waqt Azaan', en:'Azaan at prayer times'})}<span class="su-note">${L({rur:'Jab app khuli ho', en:'While the app is open'})}</span></span><div class="switch ${a.on?'on':''}" id="suAz"><div class="knob"></div></div></div>
+        <div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">${L({rur:'Farz namaz ki yaad-dahani', en:'Farz prayer reminders'})}<span class="su-note">${L({rur:'Notification', en:'Notification'})}</span></span><div class="switch ${state.notif.fard?'on':''}" id="suNotif"><div class="knob"></div></div></div>
+      </div>
+      <div class="su-sub">${L({rur:'Yeh sab baad mein Settings mein badal sakte hain.', en:'You can change all of this later in Settings.'})}</div>
+      <button class="backup-btn" id="suDone">${L({rur:'Shuru karein', en:'Get started'})} ✓</button>`;
+  }
+  o.innerHTML = `<div class="su-card">${head}${body}</div>`;
+  document.getElementById('suSkip').onclick = closeSetup;
+  if(step==='city'){
+    const pick = c=>{ state.location = { name:c.name, lat:c.lat, lon:c.lon, state:c.state, source:'manual' }; saveState(); renderHome(); renderCalendar(); showSetup('lang'); };
+    const draw = ()=>{
+      const q = gsNorm(setupCityQuery.trim());
+      const list = (q ? CITIES.filter(c=> gsNorm(c.name+' '+(c.state||'')).includes(q)) : CITIES).slice(0, 40);
+      const el = document.getElementById('suCityList');
+      el.innerHTML = list.map((c,i)=>`<div class="more-item" data-ci="${i}"><div class="lbl">${c.name}${c.state?`<span class="lblSub">${c.state}</span>`:''}</div><div class="chev">›</div></div>`).join('');
+      el.querySelectorAll('[data-ci]').forEach(r=>{ r.onclick = ()=> pick(list[+r.dataset.ci]); });
+    };
+    const inp = document.getElementById('suCity');
+    inp.oninput = ()=>{ setupCityQuery = inp.value; draw(); };
+    draw();
+    document.getElementById('suGps').onclick = ()=>{
+      const msg = document.getElementById('suGpsMsg');
+      if(!navigator.geolocation){ msg.textContent = L({rur:'Is browser mein GPS nahi hai, list se shahar chunein.', en:'GPS is not available here; choose a city from the list.'}); return; }
+      msg.textContent = L({rur:'Location maloom ki jaa rahi hai...', en:'Finding your location...'});
+      navigator.geolocation.getCurrentPosition(pos=>{
+        state.location = { name:'Current Location', lat:pos.coords.latitude, lon:pos.coords.longitude, source:'gps' };
+        saveState(); renderHome(); renderCalendar(); showSetup('lang');
+      }, ()=>{ msg.textContent = L({rur:'Location nahi mil saki, list se shahar chunein.', en:'Could not get your location; choose a city from the list.'}); }, { timeout:10000 });
+    };
+  } else if(step==='lang'){
+    o.querySelectorAll('[data-su-lang]').forEach(el=>{
+      el.onclick = ()=>{
+        const v = el.dataset.suLang;
+        if(v===state.lang) return;
+        state.lang = v; state.setupStep = 'lang'; saveState(); location.reload(); // the English layer starts on load
+      };
+    });
+    document.getElementById('suNext').onclick = ()=> showSetup('alerts');
+  } else {
+    document.getElementById('suAz').onclick = ()=>{ const a = azaanState(); a.on = !a.on; saveState(); showSetup('alerts'); };
+    document.getElementById('suNotif').onclick = async ()=>{
+      state.notif.fard = !state.notif.fard; saveState();
+      if(state.notif.fard && 'Notification' in window && Notification.permission==='default'){ try{ await Notification.requestPermission(); }catch(e){} }
+      scheduleNotifications(true); showSetup('alerts');
+    };
+    document.getElementById('suDone').onclick = closeSetup;
+  }
 }
 /* ============================================================
    AZAAN: text with meaning, recordings from around the world, and playback at prayer time
@@ -3045,6 +3259,10 @@ function playAzaan(id, label){
   azaanAudio = new Audio(`azan/${rec.id}.mp3`);
   azaanPlayingId = rec.id;
   azaanAudio.onended = stopAzaan;
+  // gentle start: the volume rises to the chosen level over about 3 seconds
+  const target = Math.max(0.05, Math.min(1, azaanState().vol ?? 1));
+  azaanAudio.volume = 0;
+  const au = azaanAudio, fade = setInterval(()=>{ if(au !== azaanAudio){ clearInterval(fade); return; } au.volume = Math.min(target, au.volume + target/30); if(au.volume >= target) clearInterval(fade); }, 100);
   const p = azaanAudio.play();
   if(p && p.catch) p.catch(()=>{ stopAzaan(); showToast(L({rur:'Azaan chalaane ke liye app par ek baar tap karein', en:'Tap the app once to allow the Azaan to play'})); });
   const bar = document.createElement('div');
@@ -3163,6 +3381,8 @@ function renderAzaanSettings(){
     <div class="ramzan-card" style="margin:0 0 14px;">
       <div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">${L({rur:'Namaz ke waqt Azaan chalaayein', en:'Play Azaan at prayer times'})}</span><div class="switch ${a.on?'on':''}" id="azOnSw"><div class="knob"></div></div></div>
       <div class="roza-toggle"><span style="font-size:13px; font-weight:600;">${L({rur:'Sab namazon ke liye', en:'For all prayers'})}</span><div class="switch ${allOn?'on':''}" id="azAllSw"><div class="knob"></div></div></div>
+      <div class="roza-toggle"><span style="font-size:13px; font-weight:600;">🔊 ${L({rur:'Awaaz', en:'Volume'})}</span><input type="range" id="azVol" min="10" max="100" step="5" value="${Math.round((a.vol ?? 1)*100)}" class="az-vol"></div>
+      <button class="quran-tool" id="azFajrOnly" style="width:100%; margin-top:6px;">🌅 ${L({rur:'Sirf Fajr ki Azaan', en:'Fajr Azaan only'})}</button>
     </div>
     <div class="section-title" style="margin-top:0;">${L({rur:'Har namaz ki Azaan', en:'Azaan for each prayer'})}</div>
     ${FIVE.map(k=>`<div class="ramzan-card az-pray" style="margin:0 0 10px;">
@@ -3180,6 +3400,8 @@ function renderAzaanSettings(){
     if(a.on) showToast(L({rur:'Azaan On: namaz ke waqt app khuli ho to Azaan chalegi', en:'Azaan on: it plays at prayer time while the app is open'}));
     renderAzaanSettings();
   };
+  document.getElementById('azVol').oninput = (e)=>{ a.vol = (+e.target.value)/100; saveState(); if(azaanAudio) azaanAudio.volume = a.vol; };
+  document.getElementById('azFajrOnly').onclick = ()=>{ FIVE.forEach(k=> a.prayers[k] = (k==='fajr')); a.on = true; saveState(); renderAzaanSettings(); showToast(L({rur:'Ab sirf Fajr ki Azaan chalegi', en:'Only the Fajr Azaan will play now'})); };
   document.getElementById('azAllSw').onclick = ()=>{ const v = !allOn; FIVE.forEach(k=> a.prayers[k] = v); saveState(); renderAzaanSettings(); };
   document.querySelectorAll('#detailBody [data-az-pray]').forEach(sw=>{ sw.onclick = ()=>{ const k = sw.dataset.azPray; a.prayers[k] = !a.prayers[k]; saveState(); renderAzaanSettings(); }; });
   document.querySelectorAll('#detailBody [data-az-pick]').forEach(sel=>{ sel.onchange = ()=>{ a.pick[sel.dataset.azPick] = sel.value; saveState(); renderAzaanSettings(); }; });
@@ -3202,10 +3424,41 @@ const QURAN_MANZILS = [1, 5, 10, 17, 26, 37, 50].map((s, i, arr)=>{
 function quranParaOf(page){ let r = QURAN_PARAS[0]; for(const x of QURAN_PARAS) if(x.page<=page) r = x; return r; }
 function quranManzilOf(page){ let r = QURAN_MANZILS[0]; for(const x of QURAN_MANZILS) if(x.page<=page) r = x; return r; }
 function quranSurahOf(page){ let r = QURAN_SURAHS[0]; for(const x of QURAN_SURAHS) if(x.page<=page) r = x; return r; }
+function quranMarked(p){ return (state.quranMarks||[]).includes(p); }
+/* Night page: white text on black. Follows the app's dark theme unless the reader switched it */
+function quranNightOn(){
+  if(typeof state.quranNight === 'boolean') return state.quranNight;
+  const m = getComputedStyle(document.body).backgroundColor.match(/\d+/g);
+  return m ? (0.299*m[0] + 0.587*m[1] + 0.114*m[2]) < 110 : false;
+}
+let quranDl = null; // offline download in progress: { done, total, stop }
+async function quranCachedCount(){
+  try{ const c = await caches.open('waqt24-quran-v1'); return (await c.keys()).filter(r=>r.url.includes('/quran/pages/')).length; }catch(e){ return 0; }
+}
+async function startQuranDownload(onProgress){
+  if(quranDl) return;
+  let have = new Set();
+  try{ const c = await caches.open('waqt24-quran-v1'); (await c.keys()).forEach(r=>{ const m = r.url.match(/\/quran\/pages\/(\d+)\.png/); if(m) have.add(+m[1]); }); }catch(e){}
+  const todo = QURAN_PAGE_LIST.filter(n=>!have.has(n));
+  quranDl = { done: QURAN_PAGE_COUNT - todo.length, total: QURAN_PAGE_COUNT, stop:false };
+  onProgress();
+  let next = 0;
+  const worker = async ()=>{
+    while(!quranDl.stop && next < todo.length){
+      const n = todo[next++];
+      try{ await fetch(`quran/pages/${String(n).padStart(3,'0')}.png`); quranDl.done++; }catch(e){}
+      onProgress();
+    }
+  };
+  await Promise.all([worker(), worker(), worker(), worker()]);
+  const finished = !quranDl.stop;
+  quranDl = null; onProgress(finished);
+}
 function quranLastPage(){ return (state.quranPage>=1 && state.quranPage<=QURAN_PAGE_COUNT) ? state.quranPage : 1; }
 function renderQuranReader(page){
   page = Math.max(1, Math.min(QURAN_PAGE_COUNT, page || quranLastPage()));
   state.quranPage = page;
+  state.lastRead = { k:'quran', id:page, label:`Qur'an · Page ${page} · ${quranSurahOf(page).name}` };
   saveState();
   setNavCtx(QURAN_PAGE_LIST, page - 1, (p, i)=> renderQuranReader(p), null);
   __navCtx.rtl = true; // Arabic reads right to left, so page turns run the other way
@@ -3218,8 +3471,13 @@ function renderQuranReader(page){
       <button class="quran-index-btn" id="quranSurahBtn"><span>📜</span> ${surah.n}. ${surah.name}</button>
       <button class="quran-index-btn qi-short" id="quranManzilBtn"><span>🏷️</span> ${L({rur:'Manzil', en:'Manzil'})} ${manzil.n}</button>
     </div>
-    <div class="quran-page-wrap">
+    <div class="quran-page-wrap${quranNightOn() ? ' night' : ''}" id="quranWrap">
       <img class="quran-page-img" src="quran/pages/${pad}.png" alt="Quran page ${page}" draggable="false">
+    </div>
+    <div class="quran-tools">
+      <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
+      <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Raat', en:'Night'})}</button>
+      <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
     </div>
     <div class="quran-jump">
       <span>${L({rur:'Page par jaayein', en:'Go to page'})}</span>
@@ -3233,6 +3491,19 @@ function renderQuranReader(page){
   const jump = ()=>{ const v = parseInt(jumpInput.value); if(v>=1 && v<=QURAN_PAGE_COUNT) renderQuranReader(v); };
   jumpBtn.onclick = jump;
   jumpInput.onkeydown = (e)=>{ if(e.key==='Enter') jump(); };
+  document.getElementById('quranMarkBtn').onclick = ()=>{
+    const m = state.quranMarks || (state.quranMarks = []);
+    const i = m.indexOf(page);
+    if(i>=0) m.splice(i,1); else { m.push(page); m.sort((x,y)=>x-y); }
+    saveState(); renderQuranReader(page);
+    showToast(i>=0 ? L({rur:'Nishaan hata diya', en:'Bookmark removed'}) : L({rur:'Nishaan laga diya', en:'Bookmarked'}));
+  };
+  document.getElementById('quranNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderQuranReader(page); };
+  const wrap = document.getElementById('quranWrap');
+  const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); };
+  document.getElementById('quranZoomBtn').onclick = toggleZoom;
+  let lastTap = 0;
+  wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) toggleZoom(); lastTap = t; });
   document.getElementById('quranParaBtn').onclick = ()=> renderQuranIndex('para');
   document.getElementById('quranSurahBtn').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('quranManzilBtn').onclick = ()=> renderQuranIndex('manzil');
@@ -3243,26 +3514,53 @@ function renderQuranReader(page){
 }
 function renderQuranIndex(kind){
   const cur = quranLastPage();
-  const isPara = kind==='para', isManzil = kind==='manzil';
-  const list = isPara ? QURAN_PARAS : isManzil ? QURAN_MANZILS : QURAN_SURAHS;
-  const curItem = isPara ? quranParaOf(cur) : isManzil ? quranManzilOf(cur) : quranSurahOf(cur);
-  document.getElementById('detailTitle').textContent = isPara ? L({rur:'30 Paare', en:'30 Paras'}) : isManzil ? L({rur:'7 Manzil', en:'7 Manzils'}) : L({rur:'114 Surah', en:'114 Surahs'});
-  const sub = x => isPara ? '' : isManzil ? `<span class="lblSub">${x.from} – ${x.to}</span>` : `<span class="lblSub ar-font">${x.ar}</span>`;
+  const isPara = kind==='para', isManzil = kind==='manzil', isMarks = kind==='marks';
+  const marks = (state.quranMarks||[]).map(pg=>({ n:'🔖', name:`Page ${pg}`, page:pg, sub:`${quranSurahOf(pg).name} · ${L({rur:'Paara', en:'Para'})} ${quranParaOf(pg).n}` }));
+  const list = isMarks ? marks : isPara ? QURAN_PARAS : isManzil ? QURAN_MANZILS : QURAN_SURAHS;
+  const curItem = isMarks ? null : isPara ? quranParaOf(cur) : isManzil ? quranManzilOf(cur) : quranSurahOf(cur);
+  document.getElementById('detailTitle').textContent = isMarks ? L({rur:'Nishaan', en:'Bookmarks'}) : isPara ? L({rur:'30 Paare', en:'30 Paras'}) : isManzil ? L({rur:'7 Manzil', en:'7 Manzils'}) : L({rur:'114 Surah', en:'114 Surahs'});
+  const sub = x => isMarks ? `<span class="lblSub">${x.sub}</span>` : isPara ? '' : isManzil ? `<span class="lblSub">${x.from} – ${x.to}</span>` : `<span class="lblSub ar-font">${x.ar}</span>`;
   document.getElementById('detailBody').innerHTML = `
     <div class="view-toggle" style="margin:0 14px 12px;">
       <button id="qiParaTab" class="${isPara?'active':''}">${L({rur:'Paara', en:'Para'})}</button>
       <button id="qiSurahTab" class="${kind==='surah'?'active':''}">Surah</button>
       <button id="qiManzilTab" class="${isManzil?'active':''}">Manzil</button>
+      <button id="qiMarksTab" class="${isMarks?'active':''}">🔖 ${marks.length}</button>
     </div>
+    ${isMarks && !marks.length ? `<div class="empty-state">${L({rur:'Abhi koi nishaan nahi. Kisi page par 🔖 dabayein.', en:'No bookmarks yet. Tap 🔖 on any page.'})}</div>` : ''}
     <div class="more-list" style="padding-top:0;">${list.map(x=>`
       <div class="more-item quran-idx-item ${x===curItem?'on':''}" data-page="${x.page}">
         <div class="ic">${x.n}</div>
         <div class="lbl">${x.name}${sub(x)}</div>
         <div class="qi-page">${L({rur:'Page', en:'Page'})} ${x.page}</div>
-      </div>`).join('')}</div>`;
+      </div>`).join('')}</div>
+    <div class="ramzan-card" style="margin:14px 14px 10px;">
+      <div style="font-size:13px; font-weight:800; margin-bottom:4px;">⬇️ ${L({rur:"Poora Qur'an offline", en:'Whole Quran offline'})}</div>
+      <div class="su-sub" id="qDlMsg" style="text-align:left;">…</div>
+      <button class="backup-btn" id="qDlBtn" style="margin-top:8px;"></button>
+    </div>`;
+  const dlMsg = document.getElementById('qDlMsg'), dlBtn = document.getElementById('qDlBtn');
+  const showDl = async (finished)=>{
+    if(!document.body.contains(dlBtn)) return;
+    if(quranDl){
+      dlMsg.textContent = `${L({rur:'Download ho raha hai', en:'Downloading'})}: ${quranDl.done} / ${quranDl.total}`;
+      dlBtn.textContent = L({rur:'Rok dein', en:'Stop'});
+      dlBtn.onclick = ()=>{ if(quranDl) quranDl.stop = true; };
+    } else {
+      const n = await quranCachedCount();
+      dlMsg.textContent = n >= QURAN_PAGE_COUNT ? L({rur:"Poora Qur'an is phone par save hai, internet ke baghair bhi khulega.", en:'The whole Quran is saved on this phone and opens without internet.'})
+        : `${n} / ${QURAN_PAGE_COUNT} ${L({rur:'page save hain. Baaqi download karein (lagbhag 25 MB).', en:'pages saved. Download the rest (about 25 MB).'})}`;
+      dlBtn.style.display = n >= QURAN_PAGE_COUNT ? 'none' : '';
+      dlBtn.textContent = L({rur:'Download karein', en:'Download'});
+      dlBtn.onclick = ()=> startQuranDownload(showDl);
+      if(finished) showToast(L({rur:"Qur'an offline save ho gaya", en:'Quran saved for offline use'}));
+    }
+  };
+  showDl();
   document.getElementById('qiParaTab').onclick = ()=> renderQuranIndex('para');
   document.getElementById('qiSurahTab').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('qiManzilTab').onclick = ()=> renderQuranIndex('manzil');
+  document.getElementById('qiMarksTab').onclick = ()=> renderQuranIndex('marks');
   document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=> renderQuranReader(parseInt(el.dataset.page)); });
   const on = document.querySelector('#detailBody .quran-idx-item.on');
   if(on) setTimeout(()=> on.scrollIntoView({ block:'center' }), 30);
@@ -3348,6 +3646,7 @@ function qwordGroup(w){
 }
 function qwordColor(w){ return QWORD_GROUP_COLOR[qwordGroup(w)]; }
 function openQuranWordDetail(w){
+  state.lastRead = { k:'qword', id:w.tr, label:w.tr }; saveState();
   markDayFlag('qwordDays');
   const key = qwordKey(w), st = duaStatus(key), color = qwordColor(w);
   document.getElementById('detailTitle').textContent = w.tr;
@@ -3465,6 +3764,7 @@ function renderAadaabList(){
   });
 }
 function openAadaabDetail(t0){
+  state.lastRead = { k:'aadaab', id:t0.id, label:(isEn() && t0.en && t0.en.title) || t0.title }; saveState();
   markDayFlag('aadaabDays');
   const t = aL(t0);
   const c = aadaabCatInfo(t.cat);
@@ -3589,6 +3889,7 @@ function hadeesMeta(cat){ return HADEES_CAT_META[cat] || ['📜','#5c7cfa']; }
 /* Yaad status key for a hadees (hadees have no title, so the start of the text identifies it) */
 function hadeesKey(h){ return 'hadees:' + h.txt.slice(0,60); }
 function openHadeesDetail(h){
+  state.lastRead = { k:'hadees', id:hadeesKey(h), label:(hTxt(h)||'').slice(0,60) + '…' }; saveState();
   markReadDay();
   markReadDay();
   document.getElementById('detailTitle').textContent = h.cat;
@@ -3752,6 +4053,7 @@ function renderNamesList(which){
   });
 }
 function renderNameDetail(which, idx){
+  { const ds = which==='asma' ? ASMA_UL_HUSNA : PROPHET_NAMES; state.lastRead = { k:'name', which, id:idx, label:ds[idx].tr }; saveState(); }
   markDayFlag('nameDays');
   const dataset = which==='asma' ? ASMA_UL_HUSNA : PROPHET_NAMES;
   const w = dataset[idx];
@@ -5472,15 +5774,15 @@ function renderZikrProfile(profileId){
     renderItems();
   };
   const delProfileBtn = document.getElementById('zikrDeleteProfileBtn');
-  if(delProfileBtn) delProfileBtn.onclick = ()=>{
-    if(!confirm('Yeh profile delete karein?')) return;
+  if(delProfileBtn) delProfileBtn.onclick = async ()=>{
+    if(!(await appConfirm('Yeh profile delete karein?'))) return;
     state.tasbeeh.profiles = state.tasbeeh.profiles.filter(p=>p.id!==profile.id);
     saveState();
     renderTasbeeh();
   };
   const resetDefaultBtn = document.getElementById('zikrResetDefaultBtn');
-  if(resetDefaultBtn) resetDefaultBtn.onclick = ()=>{
-    if(!confirm('Is profile ko wapas default 6 zikr par reset karein? Aapke add kiye hue extra zikr hat jayenge.')) return;
+  if(resetDefaultBtn) resetDefaultBtn.onclick = async ()=>{
+    if(!(await appConfirm('Is profile ko wapas default 6 zikr par reset karein? Aapke add kiye hue extra zikr hat jayenge.'))) return;
     profile.items = defaultAzkarItems();
     saveState();
     renderZikrProfile(profile.id);
@@ -5880,7 +6182,7 @@ function closeTopModalUI(){
   const detail = document.getElementById('detailOverlay');
   if(share.classList.contains('active')){ share.classList.remove('active'); return; }
   if(info.classList.contains('active')){ info.classList.remove('active'); return; }
-  if(detail.classList.contains('active')){ detail.classList.remove('active'); navStack.length = 0; curScreen = null; __navCtx = null; stopQiblaCompass(); renderGoalCard(); renderBackupNudge(); return; }
+  if(detail.classList.contains('active')){ detail.classList.remove('active'); navStack.length = 0; curScreen = null; __navCtx = null; stopQiblaCompass(); renderGoalCard(); renderBackupNudge(); renderContinueCard(); return; }
 }
 function closeModal(){
   if(history.state && history.state.waqtModal){ history.back(); }
@@ -5978,6 +6280,7 @@ document.getElementById('detailBack').onclick = closeModal;
 ['renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
 ['openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla','renderQuranReader'].forEach(n=>navWrap(n,1));
 navWrap('renderQuranIndex',2);
+navWrap('renderGlobalSearch',0);
 navWrap('renderAzaan',0);
 navWrap('renderAzaanSettings',1);
 ['renderShabdDetail','renderQuizQuestion','renderQuizResult','renderMythQuizQuestion','renderMythQuizResult'].forEach(n=>navWrap(n,2));
@@ -6383,10 +6686,34 @@ function i18nWalk(root){
     });
   });
 }
+if(!state.setupDone){
+  if(!IS_FIRST_RUN && !state.setupStep){ state.setupDone = true; saveState(); } // existing users: never shown
+  else showSetup(state.setupStep || 'city');
+}
+renderContinueCard();
 if(state.lang==='en'){
   document.documentElement.lang = 'en';
   let i18nTimer = null;
-  new MutationObserver(()=>{ clearTimeout(i18nTimer); i18nTimer = setTimeout(()=>i18nWalk(), 30); }).observe(document.body, { childList:true, subtree:true, characterData:true });
+  // Only the nodes that were added or changed are translated, instead of re-reading the whole page
+  const i18nPending = new Set();
+  new MutationObserver(muts=>{
+    muts.forEach(m=>{ if(m.type==='characterData') i18nPending.add(m.target); else m.addedNodes.forEach(n=>i18nPending.add(n)); });
+    clearTimeout(i18nTimer);
+    i18nTimer = setTimeout(()=>{
+      const list = [...i18nPending]; i18nPending.clear();
+      list.forEach(n=>{
+        if(!n.isConnected) return;
+        if(n.nodeType===3){
+          const par = n.parentNode;
+          if(!par || /^(SCRIPT|STYLE|TEXTAREA)$/.test(par.nodeName) || (par.closest && par.closest('[data-no-i18n]'))) return;
+          const v = n.nodeValue, nv = i18nCore(v); if(nv!==v) n.nodeValue = nv;
+        } else if(n.nodeType===1){
+          i18nWalk(n);
+          ['placeholder','title','aria-label'].forEach(a=>{ const v = n.getAttribute && n.getAttribute(a); if(v){ const nv = i18nCore(v); if(nv!==v) n.setAttribute(a, nv); } });
+        }
+      });
+    }, 30);
+  }).observe(document.body, { childList:true, subtree:true, characterData:true });
   i18nWalk();
 }
 
