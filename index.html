@@ -1142,14 +1142,15 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .status-dots.nafil-dots .dot-btn{ border-style:dashed; }
 .status-dots.nafil-dots .dot-btn.on-green, .status-dots.nafil-dots .dot-btn.on-red{ border-style:solid; }
 .cal-dots.nafil{ margin-top:3px; gap:3px; }
-.cal-dots.nafil span{ width:4px; height:4px; border-radius:1px; transform:rotate(45deg); background:transparent; border:1px solid color-mix(in srgb, var(--nafil) 55%, transparent); }
-.cal-dots.nafil span.ok{ background:var(--nafil); border-color:var(--nafil); }
-.cal-dots.nafil span.no{ background:var(--red); border-color:var(--red); }
+.cal-dots.nafil{ gap:2px; }
+.cal-dots.nafil span{ width:6px; height:5px; border-radius:0; background:var(--line); clip-path:polygon(50% 0, 100% 100%, 0 100%); }
+.cal-dots.nafil span.ok{ background:var(--green); }
+.cal-dots.nafil span.no{ background:var(--red); }
 .cal-legend{ display:flex; gap:16px; justify-content:center; font-size:11px; color:var(--sub); font-weight:600; margin:6px 0 0; }
 .cal-legend:empty{ display:none; }
 .cal-legend i{ display:inline-block; vertical-align:middle; margin-right:5px; }
 .cal-legend .lg-farz{ width:7px; height:7px; border-radius:50%; background:var(--green); }
-.cal-legend .lg-nafil{ width:6px; height:6px; border-radius:1px; transform:rotate(45deg); background:var(--nafil); }
+.cal-legend .lg-nafil{ width:9px; height:8px; background:var(--green); clip-path:polygon(50% 0, 100% 100%, 0 100%); }
 
 /* Qur'an home and Tajweed menu */
 .quran-choices{ display:flex; flex-direction:column; gap:10px; padding:4px 14px 14px; }
@@ -3610,7 +3611,7 @@ function renderNafilSettings(){
     <div class="ramzan-card" style="margin:0 0 14px;">
       <div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">${L({rur:'Nafil namaz bhi mark karein', en:'Mark nafl prayers too'})}</span><div class="switch ${nafilOn()?'on':''}" id="nafilSw"><div class="knob"></div></div></div>
     </div>
-    <div class="backup-note">${L({rur:'On karne par Maskan par Ishraq, Chaast, Awwabin, Tahajjud aur Du\'a Qubooliyat ke saath ✓ (padh li) aur ✗ (nahi padhi) ke buttons aa jayenge. Taareekh mein yeh Farz ke gol nishaan ke neeche chhote ◆ nishaan se dikhengi. Namaz Mode aur Farz ke hisaab (Paabandi, Jaiza) par is ka asar nahi hota.', en:'When on, Ishraq, Chaast, Awwabin, Tahajjud and Du\'a Qubooliyat get ✓ (prayed) and ✗ (not prayed) buttons on Home. In the Calendar they show as small ◆ marks under the round Farz dots. Namaz Mode and the Farz statistics (streaks, reviews) are not affected.'})}</div>`;
+    <div class="backup-note">${L({rur:'On karne par Maskan par Ishraq, Chaast, Awwabin, Tahajjud aur Du\'a Qubooliyat ke saath ✓ (padh li) aur ✗ (nahi padhi) ke buttons aa jayenge. Taareekh mein yeh Farz ke gol nishaan ke neeche chhote ▲ nishaan se dikhengi (hara: padh li, laal: nahi padhi). Namaz Mode aur Farz ke hisaab (Paabandi, Jaiza) par is ka asar nahi hota.', en:'When on, Ishraq, Chaast, Awwabin, Tahajjud and Du\'a Qubooliyat get ✓ (prayed) and ✗ (not prayed) buttons on Home. In the Calendar they show as small ▲ marks under the round Farz dots (green: prayed, red: not prayed). Namaz Mode and the Farz statistics (streaks, reviews) are not affected.'})}</div>`;
   document.getElementById('nafilSw').onclick = ()=>{
     state.nafilMark = !nafilOn(); saveState();
     renderHome(); renderCalendar(); renderNafilSettings();
