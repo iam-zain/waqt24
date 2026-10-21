@@ -1222,6 +1222,18 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .tl-target span{ flex:1; }
 .tl-target button{ width:30px; height:30px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:16px; font-weight:800; cursor:pointer; }
 .tl-target b{ color:var(--text); font-size:14px; min-width:18px; text-align:center; }
+
+/* Qur'an home: the two Qur'an editions as matching book cards */
+.qbook-row{ display:flex; gap:10px; padding:0 14px 6px; }
+.qbook{ flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:4px; padding:16px 10px 14px; border-radius:16px; border:1px solid var(--line); background:var(--card); color:var(--text); font:inherit; cursor:pointer; transition:transform var(--fx-fast) var(--fx-ease), border-color var(--fx-mid) ease; }
+.qbook:active{ transform:scale(.97); }
+.qbook svg{ color:var(--text); margin-bottom:4px; }
+.qbook b{ font-size:15px; }
+.qbook span{ font-size:11.5px; color:var(--sub); }
+.qbook.last{ border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+.qbook-note{ font-size:11.5px; color:var(--sub); text-align:center; padding:0 18px 12px; line-height:1.45; }
+.quran-tool.qt-ed{ display:inline-flex; align-items:center; gap:6px; }
+.quran-tool.qt-ed svg{ color:var(--text); }
 </style>
 </head>
 <body>
@@ -3792,7 +3804,7 @@ function renderQuranReader(page){
       <button class="quran-tool" id="quranShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool" id="quranSignsBtn">🛑 ${L({rur:'Alamaat', en:'Signs'})}</button>
-      <button class="quran-tool" id="quranEdBtn">${quranEd()==='tajweed' ? '📖 Normal' : '🌈 Tajweed'}</button>
+      <button class="quran-tool qt-ed" id="quranEdBtn">${quranEd()==='tajweed' ? quranBookSvg(false, 22) + ' Normal' : quranBookSvg(true, 22) + ' Tajweed'}</button>
     </div>
     <div class="quran-jump">
       <span>${L({rur:'Page par jaayein', en:'Go to page'})}</span>
@@ -3998,21 +4010,36 @@ function playPageSound(){
 function quranChoice(id, ic, title, sub){
   return `<button class="quran-choice" id="${id}"><span class="qc-ic">${ic}</span><span class="qc-txt"><b>${title}</b><span>${sub}</span></span><span class="chev">›</span></button>`;
 }
+/* Open-book icon, the same for both editions: plain lines for Normal, the 7 Tajweed colours for Tajweed */
+function quranBookSvg(tajweed, size){
+  const cols = tajweed ? ['#0b6b2e','#1a7fd0','#9cc43a','#e0451b','#f08a1c','#6a2c7a','#e0559a','#1a7fd0'] : Array(8).fill('currentColor');
+  const lines = [0,1,2,3].map(i=>{ const y = 15 + i*6;
+    return `<line x1="9" y1="${y}" x2="27" y2="${y+1.5}" stroke="${cols[i]}" stroke-width="2.6" stroke-linecap="round"/><line x1="37" y1="${y+1.5}" x2="55" y2="${y}" stroke="${cols[i+4]}" stroke-width="2.6" stroke-linecap="round"/>`; }).join('');
+  return `<svg viewBox="0 0 64 48" width="${size||48}" height="${Math.round((size||48)*0.75)}" aria-hidden="true">
+    <path d="M32 9 C24 4 12 4 4 7 V43 C12 40 24 40 32 45 C40 40 52 40 60 43 V7 C52 4 40 4 32 9 Z" fill="var(--card2)" stroke="var(--sub)" stroke-width="2" stroke-linejoin="round"/>
+    <line x1="32" y1="9" x2="32" y2="45" stroke="var(--sub)" stroke-width="2"/>${lines}</svg>`;
+}
 function renderQuranHome(){
   document.getElementById('detailTitle').textContent = "Qur'an Majeed";
-  const last = quranLastPage();
+  const last = quranLastPage(), ed = quranEd();
   document.getElementById('detailBody').innerHTML = `
-    <div class="quran-choices">
-      ${quranChoice('qhNormal', '📖', L({rur:"Qur'an Majeed (Normal)", en:'Quran (Normal)'}), L({rur:'15 line Mushaf, saada', en:'15-line Mushaf, plain'}))}
-      ${quranChoice('qhTajweed', '🌈', 'Tajweed', L({rur:"Rangon wala Qur'an aur Tajweed ke Qawaid", en:'Colour-coded Quran and the Tajweed rules'}))}
-      ${quranChoice('qhSigns', '🛑', L({rur:"Qur'an ki Alamaat", en:'Signs in the Quran'}), L({rur:'Waqf (rukne) ki alamaat aur page ke nishaanon ka matlab', en:'What the stopping signs and page marks mean'}))}
+    <div class="section-title" style="margin:0 14px 8px;">${L({rur:"Qur'an padhein", en:'Read the Quran'})}</div>
+    <div class="qbook-row">
+      <button class="qbook ${ed==='normal'?'last':''}" id="qhNormal">${quranBookSvg(false)}<b>${L({rur:'Normal', en:'Normal'})}</b><span>${L({rur:'15 line Mushaf', en:'15-line Mushaf'})}</span></button>
+      <button class="qbook ${ed==='tajweed'?'last':''}" id="qhTajweed">${quranBookSvg(true)}<b>Tajweed</b><span>${L({rur:'Rangon ke saath', en:'Colour-coded'})}</span></button>
     </div>
+    <div class="qbook-note">${L({rur:`Dono mein page number ek jaise hain: aakhri page ${last}, aur nishaan dono mein kaam karte hain.`, en:`Both share page numbers: last page ${last}, and bookmarks work in both.`})}</div>
     ${tilawatCardsHtml()}
-    <div class="ramzan-card" style="margin:0 14px 12px;"><div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">🔈 ${L({rur:'Page palatne ki awaaz', en:'Page-turn sound'})}</span><div class="switch ${state.quranTurnSound?'on':''}" id="qhSoundSw"><div class="knob"></div></div></div></div>
-    <div class="backup-note">${L({rur:`Dono mein page number ek jaise hain, isliye aapka aakhri page (${last}) aur nishaan dono mein kaam karte hain.`, en:`Both use the same page numbers, so your last page (${last}) and bookmarks work in both.`})}</div>`;
+    <div class="section-title" style="margin:6px 14px 8px;">${L({rur:'Samajhne ke liye', en:'Learn'})}</div>
+    <div class="more-list" style="padding-top:0;">
+      <div class="more-item" id="qhSigns"><div class="ic">🛑</div><div class="lbl">${L({rur:"Qur'an ki Alamaat", en:'Signs in the Quran'})}<span class="lblSub">${L({rur:'Kahan rukna hai, kahan nahi, aur page ke nishaan', en:'Where to stop, where not to, and page marks'})}</span></div><div class="chev">›</div></div>
+      <div class="more-item" id="qhRules"><div class="ic">📘</div><div class="lbl">${L({rur:'Tajweed ke Qawaid', en:'Tajweed Rules'})}<span class="lblSub">${L({rur:'Har rang ka matlab, aasaan Roman Urdu mein', en:'What each colour means, in simple words'})}</span></div><div class="chev">›</div></div>
+    </div>
+    <div class="ramzan-card" style="margin:4px 14px 12px;"><div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">🔈 ${L({rur:'Page palatne ki awaaz', en:'Page-turn sound'})}</span><div class="switch ${state.quranTurnSound?'on':''}" id="qhSoundSw"><div class="knob"></div></div></div></div>`;
   document.getElementById('qhNormal').onclick = ()=>{ state.quranEd = 'normal'; saveState(); renderQuranReader(); };
-  document.getElementById('qhTajweed').onclick = renderTajweedMenu;
+  document.getElementById('qhTajweed').onclick = ()=>{ state.quranEd = 'tajweed'; saveState(); renderQuranReader(); };
   document.getElementById('qhSigns').onclick = renderQuranSigns;
+  document.getElementById('qhRules').onclick = renderTajweedRules;
   wireTilawatCards(renderQuranHome);
   document.getElementById('qhSoundSw').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranHome(); if(state.quranTurnSound) playPageSound(); };
 }
@@ -4020,7 +4047,7 @@ function renderTajweedMenu(){
   document.getElementById('detailTitle').textContent = 'Tajweed';
   document.getElementById('detailBody').innerHTML = `
     <div class="quran-choices">
-      ${quranChoice('tjQuran', '🌈', L({rur:"Qur'an (Tajweed)", en:'Quran (Tajweed)'}), L({rur:'Tajweed ke rangon ke saath poora Qur\'an', en:'The whole Quran with Tajweed colours'}))}
+      ${quranChoice('tjQuran', '📖', L({rur:"Qur'an (Tajweed)", en:'Quran (Tajweed)'}), L({rur:'Tajweed ke rangon ke saath poora Qur\'an', en:'The whole Quran with Tajweed colours'}))}
       ${quranChoice('tjRules', '📘', L({rur:'Tajweed ke Qawaid', en:'Tajweed Rules'}), L({rur:'Har rang ka matlab, aasaan Roman Urdu mein', en:'What each colour means, in simple words'}))}
     </div>`;
   document.getElementById('tjQuran').onclick = ()=>{ state.quranEd = 'tajweed'; saveState(); renderQuranReader(); };
