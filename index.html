@@ -1047,6 +1047,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .quran-index-row{ display:flex; gap:8px; padding:0 14px 10px; }
 .quran-index-btn{ flex:1; min-width:0; padding:8px 10px; border-radius:11px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:transform var(--fx-fast) var(--fx-ease); }
 .quran-index-btn:active{ transform:scale(.96); }
+.quran-index-btn.qi-short{ flex:0 0 auto; }
 .pn-bar.rtl{ flex-direction:row-reverse; }
 .quran-idx-item .ic{ font-size:13px; font-weight:800; color:var(--accent); }
 .quran-idx-item .qi-page{ font-size:11px; color:var(--sub); font-weight:700; white-space:nowrap; }
@@ -1084,9 +1085,21 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .az-pick-row{ display:flex; gap:10px; align-items:center; }
 .az-select{ flex:1; min-width:0; padding:9px 10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; }
 .az-warn{ font-size:11px; color:var(--sub); margin-top:8px; line-height:1.45; }
-#azaanBar{ position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom, 0px) + 84px); transform:translateX(-50%); z-index:450; display:flex; align-items:center; gap:10px; max-width:calc(100vw - 32px); padding:9px 10px 9px 14px; border-radius:14px; background:var(--card2); border:1px solid var(--line); box-shadow:0 8px 24px rgba(0,0,0,.25); animation:fadeUp .3s ease; }
-#azaanBar .azb-txt{ font-size:12.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+#azaanBar{ position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom, 0px) + 84px); transform:translateX(-50%); z-index:450; display:flex; flex-direction:column; gap:6px; width:min(440px, calc(100vw - 32px)); padding:9px 10px 8px 14px; border-radius:14px; background:var(--card2); border:1px solid var(--line); box-shadow:0 8px 24px rgba(0,0,0,.25); animation:fadeUp .3s ease; }
+#azaanBar .azb-top{ display:flex; align-items:center; gap:10px; }
+#azaanBar .azb-txt{ flex:1; font-size:12.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
 #azaanBar button{ flex:0 0 auto; padding:7px 12px; border-radius:10px; border:none; background:var(--red); color:#fff; font-size:12px; font-weight:800; cursor:pointer; }
+#azaanBar button.azb-pause{ width:34px; padding:7px 0; background:var(--accent); color:var(--fardText); }
+/* Azaan timeline: tap or drag anywhere to jump, like a music player */
+#azaanBar .azb-seek{ display:flex; align-items:center; gap:8px; font-size:10.5px; font-weight:700; color:var(--sub); font-variant-numeric:tabular-nums; }
+#azaanBar .azb-seek span{ flex:0 0 auto; min-width:30px; }
+#azaanBar .azb-seek span:last-child{ text-align:right; }
+#azbRange{ flex:1; min-width:0; height:22px; margin:0; background:transparent; -webkit-appearance:none; appearance:none; cursor:pointer; touch-action:none; }
+#azbRange::-webkit-slider-runnable-track{ height:5px; border-radius:3px; background:linear-gradient(to right, var(--accent) var(--p, 0%), var(--meterBg) var(--p, 0%)); }
+#azbRange::-moz-range-track{ height:5px; border-radius:3px; background:var(--meterBg); }
+#azbRange::-moz-range-progress{ height:5px; border-radius:3px; background:var(--accent); }
+#azbRange::-webkit-slider-thumb{ -webkit-appearance:none; width:15px; height:15px; margin-top:-5px; border-radius:50%; background:var(--accent); border:2px solid var(--card2); box-shadow:0 1px 4px rgba(0,0,0,.3); }
+#azbRange::-moz-range-thumb{ width:13px; height:13px; border-radius:50%; background:var(--accent); border:2px solid var(--card2); }
 </style>
 </head>
 <body>
@@ -1184,6 +1197,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
     </div>
     <div class="more-list" style="padding-top:0;">
       <div class="more-item" data-open="tasbeeh"><div class="ic">📿</div><div class="lbl">Tasbeeh Counter</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="azaan"><div class="ic">🔊</div><div class="lbl">Azaan</div><div class="chev">›</div></div>
       <div class="more-item" data-open="qaza"><div class="ic">🧎</div><div class="lbl">Qaza Namaz<span class="lblSub" id="qazaSub"></span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="hijriConv"><div class="ic">🔁</div><div class="lbl">Tareekh Badlein (Hijri)</div><div class="chev">›</div></div>
       <div class="more-item" data-open="islamicMonths"><div class="ic">🔭</div><div class="lbl">Islami Mahine</div><div class="chev">›</div></div>
@@ -1197,7 +1211,6 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
     <div class="more-list" style="padding-top:0;">
       <div class="more-item" data-open="install"><div class="ic">📲</div><div class="lbl">App Install Karein</div><div class="chev">›</div></div>
       <div class="more-item" data-open="settings"><div class="ic">⚙️</div><div class="lbl">Settings</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="azaan"><div class="ic">🔊</div><div class="lbl">Azaan</div><div class="chev">›</div></div>
       <div class="more-item" data-open="raabta"><div class="ic">📧</div><div class="lbl">Raabta</div><div class="chev">›</div></div>
     </div>
   </div>
@@ -2993,7 +3006,7 @@ const PRAYER_LABEL = { fajr:'Fajr', zuhr:'Zuhr', asr:'Asr', maghrib:'Maghrib', i
 /* One shared player for previews and prayer-time Azaan, with a floating Stop bar */
 let azaanAudio = null, azaanPlayingId = null;
 function stopAzaan(){
-  if(azaanAudio){ azaanAudio.pause(); azaanAudio = null; }
+  if(azaanAudio){ azaanAudio.pause(); if(azaanAudio.src.startsWith('blob:')) URL.revokeObjectURL(azaanAudio.src); azaanAudio = null; }
   azaanPlayingId = null;
   const bar = document.getElementById('azaanBar'); if(bar) bar.remove();
   document.querySelectorAll('.az-play.on').forEach(b=>{ b.classList.remove('on'); b.textContent = '▶'; });
@@ -3008,10 +3021,45 @@ function playAzaan(id, label){
   if(p && p.catch) p.catch(()=>{ stopAzaan(); showToast(L({rur:'Azaan chalaane ke liye app par ek baar tap karein', en:'Tap the app once to allow the Azaan to play'})); });
   const bar = document.createElement('div');
   bar.id = 'azaanBar';
-  bar.innerHTML = `<span class="azb-ic">🔊</span><span class="azb-txt">${label || L({rur:rec.rur, en:rec.en})}</span><button id="azaanStopBtn">■ ${L({rur:'Band karein', en:'Stop'})}</button>`;
+  bar.innerHTML = `<div class="azb-top"><span class="azb-ic">🔊</span><span class="azb-txt">${label || L({rur:rec.rur, en:rec.en})}</span><button class="azb-pause" id="azaanPauseBtn" aria-label="Pause">❚❚</button><button id="azaanStopBtn">■ ${L({rur:'Band karein', en:'Stop'})}</button></div>
+    <div class="azb-seek"><span id="azbCur">0:00</span><input type="range" id="azbRange" min="0" max="${rec.sec}" step="0.1" value="0" aria-label="${L({rur:'Azaan ki timeline', en:'Azaan timeline'})}"><span id="azbDur">${fmtSecs(rec.sec)}</span></div>`;
   document.body.appendChild(bar);
   document.getElementById('azaanStopBtn').onclick = stopAzaan;
+  wireAzaanSeek(azaanAudio, rec);
   document.querySelectorAll(`.az-play[data-id="${rec.id}"]`).forEach(b=>{ b.classList.add('on'); b.textContent = '■'; });
+}
+/* Keep the bar's timeline in step with the audio; dragging or tapping the timeline jumps there */
+function wireAzaanSeek(audio, rec){
+  const range = document.getElementById('azbRange'), cur = document.getElementById('azbCur'), dur = document.getElementById('azbDur');
+  const pauseBtn = document.getElementById('azaanPauseBtn');
+  let dragging = false;
+  const total = ()=> (isFinite(audio.duration) && audio.duration > 0) ? audio.duration : rec.sec;
+  const paint = (t)=>{
+    range.max = total();
+    range.style.setProperty('--p', (Math.min(1, t / total()) * 100) + '%');
+    cur.textContent = fmtSecs(Math.floor(t));
+  };
+  audio.addEventListener('loadedmetadata', ()=>{ dur.textContent = fmtSecs(Math.round(total())); paint(audio.currentTime); });
+  audio.addEventListener('timeupdate', ()=>{ if(audio !== azaanAudio || dragging) return; range.value = audio.currentTime; paint(audio.currentTime); });
+  range.addEventListener('input', ()=>{ dragging = true; paint(parseFloat(range.value)); });
+  range.addEventListener('change', ()=>{ seekAzaan(audio, parseFloat(range.value)); dragging = false; });
+  pauseBtn.onclick = ()=>{
+    if(audio.paused){ audio.play(); pauseBtn.textContent = '❚❚'; pauseBtn.setAttribute('aria-label', 'Pause'); }
+    else { audio.pause(); pauseBtn.textContent = '▶'; pauseBtn.setAttribute('aria-label', 'Play'); }
+  };
+}
+/* Jump to t seconds. A recording served whole (the offline cache, or a server without byte ranges)
+   cannot be seeked while streaming, so load it into memory once and seek there. */
+function seekAzaan(audio, t){
+  const s = audio.seekable;
+  for(let i = 0; i < s.length; i++) if(s.start(i) <= t && t <= s.end(i)){ audio.currentTime = t; return; }
+  if(audio.src.startsWith('blob:')){ audio.currentTime = t; return; }
+  fetch(audio.src).then(r=> r.blob()).then(b=>{
+    if(audio !== azaanAudio) return;
+    const wasPaused = audio.paused;
+    audio.addEventListener('loadedmetadata', ()=>{ audio.currentTime = t; if(!wasPaused) audio.play(); }, { once:true });
+    audio.src = URL.createObjectURL(b);
+  }).catch(()=>{});
 }
 /* At each chosen prayer's start time, play its Azaan once (only while the app is open) */
 function checkAzaanTime(){
@@ -3119,7 +3167,13 @@ const QURAN_PAGE_LIST = Array.from({ length: QURAN_PAGE_COUNT }, (_, i) => i + 1
 /* Start page of each Para and each Surah in this 15-line Mushaf (pages checked against the printed headers) */
 const QURAN_PARAS = [{"n": 1, "name": "Alif Lam Meem", "page": 2}, {"n": 2, "name": "Sayaqool", "page": 23}, {"n": 3, "name": "Tilkar Rusul", "page": 43}, {"n": 4, "name": "Lan Tanaloo", "page": 63}, {"n": 5, "name": "Wal Muhsanat", "page": 83}, {"n": 6, "name": "La Yuhibbullah", "page": 103}, {"n": 7, "name": "Wa Iza Sami'oo", "page": 123}, {"n": 8, "name": "Wa Lau Annana", "page": 143}, {"n": 9, "name": "Qalal Mala'u", "page": 163}, {"n": 10, "name": "Wa A'lamoo", "page": 183}, {"n": 11, "name": "Ya'tazeroon", "page": 203}, {"n": 12, "name": "Wa Ma Min Dabbah", "page": 223}, {"n": 13, "name": "Wa Ma Ubarri'u", "page": 243}, {"n": 14, "name": "Rubama", "page": 263}, {"n": 15, "name": "Subhanallazi", "page": 283}, {"n": 16, "name": "Qal Alam", "page": 303}, {"n": 17, "name": "Iqtaraba", "page": 323}, {"n": 18, "name": "Qad Aflaha", "page": 343}, {"n": 19, "name": "Wa Qalallazina", "page": 363}, {"n": 20, "name": "Amman Khalaq", "page": 383}, {"n": 21, "name": "Utlu Ma Oohiya", "page": 403}, {"n": 22, "name": "Wa Man Yaqnut", "page": 423}, {"n": 23, "name": "Wa Maliya", "page": 443}, {"n": 24, "name": "Faman Azlamu", "page": 463}, {"n": 25, "name": "Ilaihi Yuraddu", "page": 483}, {"n": 26, "name": "Ha Meem", "page": 503}, {"n": 27, "name": "Qala Fama Khatbukum", "page": 523}, {"n": 28, "name": "Qad Sami'allah", "page": 543}, {"n": 29, "name": "Tabarakallazi", "page": 563}, {"n": 30, "name": "Amma", "page": 587}];
 const QURAN_SURAHS = [{"n": 1, "name": "Al-Fatihah", "ar": "الفاتحة", "page": 2}, {"n": 2, "name": "Al-Baqarah", "ar": "البقرة", "page": 3}, {"n": 3, "name": "Aal-e-Imran", "ar": "آل عمران", "page": 51}, {"n": 4, "name": "An-Nisa", "ar": "النساء", "page": 78}, {"n": 5, "name": "Al-Ma'idah", "ar": "المائدة", "page": 107}, {"n": 6, "name": "Al-An'am", "ar": "الأنعام", "page": 129}, {"n": 7, "name": "Al-A'raf", "ar": "الأعراف", "page": 152}, {"n": 8, "name": "Al-Anfal", "ar": "الأنفال", "page": 178}, {"n": 9, "name": "At-Tawbah", "ar": "التوبة", "page": 188}, {"n": 10, "name": "Yunus", "ar": "يونس", "page": 209}, {"n": 11, "name": "Hud", "ar": "هود", "page": 222}, {"n": 12, "name": "Yusuf", "ar": "يوسف", "page": 236}, {"n": 13, "name": "Ar-Ra'd", "ar": "الرعد", "page": 250}, {"n": 14, "name": "Ibrahim", "ar": "إبراهيم", "page": 256}, {"n": 15, "name": "Al-Hijr", "ar": "الحجر", "page": 262}, {"n": 16, "name": "An-Nahl", "ar": "النحل", "page": 268}, {"n": 17, "name": "Bani Isra'il", "ar": "بني إسرائيل", "page": 283}, {"n": 18, "name": "Al-Kahf", "ar": "الكهف", "page": 294}, {"n": 19, "name": "Maryam", "ar": "مريم", "page": 306}, {"n": 20, "name": "Taha", "ar": "طه", "page": 313}, {"n": 21, "name": "Al-Anbiya", "ar": "الأنبياء", "page": 323}, {"n": 22, "name": "Al-Hajj", "ar": "الحج", "page": 332}, {"n": 23, "name": "Al-Mu'minun", "ar": "المؤمنون", "page": 343}, {"n": 24, "name": "An-Nur", "ar": "النور", "page": 351}, {"n": 25, "name": "Al-Furqan", "ar": "الفرقان", "page": 360}, {"n": 26, "name": "Ash-Shu'ara", "ar": "الشعراء", "page": 367}, {"n": 27, "name": "An-Naml", "ar": "النمل", "page": 377}, {"n": 28, "name": "Al-Qasas", "ar": "القصص", "page": 386}, {"n": 29, "name": "Al-'Ankabut", "ar": "العنكبوت", "page": 397}, {"n": 30, "name": "Ar-Rum", "ar": "الروم", "page": 405}, {"n": 31, "name": "Luqman", "ar": "لقمان", "page": 412}, {"n": 32, "name": "As-Sajdah", "ar": "السجدة", "page": 416}, {"n": 33, "name": "Al-Ahzab", "ar": "الأحزاب", "page": 419}, {"n": 34, "name": "Saba", "ar": "سبأ", "page": 429}, {"n": 35, "name": "Fatir", "ar": "فاطر", "page": 435}, {"n": 36, "name": "Ya-Sin", "ar": "يس", "page": 441}, {"n": 37, "name": "As-Saffat", "ar": "الصافات", "page": 446}, {"n": 38, "name": "Sad", "ar": "ص", "page": 453}, {"n": 39, "name": "Az-Zumar", "ar": "الزمر", "page": 459}, {"n": 40, "name": "Al-Mu'min", "ar": "المؤمن", "page": 468}, {"n": 41, "name": "Ha-Mim As-Sajdah", "ar": "حم السجدة", "page": 478}, {"n": 42, "name": "Ash-Shura", "ar": "الشورى", "page": 484}, {"n": 43, "name": "Az-Zukhruf", "ar": "الزخرف", "page": 490}, {"n": 44, "name": "Ad-Dukhan", "ar": "الدخان", "page": 496}, {"n": 45, "name": "Al-Jathiyah", "ar": "الجاثية", "page": 499}, {"n": 46, "name": "Al-Ahqaf", "ar": "الأحقاف", "page": 503}, {"n": 47, "name": "Muhammad", "ar": "محمد", "page": 507}, {"n": 48, "name": "Al-Fath", "ar": "الفتح", "page": 512}, {"n": 49, "name": "Al-Hujurat", "ar": "الحجرات", "page": 516}, {"n": 50, "name": "Qaf", "ar": "ق", "page": 519}, {"n": 51, "name": "Adh-Dhariyat", "ar": "الذاريات", "page": 521}, {"n": 52, "name": "At-Tur", "ar": "الطور", "page": 524}, {"n": 53, "name": "An-Najm", "ar": "النجم", "page": 527}, {"n": 54, "name": "Al-Qamar", "ar": "القمر", "page": 529}, {"n": 55, "name": "Ar-Rahman", "ar": "الرحمن", "page": 532}, {"n": 56, "name": "Al-Waqi'ah", "ar": "الواقعة", "page": 535}, {"n": 57, "name": "Al-Hadid", "ar": "الحديد", "page": 538}, {"n": 58, "name": "Al-Mujadilah", "ar": "المجادلة", "page": 543}, {"n": 59, "name": "Al-Hashr", "ar": "الحشر", "page": 546}, {"n": 60, "name": "Al-Mumtahanah", "ar": "الممتحنة", "page": 550}, {"n": 61, "name": "As-Saff", "ar": "الصف", "page": 552}, {"n": 62, "name": "Al-Jumu'ah", "ar": "الجمعة", "page": 554}, {"n": 63, "name": "Al-Munafiqun", "ar": "المنافقون", "page": 555}, {"n": 64, "name": "At-Taghabun", "ar": "التغابن", "page": 557}, {"n": 65, "name": "At-Talaq", "ar": "الطلاق", "page": 559}, {"n": 66, "name": "At-Tahrim", "ar": "التحريم", "page": 561}, {"n": 67, "name": "Al-Mulk", "ar": "الملك", "page": 563}, {"n": 68, "name": "Al-Qalam", "ar": "القلم", "page": 565}, {"n": 69, "name": "Al-Haqqah", "ar": "الحاقة", "page": 568}, {"n": 70, "name": "Al-Ma'arij", "ar": "المعارج", "page": 570}, {"n": 71, "name": "Nuh", "ar": "نوح", "page": 572}, {"n": 72, "name": "Al-Jinn", "ar": "الجن", "page": 574}, {"n": 73, "name": "Al-Muzzammil", "ar": "المزمل", "page": 577}, {"n": 74, "name": "Al-Muddaththir", "ar": "المدثر", "page": 579}, {"n": 75, "name": "Al-Qiyamah", "ar": "القيامة", "page": 581}, {"n": 76, "name": "Ad-Dahr", "ar": "الدهر", "page": 583}, {"n": 77, "name": "Al-Mursalat", "ar": "المرسلات", "page": 585}, {"n": 78, "name": "An-Naba", "ar": "النبأ", "page": 587}, {"n": 79, "name": "An-Nazi'at", "ar": "النازعات", "page": 588}, {"n": 80, "name": "'Abasa", "ar": "عبس", "page": 590}, {"n": 81, "name": "At-Takwir", "ar": "التكوير", "page": 591}, {"n": 82, "name": "Al-Infitar", "ar": "الانفطار", "page": 592}, {"n": 83, "name": "Al-Mutaffifin", "ar": "المطففين", "page": 593}, {"n": 84, "name": "Al-Inshiqaq", "ar": "الانشقاق", "page": 595}, {"n": 85, "name": "Al-Buruj", "ar": "البروج", "page": 596}, {"n": 86, "name": "At-Tariq", "ar": "الطارق", "page": 597}, {"n": 87, "name": "Al-A'la", "ar": "الأعلى", "page": 598}, {"n": 88, "name": "Al-Ghashiyah", "ar": "الغاشية", "page": 598}, {"n": 89, "name": "Al-Fajr", "ar": "الفجر", "page": 599}, {"n": 90, "name": "Al-Balad", "ar": "البلد", "page": 601}, {"n": 91, "name": "Ash-Shams", "ar": "الشمس", "page": 601}, {"n": 92, "name": "Al-Layl", "ar": "الليل", "page": 602}, {"n": 93, "name": "Ad-Duha", "ar": "الضحى", "page": 603}, {"n": 94, "name": "Alam Nashrah", "ar": "الشرح", "page": 603}, {"n": 95, "name": "At-Tin", "ar": "التين", "page": 604}, {"n": 96, "name": "Al-'Alaq", "ar": "العلق", "page": 604}, {"n": 97, "name": "Al-Qadr", "ar": "القدر", "page": 605}, {"n": 98, "name": "Al-Bayyinah", "ar": "البينة", "page": 605}, {"n": 99, "name": "Az-Zalzalah", "ar": "الزلزلة", "page": 606}, {"n": 100, "name": "Al-'Adiyat", "ar": "العاديات", "page": 606}, {"n": 101, "name": "Al-Qari'ah", "ar": "القارعة", "page": 607}, {"n": 102, "name": "At-Takathur", "ar": "التكاثر", "page": 607}, {"n": 103, "name": "Al-'Asr", "ar": "العصر", "page": 608}, {"n": 104, "name": "Al-Humazah", "ar": "الهمزة", "page": 608}, {"n": 105, "name": "Al-Fil", "ar": "الفيل", "page": 608}, {"n": 106, "name": "Quraysh", "ar": "قريش", "page": 609}, {"n": 107, "name": "Al-Ma'un", "ar": "الماعون", "page": 609}, {"n": 108, "name": "Al-Kawthar", "ar": "الكوثر", "page": 609}, {"n": 109, "name": "Al-Kafirun", "ar": "الكافرون", "page": 609}, {"n": 110, "name": "An-Nasr", "ar": "النصر", "page": 610}, {"n": 111, "name": "Al-Lahab", "ar": "اللهب", "page": 610}, {"n": 112, "name": "Al-Ikhlas", "ar": "الإخلاص", "page": 610}, {"n": 113, "name": "Al-Falaq", "ar": "الفلق", "page": 611}, {"n": 114, "name": "An-Nas", "ar": "الناس", "page": 611}];
+/* The 7 Manzil each begin at the start of a Surah: Al-Fatihah, Al-Ma'idah, Yunus, Bani Isra'il, Ash-Shu'ara, As-Saffat, Qaf */
+const QURAN_MANZILS = [1, 5, 10, 17, 26, 37, 50].map((s, i, arr)=>{
+  const first = QURAN_SURAHS[s - 1], last = QURAN_SURAHS[(arr[i + 1] || 115) - 2];
+  return { n: i + 1, name: `Manzil ${i + 1}`, from: first.name, to: last.name, page: first.page };
+});
 function quranParaOf(page){ let r = QURAN_PARAS[0]; for(const x of QURAN_PARAS) if(x.page<=page) r = x; return r; }
+function quranManzilOf(page){ let r = QURAN_MANZILS[0]; for(const x of QURAN_MANZILS) if(x.page<=page) r = x; return r; }
 function quranSurahOf(page){ let r = QURAN_SURAHS[0]; for(const x of QURAN_SURAHS) if(x.page<=page) r = x; return r; }
 function quranLastPage(){ return (state.quranPage>=1 && state.quranPage<=QURAN_PAGE_COUNT) ? state.quranPage : 1; }
 function renderQuranReader(page){
@@ -3130,11 +3184,12 @@ function renderQuranReader(page){
   __navCtx.rtl = true; // Arabic reads right to left, so page turns run the other way
   document.getElementById('detailTitle').textContent = `Qur'an Majeed · ${page}/${QURAN_PAGE_COUNT}`;
   const pad = String(page).padStart(3, '0');
-  const para = quranParaOf(page), surah = quranSurahOf(page);
+  const para = quranParaOf(page), surah = quranSurahOf(page), manzil = quranManzilOf(page);
   document.getElementById('detailBody').innerHTML = `
     <div class="quran-index-row">
-      <button class="quran-index-btn" id="quranParaBtn"><span>📚</span> ${L({rur:'Paara', en:'Para'})} ${para.n} · ${para.name}</button>
+      <button class="quran-index-btn qi-short" id="quranParaBtn" title="${para.name}"><span>📚</span> ${L({rur:'Paara', en:'Para'})} ${para.n}</button>
       <button class="quran-index-btn" id="quranSurahBtn"><span>📜</span> ${surah.n}. ${surah.name}</button>
+      <button class="quran-index-btn qi-short" id="quranManzilBtn"><span>🏷️</span> ${L({rur:'Manzil', en:'Manzil'})} ${manzil.n}</button>
     </div>
     <div class="quran-page-wrap">
       <img class="quran-page-img" src="quran/pages/${pad}.png" alt="Quran page ${page}" draggable="false">
@@ -3153,6 +3208,7 @@ function renderQuranReader(page){
   jumpInput.onkeydown = (e)=>{ if(e.key==='Enter') jump(); };
   document.getElementById('quranParaBtn').onclick = ()=> renderQuranIndex('para');
   document.getElementById('quranSurahBtn').onclick = ()=> renderQuranIndex('surah');
+  document.getElementById('quranManzilBtn').onclick = ()=> renderQuranIndex('manzil');
   wirePnBar();
   [page - 1, page + 1].forEach(n=>{ if(n>=1 && n<=QURAN_PAGE_COUNT){ const im = new Image(); im.src = `quran/pages/${String(n).padStart(3,'0')}.png`; } });
   const sub = document.getElementById('quranSub');
@@ -3160,23 +3216,26 @@ function renderQuranReader(page){
 }
 function renderQuranIndex(kind){
   const cur = quranLastPage();
-  const isPara = kind==='para';
-  const list = isPara ? QURAN_PARAS : QURAN_SURAHS;
-  const curItem = isPara ? quranParaOf(cur) : quranSurahOf(cur);
-  document.getElementById('detailTitle').textContent = isPara ? L({rur:'30 Paare', en:'30 Paras'}) : L({rur:'114 Surah', en:'114 Surahs'});
+  const isPara = kind==='para', isManzil = kind==='manzil';
+  const list = isPara ? QURAN_PARAS : isManzil ? QURAN_MANZILS : QURAN_SURAHS;
+  const curItem = isPara ? quranParaOf(cur) : isManzil ? quranManzilOf(cur) : quranSurahOf(cur);
+  document.getElementById('detailTitle').textContent = isPara ? L({rur:'30 Paare', en:'30 Paras'}) : isManzil ? L({rur:'7 Manzil', en:'7 Manzils'}) : L({rur:'114 Surah', en:'114 Surahs'});
+  const sub = x => isPara ? '' : isManzil ? `<span class="lblSub">${x.from} – ${x.to}</span>` : `<span class="lblSub ar-font">${x.ar}</span>`;
   document.getElementById('detailBody').innerHTML = `
     <div class="view-toggle" style="margin:0 14px 12px;">
       <button id="qiParaTab" class="${isPara?'active':''}">${L({rur:'Paara', en:'Para'})}</button>
-      <button id="qiSurahTab" class="${!isPara?'active':''}">Surah</button>
+      <button id="qiSurahTab" class="${kind==='surah'?'active':''}">Surah</button>
+      <button id="qiManzilTab" class="${isManzil?'active':''}">Manzil</button>
     </div>
     <div class="more-list" style="padding-top:0;">${list.map(x=>`
       <div class="more-item quran-idx-item ${x===curItem?'on':''}" data-page="${x.page}">
         <div class="ic">${x.n}</div>
-        <div class="lbl">${x.name}${isPara ? '' : `<span class="lblSub ar-font">${x.ar}</span>`}</div>
+        <div class="lbl">${x.name}${sub(x)}</div>
         <div class="qi-page">${L({rur:'Page', en:'Page'})} ${x.page}</div>
       </div>`).join('')}</div>`;
   document.getElementById('qiParaTab').onclick = ()=> renderQuranIndex('para');
   document.getElementById('qiSurahTab').onclick = ()=> renderQuranIndex('surah');
+  document.getElementById('qiManzilTab').onclick = ()=> renderQuranIndex('manzil');
   document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=> renderQuranReader(parseInt(el.dataset.page)); });
   const on = document.querySelector('#detailBody .quran-idx-item.on');
   if(on) setTimeout(()=> on.scrollIntoView({ block:'center' }), 30);
