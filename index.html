@@ -177,7 +177,7 @@ body{
 .time-row.current .clock{ color:var(--text); font-weight:600; }
 .time-row .meterRow{ display:flex; align-items:center; gap:10px; padding:6px 2px 0; }
 .time-row .meterWrap{ flex:1; height:9px; background:var(--meterBg); border-radius:5px; overflow:hidden; position:relative; display:flex; justify-content:flex-end; }
-.time-row .meterFill{ height:100%; border-radius:5px; width:0%; background:var(--accent); }
+.time-row .meterFill{ height:100%; border-radius:5px; width:0%; background:var(--accent); transition:width 1s linear; }
 .time-row.fard .name{ color:var(--fard); }
 .time-row.nafil .name{ color:var(--nafil); }
 .time-row.special .name{ color:var(--special); }
@@ -1790,6 +1790,7 @@ function operatingDate(now){
 let homeViewDate = operatingDate(new Date());
 let homeFollowsToday = true;
 let lastLiveKey = null;
+let homeNextChange = 0, homeRenderedDay = null; // set by renderHome, read by homeTick
 function isSameDay(a,b){ return dayKey(a)===dayKey(b); }
 
 function renderHome(){
@@ -1897,13 +1898,13 @@ function renderHome(){
       const effStart = new Date(fajrRow.start.getTime() - 60*60000);
       if(now >= effStart){
         const pct = Math.min(100, Math.max(0, (now-effStart)/(fajrRow.start-effStart)*100));
-        meterHtml = `<div class="meterWrap"><div class="meterFill" style="width:${100-pct}%; background:${meterColor}"></div></div>`;
-        remainHtml = `<div class="remainText"><span class="remainLabel">Waqt Baaqi:</span> <span class="remainValue">${fmtRemain(fajrRow.start-now)}</span></div>`;
+        meterHtml = `<div class="meterWrap"><div class="meterFill" data-s="${effStart.getTime()}" data-e="${fajrRow.start.getTime()}" style="width:${100-pct}%; background:${meterColor}"></div></div>`;
+        remainHtml = `<div class="remainText"><span class="remainLabel">Waqt Baaqi:</span> <span class="remainValue" data-t="${fajrRow.start.getTime()}">${fmtRemain(fajrRow.start-now)}</span></div>`;
       }
     } else if(isLive){
       const pct = Math.min(100, Math.max(0, (now-p.start)/(p.end-p.start)*100));
-      meterHtml = `<div class="meterWrap"><div class="meterFill" style="width:${100-pct}%; background:${meterColor}"></div></div>`;
-      remainHtml = `<div class="remainText"><span class="remainLabel">Waqt Baaqi:</span> <span class="remainValue">${fmtRemain(p.end-now)}</span></div>`;
+      meterHtml = `<div class="meterWrap"><div class="meterFill" data-s="${p.start.getTime()}" data-e="${p.end.getTime()}" style="width:${100-pct}%; background:${meterColor}"></div></div>`;
+      remainHtml = `<div class="remainText"><span class="remainLabel">Waqt Baaqi:</span> <span class="remainValue" data-t="${p.end.getTime()}">${fmtRemain(p.end-now)}</span></div>`;
     }
 
     let dotsSlot = '';
@@ -1941,6 +1942,14 @@ function renderHome(){
     }
     lastLiveKey = liveKey;
   }
+  homeNextChange = Infinity;
+  if(isToday){
+    const t = now.getTime();
+    sched.forEach(x=>{ [x.start, x.end].forEach(d=>{ const v = d.getTime(); if(v > t && v < homeNextChange) homeNextChange = v; }); });
+    const sehriMeterStart = fajrRow.start.getTime() - 60*60000;
+    if(sehriMeterStart > t && sehriMeterStart < homeNextChange) homeNextChange = sehriMeterStart;
+  }
+  homeRenderedDay = dayKey(operatingDate(now));
 
   listEl.querySelectorAll('.dot-btn').forEach(btn=>{
     btn.onclick = ()=>{
@@ -2116,7 +2125,24 @@ document.getElementById('bulkYellow').onclick = ()=> bulkSetFive('yellow', homeV
 document.getElementById('bulkRed').onclick = ()=> bulkSetFive('red', homeViewDate, renderHome);
 document.getElementById('bulkClear').onclick = ()=> bulkClearFive(homeViewDate, renderHome);
 renderHome();
-setInterval(()=>{ if(homeFollowsToday || isSameDay(homeViewDate,new Date())) renderHome(); }, 15000);
+/* Home tick: only the live timer bar and "time left" text move; the list is redrawn only when a
+   prayer window starts or ends (or the day changes), so it no longer jumps every few seconds. */
+function homeTick(){
+  if(!(homeFollowsToday || isSameDay(homeViewDate, new Date()))) return;
+  const now = Date.now();
+  if(now >= homeNextChange || homeRenderedDay !== dayKey(operatingDate(new Date()))){ renderHome(); return; }
+  document.querySelectorAll('#timesList .meterFill[data-e]').forEach(el=>{
+    const s0 = +el.dataset.s, e0 = +el.dataset.e;
+    const pct = Math.min(100, Math.max(0, (now - s0) / (e0 - s0) * 100));
+    el.style.animation = 'none';
+    el.style.width = (100 - pct) + '%';
+  });
+  document.querySelectorAll('#timesList .remainValue[data-t]').forEach(el=>{
+    const v = fmtRemain(+el.dataset.t - now);
+    if(el.dataset.v !== v){ el.dataset.v = v; el.textContent = v; } // compare the raw value; English mode translates the shown text
+  });
+}
+setInterval(homeTick, 5000);
 
 /* ============================================================
    NOTIFICATIONS, local, best-effort while the app is open
@@ -2995,10 +3021,12 @@ function azaanState(){
   const a = state.azaan;
   if(!a.prayers) a.prayers = {fajr:true, zuhr:true, asr:true, maghrib:true, isha:true};
   if(!a.pick) a.pick = Object.assign({}, AZAAN_DEFAULT_PICK);
-  FIVE.forEach(k=>{ if(!AZAAN_RECS.some(r=>r.id===a.pick[k])) a.pick[k] = AZAAN_DEFAULT_PICK[k]; });
+  // Fajr may only use a Fajr Azaan; the other four only a regular one
+  FIVE.forEach(k=>{ if(!azaanRecsFor(k).some(r=>r.id===a.pick[k])) a.pick[k] = AZAAN_DEFAULT_PICK[k]; });
   if(!a.played) a.played = {};
   return a;
 }
+function azaanRecsFor(k){ return AZAAN_RECS.filter(r=> k==='fajr' ? r.fajr : !r.fajr); }
 function azaanRec(id){ return AZAAN_RECS.find(r=>r.id===id) || AZAAN_RECS[0]; }
 function fmtSecs(n){ return Math.floor(n/60) + ':' + String(n%60).padStart(2,'0'); }
 const PRAYER_LABEL = { fajr:'Fajr', zuhr:'Zuhr', asr:'Asr', maghrib:'Maghrib', isha:'Isha' };
@@ -3130,7 +3158,7 @@ function renderAzaanSettings(){
   document.getElementById('detailTitle').textContent = L({rur:'Azaan Settings', en:'Azaan Settings'});
   const a = azaanState();
   const allOn = FIVE.every(k=>a.prayers[k]);
-  const opts = (sel)=> AZAAN_RECS.map(r=>`<option value="${r.id}" ${r.id===sel?'selected':''}>${r.ic} ${L({rur:r.rur, en:r.en})}${r.excerpt?' ('+L({rur:'hissa', en:'excerpt'})+')':''}</option>`).join('');
+  const opts = (sel, k)=> azaanRecsFor(k).map(r=>`<option value="${r.id}" ${r.id===sel?'selected':''}>${r.ic} ${L({rur:r.rur, en:r.en})}${r.excerpt?' ('+L({rur:'hissa', en:'excerpt'})+')':''}</option>`).join('');
   document.getElementById('detailBody').innerHTML = `
     <div class="ramzan-card" style="margin:0 0 14px;">
       <div class="roza-toggle"><span style="font-size:13.5px; font-weight:700;">${L({rur:'Namaz ke waqt Azaan chalaayein', en:'Play Azaan at prayer times'})}</span><div class="switch ${a.on?'on':''}" id="azOnSw"><div class="knob"></div></div></div>
@@ -3140,11 +3168,10 @@ function renderAzaanSettings(){
     ${FIVE.map(k=>`<div class="ramzan-card az-pray" style="margin:0 0 10px;">
       <div class="roza-toggle" style="padding:0 0 8px;"><span style="font-size:13.5px; font-weight:700;">${(PRAYER_META[k]||{}).icon||''} ${PRAYER_LABEL[k]}</span><div class="switch ${a.prayers[k]?'on':''}" data-az-pray="${k}"><div class="knob"></div></div></div>
       <div class="az-pick-row">
-        <select class="az-select" data-az-pick="${k}">${opts(a.pick[k])}</select>
+        <select class="az-select" data-az-pick="${k}">${opts(a.pick[k], k)}</select>
         <button class="az-play ${azaanPlayingId===a.pick[k]?'on':''}" data-id="${a.pick[k]}">${azaanPlayingId===a.pick[k]?'■':'▶'}</button>
       </div>
-      ${k==='fajr' && !azaanRec(a.pick[k]).fajr ? `<div class="az-warn">${L({rur:'Is recording mein "As-Salatu khairum minan-nawm" nahi hai, jo Fajr ki Azaan mein hota hai.', en:'This recording does not include "As-Salatu khairum minan-nawm", which the Fajr Azaan has.'})}</div>` : ''}
-      ${k!=='fajr' && azaanRec(a.pick[k]).fajr ? `<div class="az-warn">${L({rur:'Yeh Fajr ki Azaan hai, is mein "As-Salatu khairum minan-nawm" bhi hai.', en:'This is a Fajr Azaan; it includes "As-Salatu khairum minan-nawm".'})}</div>` : ''}
+      ${k==='fajr' ? `<div class="az-warn">${L({rur:'Fajr ke liye sirf Fajr wali Azaan, jis mein "As-Salatu khairum minan-nawm" hai.', en:'Fajr uses only a Fajr Azaan, which includes "As-Salatu khairum minan-nawm".'})}</div>` : ''}
     </div>`).join('')}
     <div class="backup-note">${L({rur:'Azaan sirf tab chalti hai jab app khuli ho. App band ho ya phone lock ho to browser poori Azaan chalaane nahi deta; tab Yaad-dahani (notification) aati hai, agar Settings mein On ho.', en:'The Azaan plays only while the app is open. When the app is closed or the phone is locked, browsers do not allow a full Azaan; a reminder notification comes instead, if it is on in Settings.'})}</div>
   `;
