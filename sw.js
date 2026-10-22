@@ -1,4 +1,4 @@
-const CACHE_NAME = 'waqt24-v172';
+const CACHE_NAME = 'waqt24-v173';
 // Quran page images live in their own cache that survives every CACHE_NAME bump above, so a reader
 // who already downloaded a page never re-downloads it just because something else in the app changed.
 const QURAN_CACHE = 'waqt24-quran-v1';
