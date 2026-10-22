@@ -1411,8 +1411,8 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
   </div>
 </div>
 
-<script src="data.js?v=28"></script>
-<script src="i18n.js?v=72"></script>
+<script src="data.js?v=29"></script>
+<script src="i18n.js?v=73"></script>
 <script>
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
@@ -5653,7 +5653,7 @@ function renderRamzanCalendar(){
       </button>`).join('')}
     </div>
     <div id="rzDetailWrap">${detail(rows[rzSel-1])}</div>
-    <div class="rz-legend">Andar ka bara number = Ramzan ka din &nbsp;•&nbsp; ✨ = Shab-e-Qadr ka ehtimaal</div>`;
+    <div class="rz-legend">${L({rur:'Andar ka bara number = Ramzan ka din &nbsp;•&nbsp; ✨ = Shab-e-Qadr ka ehtimaal', en:'Large number = day of Ramadan &nbsp;•&nbsp; ✨ = possible Laylat-ul-Qadr'})}</div>`;
   const listHtml = ashra.map(([a,b,label])=>`
       <div class="rz-ashra">${label}</div>
       ${rows.filter(r=>r.n>=a && r.n<=b).map(r=>`<div class="rz-row ${r.isToday?'today':''} ${r.qadr?'qadr':''}">
