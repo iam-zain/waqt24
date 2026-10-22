@@ -1273,6 +1273,26 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 /* 5. Toast icon */
 .app-toast{ display:flex; align-items:center; gap:8px; }
 .app-toast .t-ic{ flex:0 0 auto; width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; background:color-mix(in srgb, var(--accent) 18%, transparent); color:var(--accentInk); }
+
+/* ===== Visual polish ===== */
+/* 6. Two corner sizes everywhere: 14px for cards, 10px for buttons and fields */
+:root{ --r-card:14px; --r-ctl:10px; }
+.more-item, .aad-card, .ramzan-card, .goal-card, .goal-mini-card, .gs-entry, .ws-card, .ws-level, .tj-card, .az-line, .az-rec,
+.quran-choice, .qbook, .hadees-item, .dua-card, .name-tile, .shabd-row, .shabd-cat-card, .cal-detail, .myth-card, .review-card, .howto-card, .quiz-card{ border-radius:var(--r-card); }
+.quran-tool, .quran-index-btn, .backup-btn, .theme-row button, .view-toggle button, .az-select, .search-bar input, .quran-jump input, .quran-jump button,
+.iq-inputs input, .hij-adj button, .tl-target button, .pn-btn, .ac-btns button, .su-skip{ border-radius:var(--r-ctl); }
+.mf-sec, .section-title{ margin-bottom:8px; }
+/* 7. Section headings with a thin line after them (Ma'rifat and Deegar) */
+.mf-sec, #tab-more .section-title{ display:flex; align-items:center; gap:10px; }
+.mf-sec::after, #tab-more .section-title::after{ content:''; flex:1; height:1px; background:var(--line); opacity:.8; }
+/* 8. Ma'rifat groups: a faint tint so each group reads at a glance */
+.mf-grid.tone-dua{ --tone:#3fae6a; } .mf-grid.tone-naam{ --tone:#c99a4a; } .mf-grid.tone-seekh{ --tone:#3a9bd9; }
+.mf-grid[class*="tone-"] .more-item.mf-tile{ background:color-mix(in srgb, var(--tone) 6%, var(--card)); border-color:color-mix(in srgb, var(--tone) 22%, var(--line)); }
+.mf-grid[class*="tone-"] .more-item.mf-tile .ic{ background:color-mix(in srgb, var(--tone) 16%, var(--card2)); }
+.mf-grid[class*="tone-"] .more-item.mf-tile:active{ background:color-mix(in srgb, var(--tone) 14%, var(--card)); border-color:color-mix(in srgb, var(--tone) 45%, var(--line)); }
+/* 9. Empty states: a soft icon above the message */
+.empty-state::before{ content:attr(data-ic); display:block; font-size:30px; line-height:1; margin:0 auto 10px; opacity:.75; }
+.empty-state:not([data-ic])::before{ content:'🌿'; }
 </style>
 </head>
 <body>
@@ -1338,17 +1358,17 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
     <div class="mf-sec">Qur'an</div>
     <div class="more-item mf-wide" data-open="quran"><div class="ic">📖</div><div class="lbl">Qur'an Majeed<span class="lblSub" id="quranSub"></span></div><div class="chev">›</div></div>
     <div class="mf-sec">Du'a aur Hadees</div>
-    <div class="mf-grid">
+    <div class="mf-grid tone-dua">
       <div class="more-item mf-tile" data-open="dua"><div class="ic">🤲</div><div class="lbl">Du'a Padhiye</div></div>
       <div class="more-item mf-tile" data-open="hadees"><div class="ic">📜</div><div class="lbl">Hadees Dekhiye</div></div>
     </div>
     <div class="mf-sec">Allah ﷻ aur Rasool ﷺ ke Naam</div>
-    <div class="mf-grid">
+    <div class="mf-grid tone-naam">
       <div class="more-item mf-tile" data-open="asma"><div class="ic">💚</div><div class="lbl">Asma-ul-Husna</div></div>
       <div class="more-item mf-tile" data-open="prophetNames"><div class="ic">🌙</div><div class="lbl">Muhammad ﷺ ke Naam</div></div>
     </div>
     <div class="mf-sec">Seekhiye</div>
-    <div class="mf-grid">
+    <div class="mf-grid tone-seekh">
       <div class="more-item mf-tile" data-open="quranWords"><div class="ic">📗</div><div class="lbl">Qur’ani Alfaaz</div></div>
       <div class="more-item mf-tile" data-open="aadaab"><div class="ic">🪴</div><div class="lbl">Aadaab-e-Zindagi</div></div>
       <div class="more-item mf-tile" data-open="khaasShabd"><div class="ic">📚</div><div class="lbl">Khaas Shabd</div></div>
@@ -7334,7 +7354,14 @@ function renderBackupNudge(){
    ============================================================ */
 const A11Y_SYMBOL_LABELS = { '✓':'Padh Li', '~':'Qaza Padhi', '⏳':'Baaki Hai', '✗':'Nahi Padhi', '▶':'Chalaayein', '■':'Band karein', 'ⓘ':'Maloomat', '−':'Kam karein', '+':'Zyada karein', '‹':'Wapas', '›':'Aage', '✕':'Saaf karein', '↺':'Reset', '⤴':'Share', '☆':'Pasandeeda', '★':'Pasandeeda', '＋':'Jodein', '🖼':'Image share' };
 const A11Y_CLICKABLE = '.aad-card, .quran-idx-item, .gs-item, .lang-opt, .more-item, .chip, .name-tile, .shabd-row, .dw-row, .dua-card, .hadees-item, .shabd-cat-card, .quiz-cat-btn';
+function emptyStateIcons(root){
+  (root||document).querySelectorAll('.empty-state:not([data-ic])').forEach(el=>{
+    const t = el.textContent.toLowerCase();
+    el.dataset.ic = /nishaan|bookmark/.test(t) ? '🔖' : /pasandeeda|favourite/.test(t) ? '⭐' : /nahi mil|nothing found|koi .* nahi|no .* found/.test(t) ? '🔍' : /lafz|word/.test(t) ? '📚' : '🌿';
+  });
+}
 function a11yFix(root){
+  emptyStateIcons(root);
   (root||document).querySelectorAll('button:not([aria-label])').forEach(b=>{
     const t = (b.getAttribute('title') || A11Y_SYMBOL_LABELS[(b.textContent||'').trim()] || '');
     if(t) b.setAttribute('aria-label', state.lang==='en' ? i18nCore(t) : t);
