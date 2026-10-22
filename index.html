@@ -1293,6 +1293,14 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 /* 9. Empty states: a soft icon above the message */
 .empty-state::before{ content:attr(data-ic); display:block; font-size:30px; line-height:1; margin:0 auto 10px; opacity:.75; }
 .empty-state:not([data-ic])::before{ content:'🌿'; }
+
+/* Row quick sheet */
+.rs-head{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.rs-head .rs-ic{ font-size:26px; }
+.rs-head b{ display:block; font-size:16px; }
+.rs-head span{ font-size:12.5px; color:var(--sub); }
+.rs-opt{ display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; padding:12px 14px; margin:0 0 8px; border-radius:var(--r-ctl, 10px); border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:13.5px; font-weight:700; text-align:left; cursor:pointer; }
+.rs-opt input{ padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:13px; }
 </style>
 </head>
 <body>
@@ -1736,6 +1744,41 @@ const INFO_TEXT = {
   tahajjud:{time:'Aadhi raat se Fajr tak', text:'Raat ki nafil namaz jo raat ke aadhe hisse ke baad shuru hoke Fajr tak padhi jaa sakti hai, Allah se sabse zyada qareeb hone ka waqt maana jaata hai.'},
   tihai:   {time:'Raat ke aakhri teesre hisse mein', text:"Raat ke aakhri teesre hisse ka waqt (Fajr tak), jab Allah aasmaan-e-duniya par nuzool farmata hai aur du'a qubool hone ki sabse zyada ummeed hoti hai."},
 };
+/* Long-press (about half a second) on an element, cancelled if the finger moves or lifts early */
+function attachLongPress(el, fn){
+  let t = null, x0 = 0, y0 = 0;
+  const cancel = ()=>{ clearTimeout(t); t = null; };
+  el.addEventListener('touchstart', e=>{ x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; cancel(); t = setTimeout(()=>{ t = null; buzz(15); fn(); }, 520); }, { passive:true });
+  el.addEventListener('touchmove', e=>{ if(t && (Math.abs(e.touches[0].clientX-x0) > 10 || Math.abs(e.touches[0].clientY-y0) > 10)) cancel(); }, { passive:true });
+  el.addEventListener('touchend', cancel); el.addEventListener('touchcancel', cancel);
+  el.addEventListener('contextmenu', e=>{ e.preventDefault(); fn(); }); // right-click / long-press on desktop
+}
+/* Quick options for one prayer row */
+function openRowSheet(p, date){
+  const isFard = FIVE.includes(p.key);
+  const q = iqamahState();
+  const w = document.createElement('div');
+  w.className = 'app-confirm';
+  w.innerHTML = `<div class="info-card">
+    <div class="rs-head"><span class="rs-ic">${(PRAYER_META[p.key]||{}).icon||'🕐'}</span><div><b>${p.name}</b><span>${fmtRange(p)}</span></div></div>
+    <button class="rs-opt" data-act="info">ℹ️ ${L({rur:'Is waqt ki maloomat', en:'About this time'})}</button>
+    ${isFard ? `<div class="rs-opt rs-jam">🕌 ${L({rur:'Jamaat ka waqt', en:'Jamaat time'})}<input type="time" id="rsJam" value="${q.t[p.key]||''}"></div>` : ''}
+    <button class="rs-opt" data-act="share">📤 ${L({rur:'Aaj ke auqaat share karein', en:'Share today\u2019s times'})}</button>
+    <div class="ac-btns"><button class="ac-no">${L({rur:'Band karein', en:'Close'})}</button></div>
+  </div>`;
+  document.body.appendChild(w);
+  const close = ()=> w.remove();
+  w.onclick = e=>{ if(e.target === w) close(); };
+  w.querySelector('.ac-no').onclick = close;
+  w.querySelector('[data-act="info"]').onclick = ()=>{ close(); showInfoModal(p.key); };
+  w.querySelector('[data-act="share"]').onclick = ()=>{ close(); openShareChooser(date); };
+  const jam = w.querySelector('#rsJam');
+  if(jam) jam.onchange = ()=>{
+    q.t[p.key] = jam.value; if(jam.value) q.on = true; saveState();
+    renderHome(); scheduleNotifications(true);
+    showToast(jam.value ? `${p.name}: ${L({rur:'jamaat', en:'jamaat'})} ${jam.value}` : `${p.name}: ${L({rur:'Jamaat ka waqt hata diya', en:'Jamaat time removed'})}`);
+  };
+}
 function showInfoModal(key){
   const info = INFO_TEXT[key];
   const meta = PRAYER_META[key];
@@ -2167,6 +2210,7 @@ function renderHome(){
       ${meterHtml ? `<div class="meterRow">${remainHtml || '<div class="remainText remainEmpty">&nbsp;</div>'}${meterHtml}</div>` : ''}
     `;
     row.querySelector('.name').onclick = ()=> showInfoModal(p.key);
+    attachLongPress(row, ()=> openRowSheet(p, viewDate));
     listEl.appendChild(row);
   });
 
@@ -3911,7 +3955,20 @@ async function shareQuranPage(page){
     showToast(L({rur:'Page download ho gaya', en:'Page downloaded'}));
   }catch(e){ if(e && e.name==='AbortError') return; showToast(L({rur:'Share nahi ho saka', en:'Could not share'})); }
 }
+/* Screen Wake Lock (supported phones): the screen does not dim while reading; released when the reader closes */
+let quranWakeLock = null, quranReaderOpen = false;
+async function quranWake(on){
+  quranReaderOpen = on;
+  try{
+    if(on && !quranWakeLock && navigator.wakeLock && !document.hidden){
+      quranWakeLock = await navigator.wakeLock.request('screen');
+      quranWakeLock.addEventListener('release', ()=>{ quranWakeLock = null; });
+    } else if(!on && quranWakeLock){ await quranWakeLock.release(); quranWakeLock = null; }
+  }catch(e){ quranWakeLock = null; }
+}
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && quranReaderOpen) quranWake(true); });
 function renderQuranReader(page){
+  quranWake(true);
   page = Math.max(1, Math.min(QURAN_PAGE_COUNT, page || quranLastPage()));
   state.quranPage = page;
   clearTimeout(quranReadTimer); quranReadTimer = setTimeout(()=> markQuranPageRead(page), 8000);
@@ -6904,8 +6961,36 @@ updateRamzanLock();
    for each overlay we open and popping it on close.
    ============================================================ */
 function pushModalState(){ history.pushState({ waqtModal: true }, ''); }
+/* Swipe down from the top of a detail screen to close it (like the bottom sheets) */
+(()=>{
+  const ov = document.getElementById('detailOverlay'), body = document.getElementById('detailBody');
+  let y0 = null, x0 = 0, dy = 0;
+  body.addEventListener('touchstart', e=>{
+    const skip = e.target.closest('input, textarea, select, .quran-page-wrap, .beads-track, .tasbeeh-tap, [data-no-swipe]');
+    y0 = (!skip && body.scrollTop <= 0) ? e.touches[0].clientY : null; x0 = e.touches[0].clientX; dy = 0;
+  }, { passive:true });
+  body.addEventListener('touchmove', e=>{
+    if(y0 === null) return;
+    dy = e.touches[0].clientY - y0;
+    const dx = Math.abs(e.touches[0].clientX - x0);
+    if(dy < 0 || dx > dy){ ov.style.transform = ''; return; }
+    ov.style.transition = 'none';
+    ov.style.transform = `translateY(${Math.min(160, dy*0.45)}px)`;
+    ov.style.opacity = String(1 - Math.min(0.35, dy/600));
+  }, { passive:true });
+  body.addEventListener('touchend', ()=>{
+    if(y0 === null) return;
+    y0 = null;
+    ov.style.transition = 'transform .2s ease, opacity .2s ease';
+    if(dy > 120){ closeModal(); setTimeout(()=>{ ov.style.transform = ''; ov.style.opacity = ''; ov.style.transition = ''; }, 220); }
+    else { ov.style.transform = ''; ov.style.opacity = ''; }
+    dy = 0;
+  });
+})();
+
 /* Close the detail screen with a short slide-out; reopening during it cancels the close */
 function closeDetailAnimated(){
+  if(quranReaderOpen) quranWake(false);
   const d = document.getElementById('detailOverlay');
   const tok = d._closeTok = (d._closeTok || 0) + 1;
   d.classList.add('closing');
@@ -6932,6 +7017,7 @@ let suppressPops = 0;
 const navOrig = {};
 function overlayActive(){ return document.getElementById('detailOverlay').classList.contains('active'); }
 function onNavigate(s){
+  if(s && s.fn !== 'renderQuranReader' && quranReaderOpen) quranWake(false);
   if(!overlayActive()){ navStack.length = 0; curScreen = s; return; }
   if(!curScreen){ curScreen = s; return; }
   if(s.level > curScreen.level){
