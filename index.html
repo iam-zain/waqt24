@@ -1037,8 +1037,8 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .gm-task.done{ opacity:1; background:color-mix(in srgb, var(--green) 14%, var(--card2)); border-color:color-mix(in srgb, var(--green) 40%, var(--line)); }
 
 /* Qur'an Majeed reader: one page image, swipeable like any other detail, with a page-jump field */
-.quran-page-wrap{ display:flex; justify-content:center; padding:0 10px 14px; }
-.quran-page-img{ max-width:100%; width:auto; max-height:62vh; border-radius:10px; box-shadow:0 4px 18px rgba(0,0,0,0.18); background:#fff; -webkit-user-drag:none; }
+.quran-page-wrap{ display:flex; justify-content:center; align-items:center; height:62vh; min-height:300px; flex:0 0 auto; padding:0 10px 14px; box-sizing:content-box; }
+.quran-page-img{ width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.18)); -webkit-user-drag:none; }
 .quran-jump{ display:flex; align-items:center; gap:8px; justify-content:center; padding:0 14px 14px; font-size:12.5px; color:var(--sub); }
 .quran-jump input{ width:58px; padding:7px 8px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; text-align:center; }
 .quran-jump button{ padding:7px 12px; border-radius:9px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:12.5px; font-weight:700; cursor:pointer; }
@@ -1133,9 +1133,9 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .quran-tool{ padding:7px 12px; border-radius:11px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12px; font-weight:700; cursor:pointer; transition:background-color var(--fx-mid) ease, transform var(--fx-fast) var(--fx-ease); }
 .quran-tool:active{ transform:scale(.95); }
 .quran-tool.on{ background:color-mix(in srgb, var(--accent) 16%, var(--card)); border-color:var(--accent); }
-.quran-page-wrap.night .quran-page-img{ filter:invert(.92) hue-rotate(180deg); background:#000; }
-.quran-page-wrap.zoomed{ overflow:auto; justify-content:flex-start; max-height:70vh; -webkit-overflow-scrolling:touch; }
-.quran-page-wrap.zoomed .quran-page-img{ max-height:none; max-width:none; width:200%; }
+.quran-page-wrap.night .quran-page-img{ filter:invert(.92) hue-rotate(180deg) drop-shadow(0 4px 12px rgba(0,0,0,0.4)); }
+.quran-page-wrap.zoomed{ overflow:auto; justify-content:flex-start; align-items:flex-start; -webkit-overflow-scrolling:touch; }
+.quran-page-wrap.zoomed .quran-page-img{ width:200%; height:auto; max-width:none; flex:0 0 auto; }
 .az-vol{ width:46%; accent-color:var(--accent); }
 
 /* Nafil marks: green / red buttons on Home; small diamonds in the Calendar (Farz stay round dots) */
@@ -1161,7 +1161,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .qc-txt b{ font-size:15px; }
 .qc-txt span{ font-size:12px; color:var(--sub); line-height:1.4; }
 /* Night reading for the colour (Tajweed) edition: dimmed instead of inverted, so the colours keep their meaning */
-.quran-page-wrap.night-color .quran-page-img{ filter:brightness(.72) contrast(1.05); }
+.quran-page-wrap.night-color .quran-page-img{ filter:brightness(.72) contrast(1.05) drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
 
 /* Qur'an ki Alamaat */
 .ws-levels{ display:flex; flex-direction:column; gap:6px; margin:0 0 6px; }
@@ -2846,7 +2846,10 @@ function wirePnBar(){
   const pageTurn = (dir, change, yFrac)=>{
     const img = body.querySelector('.quran-page-img');
     if(!img){ change(); busy = false; return; }
-    const r = img.getBoundingClientRect();
+    const box = img.getBoundingClientRect();
+    const nw = img.naturalWidth || box.width, nh = img.naturalHeight || box.height;
+    const sc = Math.min(box.width / nw, box.height / nh);
+    const r = { width: nw*sc, height: nh*sc, left: box.left + (box.width - nw*sc)/2, top: box.top + (box.height - nh*sc)/2 };
     const leaf = document.createElement('div');
     leaf.className = 'page-leaf';
     leaf.style.cssText = `left:${r.left}px; top:${r.top}px; width:${r.width}px; height:${r.height}px;`;
