@@ -481,3 +481,5 @@ Object.assign(I18N_EN, { "Nafil Namaz Mark Karein": "Mark Nafl Prayers", "Nahi P
 
 /* Settings: calculation and jamaat */
 Object.assign(I18N_EN, { "Namaz ka Hisaab": "Prayer Calculation", "Jamaat ka Waqt (Iqamah)": "Jamaat Times (Iqamah)" });
+
+Object.assign(I18N_EN, { "Allah ﷻ aur Rasool ﷺ ke Naam": "Names of Allah ﷻ and the Messenger ﷺ" });
