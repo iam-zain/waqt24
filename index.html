@@ -1301,6 +1301,10 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 .rs-head span{ font-size:12.5px; color:var(--sub); }
 .rs-opt{ display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; padding:12px 14px; margin:0 0 8px; border-radius:var(--r-ctl, 10px); border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:13.5px; font-weight:700; text-align:left; cursor:pointer; }
 .rs-opt input{ padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:13px; }
+
+/* Long lists: only the first 12 items fade in; the rest (99 names, 125 words, 227 Khaas Shabd...) appear at once */
+.more-list > *:nth-child(n+13), .dua-grid > *:nth-child(n+13), .hadees-list > *:nth-child(n+13), .shabd-list > *:nth-child(n+13),
+.quiz-cat-grid > *:nth-child(n+13), .aad-grid > *:nth-child(n+13), #detailBody .stats-row:nth-child(n+13){ animation:none; }
 </style>
 </head>
 <body>
@@ -4030,7 +4034,8 @@ function renderQuranReader(page){
   document.getElementById('quranSurahBtn').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('quranManzilBtn').onclick = ()=> renderQuranIndex('manzil');
   wirePnBar();
-  [page - 1, page + 1].forEach(n=>{ if(n>=1 && n<=QURAN_PAGE_COUNT){ const im = new Image(); im.src = quranImg(n); } });
+  // two pages each way, so fast page turns never show a blank page
+  [page + 1, page - 1, page + 2, page - 2].forEach(n=>{ if(n>=1 && n<=QURAN_PAGE_COUNT){ const im = new Image(); im.src = quranImg(n); } });
   const sub = document.getElementById('quranSub');
   if(sub) sub.textContent = L({rur:`Page ${page}/${QURAN_PAGE_COUNT}`, en:`Page ${page}/${QURAN_PAGE_COUNT}`});
 }
