@@ -31,7 +31,7 @@ function qaPageStart(page){
 }
 /* While the recitation plays and the reader is showing the page it started from, turn the page when the audio reaches the next one. */
 /* ---- Line highlight: the line(s) being recited are tinted on the page image. Light: one absolutely positioned <div>, moved on every ayah. ---- */
-const QA_GEO = { normal:{ t:.0872, b:.9111 }, tajweed:{ t:.0677, b:.8906 } };
+const QA_GEO = { normal:{ t:.090, b:.911, wb:1.17, wm:.97 }, tajweed:{ t:.089, b:.911, wb:1.08, wm:.8 } };  /* averages + row-height weights (surah banner, Bismillah) */
 /* 8-line pages (Al-Fatihah and the start of Al-Baqarah): line 2 centre and line step, as a fraction of the image height */
 const QA_GEO_SHORT = { 2:{ normal:[.530,.0455], tajweed:[.463,.0677] }, 3:{ normal:[.543,.0443], tajweed:[.478,.0667] } };
 function qaAyahPage(abs){ let lo = 0, hi = QA_PAGE_FIRST.length - 1; while(lo < hi){ const m = (lo + hi + 1) >> 1; if(QA_PAGE_FIRST[m] <= abs) lo = m; else hi = m - 1; } return lo + 1; }
@@ -44,14 +44,27 @@ function qaHL(){
   const wrap = document.getElementById('quranWrap');
   let hl = wrap && wrap.querySelector('.qhl');
   const page = wrap && state.quranPage;
-  if(!wrap || !qa.on || typeof QA_LINES === 'undefined' || !page || page > QURAN_SURAHS[113].page || qaAyahPage(qa.abs) !== page){ if(hl) hl.remove(); return; }
+  if(!wrap || !qa.on || typeof QA_LINES === 'undefined' || !page || page >= QURAN_SURAHS[113].page || qaAyahPage(qa.abs) !== page){ if(hl) hl.remove(); return; }
   const img = wrap.querySelector('.quran-page-img'), span = qaLineSpan(qa.abs, qa.bism);
   if(!img || !span){ if(hl) hl.remove(); return; }
   if(!img.naturalWidth){ if(!img._hlw){ img._hlw = 1; img.addEventListener('load', ()=>qaHL(), { once:true }); } return; }
   const ed = quranEd(), g = QA_GEO[ed], sh = QA_GEO_SHORT[page];
   let y0, y1;
   if(sh){ const [c, st] = sh[ed], h = st * .46; y0 = c + st * (span[0] - 2) - h; y1 = c + st * (span[1] - 2) + h; }
-  else { const h = (g.b - g.t) / 15; y0 = g.t + (span[0] - 1) * h; y1 = g.t + span[1] * h; }
+  else {
+    /* row boundaries: this page's measured top/bottom, rows weighted by kind (banner rows are taller, Bismillah rows a little shorter) */
+    const w = new Array(16).fill(1), f = QA_PAGE_FIRST[page-1], nx = QA_PAGE_FIRST[page] || (QA_TOTAL + 1);
+    for(let x = f; x < nx; x++){
+      const r = qaSurahAyah(x); if(r.a !== 1 || r.s === 1) continue;
+      const ln = parseInt(QA_LINES[(x-1)*2], 16), hb = qaHasBism(r.s);
+      if(hb) w[ln-1] = g.wm;
+      w[ln - (hb ? 2 : 1)] = g.wb;
+    }
+    let tot = 0, c0 = 0, c1 = 0; for(let i = 1; i <= 15; i++){ tot += w[i]; if(i < span[0]) c0 += w[i]; if(i <= span[1]) c1 += w[i]; }
+    const gm = QA_GEOM[ed], t = (gm.t[page-2] || g.t * 1000) / 1000, b = (gm.b[page-2] || g.b * 1000) / 1000;
+    y0 = t + (b - t) * c0 / tot; y1 = t + (b - t) * c1 / tot;
+    const pad = (y1 - y0) * .04; y0 += pad; y1 -= pad;
+  }
   /* the image is letterboxed inside its box (object-fit: contain): find where it really is */
   const bw = img.clientWidth, bh = img.clientHeight, k = Math.min(bw / img.naturalWidth, bh / img.naturalHeight);
   const iw = img.naturalWidth * k, ih = img.naturalHeight * k, ox = img.offsetLeft + (bw - iw) / 2, oy = img.offsetTop + (bh - ih) / 2;
