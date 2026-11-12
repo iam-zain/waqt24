@@ -1,0 +1,1408 @@
+@font-face{ font-family:'Scheherazade New'; font-style:normal; font-weight:400; font-display:swap; src:url(fonts/scheherazade-400.woff2) format('woff2'); unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFC,U+200C-200E; }
+@font-face{ font-family:'Scheherazade New'; font-style:normal; font-weight:700; font-display:swap; src:url(fonts/scheherazade-700.woff2) format('woff2'); unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFC,U+200C-200E; }
+:root{
+  --bg:#0d1420; --bg2:#131c2b; --card:#16202f; --card2:#1b2635;
+  --text:#e9edf3; --sub:#8f9bb3; --line:#232f42; --dotBorder:#3d4c68;
+  --fard:#3a9bd9; --fardText:#06131f;
+  --nafil:#8b7fd6; --special:#c99a4a; --meal:#3fa8a0;
+  --green:#3fae6a; --yellow:#d4a72c; --red:#c85a4a; --roza:#c3b6ea;
+  --accent:#3a9bd9;
+  --meterBg:#1e293a;
+  --tabbar:#0f1826;
+  transition:background .6s ease, color .6s ease;
+}
+[data-theme="light"]{
+  --bg:#f6f7f9; --bg2:#ffffff; --card:#ffffff; --card2:#f0f2f5;
+  --text:#1c2530; --sub:#636f85; --line:#e3e7ed; --dotBorder:#b6c0cc;
+  --fard:#256fa8; --fardText:#08131c;
+  --nafil:#6c5ec4; --special:#a8762a; --meal:#1f8f83; --roza:#8a6fcf;
+  --meterBg:#e7eaef;
+  --tabbar:#ffffff;
+}
+
+/* ---------- WAQTI (prayer-time ambient) THEMES ---------- */
+[data-theme="waqt-morning"]{ /* Fajr - soft dawn light */
+  --bg:#eef1f7; --bg2:#ffffff; --card:#ffffff; --card2:#f2f4f9;
+  --text:#26314a; --sub:#5e6984; --fardText:#ffffff; --line:#dde2ee; --dotBorder:#b3bdd4;
+  --fard:#3f6fbf; --nafil:#7d6ec9; --special:#b8813f; --meal:#2f8f8a; --roza:#8a6fcf;
+  --meterBg:#e2e6f1; --tabbar:#ffffff; --accent:#3f6fbf;
+}
+[data-theme="waqt-bright"]{ /* Zuhr / midday - bright */
+  --bg:#fbfaf5; --bg2:#ffffff; --card:#ffffff; --card2:#f7f4ea;
+  --text:#2a2718; --sub:#756e54; --line:#ece5cf; --dotBorder:#cabb8c;
+  --fard:#b98a26; --nafil:#8267c2; --special:#b0602a; --meal:#2f8f8a; --roza:#8a6fcf;
+  --meterBg:#f0ead6; --tabbar:#ffffff; --accent:#b98a26;
+}
+[data-theme="waqt-dim"]{ /* Asr - soft dimming afternoon */
+  --bg:#eee8df; --bg2:#f8f4ec; --card:#f8f4ec; --card2:#efe7d9;
+  --text:#362e23; --sub:#6d6252; --fardText:#ffffff; --line:#ded2bd; --dotBorder:#b7a37e;
+  --fard:#a3612f; --nafil:#7c5f9c; --special:#b06229; --meal:#2f8f8a; --roza:#7d64ba;
+  --meterBg:#e4d9c5; --tabbar:#f8f4ec; --accent:#a3612f;
+}
+[data-theme="waqt-grey"]{ /* Maghrib approach / dusk grey */
+  --bg:#565b62; --bg2:#61666d; --card:#61666d; --card2:#54595f;
+  --text:#f1efec; --sub:#e9e8e6; --line:#727782; --dotBorder:#9198a3;
+  --fard:#cf8158; --nafil:#b892d1; --special:#d3a655; --meal:#5dc4b8; --roza:#c9b8f0;
+  --meterBg:#4a4f55; --tabbar:#4a4f55; --accent:#cf8158;
+}
+[data-theme="waqt-dark"]{ /* Isha - dark blue night */
+  --bg:#121a2c; --bg2:#182236; --card:#182236; --card2:#1d2940;
+  --text:#e2e6f2; --sub:#8791ac; --line:#293450; --dotBorder:#48587f;
+  --fard:#5182cf; --nafil:#9878d9; --special:#c99349; --meal:#4bbcae; --roza:#b9a8e8;
+  --meterBg:#212b45; --tabbar:#0e1526; --accent:#5182cf;
+}
+[data-theme="waqt-darkest"]{ /* Tahajjud / last third - deep night */
+  --bg:#050810; --bg2:#0a0e1a; --card:#0a0e1a; --card2:#0e1524;
+  --text:#d5daea; --sub:#767e99; --fardText:#ffffff; --line:#161d2f; --dotBorder:#333f5c;
+  --fard:#3d63b3; --nafil:#7256b0; --special:#ac7d3a; --meal:#3f9d92; --roza:#a892e0;
+  --meterBg:#131a2a; --tabbar:#03050b; --accent:#3d63b3;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipulation; }
+html,body{ height:100%; width:100%; overflow:hidden; }
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--text);
+  display:flex; justify-content:center;
+}
+#app{
+  width:100%; max-width:560px; height:calc(100vh / var(--zoom,1)); height:calc(100dvh / var(--zoom,1)); display:flex; flex-direction:column;
+  background:var(--bg); position:relative;
+}
+.screen{ flex:1; min-height:0; display:none; }
+.screen.active{ display:flex; flex-direction:column; }
+#tab-home.active{ display:flex; }
+.scrollable{ overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.scrollable::-webkit-scrollbar{width:0px;}
+
+/* ---------- HOME (non-scrollable) ---------- */
+#tab-home{ padding:12px 16px 6px; justify-content:flex-start; gap:8px; }
+.date-bar{
+  display:flex; justify-content:space-between; align-items:center; gap:6px;
+  padding:8px 2px 12px; border-bottom:1px solid var(--line);
+}
+.date-bar .greg{ font-size:14px; color:var(--sub); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.date-bar .hijri{ font-size:14.5px; color:var(--accentInk); font-weight:700; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dateCenter{ min-width:0; }
+.dateNav{
+  width:30px; height:30px; flex:0 0 auto; border-radius:9px; border:1px solid var(--line);
+  background:var(--card); color:var(--text); font-size:15px; cursor:pointer;
+}
+.dateCenter{ flex:1; text-align:center; cursor:pointer; }
+.cityLabel{ font-size:15px; color:var(--sub); margin-top:4px; cursor:pointer; text-decoration:underline dotted; text-underline-offset:3px; }
+.controlBar{
+  display:flex; align-items:stretch;
+  padding:8px 2px; margin-top:2px; border-bottom:1px solid var(--line);
+}
+.controlCol{ flex:0 0 auto; display:flex; align-items:center; justify-content:center; padding:3px; gap:6px; min-width:0; }
+.controlCol.bulkCol{ flex:1; gap:5px; justify-content:space-between; padding-left:12px; }
+.controlDivider{ width:1.5px; background:color-mix(in srgb, var(--text) 24%, transparent); margin:2px 0; border-radius:1px; }
+.bulkLabel{ font-size:12.5px; color:var(--sub); font-weight:600; white-space:nowrap; }
+.bulkBtns{ display:flex; gap:5px; transition:opacity .2s; flex:0 0 auto; }
+.bulkBtns.disabled{ opacity:0.3; pointer-events:none; filter:grayscale(0.6); }
+.bulk-btn{
+  width:25px; height:25px; border-radius:50%; border:1.5px solid transparent; cursor:pointer;
+  font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; color:#fff; flex:0 0 auto;
+}
+.bulk-green{ background:var(--green); }
+.bulk-yellow{ background:var(--yellow); color:#2b2100; }
+.bulk-red{ background:var(--red); }
+.bulk-clear{ background:transparent; border-color:var(--dotBorder, var(--line)); color:var(--sub); font-size:16px; }
+.bulk-info{ background:transparent; border-color:var(--dotBorder, var(--line)); color:var(--sub); font-size:13px; font-weight:700; }
+.bulk-help-row{ display:flex; align-items:flex-start; gap:10px; margin:8px 0; text-align:left; }
+.bulk-help-row .bulk-btn{ cursor:default; flex:0 0 auto; }
+.roza-mini{
+  width:40px; height:23px; border-radius:12px; background:var(--meterBg);
+  position:relative; cursor:pointer; border:1px solid var(--line); flex:0 0 auto;
+}
+.roza-mini.on{ background:var(--roza); border-color:var(--roza); }
+.roza-mini.disabled{ opacity:0.35; pointer-events:none; }
+.roza-mini-knob{ width:17px; height:17px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:left .15s; }
+.roza-mini.on .roza-mini-knob{ left:20px; }
+.dateCenter .todayTag{ display:inline-block; margin-left:6px; padding:2px 8px; border-radius:8px; background:var(--accent); color:var(--fardText); font-size:11px; font-weight:700; vertical-align:middle; }
+
+.times-list{
+  flex:1; display:flex; flex-direction:column; justify-content:flex-start; gap:clamp(4px, 1.6dvh, 20px);
+  padding:4px 10px 4px 0; min-height:0; overflow-y:auto; scrollbar-gutter:stable;
+  scrollbar-width:thin; scrollbar-color:transparent transparent; transition:scrollbar-color .5s ease .5s;
+}
+.times-list.scrolling{ scrollbar-color:var(--dotBorder, var(--line)) transparent; transition:none; }
+.times-list::-webkit-scrollbar{ width:4px; }
+.times-list::-webkit-scrollbar-thumb{ background:transparent; transition:background .5s ease .5s; }
+.times-list.scrolling::-webkit-scrollbar-thumb{ background:var(--dotBorder, var(--line)); transition:none; }
+.times-list::-webkit-scrollbar-track{ background:transparent; }
+.time-row{
+  display:flex; flex-direction:column; gap:2px;
+  padding:5px 8px; border-radius:9px; position:relative;
+  min-height:42px; justify-content:center;
+}
+.time-row .rowMain{ display:flex; align-items:center; gap:6px; }
+.time-row .remainText{ font-size:11.5px; text-align:left; line-height:18px; white-space:nowrap; flex:0 0 170px; overflow:hidden; text-overflow:ellipsis; }
+.time-row .remainText.remainEmpty{ visibility:hidden; }
+.time-row .remainText.remainPlaceholder{ visibility:hidden; }
+.time-row .remainLabel{ color:var(--sub); font-weight:400; opacity:0.75; }
+.time-row .remainValue{ color:var(--text); font-weight:800; }
+.time-row .name{ font-size:14px; font-weight:600; flex:0 0 162px; min-width:0; display:flex; align-items:center; gap:5px; cursor:pointer; }
+.time-row .name .nameTxt{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.pIcon{ font-size:17px; line-height:1; flex:0 0 auto; }
+.time-row .clock{ font-size:13px; font-variant-numeric:tabular-nums; flex:0 0 auto; color:var(--sub); letter-spacing:-0.3px; white-space:nowrap; }
+.time-row .clock .arrow{ opacity:0.5; margin:0 2px; font-size:12px; }
+.time-row.current .clock{ color:var(--text); font-weight:600; }
+.time-row .meterRow{ display:flex; align-items:center; gap:10px; padding:6px 2px 0; }
+.time-row .meterWrap{ flex:1; height:9px; background:var(--meterBg); border-radius:5px; overflow:hidden; position:relative; display:flex; justify-content:flex-end; }
+.time-row .meterFill{ height:100%; border-radius:5px; width:0%; background:var(--accent); transition:width 1s linear; }
+.time-row.fard .name{ color:var(--fard); }
+.time-row.nafil .name{ color:var(--nafil); }
+.time-row.special .name{ color:var(--special); }
+.time-row.meal .name{ color:var(--meal); }
+.time-row.current{ background:var(--card2); box-shadow:0 0 0 1.5px var(--accent) inset, 0 8px 18px -12px rgba(0,0,0,0.38); padding-top:8px; padding-bottom:8px; min-height:58px; }
+.time-row.current.fard{ box-shadow:0 0 0 1.5px var(--fard) inset, 0 8px 18px -12px rgba(0,0,0,0.38); }
+.time-row.current.nafil{ box-shadow:0 0 0 1.5px var(--nafil) inset, 0 8px 18px -12px rgba(0,0,0,0.38); }
+.time-row.current.special{ box-shadow:0 0 0 1.5px var(--special) inset, 0 8px 18px -12px rgba(0,0,0,0.38); }
+.time-row.current.meal{ box-shadow:0 0 0 1.5px var(--meal) inset, 0 8px 18px -12px rgba(0,0,0,0.38); }
+.time-row.current .name{ font-weight:800; font-size:15.5px; }
+.time-row.current .pIcon{ font-size:19px; }
+.time-row.past{ opacity:0.4; }
+.time-row.past .name{ color:var(--sub) !important; font-weight:500; }
+.time-row.past .clock{ color:var(--sub); }
+.time-row.future{ opacity:0.62; }
+.time-row.future .name{ font-weight:500; }
+.time-row.status-green{ background:color-mix(in srgb, var(--green) 16%, transparent); }
+.time-row.status-yellow{ background:color-mix(in srgb, var(--yellow) 18%, transparent); }
+.time-row.status-red{ background:color-mix(in srgb, var(--red) 16%, transparent); }
+.time-row.status-green.past{ opacity:0.6; }
+.time-row.status-yellow.past{ opacity:0.6; }
+.time-row.status-red.past{ opacity:0.6; }
+#timesList.namaz-mode{ justify-content:flex-start; gap:12px; padding-top:8px; }
+#timesList.namaz-mode .time-row{
+  background:var(--card); box-shadow:0 0 0 1px var(--line) inset;
+  padding:11px 10px; border-radius:12px; min-height:52px;
+}
+#timesList.namaz-mode .time-row .name{ font-size:13.5px; font-weight:700; flex-basis:116px; }
+#timesList.namaz-mode .pIcon{ font-size:17px; }
+#timesList.namaz-mode .time-row .clock{ font-size:12px; }
+#timesList.namaz-mode .time-row.current{ background:var(--card2); box-shadow:0 0 0 2px var(--accent) inset, 0 10px 20px -12px rgba(0,0,0,0.4); padding:14px 10px; min-height:76px; }
+#timesList.namaz-mode .time-row.current.fard{ box-shadow:0 0 0 2px var(--fard) inset, 0 10px 20px -12px rgba(0,0,0,0.4); }
+#timesList.namaz-mode .time-row.current.nafil{ box-shadow:0 0 0 2px var(--nafil) inset, 0 10px 20px -12px rgba(0,0,0,0.4); }
+#timesList.namaz-mode .time-row.current.special{ box-shadow:0 0 0 2px var(--special) inset, 0 10px 20px -12px rgba(0,0,0,0.4); }
+#timesList.namaz-mode .time-row.current.meal{ box-shadow:0 0 0 2px var(--meal) inset, 0 10px 20px -12px rgba(0,0,0,0.4); }
+#timesList.namaz-mode .time-row.current .name{ font-size:15px; font-weight:800; }
+#timesList.namaz-mode .time-row.current .pIcon{ font-size:20px; }
+#timesList.namaz-mode .time-row.future{ opacity:0.6; box-shadow:none; }
+#timesList.namaz-mode .time-row.past{ box-shadow:none; }
+#timesList.namaz-mode .dot-btn{ width:19px; height:19px; font-size:9px; }
+#timesList.namaz-mode .dotsSlot{ flex-basis:63px; }
+#timesList.namaz-mode .meterWrap{ height:10px; }
+#timesList.namaz-mode .meterRow{ padding:7px 2px 0; gap:12px; }
+#timesList.namaz-mode .remainText{ font-size:12px; flex-basis:172px; }
+.dotsSlot{ flex:0 0 76px; display:flex; align-items:center; justify-content:flex-end; }
+.status-dots{ flex:0 0 auto; display:flex; gap:3px; margin-left:auto; }
+.dot-btn{
+  width:23px; height:23px; border-radius:50%; border:1.5px solid var(--dotBorder, var(--line)); background:transparent; cursor:pointer; padding:0;
+  display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; line-height:1; color:var(--dotBorder, var(--sub));
+  filter:grayscale(1) opacity(0.55); /* dulls the hourglass emoji (✓/~ are plain glyphs so `color` already dulls them) */
+}
+.dot-btn.on-green{ background:var(--green); border-color:var(--green); color:#fff; filter:none; }
+.dot-btn.on-yellow{ background:var(--yellow); border-color:var(--yellow); color:#2b2100; filter:none; }
+.dot-btn.on-red{ background:var(--red); border-color:var(--red); color:#fff; filter:none; }
+
+/* ---------- TAB BAR ---------- */
+#tabbar{
+  flex:0 0 auto; display:flex; background:var(--tabbar); border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tab-btn{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:4px; padding:13px 0 11px; background:none; border:none; color:var(--sub); cursor:pointer;
+}
+.tab-btn.active{ color:var(--accentInk); }
+.tab-btn .ic{ font-size:27px; line-height:1; filter:grayscale(1) opacity(0.45); transition:filter .15s ease; }
+.tab-btn.active .ic{ filter:none; }
+.tab-btn .lb{ font-size:13.5px; font-weight:600; }
+
+/* ---------- generic screen padding ---------- */
+.pad{ padding:14px; }
+.section-title{ font-size:15px; font-weight:700; margin:16px 0 8px; color:var(--text); }
+.section-title:first-child{ margin-top:2px; }
+
+/* ---------- CALENDAR TAB ---------- */
+.cal-header{ display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--line);}
+.cal-header button{ background:var(--card); border:1px solid var(--line); color:var(--text); width:32px; height:32px; border-radius:8px; font-size:16px; }
+.cal-header .month-label{ font-weight:700; font-size:15px; text-align:center; }
+.cal-header .month-label .sub{ display:block; font-size:11px; color:var(--sub); font-weight:500; }
+.cal-toggle{ display:flex; justify-content:center; gap:6px; padding:8px 14px 0; }
+.cal-toggle button{ flex:1; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--sub); font-size:12px; font-weight:600; }
+.cal-toggle button.active{ background:var(--accent); color:#08131c; border-color:var(--accent); }
+.cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; padding:10px 14px; }
+.cal-dow{ text-align:center; font-size:10px; color:var(--sub); font-weight:700; }
+.cal-cell{
+  aspect-ratio:1; border-radius:8px; background:var(--card); border:1px solid var(--line);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  font-size:12px; cursor:pointer; position:relative;
+}
+.cal-cell.today{ border-color:var(--accent); }
+.cal-cell.empty{ background:none; border:none; }
+.cal-cell.roza{ background:color-mix(in srgb, var(--roza) 16%, var(--card)); border-color:color-mix(in srgb, var(--roza) 45%, var(--line)); }
+.cal-roza-mark{ position:absolute; top:2px; right:3px; font-size:8px; line-height:1; }
+.cal-dots{ display:flex; gap:2px; }
+.cal-dots span{ width:5px; height:5px; border-radius:50%; background:var(--line); }
+.cal-detail{ margin:10px 14px 20px; padding:12px; background:var(--card); border-radius:12px; border:1px solid var(--line); }
+.cal-dtxt{ min-width:0; flex:1; text-align:center; padding-left:36px; }
+.cal-dg{ font-weight:700; font-size:13.5px; }
+.cal-dh{ font-weight:700; font-size:12px; color:var(--accentInk); margin-top:2px; }
+.cal-detail .row{ display:flex; justify-content:space-between; align-items:center; padding:6px 8px; margin:0 -8px; border-radius:8px; border-bottom:1px solid color-mix(in srgb, var(--text) 18%, transparent); font-size:13px; }
+.cal-detail .row.roza-tint{ background:color-mix(in srgb, var(--roza) 16%, transparent); border-bottom-color:color-mix(in srgb, var(--roza) 30%, var(--line)); }
+.cal-detail .controlCol.bulkCol{ justify-content:space-between; }
+.cal-detail .row:last-child{ border-bottom:none; }
+.cal-detail .tag{ padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700; }
+.zikr-name-link{ cursor:pointer; text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:2px; }
+
+/* ---------- RAMZAN TAB ---------- */
+.ramzan-card{ margin:0 14px 14px; padding:14px; background:var(--card); border-radius:14px; border:1px solid var(--line); }
+.ramzan-card h3{ font-size:14px; margin-bottom:10px; }
+.stats-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:9px 0; font-size:13px; border-top:1px solid var(--line); }
+.stats-row:first-child{ border-top:none; }
+.stats-row span{ flex:0 0 auto; color:var(--text); }
+.stats-row b{ text-align:right; font-weight:700; }
+.chip-row{ display:flex; gap:8px; flex-wrap:wrap; }
+.chip{ padding:8px 12px; border-radius:20px; border:1px solid var(--line); background:var(--card2); font-size:12.5px; font-weight:600; color:var(--sub); cursor:pointer; }
+.chip.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+.chip.prayed{ background:var(--green); color:#06210f; border-color:var(--green); }
+.chip.qaza{ background:var(--yellow); color:#2b2100; border-color:var(--yellow); }
+.chip.pending{ background:var(--red); color:#2b0808; border-color:var(--red); }
+.roza-toggle{ display:flex; align-items:center; justify-content:space-between; padding:10px 0; }
+.switch{ width:46px; height:26px; border-radius:14px; background:var(--meterBg); position:relative; cursor:pointer; border:1px solid var(--line); }
+.switch.on{ background:var(--roza); }
+.switch .knob{ width:20px; height:20px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:left .15s; }
+.switch.on .knob{ left:22px; }
+
+/* ---------- MORE TAB ---------- */
+.more-list{ padding:6px 14px 20px; }
+.more-item{ display:flex; align-items:center; gap:12px; padding:11px 14px 11px 11px; margin-bottom:8px; background:var(--card); border:1px solid var(--line); border-radius:14px; cursor:pointer; }
+.more-item .ic{ font-size:18px; width:38px; height:38px; flex:0 0 38px; display:flex; align-items:center; justify-content:center; border-radius:11px; background:color-mix(in srgb, var(--accent) 14%, var(--card2)); }
+.more-item .lbl{ font-size:14.5px; font-weight:600; flex:1; }
+.more-item .chev{ color:var(--sub); }
+.more-item.disabled{ cursor:not-allowed; opacity:0.5; }
+.more-item.disabled .chev{ visibility:hidden; }
+.more-item .lblSub{ display:block; font-size:11px; font-weight:500; color:var(--sub); margin-top:2px; }
+.theme-row{ display:flex; gap:8px; padding:0 6px 16px; }
+.theme-row button{ flex:1; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12.5px; font-weight:600; }
+.theme-row button.active{ background:var(--accent); color:var(--fardText,#08131c); border-color:var(--accent); }
+
+/* ---------- STREAK STRIP (Home) ---------- */
+.app-toast{ position:fixed; width:max-content; max-width:calc(100vw - 32px); text-align:center; left:50%; bottom:90px; transform:translateX(-50%) translateY(16px) scale(.96); transition:opacity .25s ease, transform .32s cubic-bezier(.2,.8,.2,1); background:var(--card2); color:var(--text); border:1px solid var(--line); padding:10px 18px; border-radius:20px; font-size:12.5px; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,0.3); opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:999; }
+.app-toast.show{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+
+.stats-row:has(.stat-sub) > span{ flex:1 1 auto; min-width:0; white-space:normal; }
+.stats-row:has(.stat-sub) > b{ flex:0 0 auto; margin-left:10px; white-space:nowrap; }
+.stats-row .stat-sub{ display:block; font-size:10.5px; color:var(--sub); font-weight:500; margin-top:2px; }
+
+/* ---------- BACKUP ---------- */
+.backup-btn{ width:100%; padding:13px; border-radius:12px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:13.5px; font-weight:700; margin-bottom:12px; cursor:pointer; }
+.backup-btn.secondary{ background:var(--card2); color:var(--text); }
+.backup-note{ font-size:11.5px; color:var(--sub); line-height:1.6; margin:6px 0 16px; }
+
+/* ---------- TASBEEH ---------- */
+.tasbeeh-count{ text-align:center; font-size:56px; font-weight:800; margin:6px 0 2px; color:var(--tasbeehColor, var(--accent)); }
+.tasbeeh-target{ text-align:center; font-size:12.5px; color:var(--sub); margin-bottom:16px; }
+.tasbeeh-tap{ width:180px; height:180px; margin:0 auto; border-radius:50%; background:var(--tasbeehColor, var(--accent)); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; font-size:15px; font-weight:800; color:#fff; border:none; cursor:pointer; box-shadow:0 8px 24px color-mix(in srgb, var(--tasbeehColor, var(--accent)) 40%, transparent); user-select:none; }
+.tasbeeh-tap:active{ transform:scale(0.96); }
+.tasbeeh-tap-icon{ font-size:56px; line-height:1; }
+.tasbeeh-row{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; padding:16px 0 4px; }
+.tasbeeh-target-btn{ padding:8px 14px; border-radius:20px; border:1px solid var(--line); background:var(--card2); font-size:12.5px; font-weight:700; color:var(--sub); cursor:pointer; }
+.tasbeeh-target-btn.active{ background:var(--accent); color:var(--fardText); border-color:var(--accent); }
+.tasbeeh-swatches{ display:flex; gap:10px; justify-content:center; padding:10px 0; flex-wrap:wrap; }
+.tasbeeh-swatch{ width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer; }
+.tasbeeh-swatch.active{ border-color:var(--text); }
+.tasbeeh-shape-row{ display:flex; gap:8px; justify-content:center; padding:10px 0 4px; }
+.tasbeeh-shape-btn{ padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); font-size:15px; color:var(--sub); cursor:pointer; }
+.tasbeeh-shape-btn.active{ background:var(--accent); color:var(--fardText); border-color:var(--accent); }
+.tasbeeh-actions{ display:flex; gap:8px; padding:16px 0 4px; }
+.tasbeeh-actions button{ flex:1; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
+.tasbeeh-sound-toggle{ display:flex; align-items:center; justify-content:center; gap:8px; padding:6px 0 2px; font-size:12.5px; color:var(--sub); font-weight:600; }
+.tasbeeh-design-row{ display:flex; gap:8px; justify-content:center; padding:4px 0 14px; }
+.tasbeeh-design-btn{ padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); font-size:12px; font-weight:700; color:var(--sub); cursor:pointer; }
+.tasbeeh-design-btn.active{ background:var(--accent); color:var(--fardText); border-color:var(--accent); }
+.beads-track{ touch-action:none; cursor:grab; user-select:none; }
+.beads-track.h{ display:flex; flex-direction:row-reverse; gap:9px; overflow:hidden; padding:20px 4px; justify-content:flex-start; }
+.beads-track.v{ display:flex; flex-direction:column-reverse; gap:9px; overflow:hidden; height:220px; padding:4px 20px; align-items:center; justify-content:flex-start; margin:0 auto; width:60px; }
+.bead{ width:24px; height:24px; border-radius:50%; background:radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--sub) 35%, var(--card2)) 0%, var(--card2) 55%, var(--line) 100%); border:1px solid var(--line); flex:0 0 auto; box-shadow:inset 0 -2px 3px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.2); }
+.bead.active{ background:radial-gradient(circle at 32% 28%, color-mix(in srgb, white 45%, var(--tasbeehColor, var(--accent))) 0%, var(--tasbeehColor, var(--accent)) 60%, var(--tasbeehColor, var(--accent)) 100%); box-shadow:0 0 12px var(--tasbeehColor, var(--accent)), inset 0 -2px 3px rgba(0,0,0,0.25); }
+.beads-hint{ text-align:center; font-size:11px; color:var(--sub); margin-top:6px; }
+
+/* ---------- ZIKR PROFILES ---------- */
+.zikr-profile-card{ display:flex; align-items:center; gap:12px; padding:14px; margin-bottom:10px; border-radius:12px; border:1px solid var(--line); background:var(--card); cursor:pointer; }
+.zikr-profile-card .zpName{ font-size:14px; font-weight:700; margin-bottom:4px; }
+.zikr-profile-card .zpProgWrap{ flex:1; height:6px; background:var(--meterBg); border-radius:3px; overflow:hidden; }
+.zikr-profile-card .zpProgWrap div{ height:100%; background:var(--green); }
+.zikr-profile-card .zpCount{ font-size:11.5px; color:var(--sub); font-weight:600; margin-top:5px; }
+.zikr-item-card{ padding:12px 14px; margin-bottom:9px; border-radius:12px; border:1px solid var(--line); background:var(--card); display:flex; align-items:center; gap:12px; }
+.zikr-item-card.done{ border-color:var(--green); }
+.zikr-item-card .ziName{ font-size:13.5px; font-weight:700; }
+.zikr-item-card .ziCount{ font-size:11.5px; color:var(--sub); margin-top:3px; }
+.zikr-item-card .ziBar{ width:60px; height:6px; background:var(--meterBg); border-radius:3px; overflow:hidden; margin-top:6px; }
+.zikr-item-card .ziBar div{ height:100%; background:var(--green); }
+.zikr-item-tap{ width:44px; height:44px; border-radius:50%; background:var(--accent); color:var(--fardText); font-size:18px; font-weight:800; border:none; cursor:pointer; flex:0 0 auto; }
+.zikr-item-del{ width:26px; height:26px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--sub); font-size:13px; cursor:pointer; flex:0 0 auto; }
+.zikr-add-row{ display:flex; gap:8px; margin-top:6px; }
+.zikr-add-row input{ flex:1; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; }
+.zikr-add-row input.target{ flex:0 0 66px; }
+.zikr-add-row button{ padding:10px 14px; border-radius:10px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-weight:700; font-size:13px; cursor:pointer; }
+
+/* ---------- ISLAMIC MONTHS / EVENTS ---------- */
+.hmonth-card{ display:flex; align-items:center; gap:12px; padding:13px; margin-bottom:9px; border-radius:12px; border:1px solid var(--line); background:var(--card); }
+.hmonth-card .hIcon{ width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:19px; flex:0 0 auto; }
+.hmonth-card .hNo{ font-size:11px; color:var(--sub); font-weight:700; }
+.hmonth-card .hName{ font-size:14px; font-weight:700; color:var(--text); }
+.hmonth-card.current{ border-color:var(--accent); }
+.hevent-card{ position:relative; padding:13px 56px 13px 15px; margin-bottom:9px; border-radius:12px; border:1px solid var(--line); border-left:4px solid var(--line); background:var(--card); }
+.hevent-card.tag-newyear{ border-left-color:#8b7fd6; }
+.hevent-card.tag-ashura{ border-left-color:#5a6472; }
+.hevent-card.tag-milad{ border-left-color:#3fae6a; }
+.hevent-card.tag-ramzan{ border-left-color:#c99a4a; }
+.hevent-card.tag-qadr{ border-left-color:#d4a72c; }
+.hevent-card.tag-jumavida{ border-left-color:#3a9bd9; }
+.hevent-card.tag-eid{ border-left-color:#c85a9a; }
+.rz-dow{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px; text-align:center; font-size:11.5px; font-weight:800; color:var(--sub); }
+.rz-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+.rz-cell{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; aspect-ratio:1/1.05; padding:2px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer; font-family:inherit; }
+.rz-cn{ font-size:16px; font-weight:800; line-height:1.1; }
+.rz-cg{ font-size:9.5px; color:var(--sub); font-weight:600; line-height:1.1; }
+.rz-cq{ position:absolute; top:1px; right:2px; font-size:9px; line-height:1; }
+.rz-cell.qadr{ border-color:#d4a72c; }
+.rz-cell.today{ background:color-mix(in srgb, var(--accent) 12%, var(--card)); border-color:var(--accent); }
+.rz-cell.sel{ background:var(--accent); border-color:var(--accent); color:var(--fardText,#fff); }
+.rz-cell.sel .rz-cg{ color:inherit; opacity:.85; }
+.rz-detail{ margin-top:12px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+.rz-detail-top{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.rz-detail-n{ flex:0 0 auto; width:38px; height:38px; border-radius:50%; background:var(--accent); color:var(--fardText,#fff); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; }
+.rz-detail-times{ display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding-top:10px; border-top:1px solid var(--line); }
+.rz-legend{ margin-top:10px; font-size:10.5px; color:var(--sub); text-align:center; }
+.goal-card{ display:flex; align-items:center; gap:14px; margin:12px 14px 4px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:16px; }
+.goal-ring{ flex:0 0 auto; width:84px; height:84px; }
+.goal-bg{ fill:none; stroke:var(--meterBg); stroke-width:8; }
+.goal-fg{ fill:none; stroke:var(--green); stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset .4s, stroke .4s; }
+.goal-fg.n1{ stroke:color-mix(in srgb, var(--green) 40%, var(--meterBg)); }
+.goal-fg.n2{ stroke:color-mix(in srgb, var(--green) 70%, var(--meterBg)); }
+.goal-fg.n3{ stroke:var(--green); }
+.goal-txt{ fill:var(--text); font-size:18px; font-weight:800; }
+.goal-info{ flex:1; min-width:0; }
+.goal-title{ font-size:14px; font-weight:800; margin-bottom:6px; }
+.goal-item{ font-size:12px; color:var(--sub); line-height:1.7; }
+.goal-item.done{ color:var(--text); }
+.goal-win{ margin-top:4px; font-size:12px; font-weight:800; color:var(--green); }
+.nudge{ align-items:center; gap:10px; padding:10px 12px; margin:0 0 6px; background:color-mix(in srgb, var(--yellow,#d4a72c) 18%, var(--card)); border:1px solid var(--yellow,#d4a72c); border-radius:12px; }
+.nudge-txt{ flex:1; min-width:0; font-size:12.5px; line-height:1.4; }
+.nudge-txt span{ display:block; font-size:11px; color:var(--sub); margin-top:2px; }
+.nudge-btns{ display:flex; flex-direction:column; gap:6px; }
+.nudge-btns button, #updateBanner button{ padding:7px 12px; border-radius:9px; border:1px solid var(--accent); background:var(--accent); color:var(--fardText,#fff); font-size:12px; font-weight:700; cursor:pointer; }
+.nudge-btns button.ghost, #updateBanner button.ghost{ background:transparent; color:var(--text); border-color:var(--line); }
+#updateBanner span{ white-space:nowrap; } #updateBanner button{ white-space:nowrap; }
+#updateBanner{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(74px + env(safe-area-inset-bottom)); z-index:9999; display:flex; align-items:center; gap:10px; width:max-content; max-width:calc(100% - 24px); padding:10px 12px; flex-wrap:wrap; justify-content:center; text-align:center; background:var(--card); color:var(--text); border:1px solid var(--accent); border-radius:14px; box-shadow:0 6px 24px rgba(0,0,0,.25); font-size:13px; font-weight:600; }
+.qz-total{ margin:0 0 14px; text-align:center; }
+.qz-big{ font-size:38px; font-weight:800; color:var(--accentInk); line-height:1.1; }
+.qz-sub{ font-size:12.5px; color:var(--sub); margin:2px 0 8px; }
+.qz-today{ font-size:12.5px; }
+.qz-row{ display:grid; grid-template-columns:1fr 64px 40px auto; align-items:center; gap:8px; padding:8px 12px; margin-bottom:8px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+.qz-name{ font-size:13.5px; font-weight:700; }
+.qz-count{ width:100%; padding:7px 6px; text-align:center; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:14px; font-weight:800; }
+.qz-btn{ height:36px; padding:0 12px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
+.qz-btn.done{ background:var(--green); border-color:var(--green); color:#06210f; }
+.qz-btn.done:disabled{ opacity:.4; cursor:default; }
+.qz-btn.wide{ flex:1; }
+.qz-note{ font-size:12px; color:var(--sub); line-height:1.5; margin-bottom:10px; }
+.qz-custom{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:8px; }
+.qz-custom label{ display:flex; flex-direction:column; gap:4px; font-size:11.5px; font-weight:700; color:var(--sub); }
+.qz-custom input{ width:100%; padding:9px 6px; text-align:center; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:14px; font-weight:700; }
+.qz-preview{ font-size:12px; color:var(--sub); margin:0 0 10px; }
+.qz-btn.full{ width:100%; height:42px; }
+.qz-btn.danger{ color:var(--red); border-color:var(--red); background:transparent; }
+.raabta-head{ text-align:center; padding:16px 12px; margin-bottom:12px; background:var(--card); border:1px solid var(--line); border-radius:16px; }
+.raabta-ic{ width:56px; height:56px; margin:0 auto 8px; border-radius:16px; background:var(--card2); display:flex; align-items:center; justify-content:center; font-size:28px; }
+.raabta-t{ font-size:16px; font-weight:800; margin-bottom:4px; }
+.raabta-sub{ font-size:12.5px; color:var(--sub); margin-bottom:8px; }
+.raabta-mail{ font-size:14.5px; font-weight:800; color:var(--accentInk); word-break:break-all; margin-bottom:12px; }
+.raabta-btns{ display:flex; gap:8px; }
+.raabta-btn{ flex:1; display:flex; align-items:center; justify-content:center; min-height:42px; padding:0 10px; border-radius:11px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; font-weight:700; text-decoration:none; cursor:pointer; font-family:inherit; }
+.raabta-btn.primary{ background:var(--accent); border-color:var(--accent); color:var(--fardText,#fff); }
+.raabta-card{ text-decoration:none; color:inherit; align-items:center; }
+.raabta-card .hChev{ color:var(--sub); font-size:18px; }
+.hmonth-card{ cursor:pointer; }
+.hmonth-card .hChev{ flex:0 0 auto; color:var(--sub); font-size:18px; }
+.hIcon.big{ width:64px; height:64px; font-size:32px; margin:0 auto 8px; }
+.mdetail-head{ text-align:center; padding:6px 0 4px; }
+.mdetail-ar{ font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:34px; line-height:1.6; }
+.mdetail-name{ font-size:16px; font-weight:800; color:var(--accentInk); margin-bottom:8px; }
+.mdetail-badges{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+.mbadge{ padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; background:var(--card2); border:1px solid var(--line); }
+.mbadge.sacred{ background:color-mix(in srgb, var(--special,#a8762a) 18%, var(--card)); border-color:var(--special,#a8762a); }
+.mbadge.now{ background:var(--accent); color:var(--fardText,#fff); border-color:var(--accent); }
+.minfo-card{ padding:12px 14px; margin-bottom:8px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:12px; font-size:13px; line-height:1.6; }
+.minfo-card.ev{ border-left-color:var(--special,#a8762a); }
+.howto-card{ display:flex; gap:12px; align-items:flex-start; padding:12px 14px; margin-bottom:8px; background:var(--card); border:1px solid var(--line); border-radius:14px; }
+.howto-ic{ flex:0 0 auto; width:42px; height:42px; border-radius:12px; background:var(--card2); display:flex; align-items:center; justify-content:center; font-size:22px; }
+.howto-body{ flex:1; min-width:0; }
+.howto-t{ font-size:14px; font-weight:800; margin-bottom:4px; }
+.howto-d{ font-size:12.5px; line-height:1.6; color:var(--sub); }
+.lang-opt{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; margin-bottom:8px; border:1px solid var(--line); border-radius:12px; background:var(--card); cursor:pointer; }
+.lang-opt.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, var(--card)); }
+.lang-opt span{ display:block; font-size:11px; color:var(--sub); margin-top:2px; }
+.lang-check{ font-size:18px; font-weight:800; color:var(--accentInk); }
+.rz-ashra{ margin:16px 0 8px; font-size:13px; font-weight:800; }
+.rz-row{ display:grid; grid-template-columns:34px 1fr auto; align-items:center; column-gap:10px; padding:9px 12px; margin-bottom:6px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--line); border-radius:12px; }
+.rz-row.qadr{ border-left-color:#d4a72c; }
+.rz-row.today{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, var(--card)); }
+.rz-n{ width:30px; height:30px; border-radius:50%; background:var(--card2); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800; }
+.rz-row.today .rz-n{ background:var(--accent); color:var(--fardText,#fff); border-color:var(--accent); }
+.rz-mid{ min-width:0; }
+.rz-g{ font-size:13px; font-weight:700; }
+.rz-h{ font-size:10.5px; color:var(--sub); margin-top:1px; line-height:1.35; }
+.rz-t{ display:flex; flex-direction:column; align-items:flex-end; gap:2px; font-size:11.5px; font-weight:700; white-space:nowrap; }
+.ramzan-locked .switch, .ramzan-locked .status-dots{ pointer-events:none; opacity:.45; }
+.he-tabs{ margin:0 0 12px; gap:6px; }
+.he-tabs .chip{ padding:7px 11px; }
+.hevent-card.tag-miraj{ border-left-color:#7a6ee0; }
+.hevent-card.tag-ghazwa{ border-left-color:#b5533c; }
+.hevent-card .heYr{ font-size:11.5px; font-weight:700; color:var(--sub); margin-bottom:2px; }
+.hevent-card .heBadge{ display:inline-block; margin-top:6px; padding:3px 9px; border-radius:10px; font-size:10.5px; font-weight:700; line-height:1.4; color:var(--text); background:color-mix(in srgb, #d4a72c 20%, var(--card)); border:1px solid #d4a72c; }
+.hevent-card .he-share{ display:flex; align-items:center; justify-content:center; position:absolute; right:10px; bottom:10px; height:30px; min-width:30px; padding:0 6px; border-radius:8px; border:1px solid var(--line); background:var(--card2); font-size:14px; line-height:1; cursor:pointer; }
+.hevent-card:has(.he-share){ padding-bottom:16px; }
+.hevent-card .heIc{ position:absolute; top:12px; right:13px; font-size:30px; line-height:1; }
+.hevent-card .heName{ font-size:14px; font-weight:700; margin-bottom:3px; }
+.hevent-card .heHijri{ font-size:11.5px; color:var(--sub); margin-bottom:2px; }
+.hevent-card .heGreg{ font-size:12px; color:var(--accentInk); font-weight:700; }
+.hevent-card .heNightRow{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:6px 0; border-top:1px solid var(--line); }
+.hevent-card .heNightRow:first-of-type{ border-top:1px solid var(--line); margin-top:4px; }
+.hevent-card .heNightLeft{ display:flex; flex-direction:column; gap:1px; min-width:0; flex:1 1 auto; }
+.hevent-card .heNightDay{ font-size:12px; font-weight:700; }
+.hevent-card .heNightRow .heHijri{ margin-bottom:0; }
+.hevent-card .heNightRow .heGreg{ flex:0 0 auto; white-space:nowrap; text-align:right; padding-top:1px; }
+.hconv-box{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:14px; }
+.hconv-box label{ display:block; font-size:11.5px; color:var(--sub); font-weight:600; margin-bottom:6px; }
+.hconv-box input, .hconv-box select{ width:100%; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13.5px; margin-bottom:10px; }
+.hconv-row{ display:flex; gap:8px; }
+.hconv-row > div{ flex:1; }
+.hconv-result{ text-align:center; font-size:14.5px; font-weight:700; color:var(--accentInk); padding:6px 0 2px; }
+
+.search-bar{ margin:10px 14px; }
+.search-bar input{
+  width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--line);
+  background:var(--card); color:var(--text); font-size:13.5px;
+}
+.search-bar-wrap{ margin:10px 14px; position:relative; }
+.search-bar-wrap input{
+  width:100%; padding:10px 38px 10px 14px; border-radius:10px; border:1px solid var(--line);
+  background:var(--card); color:var(--text); font-size:13.5px; box-sizing:border-box;
+}
+.search-clear-btn{ position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; border-radius:50%; border:none; background:var(--card2); color:var(--sub); font-size:13px; cursor:pointer; display:none; align-items:center; justify-content:center; }
+.search-clear-btn.show{ display:flex; }
+.view-toggle{ display:flex; gap:6px; margin:0 14px 10px; }
+.view-toggle button{ padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--sub); font-size:12px; }
+.view-toggle button.active{ background:var(--accent); color:#08131c; border-color:var(--accent); }
+
+.dua-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 14px 20px; }
+.dua-grid.list{ grid-template-columns:1fr; }
+.dua-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; cursor:pointer; }
+.dua-card .aad-tags{ margin-bottom:6px; }
+/* Grid view: word and dua cards become stacked tiles so two fit across a phone */
+.dua-grid:not(.list) .aad-card{ flex-direction:column; align-items:center; text-align:center; padding:14px 10px; min-width:0; }
+.dua-grid:not(.list) .aad-card .aad-info{ width:100%; min-width:0; }
+.dua-grid:not(.list) .aad-card .aad-tags{ justify-content:center; }
+.dua-grid:not(.list) .aad-card .aad-ic{ margin:0 0 8px; }
+.dua-grid:not(.list) .aad-card .chev{ display:none; }
+.dua-grid:not(.list) .aad-card .aad-title{ font-size:13.5px; }
+.dua-grid:not(.list) .aad-card .aad-cat-lbl{ margin-top:4px; }
+.dua-quran-lbl{ color:#e0a33a; font-weight:800; }
+/* Four separate colours in the dua detail: title, Arabic, transliteration, Roman Urdu (mid-tones, readable in every theme) */
+.dua-detail .dua-sec-ar{ --sc:#e0a33a; } .dua-detail .dua-sec-tr{ --sc:#5b8def; } .dua-detail .dua-sec-ur{ --sc:#e0709f; } .dua-detail .dua-sec-info{ --sc:#9b6fd6; }
+/* Arabic text is centred in header cards and parts, in all sections */
+.aad-head .arabic, .dua-detail .arabic, .qword-exar, .qword-ar{ text-align:center !important; }
+.qword-sec-m{ --sc:#5b8def; } .qword-sec-st{ --sc:#e0893f; } .qword-sec-ex{ --sc:#9b6fd6; }
+.qword-sec-m .aad-step-lbl{ color:#5b8def; } .qword-sec-st .aad-step-lbl{ color:#e0893f; } .qword-sec-ex .aad-step-lbl{ color:#9b6fd6; }
+.qword-m{ color:#5b8def; } .qword-exm{ color:#9b6fd6; }
+.hadees-sec{ --sc:#c79a2e; } .hadees-sec .aad-step-lbl{ color:#c79a2e; } .hadees-txt{ font-size:15px; line-height:1.7; }
+.dua-detail .dua-sec-info .aad-step-lbl{ color:#9b6fd6; } .dua-detail .dua-info{ font-size:14px; line-height:1.65; color:var(--text); }
+.dua-detail .dua-sec-ar .aad-step-lbl{ color:#e0a33a; } .dua-detail .dua-sec-tr .aad-step-lbl{ color:#5b8def; } .dua-detail .dua-sec-ur .aad-step-lbl{ color:#e0709f; }
+.dua-detail .aad-step-lbl{ font-size:12.5px; font-weight:800; }
+.dua-detail .dua-ar{ color:#e0a33a; text-align:right; direction:rtl; font-size:24px; line-height:2; }
+.dua-detail .dua-tr{ color:#5b8def; font-style:italic; font-size:14px; line-height:1.6; }
+.dua-detail .dua-ur{ color:#e0709f; font-size:15px; line-height:1.65; }
+.dua-detail .aad-guide-sec .ref{ margin-top:10px; font-size:12px; color:var(--sub); }
+.dua-detail .dua-amen{ text-align:center; direction:rtl; font-size:18px; font-weight:800; color:#3cc46b; margin:4px 0 0; line-height:1.8; }
+.dua-card .title{ font-size:13.5px; font-weight:700; margin-bottom:4px; }
+.dua-card .prev{ font-size:11.5px; color:var(--sub); line-height:1.4; }
+
+.hadees-cat{ padding:0 14px 6px; }
+.hadees-cat .chip-row{ margin-bottom:10px; }
+.hadees-item{ margin:0 14px 10px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:12px; cursor:pointer; }
+.hadees-item .src{ font-size:11px; color:var(--accentInk); font-weight:700; margin-bottom:6px; }
+.hadees-item .txt{ font-size:13px; line-height:1.5; }
+
+/* Aadaab-e-Zindagi */
+.aad-card{ display:flex; align-items:center; gap:12px; margin:0 14px 10px; padding:12px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--aad-c, var(--accent)); border-radius:12px; cursor:pointer; }
+.aad-ic{ flex:0 0 auto; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:19px; background:color-mix(in srgb, var(--aad-c, var(--accent)) 20%, var(--card2)); }
+.aad-info{ flex:1; min-width:0; }
+.aad-title{ font-size:13.5px; font-weight:700; margin-bottom:4px; }
+.aad-tags{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:4px; }
+.aad-tags.center{ justify-content:center; }
+.aad-tag{ font-size:10px; font-weight:700; color:var(--sub); background:var(--card2); border:1px solid var(--line); border-radius:7px; padding:2px 7px; }
+.aad-cat-lbl{ font-size:10.5px; color:var(--aad-c, var(--accent)); font-weight:700; }
+.aad-head{ text-align:center; padding:18px 16px; margin:0 0 16px; background:var(--card); border:1px solid var(--line); border-radius:16px; border-top:4px solid var(--aad-c, var(--accent)); }
+.aad-head-ic{ width:60px; height:60px; margin:0 auto 10px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:28px; background:color-mix(in srgb, var(--aad-c, var(--accent)) 20%, var(--card2)); }
+.aad-head-title{ font-size:17px; font-weight:800; margin-bottom:8px; line-height:1.35; }
+.aad-cat-pill{ display:inline-block; margin-top:10px; padding:4px 12px; border-radius:20px; font-size:11.5px; font-weight:700; color:var(--aad-c, var(--accent)); background:color-mix(in srgb, var(--aad-c, var(--accent)) 16%, transparent); }
+.aad-step{ margin:0 0 12px; padding:14px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--sc, var(--line)); border-radius:14px; }
+.aad-step-head{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.aad-step-num{ font-size:15px; font-weight:800; color:var(--sc, var(--sub)); }
+.aad-step-ic{ flex:0 0 auto; width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; background:color-mix(in srgb, var(--sc, var(--accent)) 20%, transparent); }
+.aad-step-lbl{ font-size:13px; font-weight:800; color:var(--sc, var(--text)); }
+.aad-step-txt{ font-size:13px; line-height:1.6; color:var(--text); }
+.aad-step.s1{ --sc:#3f8fe0; }
+.aad-step.s2{ --sc:#e0593f; }
+.aad-step.s3{ --sc:#2fb6b0; }
+.aad-step.s4{ --sc:#9b6fd6; }
+.aad-step.s5{ --sc:#c79a2e; }
+.aad-step.s6{ --sc:#4caf7d; }
+.aad-guide-sec .aad-step-lbl{ color:var(--sc, var(--text)); }
+.aad-guide-sec .aad-step-ic{ background:color-mix(in srgb, var(--sc, var(--accent)) 20%, transparent); }
+.aad-guide-sec.g0{ --sc:#3f8fe0; } .aad-guide-sec.g1{ --sc:#e0593f; } .aad-guide-sec.g2{ --sc:#2fb6b0; }
+.aad-guide-sec.g3{ --sc:#9b6fd6; } .aad-guide-sec.g4{ --sc:#c79a2e; } .aad-guide-sec.g5{ --sc:#4caf7d; }
+.aad-guide-sec.g6{ --sc:#d6708f; } .aad-guide-sec.g7{ --sc:#5c7cfa; } .aad-guide-sec.g8{ --sc:#e0893f; }
+.aad-guide-sec.g9{ --sc:#5cb85c; }
+.aad-card.status-amal{ background:color-mix(in srgb, var(--green) 14%, var(--card)); border-color:color-mix(in srgb, var(--green) 45%, var(--line)); border-left-color:var(--green); }
+.aad-card.status-soch{ background:color-mix(in srgb, #e0b43f 12%, var(--card)); border-color:color-mix(in srgb, #e0b43f 40%, var(--line)); border-left-color:#e0b43f; }
+.aad-status-badge{ flex:0 0 auto; font-size:15px; margin-right:2px; }
+.aad-head.status-amal{ background:color-mix(in srgb, var(--green) 16%, var(--card)); border-color:color-mix(in srgb, var(--green) 45%, var(--line)); border-top-color:var(--green); }
+.aad-head.status-soch{ background:color-mix(in srgb, #e0b43f 13%, var(--card)); border-color:color-mix(in srgb, #e0b43f 40%, var(--line)); border-top-color:#e0b43f; }
+.aad-status-row{ display:flex; gap:8px; margin:18px 0 6px; }
+.aad-status-btn{ flex:1; display:flex; align-items:center; justify-content:center; gap:5px; min-height:40px; padding:0 8px; border-radius:11px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:11.5px; font-weight:700; cursor:pointer; font-family:inherit; text-align:center; line-height:1.3; }
+.aad-status-btn.soch.on{ background:#e0b43f; border-color:#e0b43f; color:#2b2208; }
+.aad-status-btn.amal.on{ background:var(--green); border-color:var(--green); color:#06210f; }
+.aad-intro{ font-size:13px; line-height:1.6; color:var(--sub); text-align:center; padding:0 4px 16px; }
+.aad-guide-sec{ margin:0 0 14px; padding:14px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--sc, var(--line)); border-radius:14px; }
+.aad-guide-head{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.aad-guide-list{ margin:0; padding:0 0 0 18px; list-style:disc; }
+.aad-guide-list li{ font-size:13px; line-height:1.6; color:var(--text); margin-bottom:8px; }
+.aad-guide-list li:last-child{ margin-bottom:0; }
+.aad-guide-closing{ margin:6px 0 0; padding:16px; background:var(--card2); border:1px dashed var(--line); border-radius:14px; font-size:13px; line-height:1.7; text-align:center; font-style:italic; color:var(--text); }
+
+/* ---------- 99 NAMES (Allah / Muhammad ﷺ) ---------- */
+.names-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:0 14px 20px; }
+.names-grid.list{ grid-template-columns:1fr; }
+.name-tile{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 6px; text-align:center; cursor:pointer; }
+.name-tile .no{ font-size:10px; color:var(--sub); font-weight:700; }
+.name-tile .ar, .name-detail .ar, .shabd-row .ar, .shabd-detail .ar, .daily-word-card .ar, .dw-row .ar, .detail-body .arabic{
+  font-family:'Scheherazade New', 'Noto Naskh Arabic', serif;
+}
+.name-tile .ar{ font-size:19px; color:var(--text); margin:4px 0 2px; line-height:1.3; direction:rtl; }
+.name-tile .tr{ font-size:10.5px; color:var(--accentInk); font-weight:700; }
+.names-grid:not(.list) .name-tile{ display:flex; flex-direction:column; align-items:center; min-height:104px; padding:8px 4px 8px; }
+.names-grid:not(.list) .name-tile .ar{ flex:1 1 auto; display:flex; align-items:center; justify-content:center; width:100%; margin:2px 0; text-align:center; }
+.names-grid:not(.list) .name-tile .tr{ flex:0 0 auto; min-height:2.6em; display:flex; align-items:flex-start; justify-content:center; text-align:center; line-height:1.3; word-break:break-word; }
+.names-grid.list .name-tile{ display:flex; align-items:flex-start; gap:10px; text-align:left; padding:11px 12px; }
+.names-grid.list .name-tile .no{ flex:0 0 18px; padding-top:2px; }
+.names-grid.list .name-tile .ar{ font-size:20px; margin:0; flex:0 0 92px; width:92px; text-align:center; line-height:1.3; }
+.names-grid.list .name-tile .tr{ flex:0 0 98px; width:98px; padding-top:2px; }
+.names-grid.list .name-tile .m-preview{ flex:1; font-size:11px; color:var(--sub); padding-top:2px; }
+.name-detail{ text-align:center; padding:20px 10px; }
+.name-detail .ar{ font-size:40px; line-height:1.6; margin-bottom:14px; direction:rtl; }
+.name-detail .tr{ font-size:16px; font-weight:700; color:var(--accentInk); margin-bottom:10px; }
+.name-detail .m{ font-size:14.5px; line-height:1.6; color:var(--text); padding:0 8px; }
+
+/* ---------- KHAAS SHABD ---------- */
+.shabd-cat-card{ margin:0 14px 10px; padding:14px 16px; background:var(--card); border:1px solid var(--line); border-radius:14px; cursor:pointer; display:flex; align-items:center; gap:12px; }
+.shabd-cat-card .ic{ font-size:22px; flex:0 0 auto; width:34px; height:34px; border-radius:10px; background:var(--card2); display:flex; align-items:center; justify-content:center; }
+.shabd-cat-card .info{ flex:1; }
+.shabd-cat-card .name{ font-size:13.5px; font-weight:700; }
+.shabd-cat-card .count{ font-size:11.5px; color:var(--sub); margin-top:2px; }
+.shabd-row{ margin:0 14px 9px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:12px; cursor:pointer; display:flex; align-items:center; gap:12px; }
+.shabd-row .ar{ font-size:20px; flex:0 0 auto; min-width:66px; direction:rtl; }
+.shabd-row .info{ flex:1; }
+.shabd-row .tr{ font-size:13.5px; font-weight:700; }
+.shabd-row .m{ font-size:11.5px; color:var(--sub); margin-top:2px; }
+.shabd-detail{ padding:10px 4px; }
+.shabd-detail .ar{ font-size:34px; text-align:center; margin-bottom:14px; direction:rtl; }
+.shabd-detail .tr{ font-size:16px; font-weight:700; color:var(--accentInk); text-align:center; margin-bottom:14px; }
+.shabd-detail .section-label{ font-size:11px; color:var(--sub); font-weight:700; text-transform:uppercase; margin:14px 0 4px; }
+.shabd-detail .m, .shabd-detail .ex{ font-size:14px; line-height:1.6; }
+
+/* ---------- AAJ KA LAFZ (Daily Word) ---------- */
+.daily-word-card{ margin:10px 14px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:26px 18px; text-align:center; touch-action:pan-y; transition:background .2s,border-color .2s; }
+.daily-word-card.is-known{ background:var(--green); border-color:var(--green); }
+.daily-word-card.is-known .cat, .daily-word-card.is-known .m, .daily-word-card.is-known .ex{ color:#06210f; }
+.daily-word-card.is-known .tr{ color:#06210f; }
+.daily-word-card.is-learning{ background:var(--yellow,#d4a72c); border-color:var(--yellow,#d4a72c); }
+.daily-word-card.is-learning .cat, .daily-word-card.is-learning .m, .daily-word-card.is-learning .ex, .daily-word-card.is-learning .tr, .daily-word-card.is-learning .ar{ color:#2b2100; }
+.dw-wrap .daily-word-card{ margin:0; }
+.dw-wrap .daily-word-status{ padding:12px 0 6px; }
+.dw-wrap .daily-word-status button{ min-height:46px; display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.25; }
+.dw-wrap .daily-word-nav{ gap:10px; padding:6px 0 0; }
+.dw-wrap .daily-word-nav button{ flex:1; width:auto; height:44px; border-radius:12px; font-size:14px; font-weight:700; border:1.5px solid var(--dotBorder,var(--line)); background:var(--card); }
+.dw-streak{ text-align:center; font-size:12.5px; font-weight:700; color:var(--special,#a8762a); background:var(--card2); border:1px solid var(--line); border-radius:20px; padding:6px 12px; margin:0 auto 12px; width:fit-content; max-width:100%; }
+.review-start-btn{ width:100%; margin-top:14px; min-height:46px; border-radius:12px; border:1.5px solid var(--accent); background:var(--card); color:var(--accentInk); font-size:13.5px; font-weight:800; cursor:pointer; }
+.review-note{ font-size:13px; line-height:1.5; margin:0 0 18px; padding:10px 12px; border-radius:10px; background:var(--card2); border:1px solid var(--line); }
+.res-btn{ display:block; width:100%; max-width:320px; margin:0 auto 10px; padding:12px 16px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:13.5px; font-weight:700; cursor:pointer; }
+.review-card{ padding:14px; margin-bottom:10px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+.review-card .q{ font-size:13.5px; font-weight:700; line-height:1.5; margin-bottom:10px; }
+.review-card .rv{ font-size:12.5px; line-height:1.45; padding:8px 10px; border-radius:8px; margin-bottom:6px; }
+.review-card .rv.wrong{ background:color-mix(in srgb, var(--red) 16%, var(--card)); }
+.review-card .rv.right{ background:color-mix(in srgb, var(--green) 18%, var(--card)); }
+.dw-prog{ margin-left:8px; font-size:10.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--yellow,#d4a72c); color:#2b2100; }
+.dw-top{ display:flex; align-items:center; justify-content:space-between; margin:0 0 8px; }
+.dw-pos{ font-size:11.5px; color:var(--sub); font-weight:700; }
+.detail-actions{ display:flex; align-items:center; justify-content:flex-end; gap:6px; margin:0 0 6px; min-height:0; }
+.detail-actions .act-btn, .detail-actions .bm-btn{ width:30px; height:30px; min-width:30px; padding:0; border-radius:9px; font-size:14px; }
+.detail-actions .act-btn svg, .detail-actions .bm-btn svg{ width:15px; height:15px; }
+.aad-head{ position:relative; }
+.aad-head .detail-actions.in-head{ position:absolute; top:10px; right:10px; margin:0; gap:6px; }
+.detail-actions.between{ justify-content:space-between; }
+.act-group{ display:inline-flex; gap:8px; align-items:center; }
+.ic-share{ display:block; pointer-events:none; }
+.bm-btn, .act-btn, .he-share, .dateNav{ }
+.act-btn{ display:inline-flex; align-items:center; justify-content:center; }
+.bm-btn, .act-btn{ height:38px; min-width:38px; padding:0 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:17px; line-height:1; cursor:pointer; }
+.bm-btn.on{ color:#d4a72c; border-color:#d4a72c; }
+.back-pill{ padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
+.pn-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:18px 0 4px; padding:6px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+.pn-btn{ flex:1; display:flex; align-items:center; justify-content:center; gap:4px; min-height:40px; padding:0 10px; border-radius:9px; border:none; background:transparent; color:var(--text); font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+.pn-btn:disabled{ opacity:0.3; pointer-events:none; }
+.pn-end{ display:flex; gap:8px; margin:18px 0 4px; }
+.pn-end .pn-btn{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:12px; min-height:44px; }
+.pn-btn.pn-nextcat{ color:var(--text); background:var(--card); border-color:var(--line); }
+.pn-end .pn-btn:active{ color:#fff; background:var(--accent); border-color:var(--accent); }
+.pn-btn.pn-nextcat:active{ background:var(--green); border-color:var(--green); color:#06210f; }
+.pn-btn.pn-prev{ background:color-mix(in srgb, #5b8def 16%, transparent); color:#5b8def; }
+.pn-btn.pn-next{ background:color-mix(in srgb, var(--green) 18%, transparent); color:var(--green); }
+.pn-btn .pn-ic{ font-size:12px; }
+.pn-pos{ flex:0 0 auto; font-size:11.5px; color:var(--sub); font-weight:700; padding:0 4px; }
+.dw-row .bm-btn{ flex:0 0 auto; height:34px; min-width:34px; padding:0 8px; }
+.dw-section{ margin:22px 0 0; }
+.dw-section-title{ display:flex; align-items:center; justify-content:space-between; font-size:13.5px; font-weight:800; margin-bottom:10px; }
+.dw-count{ min-width:26px; padding:2px 9px; text-align:center; border-radius:12px; font-size:12px; font-weight:800; background:var(--card2); border:1px solid var(--line); }
+.dw-section.known .dw-count{ background:var(--green); border-color:var(--green); color:#06210f; }
+.dw-section.learning .dw-count{ background:var(--yellow,#d4a72c); border-color:var(--yellow,#d4a72c); color:#2b2100; }
+.dw-row{ display:flex; align-items:center; gap:12px; padding:10px 12px; margin-bottom:8px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--line); border-radius:12px; cursor:pointer; }
+.dw-section.known .dw-row{ border-left-color:var(--green); }
+.dw-section.learning .dw-row{ border-left-color:var(--yellow,#d4a72c); }
+.dw-row .ar{ flex:0 0 76px; text-align:center; font-size:21px; line-height:1.4; direction:rtl; }
+.dw-row .info{ flex:1; min-width:0; }
+.dw-row .tr{ font-size:13px; font-weight:700; color:var(--accentInk); }
+.dw-row .m{ font-size:12px; color:var(--sub); line-height:1.4; margin-top:2px; }
+.empty-state{ text-align:center; padding:40px 20px; color:var(--sub); font-size:13.5px; line-height:1.6; }
+.daily-word-card .cat{ font-size:11px; color:var(--sub); font-weight:700; text-transform:uppercase; margin-bottom:10px; }
+.daily-word-card .ar{ font-size:38px; margin-bottom:10px; direction:rtl; }
+.daily-word-card .tr{ font-size:18px; font-weight:800; color:var(--accentInk); margin-bottom:10px; }
+.daily-word-card .m{ font-size:14px; line-height:1.6; margin-bottom:8px; }
+.daily-word-card .ex{ font-size:12.5px; color:var(--sub); line-height:1.5; }
+.daily-word-status{ display:flex; gap:8px; padding:14px 14px 6px; }
+.daily-word-status button{ flex:1; padding:11px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
+.daily-word-status button.active-known{ background:var(--green); color:#06210f; border-color:var(--green); }
+.daily-word-status button.active-learning{ background:var(--yellow); color:#2b2100; border-color:var(--yellow); }
+.daily-word-nav{ display:flex; justify-content:center; gap:16px; padding:6px 0 4px; }
+.daily-word-nav button{ width:40px; height:40px; border-radius:50%; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:16px; cursor:pointer; }
+
+/* ---------- GHALAT FEHMI KA IZALA (Myth Busters) ---------- */
+.myth-level-title{ font-size:12px; font-weight:700; color:var(--sub); text-transform:uppercase; margin:16px 14px 8px; }
+.myth-card{ margin:0 14px 10px; padding:14px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+.myth-card .q{ font-size:13.5px; font-weight:700; margin-bottom:10px; line-height:1.5; }
+.myth-opt-row{ display:flex; flex-direction:column; gap:8px; }
+.myth-opt-btn{ text-align:left; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; cursor:pointer; line-height:1.4; }
+.myth-opt-btn.correct{ background:var(--green); color:#06210f; border-color:var(--green); }
+.myth-opt-btn.wrong{ background:var(--red); color:#2b0808; border-color:var(--red); }
+.opt-letter{ display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; margin-right:8px; border-radius:50%; background:var(--card2); border:1px solid var(--line); color:var(--text); font-size:12px; font-weight:800; flex:0 0 auto; }
+.quiz-opt:has(.opt-letter), .myth-opt-btn{ display:flex; align-items:center; text-align:left; }
+.myth-answer{ margin-top:10px; font-size:12.5px; font-weight:800; color:var(--green); }
+.myth-explain{ font-size:12px; color:var(--sub); line-height:1.6; margin-top:10px; padding-top:10px; border-top:1px solid var(--line); }
+
+/* quiz */
+.quiz-progress{ height:6px; background:var(--meterBg); border-radius:4px; overflow:hidden; margin:0 0 20px; }
+.quiz-progress-fill{ height:100%; background:linear-gradient(90deg,#5b8def,#9b6fd6); border-radius:4px; transition:width .2s; }
+.quiz-card{ margin-bottom:18px; padding:16px 16px 14px; border-radius:16px; background:var(--card); border:1px solid var(--line); border-top:4px solid #9b6fd6; box-shadow:0 2px 10px rgba(0,0,0,.06); }
+.quiz-card{ font-family:Georgia,"Noto Naskh Arabic",serif; }
+.quiz-q{ font-size:16px; font-weight:700; line-height:1.6; color:var(--text); }
+.quiz-q-tr{ margin-top:12px; font-family:Consolas,"Courier New",monospace; font-size:13.5px; font-style:normal; letter-spacing:.02em; color:#5b8def; line-height:1.7; }
+.quiz-q-ar{ margin-top:10px; font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:22px; line-height:2; text-align:right; direction:rtl; color:#e0a33a; }
+.ar-font{ font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:1.2em; direction:rtl; unicode-bidi:isolate; }
+/* Arabic word inside a list card icon: keep it inside the box */
+.qw-ic{ overflow:hidden; font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:17px; line-height:1; }
+.qw-ic span{ display:block; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:clip; }
+.quiz-q-ref{ margin-top:10px; font-size:12px; font-weight:700; color:var(--sub); }
+.quiz-opts{ display:flex; flex-direction:column; gap:10px; }
+.quiz-opt{
+  display:flex; align-items:center; gap:10px; text-align:left; padding:12px 14px; border-radius:12px; border:1px solid var(--line); border-left:5px solid var(--qc, var(--line));
+  background:var(--card); color:var(--text); font-size:13.5px; font-weight:600; cursor:pointer;
+}
+.quiz-opt .quiz-opt-txt{ flex:1; line-height:1.5; }
+.quiz-opt.qopt-A{ --qc:#3f8fe0; } .quiz-opt.qopt-B{ --qc:#e0709f; } .quiz-opt.qopt-C{ --qc:#e0893f; } .quiz-opt.qopt-D{ --qc:#9b6fd6; }
+.quiz-opt.qopt-A .opt-letter{ background:#3f8fe0; border-color:#3f8fe0; color:#fff; }
+.quiz-opt.qopt-B .opt-letter{ background:#e0709f; border-color:#e0709f; color:#fff; }
+.quiz-opt.qopt-C .opt-letter{ background:#e0893f; border-color:#e0893f; color:#fff; }
+.quiz-opt.qopt-D .opt-letter{ background:#9b6fd6; border-color:#9b6fd6; color:#fff; }
+.quiz-opt .opt-letter{ margin-right:0; width:26px; height:26px; font-size:13px; }
+.quiz-opt.correct{ background:color-mix(in srgb, var(--green) 22%, var(--card)); border-color:var(--green); color:var(--green); }
+.quiz-opt.wrong{ background:color-mix(in srgb, var(--red) 22%, var(--card)); border-color:var(--red); color:var(--red); }
+.quiz-reveal{ margin-top:12px; padding:10px 12px; border-radius:10px; background:color-mix(in srgb, var(--green) 14%, var(--card)); border:1px solid var(--green); font-size:13px; color:var(--text); }
+.quiz-count-btn{
+  padding:14px 22px; border-radius:12px; border:1px solid var(--line); background:var(--card);
+  color:var(--text); font-size:14px; font-weight:700; cursor:pointer;
+}
+.quiz-count-btn.c5{ background:#3f8fe0; border-color:#3f8fe0; color:#fff; }
+.quiz-count-btn.c10{ background:#9b6fd6; border-color:#9b6fd6; color:#fff; }
+/* each quiz category gets its own colour bar (palette has no green) */
+.quiz-cat-btn{ border-left:5px solid var(--qc, var(--line)); }
+.quiz-cat-btn{
+  display:flex; align-items:center; gap:10px; width:calc(100% - 28px); margin:0 14px 10px;
+  padding:13px 14px; border-radius:12px; border:1px solid var(--line); background:var(--card);
+  color:var(--text); cursor:pointer; text-align:left;
+}
+.quiz-cat-ic{ font-size:20px; }
+.quiz-cat-name{ flex:1; font-size:13.5px; font-weight:700; }
+.quiz-cat-sub{ display:block; font-size:11.5px; font-weight:600; color:var(--sub); margin-top:2px; }
+.quiz-cat-count{ font-size:11px; color:var(--sub); font-weight:600; }
+
+/* detail overlay */
+#detailOverlay{
+  position:absolute; inset:0; background:var(--bg); z-index:50; display:none;
+  flex-direction:column;
+}
+#detailOverlay.active{ display:flex; }
+.detail-header{ display:flex; align-items:center; gap:10px; padding:14px; border-bottom:1px solid var(--line); }
+.detail-header button{ background:var(--card); border:1px solid var(--line); color:var(--text); width:34px; height:34px; border-radius:8px; font-size:16px; }
+.detail-header .t{ font-weight:700; font-size:15px; }
+.detail-body{ flex:1; overflow-y:auto; padding:20px; }
+.detail-body .arabic{ font-size:22px; text-align:right; line-height:2; margin-bottom:16px; direction:rtl; color:var(--text); }
+.detail-body .translit{ font-size:13.5px; color:var(--sub); font-style:italic; margin-bottom:10px; line-height:1.6; }
+.detail-body .meaning{ font-size:14px; line-height:1.6; }
+.detail-body .ref{ margin-top:16px; font-size:12px; color:var(--accentInk); }
+
+/* info modal */
+#infoModal{
+  position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200;
+  display:none; align-items:center; justify-content:center; padding:24px;
+}
+#infoModal.active{ display:flex; }
+.info-card{
+  background:var(--card); border:1px solid var(--line); border-radius:16px;
+  padding:22px 20px 20px; max-width:360px; width:100%; position:relative;
+  box-shadow:0 12px 40px rgba(0,0,0,0.35);
+}
+.info-close{
+  position:absolute; top:10px; right:10px; width:30px; height:30px; border-radius:9px;
+  border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:16px; cursor:pointer;
+}
+.info-title{ font-size:17px; font-weight:800; margin-bottom:2px; display:flex; align-items:center; gap:8px; padding-right:30px; }
+.info-time{ font-size:12.5px; color:var(--accentInk); font-weight:700; margin-bottom:12px; }
+.info-text{ font-size:13.5px; line-height:1.65; color:var(--text); }
+
+/* share chooser modal */
+#shareChooser{
+  position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:210;
+  display:none; align-items:center; justify-content:center; padding:24px;
+}
+#shareChooser.active{ display:flex; }
+.share-choice-btn{
+  display:block; width:100%; padding:13px 14px; margin-bottom:10px; border-radius:12px;
+  border:1px solid var(--line); background:var(--card2); color:var(--text);
+  font-size:14px; font-weight:600; text-align:left; cursor:pointer;
+}
+.share-choice-btn:last-child{ margin-bottom:0; }
+
+/* ===== Polish pass: animation, feedback, colour and typography ===== */
+@keyframes bootIn { from { opacity:0; } to { opacity:1; } }
+body{ animation:bootIn .22s ease; }
+@keyframes screenIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+@keyframes confettiFall { 0% { transform:translateY(-10px) rotate(0deg); opacity:1; } 100% { transform:translateY(280px) rotate(540deg); opacity:0; } }
+/* Tab changes fade in */
+.screen.active{ animation:screenIn .25s ease; }
+/* Cards in a list fade up one after another */
+.more-list > *, .dua-grid > *, .hadees-list > *, .shabd-list > *, .quiz-cat-grid > *, .aad-grid > *{ animation:fadeUp .32s ease both; }
+/* Press feedback: tappable things shrink a little under the finger */
+.more-item:active, .dua-card:active, .aad-card:active, .hadees-item:active, .shabd-row:active, .name-tile:active, .chip:active, .tab-btn:active, .pn-btn:active, .backup-btn:active, .bulk-btn:active, .tasbeeh-tap:active, .quiz-opt:active{ transform:scale(.97); transition:transform .08s ease; }
+/* Reduced motion: people who turn off motion in their phone settings see no slides or fades */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{ animation-duration:.01ms !important; animation-delay:0s !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+}
+/* Confetti burst when the daily goal is reached */
+.goal-card{ position:relative; overflow:hidden; }
+.confetti{ position:absolute; top:0; width:8px; height:12px; border-radius:2px; pointer-events:none; animation:confettiFall linear forwards; }
+/* Ramadan: gold accents and a crescent while Ramzan lasts */
+body.ramadan #tabbar{ border-top:2px solid #d4af37; }
+body.ramadan .date-bar .hijri{ color:#d4af37; }
+body.ramadan .date-bar::after{ content:'🌙'; margin-left:6px; }
+body.ramadan .goal-card, body.ramadan .ramzan-card{ border-color:rgba(212,175,55,.45); }
+/* Colour: prayer-time tint carried into the header and the bottom bar */
+#tabbar{ box-shadow:0 -1px 0 color-mix(in srgb, var(--accent) 35%, transparent); }
+.date-bar{ background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent); border-radius:12px; }
+/* Colour: one accent edge on every card, so the sections look alike */
+.dua-card, .aad-card, .hadees-item, .shabd-row, .name-tile{ border-left:3px solid color-mix(in srgb, var(--accent) 55%, transparent); }
+/* Typography: Arabic is larger and airier, the transliteration is set apart, and detail sections have dividers */
+.ar-font{ font-size:1.35em; line-height:2.1; }
+.dua-detail .dua-ar{ font-size:27px; line-height:2.2; }
+.dua-detail .dua-tr{ font-style:italic; color:var(--sub); line-height:1.7; }
+.dua-detail [class*="dua-sec-"] + [class*="dua-sec-"]{ border-top:1px solid var(--line); padding-top:12px; margin-top:12px; }
+
+/* Bottom sheets: the help dialog and the share chooser slide up from the bottom, with a grab handle */
+@keyframes sheetUp { from { transform:translateY(100%); } to { transform:none; } }
+@keyframes backdropIn { from { opacity:0; } to { opacity:1; } }
+/* The sheet starts just below the middle of the screen and grows downward, so it never reaches the top */
+#infoModal, #shareChooser{ align-items:flex-start; padding:52vh 0 0; }
+#infoModal.active, #shareChooser.active{ animation:backdropIn .2s ease; }
+#infoModal .info-card, #shareChooser .info-card{
+  max-width:560px !important; width:calc(100% - 24px); margin:0 auto; border-radius:20px; max-height:calc(48vh - 12px); overflow-y:auto;
+  padding:12px 20px calc(22px + env(safe-area-inset-bottom)); animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);
+}
+#infoModal .info-card::before, #shareChooser .info-card::before{
+  content:''; display:block; width:40px; height:4px; border-radius:2px; background:var(--dotBorder); margin:0 auto 14px;
+}
+#infoModal .info-close, #shareChooser .info-close{ top:14px; }
+/* Loading placeholder for the GPS lookup */
+@keyframes shimmer { to { background-position:-200% 0; } }
+.skel-line{
+  height:10px; border-radius:5px; margin:8px 0; width:100%;
+  background:linear-gradient(90deg, var(--card2) 25%, var(--line) 50%, var(--card2) 75%);
+  background-size:200% 100%; animation:shimmer 1.2s linear infinite;
+}
+.skel-line.short{ width:60%; }
+
+/* Names use the same card look as duas and Aadaab, with Arabic titles */
+.names-cards .aad-title{ font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:19px; direction:rtl; text-align:right; line-height:1.6; }
+.names-cards .aad-ic{ font-size:13px; font-weight:800; color:var(--aad-c, var(--accent)); }
+.names-cards:not(.list) .aad-card .aad-title{ font-size:19px; text-align:center; }
+.names-cards:not(.list) .aad-card .aad-cat-lbl{ direction:ltr; }
+.names-cards.list .aad-card .aad-cat-lbl{ direction:ltr; text-align:left; }
+
+/* ===== Motion pass: home, bottom bar, calendar, stats, Tasbeeh, quiz, Yaad ===== */
+@keyframes meterGrow { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+@keyframes popIn { 0% { transform:scale(.6); opacity:.4; } 60% { transform:scale(1.12); } 100% { transform:scale(1); opacity:1; } }
+@keyframes shake { 0%,100% { transform:translateX(0); } 20% { transform:translateX(-6px); } 40% { transform:translateX(6px); } 60% { transform:translateX(-4px); } 80% { transform:translateX(3px); } }
+@keyframes okPulse { 0% { transform:scale(1); } 40% { transform:scale(1.03); } 100% { transform:scale(1); } }
+@keyframes bump { 0% { transform:scale(1); } 40% { transform:scale(1.14); } 100% { transform:scale(1); } }
+@keyframes hitFlash { 0% { text-shadow:0 0 0 transparent; } 40% { text-shadow:0 0 22px currentColor; } 100% { text-shadow:0 0 0 transparent; } }
+/* Home: the time-left bar fills from the left; a prayer's status dot pops when marked */
+.time-row .meterFill{ transform-origin:left center; animation:meterGrow .9s cubic-bezier(.2,.8,.2,1) both; }
+body.pop-pending .status-dots > *{ animation:popIn .35s cubic-bezier(.2,.8,.2,1); }
+/* Bottom bar: a highlight slides to the active tab */
+#tabbar{ position:relative; }
+#tabInd{ position:absolute; top:0; left:0; height:3px; width:0; border-radius:0 0 3px 3px; background:var(--accent); pointer-events:none; transition:transform .32s cubic-bezier(.2,.8,.2,1), width .32s cubic-bezier(.2,.8,.2,1); }
+/* Calendar and stats */
+.cal-grid{ animation:screenIn .3s ease; }
+.cal-cell{ transition:transform .08s ease; }
+.cal-cell:active{ transform:scale(.9); }
+.stats-row{ animation:fadeUp .35s ease both; }
+/* Tasbeeh: the count bumps on each tap, and flashes when the target is reached */
+.tasbeeh-count.bump{ animation:bump .18s ease; }
+.tasbeeh-count.hit{ animation:hitFlash .6s ease; }
+/* Quiz: a wrong answer shakes, a correct one pulses */
+.quiz-opt.wrong{ animation:shake .4s ease; }
+.quiz-opt.correct{ animation:okPulse .45s ease; }
+/* Yaad buttons and cards */
+.aad-status-btn{ transition:background .3s ease, color .3s ease, border-color .3s ease, transform .15s ease; }
+.aad-status-btn:active{ transform:scale(.96); }
+.aad-status-btn.on{ animation:popIn .3s ease; }
+.aad-status-badge{ animation:popIn .3s ease both; }
+
+/* Taadaad button: dark-to-light gradient for most used first, light-to-dark for least used first */
+#qwordSortBtn.sort-m1, #qwordSortBtn.sort-m2{ color:#fff; border-color:transparent; transition:background .35s ease; }
+#qwordSortBtn.sort-m1{ background:linear-gradient(90deg,#6b4c10,#d4a72c); }
+#qwordSortBtn.sort-m2{ background:linear-gradient(90deg,#d4a72c,#6b4c10); }
+
+/* Daily goal: tappable tasks and a week of dots */
+.goal-item{ background:none; border:none; width:100%; text-align:left; display:flex; align-items:center; gap:6px; padding:6px 0; color:var(--text); font:inherit; cursor:pointer; }
+.goal-arrow{ margin-left:auto; color:var(--sub); font-size:16px; }
+.goal-week{ display:flex; gap:6px; margin-top:10px; }
+.goal-day{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.goal-day i{ width:12px; height:12px; border-radius:50%; background:var(--meterBg); border:1px solid var(--dotBorder); }
+.goal-day.ok i{ background:var(--green); border-color:var(--green); }
+.goal-day small{ font-size:10px; color:var(--sub); font-weight:700; }
+.goal-day.today small{ color:var(--accentInk); }
+/* Today stands out: bigger dot with an accent ring and a brighter label; other days fade back */
+.goal-day:not(.today){ opacity:.55; }
+.goal-day.today i{ width:14px; height:14px; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+.goal-day.today.ok i{ box-shadow:0 0 0 3px color-mix(in srgb, var(--green) 30%, transparent); }
+.goal-day.today small{ font-size:11px; font-weight:800; }
+
+/* ===== Shared button motion: prayer status (green, yellow, red, reset), Roza, and Yaad buttons =====
+   One set of timings and effects, so every marking control moves the same way. */
+:root{ --fx-fast:.15s; --fx-mid:.32s; --fx-ease:cubic-bezier(.2,.8,.2,1); --fx-spring:cubic-bezier(.34,1.56,.64,1); }
+@keyframes ripple { 0% { transform:scale(.3); opacity:.55; } 100% { transform:scale(1.9); opacity:0; } }
+/* Press: every marking control squishes under the finger */
+.bulk-btn, .dot-btn, .roza-mini, .aad-status-btn{ position:relative; transition:background-color var(--fx-mid) var(--fx-ease), border-color var(--fx-mid) var(--fx-ease), color var(--fx-mid) var(--fx-ease), transform var(--fx-fast) var(--fx-ease), filter var(--fx-mid) ease; }
+.bulk-btn:active, .dot-btn:active, .roza-mini:active, .aad-status-btn:active{ transform:scale(.9); }
+/* Ripple: a colour ring spreads out on press, and again when a status is set */
+.bulk-btn::after, .dot-btn::after, .roza-mini::after{ content:''; position:absolute; inset:0; border-radius:inherit; background:var(--rip, var(--accent)); opacity:0; pointer-events:none; }
+.bulk-btn:active::after, .dot-btn:active::after, .roza-mini:active::after{ animation:ripple .45s ease-out; }
+body.pop-pending .dot-btn.on-green::after, body.pop-pending .dot-btn.on-yellow::after, body.pop-pending .dot-btn.on-red::after{ animation:ripple .5s ease-out; }
+.bulk-green{ --rip:var(--green); } .bulk-yellow{ --rip:var(--yellow); } .bulk-red{ --rip:var(--red); } .bulk-clear, .bulk-info{ --rip:var(--sub); }
+.dot-btn.on-green{ --rip:var(--green); } .dot-btn.on-yellow{ --rip:var(--yellow); } .dot-btn.on-red{ --rip:var(--red); }
+.roza-mini{ --rip:var(--roza); }
+/* Roza: the knob springs across and the track fills with colour */
+.roza-mini{ transition:background-color var(--fx-mid) var(--fx-ease), border-color var(--fx-mid) var(--fx-ease); }
+.roza-mini-knob{ transition:left var(--fx-mid) var(--fx-spring), width var(--fx-fast) var(--fx-ease); }
+.roza-mini:active .roza-mini-knob{ width:21px; }
+.roza-mini.on .roza-mini-knob{ left:20px; }
+/* Yaad buttons: a colour sweeps across the button when it is chosen */
+.aad-status-btn{ background:linear-gradient(90deg, var(--fill, var(--accent)) 50%, var(--card2) 50%) right center / 200% 100% no-repeat; transition:background-position var(--fx-mid) var(--fx-ease), color var(--fx-mid) ease, border-color var(--fx-mid) ease, transform var(--fx-fast) var(--fx-ease); }
+.aad-status-btn.soch{ --fill:#e0b43f; }
+.aad-status-btn.amal{ --fill:var(--green); }
+.aad-status-btn.on{ background-position:left center; border-color:var(--fill, var(--accent)); }
+.aad-status-btn.soch.on{ background:linear-gradient(90deg, #e0b43f 50%, var(--card2) 50%) left center / 200% 100% no-repeat; color:#2b2208; }
+.aad-status-btn.amal.on{ background:linear-gradient(90deg, var(--green) 50%, var(--card2) 50%) left center / 200% 100% no-repeat; color:#06210f; }
+.aad-status-btn.on{ animation:popIn .3s ease; }
+
+/* Fill and empty: cards, calendar cells and status dots animate while a status change is in progress */
+@keyframes fillIn { from { transform:scale(.6); opacity:.35; } to { transform:none; opacity:1; } }
+@keyframes tintIn { from { opacity:.55; } to { opacity:1; } }
+.aad-card, .time-row, .cal-cell, .hadees-item, .dua-card{ transition:background-color .35s ease, border-color .35s ease, box-shadow .35s ease, opacity .35s ease; }
+body.pop-pending .dot-btn{ animation:fillIn .35s var(--fx-spring); }
+body.pop-pending .aad-card, body.pop-pending .time-row, body.pop-pending .cal-cell, body.pop-pending .hadees-item, body.pop-pending .dua-card{ animation:tintIn .4s ease; }
+
+/* Daily goal, compact: small ring, one row per task with a clear check circle */
+.goal-card{ padding:14px 14px 12px; gap:14px; align-items:center; }
+.goal-card .goal-ring{ width:64px; height:64px; flex:0 0 64px; }
+.goal-card .goal-info{ flex:1; min-width:0; }
+.goal-card .goal-title{ font-size:13px; font-weight:800; margin-bottom:2px; }
+.goal-item{ padding:7px 0; font-size:13px; border-bottom:1px solid var(--line); }
+.goal-item:last-of-type{ border-bottom:none; }
+.gi-check{ flex:0 0 20px; width:20px; height:20px; border-radius:50%; border:2px solid var(--dotBorder); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; transition:background .25s ease, border-color .25s ease; }
+.goal-item.done .gi-check{ background:var(--green); border-color:var(--green); animation:popIn .35s ease; }
+.gi-txt{ flex:1; min-width:0; line-height:1.35; }
+.goal-item.done .gi-txt{ color:var(--sub); }
+.goal-week{ margin-top:8px; gap:4px; }
+.goal-day i{ width:9px; height:9px; }
+.goal-day small{ font-size:9px; }
+.goal-reroll{ margin-top:8px; padding:6px 10px; font-size:11.5px; }
+.goal-reroll-note{ margin-top:8px; font-size:11px; }
+/* Daily goal: change today's goal (up to three times a day) */
+.goal-reroll{ margin-top:10px; padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
+.goal-reroll-note{ margin-top:10px; font-size:11.5px; color:var(--sub); }
+
+/* Roza day: the whole calendar card takes the Roza colour, and fills in when toggled */
+.cal-detail{ transition:background-color .5s ease, border-color .5s ease; }
+.cal-detail.roza-on{ background:color-mix(in srgb, var(--roza) 17%, var(--card)); border-color:color-mix(in srgb, var(--roza) 45%, var(--line)); }
+.cal-detail .row.roza-tint{ background:none; }
+.cal-detail.roza-on .row{ border-bottom-color:color-mix(in srgb, var(--roza) 45%, transparent); }
+@keyframes rozaFill { from { background-color:var(--card); } to { background-color:color-mix(in srgb, var(--roza) 17%, var(--card)); } }
+body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
+
+/* Calendar day card: the Zikr section is clearly separate from the five prayers */
+.cal-sec-title{ margin:18px -12px 6px; padding:12px 12px 6px; border-top:2px solid var(--line); font-size:12px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--sub); }
+
+/* Deegar: small daily goal summary */
+.goal-mini-card{ width:calc(100% - 28px); margin:14px 14px 8px; display:flex; align-items:center; gap:10px; padding:7px 12px; background:var(--card); border:1px solid var(--line); border-radius:14px; cursor:pointer; font:inherit; color:var(--text); text-align:left; transition:transform var(--fx-fast) var(--fx-ease); }
+.goal-mini-card:active{ transform:scale(.98); }
+.gm-left{ flex:1; min-width:0; }
+.gm-title{ font-size:12.5px; font-weight:800; }
+.gm-sub{ font-size:11.5px; color:var(--sub); margin-top:2px; }
+.gm-week{ display:flex; gap:4px; }
+.gm-week i{ width:8px; height:8px; border-radius:50%; background:var(--meterBg); border:1px solid var(--dotBorder); }
+.gm-week i.ok{ background:var(--green); border-color:var(--green); }
+.gm-week i.today{ outline:2px solid var(--accent); outline-offset:1px; }
+
+/* Ma'rifat summary: one line with icons */
+.goal-mini-card .gm-ic{ font-size:16px; line-height:1; }
+.goal-mini-card .gm-title{ flex:1 1 0; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.gm-tasks{ flex:1 1 0; min-width:0; padding-left:12px; display:flex; gap:5px; align-items:center; justify-content:flex-start; }
+.gm-task{ width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; line-height:1; background:var(--card2); border:1px solid var(--line); opacity:.5; transition:background-color var(--fx-mid) ease, opacity var(--fx-mid) ease, border-color var(--fx-mid) ease; }
+.gm-task.done{ opacity:1; background:color-mix(in srgb, var(--green) 14%, var(--card2)); border-color:color-mix(in srgb, var(--green) 40%, var(--line)); }
+
+/* Qur'an Majeed reader: one page image, swipeable like any other detail, with a page-jump field */
+.quran-page-wrap{ display:flex; justify-content:center; align-items:center; height:62vh; min-height:300px; flex:0 0 auto; padding:0 10px 14px; box-sizing:content-box; }
+.quran-page-img{ width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.18)); -webkit-user-drag:none; }
+.quran-jump{ display:flex; align-items:center; gap:8px; justify-content:center; padding:0 14px 14px; font-size:12.5px; color:var(--sub); }
+.quran-jump input{ width:58px; padding:7px 8px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; text-align:center; }
+.quran-jump button{ padding:7px 12px; border-radius:9px; border:1px solid var(--line); background:var(--accent); color:var(--fardText); font-size:12.5px; font-weight:700; cursor:pointer; }
+
+/* Qur'an: Para / Surah shortcuts, right-to-left bar, and the index list */
+.quran-index-row{ display:flex; gap:8px; padding:0 14px 10px; }
+.quran-index-btn{ flex:1; min-width:0; padding:8px 10px; border-radius:11px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:transform var(--fx-fast) var(--fx-ease); }
+.quran-index-btn:active{ transform:scale(.96); }
+.quran-index-btn.qi-short{ flex:0 0 auto; }
+.pn-bar.rtl{ flex-direction:row-reverse; }
+.quran-idx-item .ic{ font-size:13px; font-weight:800; color:var(--accentInk); }
+.quran-idx-item .qi-page{ font-size:11px; color:var(--sub); font-weight:700; white-space:nowrap; }
+.quran-idx-item.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, var(--card)); }
+.quran-idx-item .lblSub.ar-font{ font-size:15px; text-align:left; direction:rtl; unicode-bidi:plaintext; }
+#detailBody{ backface-visibility:hidden; }
+
+/* Page-turn leaf: a copy of the page that curls away over the next one */
+.page-leaf{ position:fixed; z-index:400; pointer-events:none; border-radius:10px; overflow:hidden; backface-visibility:hidden; will-change:transform; box-shadow:0 6px 22px rgba(0,0,0,.22); }
+.page-leaf img{ width:100%; height:100%; display:block; background:#fff; }
+.page-leaf-shade{ position:absolute; inset:0; background:linear-gradient(to var(--shade-from, left), rgba(0,0,0,0), rgba(0,0,0,.35)); opacity:0; }
+.page-leaf.turning{ transition:transform .54s cubic-bezier(.35,.08,.25,1), box-shadow .54s ease, opacity .2s ease .38s; opacity:0; box-shadow:0 18px 40px rgba(0,0,0,.35); }
+.page-leaf.turning .page-leaf-shade{ transition:opacity .45s ease; opacity:1; }
+#detailBody{ backface-visibility:visible; }
+
+/* Azaan screen */
+.az-text{ margin:0 0 6px; }
+.az-line{ background:var(--card); border:1px solid var(--line); border-radius:13px; padding:12px 14px; margin:0 0 8px; }
+.az-ar{ font-size:24px; line-height:1.9; text-align:right; color:var(--text); }
+.az-tr{ font-size:13px; font-style:italic; color:var(--accentInk); margin-top:2px; }
+.az-tr b{ font-style:normal; color:var(--sub); font-size:11.5px; margin-left:4px; }
+.az-m{ font-size:13px; line-height:1.55; margin-top:4px; }
+.az-fajr{ font-size:11px; color:var(--sub); margin-top:6px; font-weight:600; }
+.az-line.fajr .az-fajr::before{ content:'🌅 '; }
+.az-list{ margin:0 0 10px; }
+.az-rec{ display:flex; gap:12px; align-items:flex-start; background:var(--card); border:1px solid var(--line); border-radius:13px; padding:10px 12px; margin:0 0 8px; }
+.az-play{ flex:0 0 38px; width:38px; height:38px; border-radius:50%; border:none; background:var(--accent); color:var(--fardText); font-size:14px; font-weight:800; cursor:pointer; transition:transform var(--fx-fast) var(--fx-ease), background-color var(--fx-mid) ease; }
+.az-play:active{ transform:scale(.9); }
+.az-play.on{ background:var(--red); color:#fff; animation:popIn .3s ease; }
+.az-info{ flex:1; min-width:0; }
+.az-name{ font-size:13.5px; font-weight:700; }
+.az-sub{ font-size:11.5px; color:var(--sub); margin-top:2px; }
+.az-credit{ font-size:10.5px; color:var(--sub); margin-top:3px; line-height:1.4; overflow-wrap:anywhere; }
+.az-credit a{ color:var(--accentInk); }
+.az-pick-row{ display:flex; gap:10px; align-items:center; }
+.az-select{ flex:1; min-width:0; padding:9px 10px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; }
+.az-warn{ font-size:11px; color:var(--sub); margin-top:8px; line-height:1.45; }
+#azaanBar{ position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom, 0px) + 84px); transform:translateX(-50%); z-index:450; display:flex; flex-direction:column; gap:6px; width:min(440px, calc(100vw - 32px)); padding:9px 10px 8px 14px; border-radius:14px; background:var(--card2); border:1px solid var(--line); box-shadow:0 8px 24px rgba(0,0,0,.25); animation:fadeUp .3s ease; }
+#azaanBar .azb-top{ display:flex; align-items:center; gap:10px; }
+#azaanBar .azb-txt{ flex:1; font-size:12.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+#azaanBar button{ flex:0 0 auto; padding:7px 12px; border-radius:10px; border:none; background:var(--red); color:#fff; font-size:12px; font-weight:800; cursor:pointer; }
+#azaanBar button.azb-pause{ width:34px; padding:7px 0; background:var(--accent); color:var(--fardText); }
+/* Azaan timeline: tap or drag anywhere to jump, like a music player */
+#azaanBar .azb-seek{ display:flex; align-items:center; gap:8px; font-size:10.5px; font-weight:700; color:var(--sub); font-variant-numeric:tabular-nums; }
+#azaanBar .azb-seek span{ flex:0 0 auto; min-width:30px; }
+#azaanBar .azb-seek span:last-child{ text-align:right; }
+#azbRange{ flex:1; min-width:0; height:22px; margin:0; background:transparent; -webkit-appearance:none; appearance:none; cursor:pointer; touch-action:none; }
+#azbRange::-webkit-slider-runnable-track{ height:5px; border-radius:3px; background:linear-gradient(to right, var(--accent) var(--p, 0%), var(--meterBg) var(--p, 0%)); }
+#azbRange::-moz-range-track{ height:5px; border-radius:3px; background:var(--meterBg); }
+#azbRange::-moz-range-progress{ height:5px; border-radius:3px; background:var(--accent); }
+#azbRange::-webkit-slider-thumb{ -webkit-appearance:none; width:15px; height:15px; margin-top:-5px; border-radius:50%; background:var(--accent); border:2px solid var(--card2); box-shadow:0 1px 4px rgba(0,0,0,.3); }
+#azbRange::-moz-range-thumb{ width:13px; height:13px; border-radius:50%; background:var(--accent); border:2px solid var(--card2); }
+
+/* Continue card and search entry */
+.cont-card{ margin-top:0 !important; }
+.cont-txt{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.cont-lbl{ font-size:11px; color:var(--sub); font-weight:700; }
+.cont-name{ font-size:13px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.gs-entry{ width:calc(100% - 28px); margin:0 14px 6px; padding:10px 14px; border-radius:14px; border:1px solid var(--line); background:var(--card2); color:var(--sub); font:inherit; font-size:12.5px; text-align:left; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.gs-count{ font-size:11px; color:var(--sub); font-weight:700; margin-left:4px; }
+/* In-app confirm / info sheet */
+.app-confirm{ position:fixed; inset:0; z-index:600; background:rgba(0,0,0,.5); display:flex; align-items:flex-end; justify-content:center; animation:backdropIn .2s ease; }
+.app-confirm .info-card{ width:calc(100% - 24px); max-width:520px; margin:0 0 calc(14px + env(safe-area-inset-bottom)); border-radius:20px; animation:sheetUp .26s cubic-bezier(.2,.8,.2,1); }
+.ac-btns{ display:flex; gap:10px; margin-top:16px; }
+.ac-btns button{ flex:1; padding:11px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13.5px; font-weight:800; cursor:pointer; }
+.ac-btns .ac-yes{ background:var(--accent); border-color:var(--accent); color:var(--fardText); }
+.ac-pre{ white-space:pre-wrap; font:inherit; font-size:12.5px; max-height:50vh; overflow:auto; }
+/* First-run setup */
+#setupOverlay{ position:fixed; inset:0; z-index:700; background:var(--bg); display:flex; justify-content:center; overflow-y:auto; animation:screenIn .3s ease; }
+.su-card{ width:100%; max-width:520px; padding:16px 18px calc(24px + env(safe-area-inset-bottom)); }
+.su-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.su-dots{ display:flex; gap:6px; }
+.su-dots i{ width:22px; height:5px; border-radius:3px; background:var(--line); }
+.su-dots i.on{ background:var(--accent); }
+.su-skip{ border:none; background:none; color:var(--sub); font-size:13px; font-weight:700; cursor:pointer; padding:6px 4px; }
+.su-ic{ font-size:42px; text-align:center; margin:6px 0 8px; }
+.su-title{ font-size:19px; font-weight:800; text-align:center; margin-bottom:6px; }
+.su-sub{ font-size:12.5px; color:var(--sub); text-align:center; margin:0 0 12px; line-height:1.5; }
+.su-note{ display:block; font-size:10.5px; color:var(--sub); font-weight:500; margin-top:2px; }
+.su-list{ max-height:42vh; overflow-y:auto; }
+/* Qur'an tools, night page and zoom */
+.quran-tools{ display:flex; gap:8px; justify-content:center; padding:0 14px 12px; flex-wrap:wrap; }
+.quran-tool{ padding:7px 12px; border-radius:11px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12px; font-weight:700; cursor:pointer; transition:background-color var(--fx-mid) ease, transform var(--fx-fast) var(--fx-ease); }
+.quran-tool:active{ transform:scale(.95); }
+.quran-tool.on{ background:color-mix(in srgb, var(--accent) 16%, var(--card)); border-color:var(--accent); }
+.quran-page-wrap.night .quran-page-img{ filter:invert(.92) hue-rotate(180deg) drop-shadow(0 4px 12px rgba(0,0,0,0.4)); }
+.quran-page-wrap.zoomed{ overflow:auto; justify-content:flex-start; align-items:flex-start; -webkit-overflow-scrolling:touch; }
+.quran-page-wrap.zoomed .quran-page-img{ width:200%; height:auto; max-width:none; flex:0 0 auto; }
+.az-vol{ width:46%; accent-color:var(--accent); }
+
+/* Nafil marks: green / red buttons on Home; small diamonds in the Calendar (Farz stay round dots) */
+.status-dots.nafil-dots .dot-btn{ border-style:dashed; }
+.status-dots.nafil-dots .dot-btn.on-green, .status-dots.nafil-dots .dot-btn.on-red{ border-style:solid; }
+.cal-dots.nafil{ margin-top:3px; gap:3px; }
+.cal-dots.nafil{ gap:2px; }
+.cal-dots.nafil span{ width:6px; height:5px; border-radius:0; background:var(--line); clip-path:polygon(50% 0, 100% 100%, 0 100%); }
+.cal-dots.nafil span.ok{ background:var(--green); }
+.cal-dots.nafil span.no{ background:var(--red); }
+.cal-legend{ display:flex; gap:16px; justify-content:center; font-size:11px; color:var(--sub); font-weight:600; margin:6px 0 0; }
+.cal-legend:empty{ display:none; }
+.cal-legend i{ display:inline-block; vertical-align:middle; margin-right:5px; }
+.cal-legend .lg-farz{ width:7px; height:7px; border-radius:50%; background:var(--green); }
+.cal-legend .lg-nafil{ width:9px; height:8px; background:var(--green); clip-path:polygon(50% 0, 100% 100%, 0 100%); }
+
+/* Qur'an home and Tajweed menu */
+.quran-choices{ display:flex; flex-direction:column; gap:10px; padding:4px 14px 14px; }
+.quran-choice{ display:flex; align-items:center; gap:14px; width:100%; padding:16px 14px; border-radius:16px; border:1px solid var(--line); background:var(--card); color:var(--text); font:inherit; text-align:left; cursor:pointer; transition:transform var(--fx-fast) var(--fx-ease); }
+.quran-choice:active{ transform:scale(.98); }
+.qc-ic{ font-size:28px; width:48px; height:48px; flex:0 0 48px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:color-mix(in srgb, var(--accent) 14%, var(--card2)); }
+.qc-txt{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.qc-txt b{ font-size:15px; }
+.qc-txt span{ font-size:12px; color:var(--sub); line-height:1.4; }
+/* Night reading for the colour (Tajweed) edition: dimmed instead of inverted, so the colours keep their meaning */
+.quran-page-wrap.night-color .quran-page-img{ filter:brightness(.72) contrast(1.05) drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
+
+/* Qur'an ki Alamaat */
+.ws-levels{ display:flex; flex-direction:column; gap:6px; margin:0 0 6px; }
+.ws-level{ display:flex; gap:10px; align-items:flex-start; padding:9px 12px; border-radius:12px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--lvc); }
+.ws-level b{ display:block; font-size:13px; }
+.ws-level span{ font-size:12px; color:var(--sub); line-height:1.45; }
+.ws-lic{ font-size:16px; line-height:1.3; }
+.ws-card{ display:flex; gap:12px; align-items:flex-start; padding:11px 12px; margin:0 0 8px; border-radius:13px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--lvc, var(--line)); }
+.ws-sign{ flex:0 0 64px; min-height:48px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:26px; line-height:1.4; border-radius:11px; background:var(--card2); color:var(--text); }
+.ws-sign.sm{ font-size:14px; padding:4px; }
+.ws-body{ flex:1; min-width:0; }
+.ws-name{ font-size:13.5px; font-weight:800; }
+.ws-tag{ display:inline-block; font-size:10.5px; font-weight:700; color:var(--sub); margin-left:4px; }
+.ws-m{ font-size:13px; margin-top:3px; line-height:1.5; }
+.ws-x{ font-size:12px; color:var(--sub); margin-top:3px; line-height:1.5; }
+.lv-red{ --lvc:#d9534f; } .lv-amber{ --lvc:#e8963a; } .lv-yellow{ --lvc:#d4b52c; } .lv-green{ --lvc:#3fae6a; } .lv-nostop{ --lvc:#7a1f1f; }
+
+/* Tajweed rules */
+.tj-card{ background:var(--card); border:1px solid var(--line); border-left:5px solid var(--tjc); border-radius:14px; padding:12px 14px; margin:0 0 10px; }
+.tj-head{ display:flex; align-items:center; gap:8px; }
+.tj-head b{ font-size:14.5px; flex:1; min-width:0; }
+.tj-dot{ width:14px; height:14px; border-radius:4px; transform:rotate(45deg); background:var(--tjc); flex:0 0 auto; }
+.tj-ar{ font-size:18px; color:var(--tjc); }
+.tj-crop{ display:block; max-width:100%; height:30px; margin:8px 0 4px; border-radius:6px; background:#fff; }
+.tj-row{ display:flex; gap:10px; font-size:13px; line-height:1.5; margin-top:6px; }
+.tj-lbl{ flex:0 0 54px; color:var(--sub); font-weight:700; font-size:12px; padding-top:1px; }
+.tj-letters{ font-size:19px; letter-spacing:2px; color:var(--tjc); }
+.tj-ex{ display:flex; flex-direction:column; align-items:flex-end; margin-top:8px; padding:8px 10px; border-radius:10px; background:var(--card2); }
+.tj-ex .ar-font{ font-size:21px; }
+.tj-exr{ font-size:11.5px; color:var(--sub); font-style:italic; }
+
+/* Text-safe accent shades (contrast ≥ 4.5:1 on that theme's background and cards) */
+:root{ --accentInk:#3a9bd9; }
+[data-theme="light"]{ --accentInk:#1f6597; }
+[data-theme="waqt-morning"]{ --accentInk:#3a64ad; }
+[data-theme="waqt-bright"]{ --accentInk:#7d5c12; }
+[data-theme="waqt-dim"]{ --accentInk:#844a1c; }
+[data-theme="waqt-grey"]{ --accentInk:#ffe3cf; }
+[data-theme="waqt-dark"]{ --accentInk:#86a8e6; }
+[data-theme="waqt-darkest"]{ --accentInk:#7d9be0; }
+/* Prayer calculation, jamaat, tilawat */
+.hij-adj{ display:flex; gap:8px; justify-content:center; }
+.hij-adj button{ width:46px; padding:9px 0; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-weight:800; cursor:pointer; }
+.hij-adj button.on{ background:var(--accent); border-color:var(--accent); color:var(--fardText); }
+.jamaat-chip{ flex:0 0 auto; margin-left:6px; padding:1px 7px; border-radius:8px; font-size:10.5px; font-weight:700; color:var(--accentInk); background:color-mix(in srgb, var(--accent) 12%, transparent); white-space:nowrap; }
+.iq-row b{ display:block; font-size:13.5px; margin-bottom:8px; }
+.iq-inputs{ display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; }
+.iq-inputs label{ display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--sub); font-weight:700; }
+.iq-inputs input{ padding:7px 8px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; width:118px; }
+.iq-or{ font-size:11px; color:var(--sub); padding-bottom:9px; }
+.tl-head{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.tl-head b{ font-size:13.5px; }
+.tl-count{ font-size:12.5px; font-weight:800; color:var(--sub); }
+.tl-count.ok{ color:var(--green); }
+.tl-sub{ font-size:11.5px; color:var(--sub); font-weight:500; line-height:1.5; }
+.tl-bar{ height:7px; border-radius:4px; background:var(--meterBg); overflow:hidden; margin:8px 0; }
+.tl-bar i{ display:block; height:100%; background:var(--green); border-radius:4px; transition:width .6s var(--fx-ease); }
+.tl-target{ display:flex; align-items:center; gap:10px; font-size:12px; color:var(--sub); font-weight:700; }
+.tl-target span{ flex:1; }
+.tl-target button{ width:30px; height:30px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:16px; font-weight:800; cursor:pointer; }
+.tl-target b{ color:var(--text); font-size:14px; min-width:18px; text-align:center; }
+
+/* Qur'an home: the two Qur'an editions as matching book cards */
+.qbook-row{ display:flex; gap:10px; padding:0 14px 6px; }
+.qbook{ flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:4px; padding:16px 10px 14px; border-radius:16px; border:1px solid var(--line); background:var(--card); color:var(--text); font:inherit; cursor:pointer; transition:transform var(--fx-fast) var(--fx-ease), border-color var(--fx-mid) ease; }
+.qbook:active{ transform:scale(.97); }
+.qbook svg{ color:var(--text); margin-bottom:4px; }
+.qbook b{ font-size:15px; }
+.qbook span{ font-size:11.5px; color:var(--sub); }
+.qbook.last{ border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+.qbook-note{ font-size:11.5px; color:var(--sub); text-align:center; padding:0 18px 12px; line-height:1.45; }
+.quran-tool.qt-ed{ display:inline-flex; align-items:center; gap:6px; }
+.quran-tool.qt-ed svg{ color:var(--text); }
+
+/* Tajweed rule badge, drawn like the Mushaf's own colour headings */
+.tj-badge{ display:inline-flex; align-items:center; gap:8px; margin:8px 0 4px; padding:5px 12px 5px 9px; border-radius:9px; background:color-mix(in srgb, var(--tjc) 9%, #fffdf3); border:1px solid color-mix(in srgb, var(--tjc) 30%, transparent); max-width:100%; }
+.tj-badge i{ width:11px; height:11px; flex:0 0 11px; transform:rotate(45deg); border-radius:2px; background:var(--tjc); box-shadow:0 0 0 2px #fff, 0 0 0 3px color-mix(in srgb, var(--tjc) 60%, transparent); }
+.tj-badge b{ color:var(--tjc); font-size:14px; white-space:nowrap; }
+.tj-badge span{ color:var(--tjc); font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+
+/* Ma'rifat: section headings, a wide Qur'an card and two-column tiles */
+.mf-sec{ font-size:13px; font-weight:800; color:var(--sub); margin:14px 18px 8px; letter-spacing:.02em; }
+.more-item.mf-wide{ margin:0 14px; padding:14px; border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); background:color-mix(in srgb, var(--accent) 8%, var(--card)); }
+.more-item.mf-wide .ic{ width:46px; height:46px; flex-basis:46px; font-size:22px; }
+.more-item.mf-wide .lbl{ font-size:15.5px; font-weight:800; }
+.mf-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 14px; }
+.more-item.mf-tile{ flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; margin:0; padding:14px 8px; min-height:96px; }
+.more-item.mf-tile .ic{ margin:0; }
+.more-item.mf-tile .lbl{ flex:0 0 auto; font-size:13px; line-height:1.3; }
+.more-item.mf-tile .lblSub{ margin-top:3px; font-size:11px; color:var(--accentInk); font-weight:700; }
+
+/* ===== Feel and motion, light ===== */
+/* 1. Ma'rifat tiles: a soft highlight and a little icon pop under the finger */
+.more-item.mf-tile, .more-item.mf-wide{ transition:background-color .18s ease, border-color .18s ease, transform var(--fx-fast) var(--fx-ease); }
+.more-item.mf-tile:active, .more-item.mf-wide:active{ background:color-mix(in srgb, var(--accent) 12%, var(--card)); border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.more-item.mf-tile .ic, .more-item.mf-wide .ic{ transition:transform .18s var(--fx-spring); }
+.more-item.mf-tile:active .ic, .more-item.mf-wide:active .ic{ transform:scale(1.12); }
+/* 2. Detail screens slide in from the right and back out */
+@keyframes ovIn { from { transform:translateX(28px); opacity:0; } to { transform:none; opacity:1; } }
+@keyframes ovOut { to { transform:translateX(28px); opacity:0; } }
+#detailOverlay.active{ animation:ovIn .22s cubic-bezier(.2,.8,.2,1); }
+#detailOverlay.closing{ animation:ovOut .19s ease forwards; pointer-events:none; }
+/* 3. Pull-to-refresh indicator on Home */
+.ptr{ height:0; opacity:0; overflow:hidden; display:flex; align-items:center; justify-content:center; gap:8px; font-size:12px; font-weight:700; color:var(--sub); flex:0 0 auto; }
+.ptr-ic{ display:inline-flex; width:22px; height:22px; border-radius:50%; align-items:center; justify-content:center; background:var(--card2); border:1px solid var(--line); transition:transform .2s ease, background-color .2s ease; }
+.ptr.ready .ptr-ic{ background:var(--accent); color:var(--fardText); border-color:var(--accent); }
+@keyframes ptrSpin { to { transform:rotate(360deg); } }
+.ptr.spin .ptr-ic{ animation:ptrSpin .45s linear infinite; }
+/* 5. Toast icon */
+.app-toast{ display:flex; align-items:center; gap:8px; }
+.app-toast .t-ic{ flex:0 0 auto; width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; background:color-mix(in srgb, var(--accent) 18%, transparent); color:var(--accentInk); }
+
+/* ===== Visual polish ===== */
+/* 6. Two corner sizes everywhere: 14px for cards, 10px for buttons and fields */
+:root{ --r-card:14px; --r-ctl:10px; }
+.more-item, .aad-card, .ramzan-card, .goal-card, .goal-mini-card, .gs-entry, .ws-card, .ws-level, .tj-card, .az-line, .az-rec,
+.quran-choice, .qbook, .hadees-item, .dua-card, .name-tile, .shabd-row, .shabd-cat-card, .cal-detail, .myth-card, .review-card, .howto-card, .quiz-card{ border-radius:var(--r-card); }
+.quran-tool, .quran-index-btn, .backup-btn, .theme-row button, .view-toggle button, .az-select, .search-bar input, .quran-jump input, .quran-jump button,
+.iq-inputs input, .hij-adj button, .tl-target button, .pn-btn, .ac-btns button, .su-skip{ border-radius:var(--r-ctl); }
+.mf-sec, .section-title{ margin-bottom:8px; }
+/* 7. Section headings with a thin line after them (Ma'rifat and Deegar) */
+.mf-sec, #tab-more .section-title{ display:flex; align-items:center; gap:10px; }
+.mf-sec::after, #tab-more .section-title::after{ content:''; flex:1; height:1px; background:var(--line); opacity:.8; }
+/* 8. Ma'rifat groups: a faint tint so each group reads at a glance */
+.mf-grid.tone-dua{ --tone:#3fae6a; } .mf-grid.tone-naam{ --tone:#c99a4a; } .mf-grid.tone-seekh{ --tone:#3a9bd9; }
+.mf-grid[class*="tone-"] .more-item.mf-tile{ background:color-mix(in srgb, var(--tone) 6%, var(--card)); border-color:color-mix(in srgb, var(--tone) 22%, var(--line)); }
+.mf-grid[class*="tone-"] .more-item.mf-tile .ic{ background:color-mix(in srgb, var(--tone) 16%, var(--card2)); }
+.mf-grid[class*="tone-"] .more-item.mf-tile:active{ background:color-mix(in srgb, var(--tone) 14%, var(--card)); border-color:color-mix(in srgb, var(--tone) 45%, var(--line)); }
+/* 9. Empty states: a soft icon above the message */
+.empty-state::before{ content:attr(data-ic); display:block; font-size:30px; line-height:1; margin:0 auto 10px; opacity:.75; }
+.empty-state:not([data-ic])::before{ content:'🌿'; }
+
+/* Row quick sheet */
+.rs-head{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.rs-head .rs-ic{ font-size:26px; }
+.rs-head b{ display:block; font-size:16px; }
+.rs-head span{ font-size:12.5px; color:var(--sub); }
+.rs-opt{ display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; padding:12px 14px; margin:0 0 8px; border-radius:var(--r-ctl, 10px); border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:13.5px; font-weight:700; text-align:left; cursor:pointer; }
+.rs-opt input{ padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:13px; }
+
+/* Long lists: only the first 12 items fade in; the rest (99 names, 125 words, 227 Khaas Shabd...) appear at once */
+.quiz-cat-grid > *:nth-child(n+13), .aad-grid > *:nth-child(n+13), #detailBody .stats-row:nth-child(n+13){ animation:none; }
+
+/* ============================================================
+   MOTION PASS 2
+   1 prayer-highlight glide  2 theme reveal  3 spring tab bar  4 drawn ticks
+   5 swipe-back  6 tasbeeh feel  7 uncapped list stagger  8 ambient sky
+   ============================================================ */
+
+/* ---- 1. Highlight glide between prayers ---- */
+#timesList{ position:relative; }
+.glide-ring{ position:absolute; left:0; right:0; pointer-events:none; z-index:2; border:2px solid var(--gc, var(--accent)); box-shadow:0 0 0 4px color-mix(in srgb, var(--gc, var(--accent)) 16%, transparent), 0 6px 18px color-mix(in srgb, var(--gc, var(--accent)) 28%, transparent); will-change:top, height; }
+.time-row.glide-wait{ box-shadow:none !important; }
+
+/* ---- 2. Theme change: circle reveal from the tapped button, soft cross-fade otherwise ---- */
+::view-transition-group(root){ animation-duration:.7s; }
+.vt-circle::view-transition-old(root), .vt-circle::view-transition-new(root){ animation:none; mix-blend-mode:normal; }
+.vt-circle::view-transition-new(root){ z-index:2; }
+.vt-circle::view-transition-old(root){ z-index:1; }
+
+/* ---- 3. Tab bar: stretchy indicator and a hop on the chosen icon ---- */
+#tabInd{ transition:none; will-change:transform, width; }
+.tab-btn .ic{ transition:filter .15s ease, transform .4s var(--fx-spring); transform-origin:50% 70%; }
+.tab-btn.active .ic{ transform:translateY(-2px) scale(1.14); }
+@keyframes tabHop{ 0%{ transform:translateY(0) scale(1); } 40%{ transform:translateY(-8px) scale(1.28); } 100%{ transform:translateY(-2px) scale(1.14); } }
+.tab-btn.hop .ic{ animation:tabHop .46s var(--fx-spring); }
+
+/* ---- 4. Ticks draw themselves when a prayer is marked ---- */
+.dot-btn svg{ width:64%; height:64%; display:block; pointer-events:none; overflow:visible; }
+.dot-btn svg path{ fill:none; stroke:currentColor; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round; }
+@keyframes tickDraw{ from{ stroke-dashoffset:var(--len, 20); } to{ stroke-dashoffset:0; } }
+body.pop-pending .dot-btn.on-green svg path, body.pop-pending .dot-btn.on-red svg path{ stroke-dasharray:var(--len, 20); animation:tickDraw .34s .06s var(--fx-ease) both; }
+body.pop-pending .dot-btn.on-red svg path + path{ animation-delay:.18s; }
+
+/* ---- 5. Swipe-back from the left edge of a detail screen ---- */
+#detailOverlay.swiping{ box-shadow:-14px 0 34px rgba(0,0,0,.30); will-change:transform; }
+#detailOverlay.swipe-gone{ opacity:0 !important; animation:none !important; }
+
+/* ---- 6. Tasbeeh: ripple under the finger, rolling number, ring burst at the target ---- */
+.tasbeeh-tap{ position:relative; overflow:hidden; -webkit-tap-highlight-color:transparent; }
+.tap-ripple{ position:absolute; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,.42); pointer-events:none; transform:translate(-50%,-50%) scale(0); animation:tapRipple .6s ease-out forwards; }
+@keyframes tapRipple{ to{ transform:translate(-50%,-50%) scale(1); opacity:0; } }
+.tasbeeh-count{ position:relative; }
+.tasbeeh-count::after{ content:attr(data-prev); position:absolute; left:0; right:0; top:0; opacity:0; pointer-events:none; }
+@keyframes countRoll{ 0%{ transform:translateY(34%) scale(.88); opacity:.15; } 100%{ transform:none; opacity:1; } }
+@keyframes countOut{ 0%{ transform:none; opacity:.9; } 100%{ transform:translateY(-42%) scale(.88); opacity:0; } }
+.tasbeeh-count.bump{ animation:countRoll .26s var(--fx-ease); }
+.tasbeeh-count.hit{ animation:countRoll .26s var(--fx-ease), hitFlash .8s ease; }
+.tasbeeh-count.bump::after, .tasbeeh-count.hit::after{ animation:countOut .26s ease-out forwards; }
+.tasbeeh-ring{ position:absolute; width:46px; height:46px; margin:-23px 0 0 -23px; border-radius:50%; border:3px solid var(--tasbeehColor, var(--accent)); pointer-events:none; opacity:0; animation:tasbeehRing .9s cubic-bezier(.2,.7,.2,1) forwards; }
+@keyframes tasbeehRing{ 0%{ transform:scale(.4); opacity:.75; } 100%{ transform:scale(7.5); opacity:0; } }
+
+/* ---- 7. List stagger for any length: --i is set from JS, capped at 10 steps (~300 ms) ---- */
+.more-list > *, .dua-grid > *, .hadees-list > *, .shabd-list > *, .quiz-cat-grid > *, .aad-grid > *, .mf-grid > *, .names-grid > *{
+  animation-name:fadeUp; animation-duration:.34s; animation-timing-function:var(--fx-ease);
+  animation-fill-mode:backwards; /* not "both": a forwards fill kept transform:none and swallowed the :active press-shrink */
+  animation-delay:calc(min(var(--i, 10), 10) * 30ms);
+}
+
+/* ---- 8. Ambient sky behind the Home header, follows the current prayer ---- */
+@property --sky1{ syntax:'<color>'; inherits:true; initial-value:#3b53a8; }
+@property --sky2{ syntax:'<color>'; inherits:true; initial-value:#1b2a5e; }
+#tab-home{ position:relative; isolation:isolate; --sky1:#3b53a8; --sky2:#1b2a5e; transition:--sky1 2.4s ease, --sky2 2.4s ease; }
+#tab-home[data-sky="dawn"]{ --sky1:#8a9be6; --sky2:#f6b7a3; }
+#tab-home[data-sky="day"]{ --sky1:#ffd86b; --sky2:#7fcff5; }
+#tab-home[data-sky="asr"]{ --sky1:#f3b46b; --sky2:#e48f78; }
+#tab-home[data-sky="dusk"]{ --sky1:#ef8658; --sky2:#9b5fb8; }
+#tab-home[data-sky="night"]{ --sky1:#3b53a8; --sky2:#1b2a5e; }
+#tab-home[data-sky="deep"]{ --sky1:#2a2f6e; --sky2:#0b1030; }
+#ambient{ position:absolute; left:0; right:0; top:0; height:300px; z-index:-1; pointer-events:none; overflow:hidden; opacity:.45; -webkit-mask-image:linear-gradient(#000 25%, transparent); mask-image:linear-gradient(#000 25%, transparent); }
+#ambient::before{ content:''; position:absolute; inset:-10% -40%; background:radial-gradient(60% 70% at 25% 20%, var(--sky1), transparent 70%), radial-gradient(55% 65% at 80% 10%, var(--sky2), transparent 70%); animation:skyDrift 38s ease-in-out infinite alternate; will-change:transform; }
+@keyframes skyDrift{ from{ transform:translate3d(-6%,0,0) scale(1); } to{ transform:translate3d(6%,3%,0) scale(1.08); } }
+
+/* ============================================================
+   UI PASS: type, icons, hit areas, hero card, calmer cards, loading states
+   ============================================================ */
+
+/* ---- Type: one UI font, steady digits ---- */
+@font-face{ font-family:'Inter'; font-style:normal; font-weight:100 900; font-display:swap; src:url(fonts/inter-latin.woff2) format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+body{ font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-optical-sizing:auto; letter-spacing:-0.006em; }
+.clock, .remainValue, .tasbeeh-count, .hero-cd b, .hero-t, .cal-cell, .month-label, .az-sub, #azbCur{ font-variant-numeric:tabular-nums; }
+
+/* ---- Tap targets: the picture stays small, the touch area reaches ~44px ---- */
+.dateNav{ width:32px; height:32px; position:relative; }
+.dateNav::before{ content:''; position:absolute; inset:-6px; }
+.bulk-btn::before{ content:''; position:absolute; inset:-9px -2.5px; }
+.dot-btn::before{ content:''; position:absolute; inset:-10px -1.5px; }
+.roza-mini::before{ content:''; position:absolute; inset:-10px -4px; }
+
+/* ---- Icons: one line-icon set instead of emoji ---- */
+.tab-btn .ic{ filter:none; font-size:0; display:flex; align-items:center; justify-content:center; height:27px; }
+.tab-btn .ic svg{ width:26px; height:26px; transition:stroke-width .2s ease; }
+.tab-btn.active .ic svg{ stroke-width:2.15; }
+.more-item .ic svg{ width:20px; height:20px; color:var(--tone, var(--accentInk, var(--accent))); }
+.more-item.mf-wide .ic svg, .more-item.mf-tile .ic svg{ width:22px; height:22px; }
+
+/* ---- Home hero: what matters right now ---- */
+.hero{ display:flex; align-items:center; gap:12px; padding:10px 14px 10px 12px; margin-top:2px; flex:0 0 auto; border-radius:18px; --hc:var(--fard);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--hc) 17%, var(--card)), var(--card) 75%);
+  border:1px solid color-mix(in srgb, var(--hc) 26%, transparent); }
+.hero.hide{ display:none; }
+.hero-ring{ position:relative; width:54px; height:54px; flex:0 0 54px; }
+.hero-ring svg{ width:100%; height:100%; transform:rotate(-90deg); }
+.hero-ring circle{ fill:none; stroke-width:5; }
+.hero-ring .trk{ stroke:var(--meterBg); }
+.hero-ring .bar{ stroke:var(--hc); stroke-linecap:round; stroke-dasharray:138.23; transition:stroke-dashoffset .9s var(--fx-ease, ease); }
+.hero-ic{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:21px; }
+.hero-txt{ min-width:0; flex:1; }
+.hero-k{ font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--sub); }
+.hero-n{ font-size:19px; font-weight:800; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hero-t{ font-size:12.5px; color:var(--sub); margin-top:1px; }
+.hero-cd{ text-align:right; flex:0 0 auto; }
+.hero-cd b{ display:block; font-size:21px; font-weight:800; color:var(--hc); line-height:1.15; }
+.hero-cd span{ font-size:11px; color:var(--sub); }
+@media (max-height:680px){ .hero{ display:none; } }
+
+/* ---- Calmer cards: hairline borders, lifted current row, colour only where it means something ---- */
+.more-item, .dua-card, .aad-card, .hadees-item, .shabd-row, .name-tile, .goal-mini-card{ border-color:color-mix(in srgb, var(--line) 62%, transparent); }
+.time-row.nafil:not(.current) .name, .time-row.special:not(.current) .name, .time-row.meal:not(.current) .name{ color:var(--sub); }
+
+/* ---- Loading: Quran pages shimmer until the image arrives, then fade in ---- */
+.quran-page-wrap{ position:relative; }
+.quran-page-img{ transition:opacity .35s ease; }
+.quran-page-img:not(.loaded){ opacity:0; }
+.quran-page-wrap:has(.quran-page-img:not(.loaded))::before{ content:''; position:absolute; inset:0 10px 14px; border-radius:12px; pointer-events:none;
+  background:linear-gradient(90deg, var(--card2) 25%, var(--line) 50%, var(--card2) 75%); background-size:200% 100%; animation:shimmer 1.2s linear infinite; }
+
+/* ---- Fit: Inter is wider than the old system font, so the tight rows get a little room back ---- */
+.date-bar .greg{ font-size:13.5px; letter-spacing:-0.012em; }
+.bulkLabel{ font-size:12px; }
+.controlCol{ padding:3px 2px; gap:4px; }
+.controlCol.bulkCol{ padding-left:8px; gap:4px; min-width:0; }
+.bulkBtns{ gap:4px; }
+.time-row .remainText, #timesList.namaz-mode .remainText{ flex:0 0 200px; }
