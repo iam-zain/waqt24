@@ -1523,3 +1523,4 @@ html[data-palette="graphite"][data-tone="light"][data-mode="fixed"]{ --bg:#f4f4f
 .q-tint.active{ border-color:var(--text); box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--accent); }
 
 .qp[data-tint]{ background:color-mix(in srgb, var(--qtc) 60%, #ffffff); border-color:color-mix(in srgb, var(--qta) 30%, transparent); --accent:var(--qta); --text:#1c2530; --sub:#5a6477; --line:color-mix(in srgb, var(--qta) 24%, transparent); --card:#ffffff; --fardText:#ffffff; }
+.page-leaf-tint{ position:absolute; inset:0; mix-blend-mode:multiply; pointer-events:none; }

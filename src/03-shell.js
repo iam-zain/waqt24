@@ -143,7 +143,7 @@ function wirePnBar(){
     const leaf = document.createElement('div');
     leaf.className = 'page-leaf';
     leaf.style.cssText = `left:${r.left}px; top:${r.top}px; width:${r.width}px; height:${r.height}px;`;
-    leaf.innerHTML = `<img src="${img.currentSrc || img.src}" alt="" style="filter:${getComputedStyle(img).filter}"><i class="page-leaf-shade"></i>`;
+    leaf.innerHTML = `<img src="${img.currentSrc || img.src}" alt="" style="filter:${getComputedStyle(img).filter}">${(tn=>tn?`<i class="page-leaf-tint" style="background:${tn.style.background}"></i>`:'')(body.querySelector('.qtint'))}<i class="page-leaf-shade"></i>`;
     document.body.appendChild(leaf);
     // the next page renders underneath the leaf. Deferred by a tick: when this runs inside a button's click,
     // the browser ignores a second click() on that same button until the first one has finished.
