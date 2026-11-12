@@ -1647,7 +1647,8 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tr-sheet, .tp-panel{ color:var(--text); }
 .tr-sheet[data-tint], .tp-panel[data-tint]{ color:#1c2530; }
 .tr-sheet[data-tint] .tr-ayah p, .tr-sheet[data-tint] .tr-head button, .tp-panel[data-tint] .tp-p{ color:#1c2530; }
-.tr-sheet[data-tint] .tr-langs button:not(.on), .tr-sheet[data-tint] .tr-x, .tr-sheet[data-tint] .tr-play:not(:hover){ color:#1c2530; }
+.tr-sheet[data-tint] .tr-langs button:not(.on), .tr-sheet[data-tint] .tr-x, .tr-sheet[data-tint] .tr-ayah:not(.cur) .tr-play{ color:var(--qta); }
+.tr-sheet[data-tint] .tr-ayah.cur .tr-play{ color:#fff; }
 .tp-panel[data-tint] .tp-tools button:not(.on){ color:#1c2530; background:#fff; }
 .tp-panel[data-tint] .tp-top, .tp-panel[data-tint] .tp-x{ color:#fff; }
 
@@ -1663,3 +1664,24 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tp-panel.tp-free .tp-rs{ display:flex; }
 .tp-panel.drag{ transition:none !important; }
 .tp-panel.tp-free:not([style*="bottom: 0px"]){ margin:0 10px; }
+
+/* under a reading tint the player, sheet and page are light surfaces: every text, field and button inside uses dark ink, whatever the app theme */
+.qp[data-tint], .tr-sheet[data-tint], .tp-panel[data-tint]{ color:#1c2530; }
+.qp[data-tint] .qp-info b, .qp[data-tint] .qp-time span, .qp[data-tint] .qp-tot, .qp[data-tint] .qp-opts button, .qp[data-tint] input{ color:#1c2530; }
+.qp[data-tint] .qp-info span{ color:#4a5568; }
+.qp[data-tint] input{ background:#fff; border-color:color-mix(in srgb, var(--qta) 30%, transparent); }
+.qp[data-tint] button.qp-main{ color:#fff; }
+.qp[data-tint] .qp-opts button.on{ color:#1c2530; }
+.tr-sheet[data-tint] .tr-ah b, .tr-sheet[data-tint] .tr-msg{ color:#4a5568; }
+.tp-panel[data-tint] .tp-msg, .tp-panel[data-tint] .tp-note{ color:#4a5568; }
+.tp-panel[data-tint] .tp-surah{ color:var(--qta); }
+
+/* the ayah being recited stands out: lighter page, bold text, a clear marker; the others step back a little */
+.tp-panel{ background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 3%, var(--card)) 0%, color-mix(in srgb, var(--accent) 8%, var(--card)) 100%); }
+.tp-panel[data-tint]{ background:linear-gradient(180deg, color-mix(in srgb, var(--qtc) 28%, #fff) 0%, color-mix(in srgb, var(--qtc) 60%, #fff) 100%); }
+.tp-night{ background:linear-gradient(180deg, #14181d, #1b2128); }
+.tp-a.cur, .tp-a.alt.cur{ font-weight:800; background:color-mix(in srgb, var(--accent) 30%, transparent); box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.tp-panel.tp-follow .tp-a:not(.cur){ opacity:.68; }
+.tp-panel.tp-follow .tp-a:not(.cur) .tp-n{ opacity:.8; }
+.tr-ayah.cur p{ font-weight:800; }
+.tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--qta) 24%, #fff); }

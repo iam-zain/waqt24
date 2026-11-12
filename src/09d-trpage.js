@@ -133,6 +133,7 @@ function trpKeepArabic(instant){
 function trpSync(force){
   const sc = document.getElementById('tpScroll'); if(!sc || !document.getElementById('tpPanel').classList.contains('show')) return;
   sc.querySelectorAll('.tp-a.cur').forEach(n=>n.classList.remove('cur'));
+  document.getElementById('tpPanel').classList.toggle('tp-follow', !!qa.on);
   const cur = qa.on ? sc.querySelector(`.tp-a[data-abs="${qa.abs}"]`) : null;
   if(!cur){ trpSync._a = 0; return; }
   cur.classList.add('cur'); sc.querySelectorAll('.tp-a.tap').forEach(n=>n.classList.remove('tap'));
