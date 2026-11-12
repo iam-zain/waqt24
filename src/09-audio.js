@@ -79,8 +79,13 @@ function qaFollowPage(){
   /* exact table: the page this ayah is on (works forwards and backwards) */
   const np = Math.min(qaLastPage(), qaAyahPage(qa.abs));
   if(np === qa.syncPage) return;
+  const fwd = np > qa.syncPage;
   qa.syncPage = np;           /* set first, so the reader's own page-change hook does not restart the audio */
-  renderQuranReader(np);
+  /* turn the page with the same animation as a swipe; if a swipe animation is mid-way, fall back to a plain switch */
+  if(typeof slideDetail === 'function'){
+    slideDetail(fwd ? 1 : -1, ()=>renderQuranReader(np));
+    setTimeout(()=>{ if(state.quranPage !== np && qa.syncPage === np && document.getElementById('quranWrap')) renderQuranReader(np); }, 900);
+  } else renderQuranReader(np);
 }
 
 /* Player state. `bism` = currently on the Bismillah that opens a Surah (Al-Fatihah has it as ayah 1; At-Tawbah has none). */
