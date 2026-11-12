@@ -1704,3 +1704,6 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 /* more air between lines: the rules stay midway between two lines of text */
 .tp-panel{ --tpl:calc(var(--tpz) * 2.1); }
 .tp-p[dir=rtl]{ --tpl:calc(var(--tpu) * 2.9); background-position:0 calc(var(--tpu) * 1.04); }
+
+/* Urdu lines sat too close to the rule above and left a gap below: lift the rules a little */
+.tp-p[dir=rtl]{ background-position:0 calc(var(--tpu) * .76); }
