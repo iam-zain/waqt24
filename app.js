@@ -7422,17 +7422,20 @@ async function trRender(){
   catch(e){ if(state.quranPage === page) body.innerHTML = `<div class="tr-msg">${L({rur:'Tarjuma load nahi hua. Internet check karein.', en:'Could not load the translation. Check your internet connection.'})}<br><button type="button" class="tr-retry">${L({rur:'Dobara koshish', en:'Retry'})}</button></div>`; const rb = body.querySelector('.tr-retry'); if(rb) rb.onclick = trRender; return; }
   if(state.quranPage !== page || !trOpen) return;
   const rtl = lang === 'ur';
-  body.innerHTML = ids.map(x=>{ const r = qaSurahAyah(x), t = data[surahs.indexOf(r.s)][r.a-1] || ''; return `<div class="tr-ayah" data-abs="${x}"><b>${(QURAN_SURAHS[r.s-1]||{}).name || ''} ${r.s}:${r.a}</b><p${rtl ? ' dir="rtl" lang="ur"' : ''}>${t.replace(/</g,'&lt;')}</p></div>`; }).join('') + (lang === 'rom' ? `<div class="tr-msg" style="padding:10px 6px; font-size:11.5px;">${L({rur:'Hindi tarjuma ko Roman mein khud-ba-khud badla gaya hai, spelling mein thodi kami ho sakti hai.', en:'The Hindi translation is converted to Roman letters automatically, so some spellings may be imperfect.'})}</div>` : '');
+  body.innerHTML = ids.map(x=>{ const r = qaSurahAyah(x), t = data[surahs.indexOf(r.s)][r.a-1] || ''; return `<div class="tr-ayah" data-abs="${x}"><b>${(QURAN_SURAHS[r.s-1]||{}).name || ''} ${r.s}:${r.a}</b><p${rtl ? ' dir="rtl" lang="ur" class="tr-ur"' : ''}>${t.replace(/</g,'&lt;')}</p></div>`; }).join('') + (lang === 'rom' ? `<div class="tr-msg" style="padding:10px 6px; font-size:11.5px;">${L({rur:'Hindi tarjuma ko Roman mein khud-ba-khud badla gaya hai, spelling mein thodi kami ho sakti hai.', en:'The Hindi translation is converted to Roman letters automatically, so some spellings may be imperfect.'})}</div>` : '');
   trSync(true);
 }
 /* mark the ayah being recited (or tapped) and bring it into view */
 function trSync(scroll){
   const body = document.getElementById('trBody'); if(!trOpen || !body) return;
-  if(qa.on && trSync._a !== qa.abs){ if(trSync._a) trFocus = 0; trSync._a = qa.abs; }
-  const want = trFocus || (qa.on ? qa.abs : 0);
-  body.querySelectorAll('.tr-ayah.cur').forEach(n=>n.classList.remove('cur'));
-  const n = want && body.querySelector(`.tr-ayah[data-abs="${want}"]`);
-  if(n){ n.classList.add('cur'); if(scroll || (qa.on && !trFocus)) n.scrollIntoView({ block:'nearest', behavior: scroll ? 'auto' : 'smooth' }); }
+  const changed = qa.on && trSync._a !== qa.abs;
+  if(changed){ if(trSync._a) trFocus = 0; trSync._a = qa.abs; }
+  body.querySelectorAll('.tr-ayah.cur, .tr-ayah.tap').forEach(n=>n.classList.remove('cur', 'tap'));
+  const play = qa.on ? body.querySelector(`.tr-ayah[data-abs="${qa.abs}"]`) : null, tap = trFocus ? body.querySelector(`.tr-ayah[data-abs="${trFocus}"]`) : null;
+  if(play) play.classList.add('cur');
+  if(tap && tap !== play) tap.classList.add('tap');
+  const go = (changed && play) || scroll ? (tap || play) : null;   /* follow the recitation; a tapped ayah wins when the sheet opens */
+  if(go) go.scrollIntoView({ block:'nearest', behavior: scroll ? 'auto' : 'smooth' });
 }
 function openTarjuma(focusAbs){ trOpen = true; trFocus = focusAbs || 0; trRender(); }
 function trRefresh(){ if(trOpen){ trFocus = 0; trRender(); } }

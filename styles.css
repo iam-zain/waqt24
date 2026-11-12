@@ -1583,3 +1583,13 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tr-sheet[data-tint] .tr-langs button.on{ background:var(--qta); border-color:var(--qta); color:#fff; }
 .tr-sheet.tr-flush{ padding-bottom:env(safe-area-inset-bottom); }
 .tr-sheet:not(.tr-flush){ margin:0 10px; left:0; right:0; border-radius:18px; border:1px solid var(--line); }
+
+/* Urdu translation in Nastaliq (the Indo-Pak style); the font file loads only when the Urdu tab is shown */
+@font-face{ font-family:'Noto Nastaliq Urdu'; font-style:normal; font-weight:400; font-display:swap; src:url(fonts/noto-nastaliq-urdu.woff2) format('woff2'); }
+.tr-ayah p.tr-ur{ font-family:'Noto Nastaliq Urdu','Scheherazade New','Noto Naskh Arabic',serif; font-size:18px; line-height:2.5; padding-top:4px; }
+/* Neighbouring ayahs alternate in a faint shade; the ayah being recited and a tapped one stand out more */
+.tr-ayah:nth-child(odd){ background:color-mix(in srgb, var(--accent) 6%, transparent); }
+.tr-ayah.tap{ box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 45%, transparent); }
+.tr-sheet[data-tint] .tr-ayah:nth-child(odd){ background:color-mix(in srgb, var(--qtc) 55%, #ffffff); }
+.tr-ayah.cur, .tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--accent) 22%, transparent); box-shadow:inset 3px 0 0 var(--accent); }
+.tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--qtc) 100%, #ffffff); box-shadow:inset 3px 0 0 var(--qta); }
