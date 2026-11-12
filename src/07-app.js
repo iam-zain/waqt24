@@ -929,7 +929,8 @@ function reloadSmooth(backToSettings){
   const C = 138.23; // circumference of r=22
   const cd = ms => { const m = Math.max(0, Math.ceil(ms / 60000)); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + ' min' : m + ' min'; };
   const inTxt = ms => L({ rur: cd(ms) + ' mein', en: 'in ' + cd(ms) });
-  const heroMode = ()=>{ const m = state.heroMode || 'full'; return (m === 'full' && window.matchMedia('(max-height:680px)').matches) ? 'strip' : m; };
+  let heroSession = null; /* closing/shrinking the card (✕ or swipe) lasts for this visit only; it returns on refresh or reopen */
+  const heroMode = ()=>{ const m = heroSession || state.heroMode || 'full'; return (m === 'full' && window.matchMedia('(max-height:680px)').matches) ? 'strip' : m; };
   const iconOf = k => (PRAYER_META[k] && PRAYER_META[k].icon) || '🕌';
   function heroData(){
     const now = Date.now(), base = operatingDate(new Date());
@@ -984,20 +985,21 @@ function reloadSmooth(backToSettings){
     const ai = el.querySelector('.hero-after .in'); if(ai && after) ai.textContent = (mode === 'now' && Math.abs(after.start - p.end) < 60000) ? '' : inTxt(after.start - now); // same as the big countdown when one prayer follows the other directly
     el.classList.remove('hide');
   }
-  window.setHeroMode = function(m){ state.heroMode = m; saveState(); const el = document.getElementById('homeHero'); if(el){ el.dataset.k = ''; el.style.transform = ''; el.style.opacity = ''; } try{ renderHero(true); }catch(e){} };
-  // ✕ and swipe step the card down: full → slim strip → off
+  window.setHeroMode = function(m){ heroSession = null; state.heroMode = m; saveState(); const el = document.getElementById('homeHero'); if(el){ el.dataset.k = ''; el.style.transform = ''; el.style.opacity = ''; } try{ renderHero(true); }catch(e){} };
+  window.setHeroSession = function(m){ heroSession = (m === (state.heroMode || 'full')) ? null : m; const el = document.getElementById('homeHero'); if(el){ el.dataset.k = ''; el.style.transform = ''; el.style.opacity = ''; } try{ renderHero(true); }catch(e){} };
+  // ✕ and swipe step the card down for this visit only: full → slim strip → off (Settings → Home Card keeps it permanently)
   function stepDown(el, dir){
     const next = heroMode() === 'full' ? 'strip' : 'off';
-    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ setHeroMode(next); return; }
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ setHeroSession(next); return; }
     el.classList.remove('dragging'); el.classList.add('snap');
     el.style.transform = `translateX(${dir * 110}%)`; el.style.opacity = '0';
-    setTimeout(()=>{ el.classList.remove('snap'); setHeroMode(next); }, 200);
+    setTimeout(()=>{ el.classList.remove('snap'); setHeroSession(next); }, 200);
   }
   (()=>{
     const el = document.getElementById('homeHero'); if(!el) return;
     el.addEventListener('click', e=>{
       if(e.target.closest('.hero-x')){ e.stopPropagation(); stepDown(el, 1); return; }
-      if(el.classList.contains('strip')) setHeroMode('full'); // tap the slim strip: open it again
+      if(el.classList.contains('strip')) setHeroSession('full'); // tap the slim strip: open it again (this visit)
     });
     let st = null;
     el.addEventListener('touchstart', e=>{ const t = e.touches[0]; st = { x:t.clientX, y:t.clientY, t:performance.now(), live:false, dx:0 }; }, { passive:true });
