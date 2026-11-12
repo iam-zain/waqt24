@@ -2671,7 +2671,7 @@ function renderQuranReader(page){
     </div>
     <div class="quran-tools">
       <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
-      <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Raat', en:'Night'})}</button>
+      <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
       <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
       <button class="quran-tool" id="quranShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
@@ -6891,17 +6891,33 @@ const qaPad = n=> String(n).padStart(3,'0');
 
 /* Which ayah does a page of this Mushaf start with? The exact page-by-ayah table of this edition is not bundled, so it is
    exact on Para-start pages and estimated between known anchors (every Surah start and Para start) everywhere else. */
+let QA_ANCHORS = null;
+function qaLastPage(){ return QURAN_SURAHS[113].page; }
 function qaPageStart(page){
+  /* If an exact table (first ayah of every page, 1-based page index) is ever added as QA_PAGE_FIRST, it wins. */
+  if(typeof QA_PAGE_FIRST !== 'undefined' && QA_PAGE_FIRST[page-1]) return { abs: QA_PAGE_FIRST[page-1], exact:true };
+  if(page > qaLastPage()) return { abs: QA_TOTAL, exact:true };
   const para = QURAN_PARAS.find(p=>p.page===page);
   if(para) return { abs: QA_JUZ[para.n-1], exact:true };
   const sur = QURAN_SURAHS.find(x=>x.page===page);
   if(sur) return { abs: qaAbs(sur.n, 1), exact:true };
-  const anchors = QURAN_SURAHS.map(x=>({ page:x.page, abs:qaAbs(x.n,1) })).concat(QURAN_PARAS.map(p=>({ page:p.page, abs:QA_JUZ[p.n-1] })))
+  if(!QA_ANCHORS) QA_ANCHORS = QURAN_SURAHS.map(x=>({ page:x.page, abs:qaAbs(x.n,1) })).concat(QURAN_PARAS.map(p=>({ page:p.page, abs:QA_JUZ[p.n-1] })))
     .sort((x,y)=> x.page - y.page || x.abs - y.abs);
-  let a = anchors[0], b = { page: QURAN_PAGE_COUNT, abs: QA_TOTAL + 1 };
-  for(const x of anchors){ if(x.page <= page) a = x; else { b = x; break; } }
+  let a = QA_ANCHORS[0], b = { page: qaLastPage() + 1, abs: QA_TOTAL + 1 };
+  for(const x of QA_ANCHORS){ if(x.page <= page) a = x; else { b = x; break; } }
   const abs = a.abs + Math.round((page - a.page) * (b.abs - a.abs) / Math.max(1, b.page - a.page));
   return { abs: Math.max(1, Math.min(QA_TOTAL, abs)), exact:false };
+}
+/* While the recitation plays and the reader is showing the page it started from, turn the page when the audio reaches the next one. */
+function qaFollowPage(){
+  if(!qa.on || !qa.syncPage || !document.getElementById('quranWrap') || !document.getElementById('detailOverlay').classList.contains('active')) return;
+  const viewing = (typeof state !== 'undefined') ? state.quranPage : 0;
+  if(viewing !== qa.syncPage) return;
+  let np = qa.syncPage;
+  while(np < qaLastPage() && qaPageStart(np + 1).abs <= qa.abs) np++;
+  if(np === qa.syncPage) return;
+  qa.syncPage = np;           /* set first, so the reader's own page-change hook does not restart the audio */
+  renderQuranReader(np);
 }
 
 /* Player state. `bism` = currently on the Bismillah that opens a Surah (Al-Fatihah has it as ayah 1; At-Tawbah has none). */
@@ -6955,7 +6971,7 @@ function qaFail(){
 function qaAdvance(){
   const n = qaNextStep(qa.abs, qa.bism);
   if(!n){ qaStop(); return; }
-  qa.abs = n.abs; qa.bism = n.bism;
+  qa.abs = n.abs; qa.bism = n.bism; qaFollowPage();
   const other = qa.cur === qa.A ? qa.B : qa.A, url = qaFile(qa.abs, qa.bism);
   if(other.src === url){ qa.cur = other; qa.cur.currentTime = 0; qa.err = false; qaUI(); qaMediaMeta(); const p = qa.cur.play(); if(p && p.catch) p.catch(()=>qaFail()); qaPreloadNext(); }
   else qaPlayCurrent();
@@ -6963,7 +6979,7 @@ function qaAdvance(){
 function qaStep(dir){
   const n = dir > 0 ? qaNextStep(qa.abs, qa.bism) : qaPrevStep(qa.abs, qa.bism);
   if(!n) return;
-  qa.abs = n.abs; qa.bism = n.bism; qa.exact = true;
+  qa.abs = n.abs; qa.bism = n.bism; qa.exact = true; qaFollowPage();
   qa.cur.pause(); qaPlayCurrent();
 }
 function qaToggle(){
