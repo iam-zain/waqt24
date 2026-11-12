@@ -637,7 +637,7 @@ function showSetup(step){
       if(!navigator.geolocation){ msg.textContent = L({rur:'Is browser mein GPS nahi hai, list se shahar chunein.', en:'GPS is not available here; choose a city from the list.'}); return; }
       msg.textContent = L({rur:'Location maloom ki jaa rahi hai...', en:'Finding your location...'});
       navigator.geolocation.getCurrentPosition(pos=>{
-        state.location = { name:'Current Location', lat:pos.coords.latitude, lon:pos.coords.longitude, source:'gps' };
+        state.location = { name:'Current Location', lat:pos.coords.latitude, lon:pos.coords.longitude, source:'gps', tz:deviceTZ() };
         saveState(); renderHome(); renderCalendar(); showSetup('lang');
       }, ()=>{ msg.textContent = L({rur:'Location nahi mil saki, list se shahar chunein.', en:'Could not get your location; choose a city from the list.'}); }, { timeout:10000 });
     };
@@ -848,9 +848,23 @@ function renderCalcSettings(){
       <div class="hij-adj">${[-2,-1,0,1,2].map(v=>`<button data-hoff="${v}" class="${v===off?'on':''}">${v>0?'+':''}${v}</button>`).join('')}</div>
     </div>
     <div class="backup-note" style="margin-top:0;">${L({rur:'Chaand dikhne ke hisaab se agar aapke yahan tareekh ek do din aage ya peeche ho to yahan theek karein. Ramzan, Khaas Din aur Taareekh sab is ke saath badlenge.', en:'If your local moon sighting puts the date a day or two ahead or behind, adjust it here. Ramzan, Special Days and the Calendar all follow it.'})}</div>
-    <div class="section-title">${L({rur:'Fajr aur Isha', en:'Fajr and Isha'})}</div>
-    <div class="backup-note" style="margin-top:0;">Muslim World League: Fajr 18°, Isha 17°. ${L({rur:'Yeh waqt AlAdhan ke hisaab se 1 minute ke andar milte hain.', en:'These times match AlAdhan within a minute.'})}</div>`;
+    <div class="section-title">${L({rur:'Hisaab ka tareeqa (Fajr aur Isha)', en:'Calculation method (Fajr and Isha)'})}</div>
+    ${Object.entries(CALC_METHODS).map(([k,m])=>`<div class="lang-opt ${ (state.calcMethod||'mwl')===k?'on':''}" data-cm="${k}" role="radio" aria-checked="${(state.calcMethod||'mwl')===k}" tabindex="0"><div><b>${m.name}</b><span>${m.note}</span></div><div class="lang-check">${(state.calcMethod||'mwl')===k?'✓':''}</div></div>`).join('')}
+    <div class="backup-note">${L({rur:'India aur Pakistan mein aam taur par Karachi ya MWL chalta hai. Agar aapki masjid ke waqt se farq aaye to yahan tareeqa badlein ya neeche minute adjust karein.', en:'Karachi or MWL is common in India and Pakistan. If times differ from your mosque, change the method here or fine-tune minutes below.'})}</div>
+    <div class="section-title">${L({rur:'Har namaz ke minute adjust karein', en:'Adjust minutes per prayer'})}</div>
+    <div class="adj-list">${ADJ_KEYS.map(k=>{ const v = prayerAdjust(k); return `<div class="adj-row"><span>${({fajr:'Fajr',zuhr:'Zuhr',asr:'Asr',maghrib:'Maghrib',isha:'Isha'})[k]}</span><button data-adj="${k}" data-d="-1" aria-label="${k} minus 1 minute">−</button><b>${v>0?'+':''}${v} min</b><button data-adj="${k}" data-d="1" aria-label="${k} plus 1 minute">+</button></div>`; }).join('')}
+      <button class="backup-btn" id="adjReset" style="margin-top:10px;">${L({rur:'Sab adjustment hata dein', en:'Reset all adjustments'})}</button></div>
+    <div class="backup-note">${L({rur:'Waqt aap ke shahar ke time zone (garmi/sardi ki ghadi samet) ke mutabiq hain.', en:"Times follow your city's time zone, including daylight saving."})}</div>`;
   document.querySelectorAll('#detailBody [data-asr]').forEach(b=>{ b.onclick = ()=>{ state.asrMethod = b.dataset.asr; saveState(); afterCalcChange(); renderCalcSettings(); }; });
+  document.querySelectorAll('#detailBody [data-cm]').forEach(el=>{
+    const go = ()=>{ state.calcMethod = el.dataset.cm; saveState(); afterCalcChange(); renderCalcSettings(); };
+    el.onclick = go; el.onkeydown = e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+  document.querySelectorAll('#detailBody [data-adj]').forEach(b=>{ b.onclick = ()=>{
+    state.adjust = state.adjust || {}; const k = b.dataset.adj;
+    state.adjust[k] = Math.max(-30, Math.min(30, prayerAdjust(k) + (+b.dataset.d))); saveState(); afterCalcChange(); renderCalcSettings();
+  }; });
+  const ar = document.getElementById('adjReset'); if(ar) ar.onclick = ()=>{ state.adjust = {}; saveState(); afterCalcChange(); renderCalcSettings(); };
   document.querySelectorAll('#detailBody [data-hoff]').forEach(b=>{ b.onclick = ()=>{ setHijriOffset(+b.dataset.hoff); afterCalcChange(); renderCalcSettings(); }; });
 }
 function iqamahState(){

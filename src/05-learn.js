@@ -1052,7 +1052,7 @@ function renderSettingsMenu(){
     ['notif','🔔','Yaad-dahaniyan', ''],
     ['azaan','🔊','Azaan', azaanState().on ? 'On' : 'Off'],
     ['nafil','🌙','Nafil Namaz Mark Karein', nafilOn() ? 'On' : 'Off'],
-    ['calc','🧮','Namaz ka Hisaab', (state.asrMethod==='shafi' ? "Asr: Shafi'i" : 'Asr: Hanafi') + (hijriOffset() ? ` · Hijri ${hijriOffset()>0?'+':''}${hijriOffset()}` : '')],
+    ['calc','🧮','Namaz ka Hisaab', (calcMethod().name.split(' (')[0]) + ' · ' + (state.asrMethod==='shafi' ? "Asr: Shafi'i" : 'Asr: Hanafi') + (hijriOffset() ? ` · Hijri ${hijriOffset()>0?'+':''}${hijriOffset()}` : '')],
     ['iqamah','🕌','Jamaat ka Waqt (Iqamah)', iqamahState().on ? 'On' : 'Off'],
     ['howto','📘','Istemal ka Tareeqa', ''],
     ['backup','💾','Data Backup', ''],
@@ -1293,7 +1293,7 @@ function renderMoreSettings(){
     statusEl.innerHTML = '<div>Location maloom ki jaa rahi hai...</div><div class="skel-line"></div><div class="skel-line short"></div>';
     navigator.geolocation.getCurrentPosition(
       (pos)=>{
-        state.location = {name:'Current Location', lat:pos.coords.latitude, lon:pos.coords.longitude, source:'gps'};
+        state.location = {name:'Current Location', lat:pos.coords.latitude, lon:pos.coords.longitude, source:'gps', tz:deviceTZ()};
         saveState();
         renderHome(); renderCalendar();
         renderMoreSettings();

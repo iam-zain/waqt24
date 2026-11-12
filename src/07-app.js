@@ -927,7 +927,7 @@ function reloadSmooth(backToSettings){
   /* ---- Hero card: the live prayer, with the next one underneath. Full / slim strip / off (swipe or ✕ steps it down;
           Settings → Home Card brings it back). Small screens get the slim strip so the list keeps its room. ---- */
   const C = 138.23; // circumference of r=22
-  const cd = ms => { const m = Math.max(0, Math.ceil(ms / 60000)); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + 'm'; };
+  const cd = ms => { const m = Math.max(0, Math.ceil(ms / 60000)); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + ' min' : m + ' min'; };
   const inTxt = ms => L({ rur: cd(ms) + ' mein', en: 'in ' + cd(ms) });
   const heroMode = ()=>{ const m = state.heroMode || 'full'; return (m === 'full' && window.matchMedia('(max-height:680px)').matches) ? 'strip' : m; };
   const iconOf = k => (PRAYER_META[k] && PRAYER_META[k].icon) || '🕌';

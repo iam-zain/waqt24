@@ -55,7 +55,17 @@ const OTHER_CITIES = [
 ].sort((a,b)=>a.name.localeCompare(b.name));
 
 const CITIES = [...PRIORITY_CITIES, ...OTHER_CITIES];
-const FAJR_ANGLE = 18, ISHA_ANGLE = 17; // MWL (Muslim World League) - common for India
+/* Calculation methods. isha is an angle, or {min} = minutes after Maghrib (Umm al-Qura: 90, or 120 in Ramzan). */
+const CALC_METHODS = {
+  mwl:     { name:'Muslim World League', fajr:18,   isha:17,  note:'Fajr 18° · Isha 17°' },
+  karachi: { name:'Karachi (Univ. of Islamic Sciences)', fajr:18, isha:18, note:'Fajr 18° · Isha 18°' },
+  isna:    { name:'ISNA (North America)', fajr:15,   isha:15,  note:'Fajr 15° · Isha 15°' },
+  egypt:   { name:'Egyptian General Authority', fajr:19.5, isha:17.5, note:'Fajr 19.5° · Isha 17.5°' },
+  makkah:  { name:'Umm al-Qura (Makkah)', fajr:18.5, isha:{min:90}, note:'Fajr 18.5° · Isha 90 min after Maghrib (120 in Ramzan)' }
+};
+function calcMethod(){ return CALC_METHODS[state.calcMethod] || CALC_METHODS.mwl; }
+const ADJ_KEYS = ['fajr','zuhr','asr','maghrib','isha'];
+function prayerAdjust(k){ const a = state.adjust && +state.adjust[k]; return a||0; }
 
 function julianDate(y,m,d){
   if(m<=2){ y-=1; m+=12; }
@@ -97,6 +107,36 @@ function sunAngleTime(jd, angle, lat, direction){
   ratio = Math.max(-1, Math.min(1, ratio));
   const t = darccos(ratio)/15;
   return direction==='ccw' ? -t : t;
+}
+
+/* ---- Time zone handling: offsets are looked up per date (DST-safe) for the city's own time zone ---- */
+const _tzFmt = {};
+let _devTZ = null;
+function deviceTZ(){ if(_devTZ===null){ try{ _devTZ = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; }catch(e){ _devTZ=''; } } return _devTZ; }
+function locTZ(){
+  const l = (typeof state!=='undefined') && state.location;
+  if(l && l.tz) return l.tz;
+  if(l && l.source==='gps' && deviceTZ()) return deviceTZ();
+  return 'Asia/Kolkata';
+}
+function tzOffsetHours(ts, tz){
+  try{
+    const f = _tzFmt[tz] || (_tzFmt[tz] = new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric'}));
+    const p = {}; f.formatToParts(ts).forEach(x=>{ p[x.type]=+x.value; });
+    return (Date.UTC(p.year,p.month-1,p.day,p.hour%24,p.minute,p.second) - Math.floor(ts/1000)*1000)/3600000;
+  }catch(e){ return TZ; }
+}
+/* Offset (hours from UTC) in force at the location around midday on the given calendar day */
+function dayOffsetHours(date){ return tzOffsetHours(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12) , locTZ()); }
+/* Hours:minutes on the wall clock of the location (falls back to the device clock when they are the same zone) */
+function wallHM(d){
+  const tz = locTZ();
+  if(tz === deviceTZ()) return [d.getHours(), d.getMinutes()];
+  try{
+    const f = _tzFmt['hm:'+tz] || (_tzFmt['hm:'+tz] = new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',hour:'numeric',minute:'numeric'}));
+    const p = {}; f.formatToParts(d).forEach(x=>{ p[x.type]=+x.value; });
+    return [p.hour%24, p.minute];
+  }catch(e){ return [d.getHours(), d.getMinutes()]; }
 }
 
 function computeDayTimes(date, lat, lon, tz){
@@ -144,13 +184,21 @@ function computeDayTimes(date, lat, lon, tz){
     return fixHour(T + tz - lon/15);
   }
 
+  const M = calcMethod();
+  const FAJR_ANGLE = M.fajr;
   let fajr = timeFor(FAJR_ANGLE, true, true);
   const sunrise = timeFor(0.833, true);
   const dhuhr = fixHour(solarNoon() + (1/60)); // +1 min safety after zawal
   const zawalEnd = solarNoon(); // moment of zawal (istawa) - zuhr starts right after
   const asr = asrTime(state.asrMethod==='shafi' ? 1 : 2); // Hanafi: shadow twice the length (default); Shafi'i: shadow equal to length
   const maghrib = timeFor(0.833, false);
-  let isha = timeFor(ISHA_ANGLE, false, true);
+  const ishaFixed = typeof M.isha==='object';
+  let ISHA_ANGLE = ishaFixed ? 17 : M.isha;
+  let isha;
+  if(ishaFixed){
+    const ramzan = gregorianToHijri(date).month === 9;
+    isha = fixHour(maghrib + (ramzan ? 120 : M.isha.min)/60);
+  } else isha = timeFor(ISHA_ANGLE, false, true);
   // Angle-based night-portion rule: where twilight never reaches the Fajr/Isha angle (northern summers),
   // take that angle's share (angle/60) of the night, so the time is sensible instead of a clamped guess.
   let highLat = false;
@@ -164,33 +212,33 @@ function computeDayTimes(date, lat, lon, tz){
   return { fajr, sunrise, dhuhr, zawal: zawalEnd, asr, maghrib, isha, jd, highLat };
 }
 
-function toDate(baseDate, hourFloat){
-  const d = new Date(baseDate);
-  d.setHours(0,0,0,0);
-  const h = Math.floor(hourFloat);
-  const m = Math.round((hourFloat-h)*60);
-  d.setHours(h, m, 0, 0);
-  return d;
+function toDate(baseDate, hourFloat, offH){
+  /* hourFloat is the wall-clock hour at the location; offH its UTC offset on that day. Returns the exact instant. */
+  if(offH === undefined) offH = TZ;
+  const mins = Math.round(hourFloat*60);
+  return new Date(Date.UTC(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate()) + (mins - Math.round(offH*60))*60000);
 }
 function fmtTime(d){
-  const m = String(d.getMinutes()).padStart(2,'0');
+  const [hh, mm] = wallHM(d);
+  const m = String(mm).padStart(2,'0');
   if(state.timeFormat==='12'){
-    let h = d.getHours();
+    let h = hh;
     const ap = h>=12?'PM':'AM';
     h = h%12; if(h===0) h=12;
     return h + ':' + m + ' ' + ap;
   }
-  return String(d.getHours()).padStart(2,'0') + ':' + m;
+  return String(hh).padStart(2,'0') + ':' + m;
 }
 function fmtTimeCompact(d){
-  const m = String(d.getMinutes()).padStart(2,'0');
+  const [hh, mm] = wallHM(d);
+  const m = String(mm).padStart(2,'0');
   if(state.timeFormat==='12'){
-    let h = d.getHours();
+    let h = hh;
     const ap = h>=12?'PM':'AM';
     h = h%12; if(h===0) h=12;
     return h + ':' + m + ' ' + ap;
   }
-  return String(d.getHours()).padStart(2,'0') + ':' + m;
+  return String(hh).padStart(2,'0') + ':' + m;
 }
 function fmtRange(p){
   if(p.key==='sehri') return 'Khatm ' + fmtTimeCompact(p.end);
@@ -210,14 +258,15 @@ function fmtRemain(ms){
 /* Build full schedule for a given date */
 function buildSchedule(date){
   const loc = (typeof state!=='undefined' && state.location) ? state.location : CITIES[0];
-  const t = computeDayTimes(date, loc.lat, loc.lon, TZ);
-  const fajr = toDate(date, t.fajr);
-  const sunrise = toDate(date, t.sunrise);
-  const zawal = toDate(date, t.zawal);
-  const dhuhr = addMin(zawal, 3); // zuhr begins shortly after zawal ends
-  const asr = toDate(date, t.asr);
-  const maghrib = toDate(date, t.maghrib);
-  const isha = toDate(date, t.isha);
+  const off = dayOffsetHours(date);
+  const t = computeDayTimes(date, loc.lat, loc.lon, off);
+  const fajr = addMin(toDate(date, t.fajr, off), prayerAdjust('fajr'));
+  const sunrise = toDate(date, t.sunrise, off);
+  const zawal = toDate(date, t.zawal, off);
+  const dhuhr = addMin(zawal, 3 + prayerAdjust('zuhr')); // zuhr begins shortly after zawal ends
+  const asr = addMin(toDate(date, t.asr, off), prayerAdjust('asr'));
+  const maghrib = addMin(toDate(date, t.maghrib, off), prayerAdjust('maghrib'));
+  const isha = addMin(toDate(date, t.isha, off), prayerAdjust('isha'));
 
   const sehriEnd = addMin(fajr, -1); // sehri ends 1 min before fajr
   const sehriStart = addMin(fajr, -90);
@@ -2056,7 +2105,7 @@ function showSetup(step){
       if(!navigator.geolocation){ msg.textContent = L({rur:'Is browser mein GPS nahi hai, list se shahar chunein.', en:'GPS is not available here; choose a city from the list.'}); return; }
       msg.textContent = L({rur:'Location maloom ki jaa rahi hai...', en:'Finding your location...'});
       navigator.geolocation.getCurrentPosition(pos=>{
-        state.location = { name:'Current Location', lat:pos.coords.latitude, lon:pos.coords.longitude, source:'gps' };
+        state.location = { name:'Current Location', lat:pos.coords.latitude, lon:pos.coords.longitude, source:'gps', tz:deviceTZ() };
         saveState(); renderHome(); renderCalendar(); showSetup('lang');
       }, ()=>{ msg.textContent = L({rur:'Location nahi mil saki, list se shahar chunein.', en:'Could not get your location; choose a city from the list.'}); }, { timeout:10000 });
     };
@@ -2267,9 +2316,23 @@ function renderCalcSettings(){
       <div class="hij-adj">${[-2,-1,0,1,2].map(v=>`<button data-hoff="${v}" class="${v===off?'on':''}">${v>0?'+':''}${v}</button>`).join('')}</div>
     </div>
     <div class="backup-note" style="margin-top:0;">${L({rur:'Chaand dikhne ke hisaab se agar aapke yahan tareekh ek do din aage ya peeche ho to yahan theek karein. Ramzan, Khaas Din aur Taareekh sab is ke saath badlenge.', en:'If your local moon sighting puts the date a day or two ahead or behind, adjust it here. Ramzan, Special Days and the Calendar all follow it.'})}</div>
-    <div class="section-title">${L({rur:'Fajr aur Isha', en:'Fajr and Isha'})}</div>
-    <div class="backup-note" style="margin-top:0;">Muslim World League: Fajr 18°, Isha 17°. ${L({rur:'Yeh waqt AlAdhan ke hisaab se 1 minute ke andar milte hain.', en:'These times match AlAdhan within a minute.'})}</div>`;
+    <div class="section-title">${L({rur:'Hisaab ka tareeqa (Fajr aur Isha)', en:'Calculation method (Fajr and Isha)'})}</div>
+    ${Object.entries(CALC_METHODS).map(([k,m])=>`<div class="lang-opt ${ (state.calcMethod||'mwl')===k?'on':''}" data-cm="${k}" role="radio" aria-checked="${(state.calcMethod||'mwl')===k}" tabindex="0"><div><b>${m.name}</b><span>${m.note}</span></div><div class="lang-check">${(state.calcMethod||'mwl')===k?'✓':''}</div></div>`).join('')}
+    <div class="backup-note">${L({rur:'India aur Pakistan mein aam taur par Karachi ya MWL chalta hai. Agar aapki masjid ke waqt se farq aaye to yahan tareeqa badlein ya neeche minute adjust karein.', en:'Karachi or MWL is common in India and Pakistan. If times differ from your mosque, change the method here or fine-tune minutes below.'})}</div>
+    <div class="section-title">${L({rur:'Har namaz ke minute adjust karein', en:'Adjust minutes per prayer'})}</div>
+    <div class="adj-list">${ADJ_KEYS.map(k=>{ const v = prayerAdjust(k); return `<div class="adj-row"><span>${({fajr:'Fajr',zuhr:'Zuhr',asr:'Asr',maghrib:'Maghrib',isha:'Isha'})[k]}</span><button data-adj="${k}" data-d="-1" aria-label="${k} minus 1 minute">−</button><b>${v>0?'+':''}${v} min</b><button data-adj="${k}" data-d="1" aria-label="${k} plus 1 minute">+</button></div>`; }).join('')}
+      <button class="backup-btn" id="adjReset" style="margin-top:10px;">${L({rur:'Sab adjustment hata dein', en:'Reset all adjustments'})}</button></div>
+    <div class="backup-note">${L({rur:'Waqt aap ke shahar ke time zone (garmi/sardi ki ghadi samet) ke mutabiq hain.', en:"Times follow your city's time zone, including daylight saving."})}</div>`;
   document.querySelectorAll('#detailBody [data-asr]').forEach(b=>{ b.onclick = ()=>{ state.asrMethod = b.dataset.asr; saveState(); afterCalcChange(); renderCalcSettings(); }; });
+  document.querySelectorAll('#detailBody [data-cm]').forEach(el=>{
+    const go = ()=>{ state.calcMethod = el.dataset.cm; saveState(); afterCalcChange(); renderCalcSettings(); };
+    el.onclick = go; el.onkeydown = e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+  document.querySelectorAll('#detailBody [data-adj]').forEach(b=>{ b.onclick = ()=>{
+    state.adjust = state.adjust || {}; const k = b.dataset.adj;
+    state.adjust[k] = Math.max(-30, Math.min(30, prayerAdjust(k) + (+b.dataset.d))); saveState(); afterCalcChange(); renderCalcSettings();
+  }; });
+  const ar = document.getElementById('adjReset'); if(ar) ar.onclick = ()=>{ state.adjust = {}; saveState(); afterCalcChange(); renderCalcSettings(); };
   document.querySelectorAll('#detailBody [data-hoff]').forEach(b=>{ b.onclick = ()=>{ setHijriOffset(+b.dataset.hoff); afterCalcChange(); renderCalcSettings(); }; });
 }
 function iqamahState(){
@@ -4062,7 +4125,7 @@ function renderSettingsMenu(){
     ['notif','🔔','Yaad-dahaniyan', ''],
     ['azaan','🔊','Azaan', azaanState().on ? 'On' : 'Off'],
     ['nafil','🌙','Nafil Namaz Mark Karein', nafilOn() ? 'On' : 'Off'],
-    ['calc','🧮','Namaz ka Hisaab', (state.asrMethod==='shafi' ? "Asr: Shafi'i" : 'Asr: Hanafi') + (hijriOffset() ? ` · Hijri ${hijriOffset()>0?'+':''}${hijriOffset()}` : '')],
+    ['calc','🧮','Namaz ka Hisaab', (calcMethod().name.split(' (')[0]) + ' · ' + (state.asrMethod==='shafi' ? "Asr: Shafi'i" : 'Asr: Hanafi') + (hijriOffset() ? ` · Hijri ${hijriOffset()>0?'+':''}${hijriOffset()}` : '')],
     ['iqamah','🕌','Jamaat ka Waqt (Iqamah)', iqamahState().on ? 'On' : 'Off'],
     ['howto','📘','Istemal ka Tareeqa', ''],
     ['backup','💾','Data Backup', ''],
@@ -4303,7 +4366,7 @@ function renderMoreSettings(){
     statusEl.innerHTML = '<div>Location maloom ki jaa rahi hai...</div><div class="skel-line"></div><div class="skel-line short"></div>';
     navigator.geolocation.getCurrentPosition(
       (pos)=>{
-        state.location = {name:'Current Location', lat:pos.coords.latitude, lon:pos.coords.longitude, source:'gps'};
+        state.location = {name:'Current Location', lat:pos.coords.latitude, lon:pos.coords.longitude, source:'gps', tz:deviceTZ()};
         saveState();
         renderHome(); renderCalendar();
         renderMoreSettings();
@@ -6456,7 +6519,7 @@ function reloadSmooth(backToSettings){
   /* ---- Hero card: the live prayer, with the next one underneath. Full / slim strip / off (swipe or ✕ steps it down;
           Settings → Home Card brings it back). Small screens get the slim strip so the list keeps its room. ---- */
   const C = 138.23; // circumference of r=22
-  const cd = ms => { const m = Math.max(0, Math.ceil(ms / 60000)); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + 'm'; };
+  const cd = ms => { const m = Math.max(0, Math.ceil(ms / 60000)); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + ' min' : m + ' min'; };
   const inTxt = ms => L({ rur: cd(ms) + ' mein', en: 'in ' + cd(ms) });
   const heroMode = ()=>{ const m = state.heroMode || 'full'; return (m === 'full' && window.matchMedia('(max-height:680px)').matches) ? 'strip' : m; };
   const iconOf = k => (PRAYER_META[k] && PRAYER_META[k].icon) || '🕌';

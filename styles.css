@@ -1451,3 +1451,7 @@ button:focus:not(:focus-visible), [role=button]:focus:not(:focus-visible){ outli
   .tt-table, .tt-table td, .tt-table th{ color:#000 !important; background:#fff !important; }
   .tt-table tr.today td{ background:#e8e8e8 !important; }
 }
+.adj-row{ display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid var(--line); }
+.adj-row span{ flex:1; font-weight:700; }
+.adj-row b{ min-width:64px; text-align:center; font-variant-numeric:tabular-nums; }
+.adj-row button[data-adj]{ width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:20px; line-height:1; }
