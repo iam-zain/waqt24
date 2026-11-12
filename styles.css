@@ -1707,3 +1707,8 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 
 /* Urdu lines sat too close to the rule above and left a gap below: lift the rules a little */
 .tp-p[dir=rtl]{ background-position:0 calc(var(--tpu) * .76); }
+
+/* Urdu: text a little lower between the rules, and a taller highlight band that covers the whole line of script */
+.tp-p[dir=rtl]{ background-position:0 calc(var(--tpu) * .6); }
+.tp-p[dir=rtl] .tp-a.cur, .tp-p[dir=rtl] .tp-a.alt.cur{ background:linear-gradient(to bottom, transparent 8%, color-mix(in srgb, var(--accent) 26%, transparent) 8%, color-mix(in srgb, var(--accent) 26%, transparent) 94%, transparent 94%); }
+.tp-p[dir=rtl] .tp-a.tap{ background:linear-gradient(to bottom, transparent 8%, color-mix(in srgb, var(--accent) 15%, transparent) 8%, color-mix(in srgb, var(--accent) 15%, transparent) 94%, transparent 94%); }
