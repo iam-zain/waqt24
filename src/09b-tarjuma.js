@@ -35,15 +35,15 @@ function devaWord(w){
     const y = syl[k]; if(y.lit || !y.inh) continue;
     let lastC = true; for(let j = k + 1; j < syl.length; j++) if(!syl[j].lit){ lastC = false; break; }
     if(y.tail) continue;
-    if(lastC){ y.drop = true; continue; }
+    if(lastC){ if(syl.filter(z=>!z.lit).length > 1) y.drop = true; continue; }
     if(k > 0 && has(k-1) && has(k+1) && !syl[k+1].lit) y.drop = true;
   }
-  return syl.map(y=> y.lit ? y.lit : y.c + (y.inh ? (y.drop ? '' : 'a') : (y.v || '')) + (y.tail === 'n' && y.v === 'e' ? 'in' : (y.tail || ''))).join('');
+  return syl.map(y=> y.lit ? y.lit : y.c + (y.inh ? (y.drop ? '' : 'a') : (y.tail === 'n' && y.v === 'ee' ? '' : (y.v || ''))) + (y.tail === 'n' && y.v === 'e' ? 'in' : (y.tail === 'n' && y.v === 'ee' ? 'in' : (y.tail || '')))).join('');
 }
-const DV_FIX = { lie:'liye', koee:'koi', naheen:'nahin', yah:'yeh', vah:'woh', kiya:'kiya', nam:'naam', bara:'bada', kisee:'kisi', hee:'hi', bhee:'bhi', jaaoge:'jaoge' };
+const DV_FIX = { lie:'liye', koee:'koi', naheen:'nahin', yah:'yeh', vah:'woh', kiya:'kiya', nam:'naam', bara:'bada', kisee:'kisi', hee:'hi', bhee:'bhi', jaaoge:'jaoge', gae:'gaye', gaee:'gayi', kee:'ki', ke:'ke', meree:'meri', tumhaaree:'tumhari', hamaaree:'hamari', unheen:'unhein' };
 function devaToRoman(text){
   let out = text.replace(/[\u0900-\u097F]+/g, w=>devaWord(w)).replace(/।/g, '.').replace(/\s+/g, ' ').trim();
-  out = out.replace(/[a-z]+/g, w=>DV_FIX[w] || w);
+  out = out.replace(/[a-z]+/g, w=>DV_FIX[w] || (w.length > 3 && /ee$/.test(w) ? w.slice(0, -2) + 'i' : w));
   out = out.replace(/(^|[.?!]\s+)([a-z])/g, (m, a, b)=>a + b.toUpperCase()).replace(/\ballah\b/g, 'Allah').replace(/\bmuhammad\b/gi, 'Muhammad');
   return out;
 }
