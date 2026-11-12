@@ -184,6 +184,7 @@ function renderQuranReader(page){
       <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
       <button class="quran-tool" id="quranShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
+      <button class="quran-tool ${qa.on?'on':''}" id="quranListenBtn">🎧 ${L({rur:'Sunein', en:'Listen'})}</button>
       <button class="quran-tool" id="quranSignsBtn">🛑 ${L({rur:'Alamaat', en:'Signs'})}</button>
       <button class="quran-tool qt-ed" id="quranEdBtn">${quranEd()==='tajweed' ? quranBookSvg(false, 22) + ' Normal' : quranBookSvg(true, 22) + ' Tajweed'}</button>
     </div>
@@ -210,6 +211,7 @@ function renderQuranReader(page){
   const wrap = document.getElementById('quranWrap');
   const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); };
   document.getElementById('quranZoomBtn').onclick = toggleZoom;
+  document.getElementById('quranListenBtn').onclick = ()=> quranListen(page);
   document.getElementById('quranSignsBtn').onclick = renderQuranSigns;
   document.getElementById('quranShareBtn').onclick = ()=> shareQuranPage(page);
   document.getElementById('quranSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranReader(page); if(state.quranTurnSound) playPageSound(); };
