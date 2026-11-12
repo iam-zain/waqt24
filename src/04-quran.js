@@ -24,9 +24,16 @@ const TAJWEED_GUIDE_LIST = Array.from({ length: TAJWEED_GUIDE_COUNT }, (_, i) =>
 function quranMarked(p){ return (state.quranMarks||[]).includes(p); }
 /* Night page: white text on black. Follows the app's dark theme unless the reader switched it */
 /* Reading tints: a light colour laid over the page picture with multiply, so black text stays black. */
-const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'cream',n:'Cream',c:'#f3e6c4'},{k:'sand',n:'Sand',c:'#e6d2a8'},{k:'mint',n:'Mint',c:'#d6ecd9'},{k:'sky',n:'Sky',c:'#d3e6f6'},{k:'rose',n:'Rose',c:'#f6d9e1'},{k:'lilac',n:'Lilac',c:'#e3daf3'}];
+const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'cream',n:'Cream',c:'#f3e6c4',a:'#a8801a'},{k:'sand',n:'Sand',c:'#e6d2a8',a:'#8a6a2a'},{k:'mint',n:'Mint',c:'#d6ecd9',a:'#2f8f57'},{k:'sky',n:'Sky',c:'#d3e6f6',a:'#2b7fc0'},{k:'rose',n:'Rose',c:'#f6d9e1',a:'#c2456b'},{k:'lilac',n:'Lilac',c:'#e3daf3',a:'#7a5fc8'}];
+/* the recitation player wears the same colour as the page */
+function quranTintPlayer(){
+  const q = document.getElementById('qPlayer'); if(!q) return;
+  const t = QURAN_TINTS.find(x=>x.k === (state.quranTint||'')), on = t && t.c && document.getElementById('quranWrap') && !quranNightOn();
+  if(on){ q.setAttribute('data-tint', t.k); q.style.setProperty('--qtc', t.c); q.style.setProperty('--qta', t.a); } else { q.removeAttribute('data-tint'); }
+}
 let quranTintOpen = false;
 function quranTintApply(){
+  quranTintPlayer();
   const wrap = document.getElementById('quranWrap'); if(!wrap) return;
   let el = wrap.querySelector('.qtint');
   const t = QURAN_TINTS.find(x=>x.k === (state.quranTint||'')), img = wrap.querySelector('.quran-page-img');

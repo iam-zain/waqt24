@@ -315,7 +315,7 @@ function qaUI(){
     : (qa.exact ? cnt + ' · Mishary Alafasy' : L({rur:'Mishary Alafasy · shuruaat andaaze se, ⏮ ⏭ se theek karein', en:'Mishary Alafasy · start is approximate, adjust with ⏮ ⏭'}));
   el.querySelector('#qpPlay').innerHTML = qa.playing ? QA_ICON.pause : QA_ICON.play;
   el.classList.toggle('show', true);
-  qaPlace(); qaProg(); qaHL();
+  qaPlace(); qaProg(); qaHL(); if(typeof quranTintPlayer === 'function') quranTintPlayer();
   qaMediaMeta();
 }
 (function(){
