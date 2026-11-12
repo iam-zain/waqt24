@@ -2966,9 +2966,10 @@ function renderQuranIndex(kind){
       <button id="qiManzilTab" class="${isManzil?'active':''}">Manzil</button>
       <button id="qiMarksTab" class="${isMarks?'active':''}">🔖 ${marks.length}</button>
     </div>
+    ${isMarks ? '' : `<div class="search-bar-wrap" style="margin:0 14px 10px;"><input id="qiSearch" type="search" inputmode="search" autocomplete="off" placeholder="${kind==='surah' ? L({rur:'Surah ka naam ya number', en:'Search surah by name or number'}) : isPara ? L({rur:'Paara number', en:'Para number'}) : L({rur:'Manzil number', en:'Manzil number'})}" aria-label="Search"></div>`}
     ${isMarks && !marks.length ? `<div class="empty-state">${L({rur:'Abhi koi nishaan nahi. Kisi page par 🔖 dabayein.', en:'No bookmarks yet. Tap 🔖 on any page.'})}</div>` : ''}
     <div class="more-list" style="padding-top:0;">${list.map(x=>`
-      <div class="more-item quran-idx-item ${x===curItem?'on':''}" data-page="${x.page}">
+      <div class="more-item quran-idx-item ${x===curItem?'on':''}" data-page="${x.page}" data-n="${isMarks?'':x.n}" data-q="${isMarks?'':String(x.name+' '+(x.ar||'')).toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]/g,'')}">
         <div class="ic">${x.n}</div>
         <div class="lbl">${x.name}${sub(x)}</div>
         <div class="qi-page">${L({rur:'Page', en:'Page'})} ${x.page}</div>
@@ -3001,6 +3002,22 @@ function renderQuranIndex(kind){
   document.getElementById('qiManzilTab').onclick = ()=> renderQuranIndex('manzil');
   document.getElementById('qiMarksTab').onclick = ()=> renderQuranIndex('marks');
   document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=> renderQuranReader(parseInt(el.dataset.page)); });
+  const qiSearch = document.getElementById('qiSearch');
+  if(qiSearch){
+    const rows = [...document.querySelectorAll('#detailBody .quran-idx-item')];
+    const none = document.createElement('div'); none.className = 'empty-state'; none.style.display = 'none';
+    none.textContent = L({rur:'Koi nateeja nahi mila.', en:'No match found.'});
+    rows[0] && rows[0].parentElement.after(none);
+    qiSearch.oninput = ()=>{
+      const raw = qiSearch.value.trim().toLowerCase(), q = raw.replace(/[^a-z0-9\u0600-\u06ff]/g,'');
+      let shown = 0;
+      rows.forEach(r=>{
+        const ok = !q || (/^\d+$/.test(q) ? r.dataset.n === String(parseInt(q)) : r.dataset.q.includes(q));
+        r.style.animation = 'none'; r.style.display = ok ? '' : 'none'; if(ok) shown++;
+      });
+      none.style.display = shown ? 'none' : '';
+    };
+  }
   const on = document.querySelector('#detailBody .quran-idx-item.on');
   if(on) setTimeout(()=> on.scrollIntoView({ block:'center' }), 30);
 }
