@@ -1684,3 +1684,6 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tp-p[dir=rtl]{ background-position:0 calc(var(--tpu) * .27); }
 .tp-p[dir=rtl] .tp-a.cur, .tp-p[dir=rtl] .tp-a.alt.cur{ background:linear-gradient(to bottom, transparent 20%, color-mix(in srgb, var(--accent) 26%, transparent) 20%, color-mix(in srgb, var(--accent) 26%, transparent) 90%, transparent 90%); }
 .tp-p[dir=rtl] .tp-a.tap{ background:linear-gradient(to bottom, transparent 20%, color-mix(in srgb, var(--accent) 15%, transparent) 20%, color-mix(in srgb, var(--accent) 15%, transparent) 90%, transparent 90%); }
+
+/* Urdu: text a little lower again (rules up a few pixels) */
+.tp-p[dir=rtl]{ background-position:0 calc(var(--tpu) * -.06); }
