@@ -76,8 +76,8 @@ function qaFollowPage(){
   if(!qa.on || !qa.syncPage || !document.getElementById('quranWrap') || !document.getElementById('detailOverlay').classList.contains('active')) return;
   const viewing = (typeof state !== 'undefined') ? state.quranPage : 0;
   if(viewing !== qa.syncPage) return;
-  let np = qa.syncPage;
-  while(np < qaLastPage() && qaPageStart(np + 1).abs <= qa.abs) np++;
+  /* exact table: the page this ayah is on (works forwards and backwards) */
+  const np = Math.min(qaLastPage(), qaAyahPage(qa.abs));
   if(np === qa.syncPage) return;
   qa.syncPage = np;           /* set first, so the reader's own page-change hook does not restart the audio */
   renderQuranReader(np);
