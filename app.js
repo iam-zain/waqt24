@@ -3019,6 +3019,7 @@ function renderQuranIndex(kind){
   document.getElementById('detailTitle').textContent = isMarks ? L({rur:'Nishaan', en:'Bookmarks'}) : isPara ? L({rur:'30 Paare', en:'30 Paras'}) : isManzil ? L({rur:'7 Manzil', en:'7 Manzils'}) : L({rur:'114 Surah', en:'114 Surahs'});
   const sub = x => isMarks ? `<span class="lblSub">${x.sub}</span>` : isPara ? '' : isManzil ? `<span class="lblSub">${x.from} – ${x.to}</span>` : `<span class="lblSub ar-font">${x.ar}</span>`;
   document.getElementById('detailBody').innerHTML = `
+    <div class="qi-sticky">
     <div class="view-toggle" style="margin:0 14px 12px;">
       <button id="qiParaTab" class="${isPara?'active':''}">${L({rur:'Paara', en:'Para'})}</button>
       <button id="qiSurahTab" class="${kind==='surah'?'active':''}">Surah</button>
@@ -3026,6 +3027,7 @@ function renderQuranIndex(kind){
       <button id="qiMarksTab" class="${isMarks?'active':''}">🔖 ${marks.length}</button>
     </div>
     ${isMarks ? '' : `<div class="search-bar-wrap" style="margin:0 14px 10px;"><input id="qiSearch" type="search" inputmode="search" autocomplete="off" placeholder="${kind==='surah' ? L({rur:'Surah ka naam ya number', en:'Search surah by name or number'}) : isPara ? L({rur:'Paara number', en:'Para number'}) : L({rur:'Manzil number', en:'Manzil number'})}" aria-label="Search"></div>`}
+    </div>
     ${isMarks && !marks.length ? `<div class="empty-state">${L({rur:'Abhi koi nishaan nahi. Kisi page par 🔖 dabayein.', en:'No bookmarks yet. Tap 🔖 on any page.'})}</div>` : ''}
     <div class="more-list" style="padding-top:0;">${list.map(x=>`
       <div class="more-item quran-idx-item ${x===curItem?'on':''}" data-page="${x.page}" data-n="${isMarks?'':x.n}" data-f="${isMarks||kind!=='surah'?'':String(x.name).replace(/^(al|an|ar|as|at|ad|az|ash|adh|ath)-/i,'').charAt(0).toLowerCase()+'|'+String(x.ar||'').replace(/^ال/,'').charAt(0)}" data-q="${isMarks?'':String(x.name+' '+(x.ar||'')).toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]/g,'')}">

@@ -1593,3 +1593,6 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tr-sheet[data-tint] .tr-ayah:nth-child(odd){ background:color-mix(in srgb, var(--qtc) 55%, #ffffff); }
 .tr-ayah.cur, .tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--accent) 22%, transparent); box-shadow:inset 3px 0 0 var(--accent); }
 .tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--qtc) 100%, #ffffff); box-shadow:inset 3px 0 0 var(--qta); }
+
+/* Qur'an index: the tabs and the search box stay at the top while the list scrolls */
+.qi-sticky{ position:sticky; top:-20px; z-index:6; background:var(--bg); padding:20px 0 2px; margin-top:-20px; }
