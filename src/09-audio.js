@@ -30,6 +30,35 @@ function qaPageStart(page){
   return { abs: Math.max(1, Math.min(QA_TOTAL, abs)), exact:false };
 }
 /* While the recitation plays and the reader is showing the page it started from, turn the page when the audio reaches the next one. */
+/* ---- Line highlight: the line(s) being recited are tinted on the page image. Light: one absolutely positioned <div>, moved on every ayah. ---- */
+const QA_GEO = { normal:{ t:.0872, b:.9111 }, tajweed:{ t:.0677, b:.8906 } };
+/* 8-line pages (Al-Fatihah and the start of Al-Baqarah): line 2 centre and line step, as a fraction of the image height */
+const QA_GEO_SHORT = { 2:{ normal:[.530,.0455], tajweed:[.463,.0677] }, 3:{ normal:[.543,.0443], tajweed:[.478,.0667] } };
+function qaAyahPage(abs){ let lo = 0, hi = QA_PAGE_FIRST.length - 1; while(lo < hi){ const m = (lo + hi + 1) >> 1; if(QA_PAGE_FIRST[m] <= abs) lo = m; else hi = m - 1; } return lo + 1; }
+function qaLineSpan(abs, bism){
+  const i = (abs - 1) * 2; let a = parseInt(QA_LINES[i], 16), b = parseInt(QA_LINES[i+1], 16);
+  if(bism){ a = b = a - 1; if(a < 1) return null; }
+  return [a, b];
+}
+function qaHL(){
+  const wrap = document.getElementById('quranWrap');
+  let hl = wrap && wrap.querySelector('.qhl');
+  const page = wrap && state.quranPage;
+  if(!wrap || !qa.on || typeof QA_LINES === 'undefined' || !page || page > QURAN_SURAHS[113].page || qaAyahPage(qa.abs) !== page){ if(hl) hl.remove(); return; }
+  const img = wrap.querySelector('.quran-page-img'), span = qaLineSpan(qa.abs, qa.bism);
+  if(!img || !span){ if(hl) hl.remove(); return; }
+  if(!img.naturalWidth){ if(!img._hlw){ img._hlw = 1; img.addEventListener('load', ()=>qaHL(), { once:true }); } return; }
+  const ed = quranEd(), g = QA_GEO[ed], sh = QA_GEO_SHORT[page];
+  let y0, y1;
+  if(sh){ const [c, st] = sh[ed], h = st * .46; y0 = c + st * (span[0] - 2) - h; y1 = c + st * (span[1] - 2) + h; }
+  else { const h = (g.b - g.t) / 15; y0 = g.t + (span[0] - 1) * h; y1 = g.t + span[1] * h; }
+  /* the image is letterboxed inside its box (object-fit: contain): find where it really is */
+  const bw = img.clientWidth, bh = img.clientHeight, k = Math.min(bw / img.naturalWidth, bh / img.naturalHeight);
+  const iw = img.naturalWidth * k, ih = img.naturalHeight * k, ox = img.offsetLeft + (bw - iw) / 2, oy = img.offsetTop + (bh - ih) / 2;
+  if(!hl){ hl = document.createElement('div'); hl.className = 'qhl'; wrap.appendChild(hl); }
+  hl.style.cssText = `left:${(ox + iw * .085).toFixed(1)}px;width:${(iw * .83).toFixed(1)}px;top:${(oy + ih * y0).toFixed(1)}px;height:${(ih * (y1 - y0)).toFixed(1)}px`;
+}
+window.addEventListener('resize', ()=>{ if(qa.on) qaHL(); });
 function qaFollowPage(){
   if(!qa.on || !qa.syncPage || !document.getElementById('quranWrap') || !document.getElementById('detailOverlay').classList.contains('active')) return;
   const viewing = (typeof state !== 'undefined') ? state.quranPage : 0;
@@ -230,7 +259,7 @@ function qaPlace(){
 function qaUI(){
   document.body.classList.toggle('qp-on', qa.on);
   const lb = document.getElementById('quranListenBtn'); if(lb) lb.classList.toggle('on', qa.on);
-  if(!qa.on){ const e = document.getElementById('qPlayer'); if(e) e.classList.remove('show'); return; }
+  if(!qa.on){ const e = document.getElementById('qPlayer'); if(e) e.classList.remove('show'); qaHL(); return; }
   const el = qaBar(), r = qaSurahAyah(qa.abs), nm = (QURAN_SURAHS[r.s-1] || {}).name || '';
   el.querySelector('#qpTitle').textContent = qa.bism ? `${nm} · Bismillah` : `${nm} · ${L({rur:'Ayat', en:'Ayah'})} ${qa.exact ? '' : '≈ '}${r.s}:${r.a}`;
   const cnt = `${L({rur:'Ayat', en:'Ayah'})} ${r.a} / ${QA_COUNTS[r.s-1]}`;
@@ -239,7 +268,7 @@ function qaUI(){
     : (qa.exact ? cnt + ' · Mishary Alafasy' : L({rur:'Mishary Alafasy · shuruaat andaaze se, ⏮ ⏭ se theek karein', en:'Mishary Alafasy · start is approximate, adjust with ⏮ ⏭'}));
   el.querySelector('#qpPlay').innerHTML = qa.playing ? QA_ICON.pause : QA_ICON.play;
   el.classList.toggle('show', true);
-  qaPlace(); qaProg();
+  qaPlace(); qaProg(); qaHL();
   qaMediaMeta();
 }
 (function(){

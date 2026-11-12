@@ -212,9 +212,10 @@ function renderQuranReader(page){
   };
   document.getElementById('quranNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderQuranReader(page); };
   const wrap = document.getElementById('quranWrap');
-  const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); };
+  const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); setTimeout(()=>{ if(typeof qaHL === 'function') qaHL(); }, 30); };
   document.getElementById('quranZoomBtn').onclick = toggleZoom;
   document.getElementById('quranListenBtn').onclick = ()=>{ if(qa.on) qaStop(); else quranListen(page); };
+  if(typeof qaHL === 'function') qaHL();
   document.getElementById('quranSignsBtn').onclick = renderQuranSigns;
   document.getElementById('quranShareBtn').onclick = ()=> shareQuranPage(page);
   document.getElementById('quranSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranReader(page); if(state.quranTurnSound) playPageSound(); };

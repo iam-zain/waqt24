@@ -1476,3 +1476,7 @@ button:focus:not(:focus-visible), [role=button]:focus:not(:focus-visible){ outli
 .qp button{ flex:0 0 auto; width:40px; height:40px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--text); display:inline-flex; align-items:center; justify-content:center; }
 .qp button.qp-main{ width:46px; height:46px; background:var(--accent); border-color:var(--accent); color:var(--fardText,#08131c); }
 body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:170px; }
+
+/* Qur'an recitation: highlighted line(s) */
+.qhl{ position:absolute; z-index:2; pointer-events:none; border-radius:6px; background:rgba(40,170,95,.22); box-shadow:0 0 0 1.5px rgba(40,170,95,.55) inset; mix-blend-mode:multiply; transition:top .28s ease, height .28s ease; }
+.quran-page-wrap.night .qhl, .quran-page-wrap.night-color .qhl{ mix-blend-mode:screen; background:rgba(80,220,140,.2); }
