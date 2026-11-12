@@ -1687,3 +1687,6 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 
 /* Urdu: text a little lower again (rules up a few pixels) */
 .tp-p[dir=rtl]{ background-position:0 calc(var(--tpu) * -.06); }
+
+/* Urdu rules: halfway between the two extremes tried, so the text clears the rule above and below */
+.tp-p[dir=rtl]{ background-position:0 calc(var(--tpu) * .1); }
