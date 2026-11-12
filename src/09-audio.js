@@ -137,11 +137,31 @@ function qaTimes(){
   done = Math.min(done, total);
   return { total, done, approx: known.length < n || (hasB && !qa.dur.b) };
 }
+/* Which ayah (and how far into it) is at fraction f of the whole surah? */
+function qaLocate(f){
+  const r = qaSurahAyah(qa.abs), n = QA_COUNTS[r.s-1], base = QA_CUM[r.s-1], T = qaTimes();
+  const known = []; for(let a = 1; a <= n; a++) if(qa.dur[base+a]) known.push(qa.dur[base+a]);
+  const avg = known.length ? known.reduce((x,y)=>x+y,0) / known.length : 8;
+  let t = Math.max(0, Math.min(.9999, f)) * T.total;
+  if(qaHasBism(r.s)){ const bd = qa.dur.b || 5; if(t < bd) return { abs: base + 1, bism:true, off:t }; t -= bd; }
+  for(let a = 1; a <= n; a++){ const d = qa.dur[base+a] || avg; if(t < d || a === n) return { abs: base + a, bism:false, off: Math.min(t, d) }; t -= d; }
+}
+function qaSeek(f){
+  const loc = qaLocate(f); if(!loc) return;
+  qaEls();
+  const same = loc.abs === qa.abs && loc.bism === qa.bism && qa.cur.src === qaFile(loc.abs, loc.bism);
+  qa.abs = loc.abs; qa.bism = loc.bism; qa.exact = true; qaFollowPage();
+  const apply = ()=>{ try{ qa.cur.currentTime = loc.off; }catch(e){} qaProg(); };
+  if(same){ apply(); if(qa.cur.paused){ const p = qa.cur.play(); if(p && p.catch) p.catch(()=>qaFail()); } return; }
+  qa.cur.pause(); qaPlayCurrent();
+  if(loc.off > .3){ const el = qa.cur; if(el.readyState >= 1) apply(); else el.addEventListener('loadedmetadata', apply, { once:true }); }
+}
 const qaFmt = x=>{ x = Math.max(0, Math.round(x)); return Math.floor(x/60) + ':' + String(x%60).padStart(2,'0'); };
 function qaProg(){
   if(!qa.on) return;
   const e = document.getElementById('qPlayer'); if(!e) return;
   const T = qaTimes(), ap = T.approx ? '~' : '';
+  if(e.querySelector('.qp-bar').matches(':active')) return;
   e.querySelector('#qpFill').style.width = (T.total ? T.done / T.total * 100 : 0).toFixed(2) + '%';
   e.querySelector('#qpT1').textContent = qaFmt(T.done);
   e.querySelector('#qpT2').textContent = '-' + ap + qaFmt(T.total - T.done);
@@ -261,6 +281,15 @@ function qaBar(){
   el.querySelector('#qpNext').onclick = ()=>qaStep(1);
   el.querySelector('#qpPlay').onclick = qaToggle;
   el.querySelector('#qpClose').onclick = qaStop;
+  /* tap or drag on the bar to jump: the recitation continues from that point */
+  const bar = el.querySelector('.qp-bar'); let drag = false;
+  const frac = ev=>{ const r = bar.getBoundingClientRect(); return Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)); };
+  bar.addEventListener('pointerdown', ev=>{ drag = true; try{ bar.setPointerCapture(ev.pointerId); }catch(e){} el.querySelector('#qpFill').style.width = (frac(ev)*100) + '%'; });
+  bar.addEventListener('pointermove', ev=>{ if(drag) el.querySelector('#qpFill').style.width = (frac(ev)*100) + '%'; });
+  bar.addEventListener('pointerup', ev=>{ if(!drag) return; drag = false; qaSeek(frac(ev)); });
+  bar.addEventListener('pointercancel', ()=>{ drag = false; qaProg(); });
+  bar.tabIndex = 0;
+  bar.addEventListener('keydown', ev=>{ if(ev.key === 'ArrowRight') qaStep(1); else if(ev.key === 'ArrowLeft') qaStep(-1); });
   return el;
 }
 function qaPlace(){

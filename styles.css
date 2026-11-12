@@ -1480,3 +1480,6 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:170px; }
 /* Qur'an recitation: highlighted line(s) */
 .qhl{ position:absolute; z-index:2; pointer-events:none; border-radius:6px; background:rgba(40,170,95,.22); box-shadow:0 0 0 1.5px rgba(40,170,95,.55) inset; mix-blend-mode:multiply; transition:top .28s ease, height .28s ease; }
 .quran-page-wrap.night .qhl, .quran-page-wrap.night-color .qhl{ mix-blend-mode:screen; background:rgba(80,220,140,.2); }
+.qp-bar{ position:relative; height:6px; cursor:pointer; touch-action:none; overflow:visible; }
+.qp-bar::before{ content:''; position:absolute; left:0; right:0; top:-12px; bottom:-12px; }
+.qp-bar i{ border-radius:3px; }
