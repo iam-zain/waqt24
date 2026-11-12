@@ -1700,3 +1700,7 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tp-p[dir=rtl] .tp-a.cur, .tp-p[dir=rtl] .tp-a.alt.cur{ background:linear-gradient(to bottom, transparent 24%, color-mix(in srgb, var(--accent) 24%, transparent) 24%, color-mix(in srgb, var(--accent) 24%, transparent) 78%, transparent 78%); }
 .tp-p[dir=rtl] .tp-a.tap{ background:linear-gradient(to bottom, transparent 24%, color-mix(in srgb, var(--accent) 14%, transparent) 24%, color-mix(in srgb, var(--accent) 14%, transparent) 78%, transparent 78%); }
 .tp-p[dir=rtl] .tp-n{ display:inline-block; }
+
+/* more air between lines: the rules stay midway between two lines of text */
+.tp-panel{ --tpl:calc(var(--tpz) * 2.1); }
+.tp-p[dir=rtl]{ --tpl:calc(var(--tpu) * 2.9); background-position:0 calc(var(--tpu) * 1.04); }
