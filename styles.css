@@ -1653,3 +1653,13 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 
 /* Nastaliq sits low in its line box: move the ruled lines so each rule falls between two lines of text, not through them */
 .tp-p[dir=rtl]{ background-position:0 calc(var(--tpl) * .45); }
+
+/* floating Tarjuma panel: movable by its header, resizable from both edges */
+.tp-head{ cursor:grab; touch-action:none; }
+.tp-panel.drag .tp-head{ cursor:grabbing; }
+.tp-panel.tp-free{ box-shadow:0 10px 34px rgba(0,0,0,.35), inset 0 0 0 4px var(--card), inset 0 0 0 5px color-mix(in srgb, var(--accent) 26%, transparent); }
+.tp-rs{ display:none; flex:0 0 auto; height:20px; align-items:center; justify-content:center; cursor:ns-resize; touch-action:none; }
+.tp-rs i{ width:44px; height:5px; border-radius:3px; background:color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.tp-panel.tp-free .tp-rs{ display:flex; }
+.tp-panel.drag{ transition:none !important; }
+.tp-panel.tp-free:not([style*="bottom: 0px"]){ margin:0 10px; }

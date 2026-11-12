@@ -7,36 +7,56 @@ const TRP_SIZES = [17, 20, 23, 27];
 const trpSizeIdx = ()=> (state.trpSize >= 0 && state.trpSize < TRP_SIZES.length) ? state.trpSize : 1;
 const trpDigits = (n, ur)=> ur ? String(n).replace(/\d/g, d=>'٠١٢٣٤٥٦٧٨٩'[d]) : String(n);
 const trpMsg = ()=> L({rur:'Load ho raha hai…', en:'Loading…'});
+const trpFree = ()=> typeof state.trpTop === 'number';
 function trpPanel(){
   let el = document.getElementById('tpPanel'); if(el) return el;
   el = document.createElement('div'); el.id = 'tpPanel'; el.className = 'tp-panel'; el.setAttribute('role', 'region'); el.setAttribute('aria-label', 'Translation page');
-  el.innerHTML = '<div class="tp-grip" aria-label="Drag to resize"><i></i></div><div class="tp-head" id="tpHead"></div><div class="tp-scroll" id="tpScroll"></div>';
+  el.innerHTML = '<div class="tp-grip" aria-label="Drag to resize"><i></i></div><div class="tp-head" id="tpHead"></div><div class="tp-scroll" id="tpScroll"></div><div class="tp-rs" aria-label="Drag to resize"><i></i></div>';
   (document.getElementById('detailOverlay').parentElement || document.body).appendChild(el);
-  const g = el.querySelector('.tp-grip'); let y0 = 0, h0 = 0, drag = false;
-  g.addEventListener('pointerdown', e=>{ drag = true; y0 = e.clientY; h0 = el.offsetHeight; try{ g.setPointerCapture(e.pointerId); }catch(x){} el.classList.add('drag'); });
-  g.addEventListener('pointermove', e=>{ if(drag) trpSetH(h0 + (y0 - e.clientY), false); });
-  const end = ()=>{ if(!drag) return; drag = false; el.classList.remove('drag'); state.trpH = +(el.offsetHeight / innerHeight).toFixed(3); saveState(); trpKeepArabic(true); };
-  g.addEventListener('pointerup', end); g.addEventListener('pointercancel', end);
+  /* drag the top handle = taller / shorter, the header band = move the whole panel up or down, the bottom bar (when floating) = resize from below.
+     Double-tap the handle or the header to dock it to the bottom again. */
+  const wire = (node, mode)=>{
+    let on = false, y0 = 0, top0 = 0, h0 = 0, moved = false;
+    node.addEventListener('pointerdown', e=>{ if(e.target.closest('button')) return; on = true; moved = false; y0 = e.clientY; const r = el.getBoundingClientRect(); top0 = r.top; h0 = r.height; try{ node.setPointerCapture(e.pointerId); }catch(x){} el.classList.add('drag'); });
+    node.addEventListener('pointermove', e=>{
+      if(!on) return; const H = innerHeight, dy = e.clientY - y0; if(Math.abs(dy) > 3) moved = true; if(!moved) return;
+      if(mode === 'move'){ state.trpTop = Math.max(8, Math.min(H - 90, top0 + dy)) / H; state.trpH = Math.min(h0, H - state.trpTop * H - 8) / H; if(top0 + dy >= trpDockTop(h0) - 2) state.trpTop = null; }
+      else if(mode === 'top'){ if(trpFree()){ const t = Math.max(8, top0 + dy); state.trpTop = t / H; state.trpH = Math.max(H * .2, h0 - (t - top0)) / H; } else state.trpH = Math.max(H * .2, Math.min(H * .9, h0 - dy)) / H; }
+      else { if(!trpFree()) state.trpTop = top0 / H; state.trpH = Math.max(H * .2, Math.min(H - top0 - 8, h0 + dy)) / H; }
+      trpPlace();
+    });
+    const end = ()=>{
+      if(!on) return; on = false; el.classList.remove('drag');
+      if(moved && mode === 'move' && trpFree() && Math.abs(el.getBoundingClientRect().top - trpDockTop(el.offsetHeight)) < 36) state.trpTop = null;
+      if(moved){ state.trpH = +(el.offsetHeight / innerHeight).toFixed(3); if(trpFree()) state.trpTop = +(state.trpTop).toFixed(3); saveState(); trpPlace(); trpKeepArabic(true); }
+    };
+    node.addEventListener('pointerup', end); node.addEventListener('pointercancel', end);
+    if(mode !== 'bottom') node.addEventListener('dblclick', e=>{ if(e.target.closest('button')) return; state.trpTop = null; saveState(); trpPlace(); trpKeepArabic(true); });
+  };
+  wire(el.querySelector('.tp-grip'), 'top'); wire(el.querySelector('.tp-rs'), 'bottom');
+  wire(el.querySelector('#tpHead'), 'move');
   el.querySelector('.tp-scroll').onclick = e=>{ const a = e.target.closest('.tp-a'); if(a) qaPlayFrom(+a.dataset.abs); };
   return el;
 }
-function trpSetH(px, save){
-  const el = document.getElementById('tpPanel'); if(!el) return;
-  const h = Math.round(Math.max(innerHeight * .24, Math.min(innerHeight * .86, px)));
-  el.style.height = h + 'px'; trpPad();
-  if(save){ state.trpH = +(h / innerHeight).toFixed(3); saveState(); }
-}
-/* the reader page can scroll up past the panel, so the lowest lines of the Arabic page are reachable above it */
-function trpPad(){
-  const el = document.getElementById('tpPanel'), body = document.getElementById('detailBody'); if(!body) return;
-  body.style.paddingBottom = (el && el.classList.contains('show')) ? (el.offsetHeight + (parseFloat(el.style.bottom) || 0) + 16) + 'px' : '';
-}
-function trpPlace(){
-  const el = document.getElementById('tpPanel'); if(!el || !el.classList.contains('show')) return;
+/* where the bottom edge of a docked panel sits (above the player while it is open, else above the tab bar) */
+function trpDockBottom(){
   const q = document.getElementById('qPlayer'), ov = document.getElementById('detailOverlay'), tb = document.getElementById('tabbar');
   const up = q && q.classList.contains('show') ? q.offsetHeight + parseFloat(getComputedStyle(q).marginBottom || 0) + 8 : 0;
-  el.style.bottom = (up || ((ov && ov.classList.contains('active')) ? 0 : (tb ? tb.offsetHeight : 0))) + 'px';
-  trpPad();
+  return up || ((ov && ov.classList.contains('active')) ? 0 : (tb ? tb.offsetHeight : 0));
+}
+const trpDockTop = h => innerHeight - trpDockBottom() - h;
+/* lay the panel out: docked at the bottom, or floating where the person put it */
+function trpPlace(){
+  const el = document.getElementById('tpPanel'), body = document.getElementById('detailBody'); if(!el || !el.classList.contains('show')) return;
+  const H = innerHeight, h = Math.round(Math.max(H * .2, Math.min(H * .92, (state.trpH || .46) * H)));
+  el.style.height = h + 'px';
+  if(trpFree()){
+    const top = Math.max(8, Math.min(H - 90, state.trpTop * H)); el.style.top = top + 'px'; el.style.bottom = 'auto'; el.classList.add('tp-free');
+    if(body) body.style.paddingBottom = Math.max(0, H - top + 16) + 'px';
+  } else {
+    el.style.top = 'auto'; el.style.bottom = trpDockBottom() + 'px'; el.classList.remove('tp-free');
+    if(body) body.style.paddingBottom = (el.offsetHeight + trpDockBottom() + 16) + 'px';
+  }
 }
 function trpHide(){
   const el = document.getElementById('tpPanel'); if(el) el.classList.remove('show');
@@ -48,7 +68,7 @@ async function trpFill(page){
   const lang = trLang(), ids = trPageAyahs(page), ur = lang === 'ur', z = TRP_SIZES[trpSizeIdx()];
   el.style.setProperty('--tpz', z + 'px'); el.style.setProperty('--tpu', (z + 7) + 'px');
   el.classList.toggle('tp-night', typeof quranNightOn === 'function' && quranNightOn());
-  if(!el.classList.contains('show')){ el.classList.add('show'); trpSetH(innerHeight * (state.trpH || .46), false); }
+  if(!el.classList.contains('show')) el.classList.add('show');
   trpPlace(); if(typeof quranTintPlayer === 'function') quranTintPlayer();
   const para = quranParaOf(page), first = ids.length ? qaSurahAyah(ids[0]).s : quranSurahOf(page).n, sname = (QURAN_SURAHS[first-1] || {}).name || '';
   head.innerHTML = `<div class="tp-top"><span>${L({rur:'Paara', en:'Para'})} ${para.n}</span><b>${sname}</b><span>${L({rur:'Safha', en:'Page'})} ${page}</span><button type="button" class="tp-x" aria-label="Close">✕</button></div>
@@ -97,12 +117,15 @@ function trpScrollTo(a, instant){
   const want = h > br.height * .7 ? top - br.top - br.height * .12 : (top + bot) / 2 - br.top - br.height / 2;
   sc.scrollTo({ top: Math.max(0, sc.scrollTop + want), behavior: instant ? 'auto' : 'smooth' });
 }
-/* keep the line being recited visible above the panel */
+/* keep the line being recited visible: above the panel when it sits low, below it when it has been moved to the top */
 function trpKeepArabic(instant){
   const el = document.getElementById('tpPanel'), body = document.getElementById('detailBody'), hl = document.querySelector('#quranWrap .qhl');
   if(!el || !el.classList.contains('show') || !body || !hl || !qa.on) return;
-  const r = hl.getBoundingClientRect(), br = body.getBoundingClientRect(), lo = br.top + 6, hi = el.getBoundingClientRect().top - 8;
-  if(r.top >= lo && r.bottom <= hi) return;
+  const r = hl.getBoundingClientRect(), br = body.getBoundingClientRect(), pr = el.getBoundingClientRect();
+  const below = pr.top + pr.height / 2 < innerHeight / 2;   /* panel in the upper half: the page shows below it */
+  const q = document.getElementById('qPlayer'), floor = q && q.classList.contains('show') ? q.getBoundingClientRect().top : innerHeight;
+  const lo = below ? pr.bottom + 8 : br.top + 6, hi = below ? floor - 8 : pr.top - 8;
+  if(hi - lo < r.height || (r.top >= lo && r.bottom <= hi)) return;
   const mid = r.top + r.height / 2 - (lo + (hi - lo) / 2);
   body.scrollTo({ top: Math.max(0, body.scrollTop + mid), behavior: instant ? 'auto' : 'smooth' });
 }
@@ -123,5 +146,5 @@ function trpSync(force){
   if(ov) new MutationObserver(()=>{ if(!ov.classList.contains('active')) trpHide(); else trpPlace(); }).observe(ov, { attributes:true, attributeFilter:['class'] });
   const body = document.getElementById('detailBody');
   if(body) new MutationObserver(()=>{ if(!document.getElementById('quranWrap')) trpHide(); }).observe(body, { childList:true });
-  window.addEventListener('resize', ()=>{ const el = document.getElementById('tpPanel'); if(el && el.classList.contains('show')){ trpSetH(innerHeight * (state.trpH || .46), false); trpPlace(); } });
+  window.addEventListener('resize', ()=>trpPlace());
 })();
