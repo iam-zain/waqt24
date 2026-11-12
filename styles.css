@@ -1685,3 +1685,12 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tp-panel.tp-follow .tp-a:not(.cur) .tp-n{ opacity:.8; }
 .tr-ayah.cur p{ font-weight:800; }
 .tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--qta) 24%, #fff); }
+
+/* Tarjuma panel: continuous run of pages */
+.tp-pgno{ display:flex; align-items:center; gap:10px; margin:12px 0 4px; color:var(--sub); font-size:11.5px; font-weight:700; letter-spacing:.04em; }
+.tp-pgno::before, .tp-pgno::after{ content:''; flex:1; height:1px; background:color-mix(in srgb, var(--accent) 30%, transparent); }
+.tp-pg:first-child .tp-pgno{ margin-top:2px; }
+.tp-more{ display:block; width:100%; margin:8px 0; padding:10px 12px; border:1px dashed color-mix(in srgb, var(--accent) 50%, transparent); border-radius:12px; background:color-mix(in srgb, var(--accent) 8%, transparent); color:var(--accent); font-size:13px; font-weight:700; }
+.tp-more[hidden]{ display:none; }
+.tp-panel[data-tint] .tp-more{ color:var(--qta); }
+.tp-panel[data-tint] .tp-pgno{ color:#4a5568; }
