@@ -506,7 +506,8 @@ function migrateState(raw){
 function loadState(){
   try{ const s = migrateState(JSON.parse(localStorage.getItem('namazState')||'{}')); state = Object.assign(state, s); }catch(e){}
   if(state.timeFormat!=='12') state.timeFormat = '24';
-  if(!['m','l','xl'].includes(state.textScale)) state.textScale = 'm';
+  if(!['s','m','l','xl','xxl'].includes(state.textScale)) state.textScale = 'm';
+  if(!['m','l','xl','xxl'].includes(state.arScale)) state.arScale = 'm';
   if(state.lang!=='en') state.lang = 'rur';
 }
 function saveState(){

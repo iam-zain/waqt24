@@ -507,7 +507,8 @@ function migrateState(raw){
 function loadState(){
   try{ const s = migrateState(JSON.parse(localStorage.getItem('namazState')||'{}')); state = Object.assign(state, s); }catch(e){}
   if(state.timeFormat!=='12') state.timeFormat = '24';
-  if(!['m','l','xl'].includes(state.textScale)) state.textScale = 'm';
+  if(!['s','m','l','xl','xxl'].includes(state.textScale)) state.textScale = 'm';
+  if(!['m','l','xl','xxl'].includes(state.arScale)) state.arScale = 'm';
   if(state.lang!=='en') state.lang = 'rur';
 }
 function saveState(){
@@ -2715,6 +2716,7 @@ function renderQuranReader(page){
       <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
       <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
       <button class="quran-tool ${state.quranTint?'on':''}" id="quranTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
+      <button class="quran-tool" id="quranTrBtn">📖 ${L({rur:'Tarjuma', en:'Meaning'})}</button>
       <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
       <button class="quran-tool" id="quranShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
@@ -2745,6 +2747,8 @@ function renderQuranReader(page){
   document.getElementById('quranTintBtn').onclick = ()=>{ quranTintOpen = !quranTintOpen; document.getElementById('qTints').hidden = !quranTintOpen; };
   document.getElementById('qTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderQuranReader(page); };
   quranTintApply();
+  document.getElementById('quranTrBtn').onclick = ()=> openTarjuma(qa.on ? qa.abs : 0);
+  if(typeof trRefresh === 'function') trRefresh();
   document.getElementById('quranNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderQuranReader(page); };
   const wrap = document.getElementById('quranWrap');
   const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); setTimeout(()=>{ if(typeof qaHL === 'function') qaHL(); quranTintApply(); }, 30); };
@@ -4257,7 +4261,7 @@ function renderSettingsMenu(){
     ['location','🏙️','Apna Shahar Chunein', state.location.name],
     ['qibla','🧭','Qibla ka Rukh', ''],
     ['timefmt','🕒','Waqt ka Andaaz', state.timeFormat==='12' ? '12 Ghante (AM/PM)' : '24 Ghante'],
-    ['textsize','🔠','Text ka Size', {m:'Normal',l:'Bara',xl:'Bohot Bara'}[state.textScale]||'Normal'],
+    ['textsize','🔠','Text ka Size', ({s:'Chhota',m:'Normal',l:'Bara',xl:'Bohot Bara',xxl:'Sabse Bara'}[state.textScale]||'Normal') + ((state.arScale||'m')!=='m' ? ' · Arabic ' + ({l:'Bara',xl:'Bohot Bara',xxl:'Sabse Bara'}[state.arScale]||'') : '')],
     ['homecard','🃏','Home Card', {full:'Poora',strip:'Patli patti',off:'Band'}[state.heroMode||'full']],
     ['feedback','📳','Vibration aur Awaaz', (state.haptics===false?'Vib off':'Vib on')+' · '+(state.sounds===false?'Sound off':'Sound on')],
     ['lang','🌐','Zubaan', state.lang==='en' ? 'English' : 'Hinglish / Roman Urdu'],
@@ -4384,12 +4388,12 @@ function renderMoreSettings(){
     pane.querySelectorAll('[data-fmt]').forEach(b=>{ b.onclick = ()=>{ setTimeFormat(b.dataset.fmt); renderTimeFmtPane(); }; });
   }
   function renderTextSizePane(){
-    pane.innerHTML = `<div class="theme-row" style="padding:0 0 12px;">
-      <button data-size="m" class="${state.textScale==='m'?'active':''}">Normal</button>
-      <button data-size="l" class="${state.textScale==='l'?'active':''}">Bara</button>
-      <button data-size="xl" class="${state.textScale==='xl'?'active':''}">Bohot Bara</button>
-    </div>`;
+    const sizeRow = (key, opts, label)=>`<div class="ts-lbl">${label}</div><div class="theme-row ts-row" style="padding:0 0 12px;">${opts.map(([k,n])=>`<button data-${key}="${k}" class="${(state[key==='size'?'textScale':'arScale']||'m')===k?'active':''}">${n}</button>`).join('')}</div>`;
+    pane.innerHTML = sizeRow('size', [['s','Chhota'],['m','Normal'],['l','Bara'],['xl','Bohot Bara'],['xxl','Sabse Bara']], L({rur:'Poora text', en:'All text'}))
+      + sizeRow('ar', [['m','Normal'],['l','Bara'],['xl','Bohot Bara'],['xxl','Sabse Bara']], L({rur:'Arabic text (dua, Qur’ani alfaaz…)', en:'Arabic text (duas, Qur’anic words…)'}))
+      + `<div class="ts-prev"><div class="arabic dua-ar" dir="rtl" style="font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:26px; line-height:1.9;">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div><div style="font-size:14px; color:var(--sub); margin-top:6px;">${L({rur:'Shuru Allah ke naam se, jo bada meherbaan, nihayat reham karne wala hai.', en:'In the name of Allah, the Most Gracious, the Most Merciful.'})}</div></div>`;
     pane.querySelectorAll('[data-size]').forEach(b=>{ b.onclick = ()=>{ state.textScale = b.dataset.size; saveState(); applyTextScale(); renderTextSizePane(); }; });
+    pane.querySelectorAll('[data-ar]').forEach(b=>{ b.onclick = ()=>{ state.arScale = b.dataset.ar; saveState(); applyTextScale(); renderTextSizePane(); }; });
   }
   function renderHomeCardPane(){
     const m = state.heroMode || 'full';
@@ -4676,6 +4680,34 @@ function shiftStatsPeriod(dir){
   renderStats();
 }
 /* Last seven days of the daily goal, shown as its own card in Safar-e-Taraqqi */
+/* Streak = days in a row with all five farz marked prayed. Today only counts once it is complete, but never breaks the streak early. */
+function dayAllPrayed(d){ return FIVE.every(p=>getStatus(d,p) === 'green'); }
+function streakInfo(){
+  const t = new Date(); t.setHours(0,0,0,0);
+  let best = 0, run = 0;
+  for(let i=0; i<400; i++){ const d = new Date(t); d.setDate(d.getDate() - i); if(dayAllPrayed(d)){ run++; if(run > best) best = run; } else run = 0; }
+  let cur = 0; const d0 = new Date(t); if(!dayAllPrayed(d0)) d0.setDate(d0.getDate() - 1);
+  for(let i=0; i<400; i++){ const d = new Date(d0); d.setDate(d.getDate() - i); if(dayAllPrayed(d)) cur++; else break; }
+  return { cur, best };
+}
+function weekSummaryHtml(){
+  const L7 = ['S','M','T','W','T','F','S'], days = [], per = {}; FIVE.forEach(p=>per[p]=0);
+  let total = 0;
+  for(let i=6; i>=0; i--){
+    const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
+    const n = FIVE.filter(p=>getStatus(d,p) === 'green').length;
+    FIVE.forEach(p=>{ if(getStatus(d,p) !== 'green' && i > 0) per[p]++; });
+    total += n; days.push({ d, n, today: i === 0 });
+  }
+  const { cur, best } = streakInfo();
+  const weak = FIVE.slice().sort((a,b)=>per[b]-per[a])[0], weakN = per[weak];
+  return `<div class="ramzan-card" style="margin:0 14px 12px;">
+    <div class="streak-top"><div class="streak-big">🔥 <b>${cur}</b><small>${L({rur:'din ki lagataar', en:'day streak'})}</small></div><div class="streak-best">${L({rur:'Sabse lambi', en:'Best'})}: <b>${best}</b></div></div>
+    <div style="font-size:13px; font-weight:800; margin:12px 0 8px;">${L({rur:'Is hafte ka khulasa', en:'This week at a glance'})} · ${total}/35</div>
+    <div class="wk-bars">${days.map(x=>`<div class="wk-col ${x.today?'today':''}"><div class="wk-bar"><i style="height:${x.n/5*100}%"></i></div><small>${x.n}</small><small>${L7[x.d.getDay()]}</small></div>`).join('')}</div>
+    ${weakN > 0 ? `<div class="streak-tip">${(PRAYER_META[weak]&&PRAYER_META[weak].icon)||''} ${L({rur:`${weak.charAt(0).toUpperCase()+weak.slice(1)} is hafte ${weakN} baar chhooti. Us par khaas dhyaan dein.`, en:`${weak.charAt(0).toUpperCase()+weak.slice(1)} was missed ${weakN} time${weakN>1?'s':''} this week. Give it extra care.`})}</div>` : (total >= 35 ? `<div class="streak-tip">${L({rur:'MashaAllah! Poore hafte ki saari namazein.', en:'MashaAllah! Every prayer this week.'})}</div>` : '')}
+  </div>`;
+}
 function goalWeekCardHtml(){
   const days = [];
   for(let i=6; i>=0; i--){
@@ -4746,6 +4778,7 @@ function renderStats(){
     <div class="detail-actions" style="justify-content:flex-end;">
       <button class="act-btn" id="statsShareBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
+    ${weekSummaryHtml()}
     ${goalWeekCardHtml()}
     <div class="cal-toggle" style="padding:0 0 8px;">
       <button id="statsGregBtn" class="${statsCal==='greg'?'active':''}">Gregorian</button>
@@ -6249,12 +6282,14 @@ document.addEventListener('keydown', (e)=>{
     e.preventDefault(); e.target.click();
   }
 });
-const TEXT_SCALES = { m:1, l:1.12, xl:1.25 };
+const TEXT_SCALES = { s:.92, m:1, l:1.12, xl:1.25, xxl:1.4 };
+const AR_SCALES = { m:1, l:1.2, xl:1.4, xxl:1.65 };
 function applyTextScale(){
   const k = state.textScale || 'm';
   const z = TEXT_SCALES[k] || 1;
   document.documentElement.style.zoom = z;
   document.documentElement.style.setProperty('--zoom', z);
+  document.documentElement.style.setProperty('--arz', AR_SCALES[state.arScale || 'm'] || 1);
 }
 applyTextScale();
 a11yFix();
@@ -6967,6 +7002,22 @@ function qaLineSpan(abs, bism){
   if(bism){ a = b = a - 1; if(a < 1) return null; }
   return [a, b];
 }
+/* Row edges of a page as fractions of the image height: edges[i-1]..edges[i] is line i. */
+function qaEdges(page, ed){
+  const g = QA_GEO[ed], sh = QA_GEO_SHORT[page];
+  if(sh){ const [c, st] = sh[ed], out = []; for(let l = 1; l <= 9; l++) out.push(c + st * (l - 1.5 - 1)); return out; }
+  const w = new Array(16).fill(1), f = QA_PAGE_FIRST[page-1], nx = QA_PAGE_FIRST[page] || (QA_TOTAL + 1);
+  for(let x = f; x < nx; x++){
+    const r = qaSurahAyah(x); if(r.a !== 1 || r.s === 1) continue;
+    const ln = parseInt(QA_LINES[(x-1)*2], 16), hb = qaHasBism(r.s);
+    if(hb) w[ln-1] = g.wm;
+    w[ln - (hb ? 2 : 1)] = g.wb;
+  }
+  let tot = 0; for(let i = 1; i <= 15; i++) tot += w[i];
+  const gm = QA_GEOM[ed], t = (gm.t[page-2] || g.t * 1000) / 1000, b = (gm.b[page-2] || g.b * 1000) / 1000, out = [t]; let c = 0;
+  for(let i = 1; i <= 15; i++){ c += w[i]; out.push(t + (b - t) * c / tot); }
+  return out;
+}
 function qaHL(){
   const wrap = document.getElementById('quranWrap');
   let hl = wrap && wrap.querySelector('.qhl');
@@ -6975,23 +7026,8 @@ function qaHL(){
   const img = wrap.querySelector('.quran-page-img'), span = qaLineSpan(qa.abs, qa.bism);
   if(!img || !span){ if(hl) hl.remove(); return; }
   if(!img.naturalWidth){ if(!img._hlw){ img._hlw = 1; img.addEventListener('load', ()=>qaHL(), { once:true }); } return; }
-  const ed = quranEd(), g = QA_GEO[ed], sh = QA_GEO_SHORT[page];
-  let y0, y1;
-  if(sh){ const [c, st] = sh[ed], h = st * .46; y0 = c + st * (span[0] - 2) - h; y1 = c + st * (span[1] - 2) + h; }
-  else {
-    /* row boundaries: this page's measured top/bottom, rows weighted by kind (banner rows are taller, Bismillah rows a little shorter) */
-    const w = new Array(16).fill(1), f = QA_PAGE_FIRST[page-1], nx = QA_PAGE_FIRST[page] || (QA_TOTAL + 1);
-    for(let x = f; x < nx; x++){
-      const r = qaSurahAyah(x); if(r.a !== 1 || r.s === 1) continue;
-      const ln = parseInt(QA_LINES[(x-1)*2], 16), hb = qaHasBism(r.s);
-      if(hb) w[ln-1] = g.wm;
-      w[ln - (hb ? 2 : 1)] = g.wb;
-    }
-    let tot = 0, c0 = 0, c1 = 0; for(let i = 1; i <= 15; i++){ tot += w[i]; if(i < span[0]) c0 += w[i]; if(i <= span[1]) c1 += w[i]; }
-    const gm = QA_GEOM[ed], t = (gm.t[page-2] || g.t * 1000) / 1000, b = (gm.b[page-2] || g.b * 1000) / 1000;
-    y0 = t + (b - t) * c0 / tot; y1 = t + (b - t) * c1 / tot;
-    const pad = (y1 - y0) * .04; y0 += pad; y1 -= pad;
-  }
+  const E = qaEdges(page, quranEd());
+  let y0 = E[span[0]-1], y1 = E[span[1]]; { const pad = (y1 - y0) * .04; y0 += pad; y1 -= pad; }
   /* the image is letterboxed inside its box (object-fit: contain): find where it really is */
   const bw = img.clientWidth, bh = img.clientHeight, k = Math.min(bw / img.naturalWidth, bh / img.naturalHeight);
   const iw = img.naturalWidth * k, ih = img.naturalHeight * k, ox = img.offsetLeft + (bw - iw) / 2, oy = img.offsetTop + (bh - ih) / 2;
@@ -7016,7 +7052,7 @@ function qaFollowPage(){
 }
 
 /* Player state. `bism` = currently on the Bismillah that opens a Surah (Al-Fatihah has it as ayah 1; At-Tawbah has none). */
-const qa = { dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
+const qa = { rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
 const qaHasBism = s => s !== 1 && s !== 9;
 function qaFile(abs, bism){ if(bism) return QA_BASE + '001001.mp3'; const r = qaSurahAyah(abs); return QA_BASE + qaPad(r.s) + qaPad(r.a) + '.mp3'; }
 function qaNextStep(abs, bism){
@@ -7030,6 +7066,25 @@ function qaPrevStep(abs, bism){
   const r = qaSurahAyah(abs);
   if(r.a === 1 && qaHasBism(r.s)) return { abs, bism:true };
   return { abs: Math.max(1, abs-1), bism:false };
+}
+function qaApplyRate(){ [qa.A, qa.B].forEach(el=>{ if(!el) return; el.defaultPlaybackRate = qa.rate; el.playbackRate = qa.rate; try{ el.preservesPitch = true; }catch(e){} }); }
+const QA_RATES = [1, 1.25, 1.5, 0.75], QA_REPS = [0, 1, 3], QA_SLEEPS = [0, 15, 30, 60];
+function qaCycle(kind){
+  if(kind === 'rate'){ qa.rate = QA_RATES[(QA_RATES.indexOf(qa.rate) + 1) % QA_RATES.length]; qaApplyRate(); state.qaRate = qa.rate; saveState(); }
+  else if(kind === 'rep'){ qa.rep = QA_REPS[(QA_REPS.indexOf(qa.rep) + 1) % QA_REPS.length]; qa.repCount = 0; }
+  else if(kind === 'sleep'){
+    qa.sleepMin = QA_SLEEPS[(QA_SLEEPS.indexOf(qa.sleepMin) + 1) % QA_SLEEPS.length];
+    clearTimeout(qa.sleepT); qa.sleepT = 0;
+    if(qa.sleepMin){ qa.sleepT = setTimeout(()=>{ qa.sleepMin = 0; qa.sleepT = 0; qaStop(); showToast(L({rur:'Sleep timer: tilawat band ho gayi', en:'Sleep timer: recitation stopped'})); }, qa.sleepMin * 60000); }
+  }
+  qaOptsUI();
+}
+function qaOptsUI(){
+  const e = document.getElementById('qPlayer'); if(!e) return;
+  e.querySelector('#qpRate').textContent = '⚡ ' + qa.rate + '×';
+  e.querySelector('#qpRep').textContent = '🔁 ' + (qa.rep === 0 ? L({rur:'Band', en:'Off'}) : qa.rep === 1 ? L({rur:'Ayat dohraayein', en:'Repeat ayah'}) : '3× ' + L({rur:'har ayat', en:'each ayah'}));
+  e.querySelector('#qpSleep').textContent = '😴 ' + (qa.sleepMin ? qa.sleepMin + ' min' : L({rur:'Band', en:'Off'}));
+  ['qpRate','qpRep','qpSleep'].forEach(id=>{ const b = e.querySelector('#'+id), on = id==='qpRate' ? qa.rate !== 1 : id==='qpRep' ? qa.rep : qa.sleepMin; b.classList.toggle('on', !!on); });
 }
 const qaKey = (abs, bism)=> bism ? 'b' : abs;
 /* Surah timing. Exact lengths of every ayah are learned lazily (tiny HEAD requests: at 128 kbps, bytes / 16000 = seconds);
@@ -7079,6 +7134,7 @@ function qaLocate(f){
   for(let a = 1; a <= n; a++){ const d = qa.dur[base+a] || avg; if(t < d || a === n) return { abs: base + a, bism:false, off: Math.min(t, d) }; t -= d; }
 }
 function qaSeek(f){
+  qa.repCount = 0;
   const loc = qaLocate(f); if(!loc) return;
   qaEls();
   const same = loc.abs === qa.abs && loc.bism === qa.bism && qa.cur.src === qaFile(loc.abs, loc.bism);
@@ -7100,6 +7156,7 @@ function qaProg(){
   e.querySelector('#qpT3').textContent = L({rur:'Poori surah', en:'Full surah'}) + ' ' + ap + qaFmt(T.total);
 }
 function qaEls(){
+  if(state.qaRate && !qa.A) qa.rate = state.qaRate;
   if(!qa.A){
     qa.A = new Audio(); qa.B = new Audio();
     [qa.A, qa.B].forEach(el=>{
@@ -7113,6 +7170,7 @@ function qaEls(){
       el.addEventListener('pause', ()=>{ if(el === qa.cur && !el.ended){ qa.playing = false; qaUI(); } });
     });
     qa.cur = qa.A;
+    qaApplyRate();
   }
   return qa;
 }
@@ -7135,6 +7193,8 @@ function qaFail(){
   showToast(L({rur:'Awaaz nahi chal saki. Internet check karein.', en:'Could not play. Check your internet connection.'}), '!');
 }
 function qaAdvance(){
+  if(qa.rep && (qa.rep === 1 || qa.repCount < qa.rep - 1)){ qa.repCount++; qa.cur.currentTime = 0; const p = qa.cur.play(); if(p && p.catch) p.catch(()=>qaFail()); return; }
+  qa.repCount = 0;
   const n = qaNextStep(qa.abs, qa.bism);
   if(!n){ qaStop(); return; }
   qa.abs = n.abs; qa.bism = n.bism; qaFollowPage();
@@ -7143,6 +7203,7 @@ function qaAdvance(){
   else qaPlayCurrent();
 }
 function qaStep(dir){
+  qa.repCount = 0;
   const n = dir > 0 ? qaNextStep(qa.abs, qa.bism) : qaPrevStep(qa.abs, qa.bism);
   if(!n) return;
   qa.abs = n.abs; qa.bism = n.bism; qa.exact = true; qaFollowPage();
@@ -7156,7 +7217,7 @@ function qaToggle(){
 }
 function qaStop(){
   if(qa.A){ [qa.A, qa.B].forEach(el=>{ el.pause(); el.removeAttribute('src'); try{ el.load(); }catch(e){} }); }
-  qa.on = false; qa.playing = false; qa.loading = false; qa.err = false;
+  qa.on = false; qa.playing = false; qa.loading = false; qa.err = false; qa.repCount = 0; clearTimeout(qa.sleepT); qa.sleepT = 0; qa.sleepMin = 0;
   try{ if(navigator.mediaSession) navigator.mediaSession.playbackState = 'none'; }catch(e){}
   qaUI();
 }
@@ -7207,12 +7268,14 @@ function qaBar(){
     <button type="button" id="qpNext" aria-label="Next ayah">${QA_ICON.next}</button>
     <button type="button" id="qpClose" aria-label="Close player">${QA_ICON.close}</button></div>
     <div class="qp-time"><span id="qpT1">0:00</span><div class="qp-bar" role="progressbar" aria-label="Surah progress"><i id="qpFill"></i></div><span id="qpT2">-0:00</span></div>
-    <div class="qp-tot" id="qpT3"></div>`;
+    <div class="qp-tot" id="qpT3"></div>
+    <div class="qp-opts"><button type="button" id="qpRate"></button><button type="button" id="qpRep"></button><button type="button" id="qpSleep"></button></div>`;
   (document.getElementById('detailOverlay').parentElement || document.body).appendChild(el);
   el.querySelector('#qpPrev').onclick = ()=>qaStep(-1);
   el.querySelector('#qpNext').onclick = ()=>qaStep(1);
   el.querySelector('#qpPlay').onclick = qaToggle;
   el.querySelector('#qpClose').onclick = qaStop;
+  el.querySelector('#qpRate').onclick = ()=>qaCycle('rate'); el.querySelector('#qpRep').onclick = ()=>qaCycle('rep'); el.querySelector('#qpSleep').onclick = ()=>qaCycle('sleep');
   /* tap or drag on the bar to jump: the recitation continues from that point */
   const bar = el.querySelector('.qp-bar'); let drag = false;
   const frac = ev=>{ const r = bar.getBoundingClientRect(); return Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)); };
@@ -7242,7 +7305,7 @@ function qaUI(){
     : (qa.exact ? cnt + ' · Mishary Alafasy' : L({rur:'Mishary Alafasy · shuruaat andaaze se, ⏮ ⏭ se theek karein', en:'Mishary Alafasy · start is approximate, adjust with ⏮ ⏭'}));
   el.querySelector('#qpPlay').innerHTML = qa.playing ? QA_ICON.pause : QA_ICON.play;
   el.classList.toggle('show', true);
-  qaPlace(); qaProg(); qaHL(); if(typeof quranTintPlayer === 'function') quranTintPlayer();
+  qaPlace(); qaProg(); qaOptsUI(); qaHL(); if(typeof trSync === 'function'){ trSync(); trPlace(); } if(typeof quranTintPlayer === 'function') quranTintPlayer();
   qaMediaMeta();
 }
 (function(){
@@ -7256,3 +7319,116 @@ function qaUI(){
 const QA_PAGE_FIRST = [1,1,8,12,23,31,37,45,56,65,69,77,84,91,96,101,109,113,120,127,134,142,149,154,164,172,180,185,192,195,201,205,211,219,223,227,232,237,240,243,250,255,260,264,267,272,277,282,289,290,294,302,309,316,323,331,339,347,356,364,371,377,385,394,402,409,415,426,434,441,447,451,459,467,474,480,487,494,499,504,506,512,517,522,528,535,540,548,554,562,569,574,581,585,589,595,599,607,615,621,628,634,641,648,656,664,669,672,675,679,683,687,693,701,706,711,715,720,726,733,738,745,752,759,765,773,778,783,790,798,808,816,824,833,841,848,857,863,871,880,884,891,900,908,914,920,927,932,936,941,947,955,966,977,985,992,998,1006,1012,1022,1028,1036,1042,1050,1059,1076,1085,1092,1098,1104,1110,1114,1118,1125,1133,1142,1150,1161,1169,1177,1186,1194,1201,1206,1213,1222,1230,1236,1242,1249,1256,1262,1267,1272,1277,1283,1290,1297,1304,1308,1315,1322,1329,1335,1342,1347,1353,1358,1365,1371,1379,1385,1390,1398,1406,1417,1426,1435,1443,1453,1462,1471,1479,1486,1493,1502,1511,1519,1527,1536,1546,1555,1562,1571,1582,1591,1601,1611,1619,1627,1634,1640,1649,1660,1666,1675,1683,1692,1699,1708,1713,1721,1725,1734,1741,1749,1756,1761,1771,1777,1786,1794,1804,1821,1836,1855,1875,1893,1908,1916,1928,1936,1944,1956,1966,1974,1981,1989,1995,2004,2013,2020,2030,2037,2047,2059,2070,2081,2090,2099,2110,2122,2130,2141,2152,2159,2163,2170,2179,2188,2195,2203,2215,2224,2237,2250,2262,2276,2289,2302,2314,2326,2346,2361,2387,2400,2414,2425,2435,2446,2462,2475,2484,2495,2508,2519,2529,2541,2556,2565,2574,2586,2597,2602,2611,2619,2626,2633,2642,2651,2660,2668,2674,2691,2701,2716,2732,2748,2763,2778,2792,2799,2810,2818,2823,2828,2835,2845,2850,2853,2858,2867,2876,2888,2900,2913,2924,2937,2956,2976,2997,3023,3050,3075,3099,3122,3148,3165,3176,3186,3199,3206,3219,3226,3239,3248,3258,3266,3273,3281,3288,3296,3303,3312,3323,3330,3337,3346,3354,3362,3369,3377,3385,3393,3404,3415,3425,3434,3442,3451,3459,3468,3480,3488,3497,3504,3514,3524,3534,3540,3549,3556,3564,3569,3577,3584,3588,3596,3607,3614,3621,3629,3639,3647,3655,3664,3672,3679,3690,3698,3704,3715,3727,3743,3758,3776,3792,3818,3845,3871,3896,3922,3949,3974,3989,3998,4014,4033,4053,4064,4069,4080,4090,4099,4106,4115,4126,4133,4141,4150,4159,4166,4174,4183,4192,4200,4211,4219,4230,4239,4247,4257,4265,4273,4283,4288,4295,4304,4316,4324,4337,4349,4361,4375,4389,4405,4419,4441,4463,4480,4491,4500,4511,4519,4526,4533,4540,4547,4557,4564,4575,4584,4593,4599,4607,4612,4617,4624,4631,4646,4665,4682,4706,4726,4750,4767,4785,4810,4824,4850,4871,4891,4915,4940,4968,4996,5031,5056,5079,5086,5093,5100,5105,5111,5116,5125,5130,5136,5143,5151,5155,5161,5168,5177,5184,5192,5200,5208,5218,5223,5230,5236,5242,5252,5264,5278,5303,5320,5336,5358,5380,5407,5422,5438,5449,5462,5475,5491,5496,5526,5545,5566,5592,5606,5622,5648,5673,5700,5721,5751,5779,5808,5835,5859,5882,5906,5923,5949,5975,6003,6024,6049,6077,6099,6124,6137,6155,6177,6194,6210,6226];
 const QA_LINES = '223334445566683334466811233445677889aaacdeff1224445779abbddf12266aaccdef133556699aacceef1223455778899aabbccdef13344666778bbccddf1335588f13355778899bceef122456677bbddf112336688aabcf12299aaeef14477aaccf123447799abccddf199bbccf12244669acceef1447899aabceef133556688aacdf12244668899bbeef122668899aaeef13377bbeef111335588aabbccddeff12244667799aabbf144557899aacceef133667899f145567799abccf15678f1337789dddef13355cdf1446699bbccf12344667799bbddf13399ddf133aaccf13488bceef1224455aaf144bbf178abf1347789aadeeff1334466bbf1349abbeef16688ddf14489f14577aabbf14488bcdef1235599ddf1567799aacceef1f14477aaf3333345677899eef122345577aaddf122335588bceef123446688abddf1334566778899ccf122456688aabbddf111344499bbcceef11155668899aabbeef111557799bbddeef122447788ccddf1447799ddeef144557899aabbddf12255667788bbcceef122447899bbddeef1225566abcceef1235588cceef1223355678899bbcdeefff122447799abbbcdf111335588bbddf122444577ccf188aaeef111456789aabbdef112557788abccdef12234567789ccf133448899ccf133667788bbddf122778889bbeef36688ccdef16699bbdef178f1335588aaccf144678899f155ccddfff133446688abf1337799bbddeef12288aabbf144667788bbccddf122446799ccf122446699bbeefff13344557799bcf13388cceef1335588aacceef13366bbf16688bcf122567899cdf189bbeef11133568899aaccf134668899abdeeff133557799bbf1447788bbcceef14588aaaaccf1557799bbcceef12233667799ddf13344778899bbccf144567799aabcddf16688ccddf158aaf177abf188bbeef12255bbf14488aaf1447799bbddf122445688aabccdf15599bbddf122445577f14466bbf14455bbeef1336688cdeef1335577aacceef16677aaccf1335577aaccddf122446678aaccf13345667799aaf122456688bbf133667788aaccddf13355aaddf1229abbdef1334588bbcceff34466778899cdeef12233457788bbccddfff144667799aabbeef1224455779abbddf133456688aabcddeef1234466889abbdef1446699aacceef133567789aabbeefff1334489ccddf12244557799aaddf12234667788aabcdef15578ccf122445677cceef1223355667799bbeef1336677aabcddeff1445588aaccf1445566aabcf12233556688ccf1447799def13488ccf1226677bbf1456799aabcf144667799aabbddf3334466778899aabbcceef122334444557788aaccddf12233446699bcdef122557788aabcf1456699aaccf133457788aabbddf122669aaaccf123556677889abbddeef1114567aaccf1447788aabbcdeef122334599ddf133778899aaccddf13344556799bbcdeff1223344556667778899aabbccddeeeffff1113344556699bbeef133446699aaccf133445578bbf1225599bbdef15566889abbf144bbeef16699ccf133556688aaeef12355778899ddeef1345566778899bbccf13367888999bbddf112334455668899bbcceef355778899bbccfff122447799bbccddf13344668899aabbeef133456688aacceef1335588aacceef15599cceef1224588abccdef122455677889aabeef122445588bbddeef1334499bbddf2234478aaddf133667789aaddf122346688bbdef1223356aaddf1225599ccf1224488bbf1447799eef1446688aacdf123457788bbddf13344557799ccf122446688aaddf15599cdf122778899bbcdf1336677aaccdef122445688bbddf1447788aaccf1446788aacceef1446699abf1336688aaccf14455abddf133557799cceef3335688bceef12233557799cceef1446688bbddf1237799eef122557899aaddeef122556799aacdeef1223344668899aaccddeef1123455557788aaccf11222445588aaddeef1445578aabccdeef111224445778899aaccf122556677aacdeefff13344667799aaddeef133556999aaddddf1236689aabbddf123446677bbeef1334455778899aaddf13344778899bbcdeef12244667799cceef133457799aacceef1223344678899bbdef13345668899aabbddeef12233446677aabbccf12233668899bcf133446688aaccdeeef1223344668899aabbccdef13355667799bbbceef122335566778bbbcceef12255668899bbccddeef12333557799abeef13355789abbccddf144668899aaddf1334588aacdf1123355778899bceef1224455677789aabbcceef1225588bbeef1223344666688bbeef122668899bbddeef133567799aabcddfff123344566bbeef1112234446677bbddf3447799cdf13355667789ccddf13355aaf13355567799bbcceef122334477bbccf122447799bbcceef12347889abbddf1445577bbf13355778899aabbeefff14499bbcdeef13344456688bbcceef1336688aabbcceef1335566778899aabbcff1122333445566778899aaabbbccddeefff12233445566778899aabbccdddeeef11122233334555666788899aaaabccdddeeeff1112233444555666777788899bbccccdddeeefff1112233334445556677788899bbbbcceefff11122223334445566699abbccddeff12244556799bbccf12223334455667799aabbddf133556689aacceef1447788aaccddfff1223455667789aabbccddeef1113334456678aacceef12244557799bbddf12233669abbdef144778899aacceef1225578aadef1334466889abbcceef133445588aabbcceef14455779acdddf1334455667799ccddeff355778899bbddf12244556688aaaacdeef1223344566699aabbccddeef1223344668899aacccceef1112333556788aabbccddf1123344667799bbddf12244557788aaccddf1234455778899aabbddeef112334455778899bbccddeef133446677aacceef1224455667788aabbbbdef34456667788aabbbcddeff11233557799cdf15577bbf11133446688ccf122557789aabbddfff1224455778899cceef1236699bbddeef1335588abccddeef133445566778899aacccdeef11233557799aabbeff1112244557777889999aacceef11133445566788899bbccddeef125555566778999abccddeef1112233445566778899bbccddeff1233455666788899aabccddeef1223344556677889aabccdeeff111223345556699abccddeff12244455677888899aaccddf122334455556677888999aabbbbbccddddeeefff12233477777888999aabbcccceeeef11122334445666677789999aaaaabbbbbccccccddddddeeeefff1336777888899aaabddeeeefff11133445566778899aabbccdeeff1222233455588aaccddeef123444466889aaabbccf122445567778899aabbddf112333444556677888889aabbccddeef122334456667788aaaacceeeff12244557799abcceef33455667899aabbccddeef11123334455668899aabbccddf1223344567799abbcddeef1233444667899abcceef1224456778899aabbccddeff11223344555677789aabbcccdddeef13355567799abcdeef12233566777aabbcdf1223344566678aabbccddeef122445566678899aabbcff1335566eef12233556699aabbddf1124488aabbbbddf122557788bbcdf1334455789addf122337799aaaabcddf1223444556699bbeef12234667799abcceef13345667788aaccf144557788aaf333444455566777889999aaabbbdeeeeff1223345666788abbbccf122333444558899aaaabbccddeefff11133455667778899aabbccddddeefff11122334456667788899aaabbddeeeff12233445566778899aabbccddddfff1113444556667778899aabbcdddfff1112233445677888999aabbcdeff3447789bbcceff1223344668899bbcdeefff12334779abbccddf122446678f1238899eef123446799bbccf1124455778899abccdef1337789aaf13366f15588addef1335566789abbcdeef1123344556688abcdf133445566778899aabbccdef112334455778888aabbddeef12233445577888899bbcceeeef1224455678899aabbccddf11133445566889999adddddeef12233444555666677888899aaabbcccddeefff11222333445566677778899aaabbbbcccddeefff1222333334466777888999aaaaabbbbccccddeefff11112223333444555566677778889999aaabbbcccdddeeeeffff1111222333344445555666677788889999aaabbbbcccddddeeefff11222333444445556667778889999aaaaaabbccccddeeeefff1111122333334444555666677889999aabbbbcccdddeeeef1112222333334445556667777788999aabbbbccddeeeef1112222333344445566667788889999aaaabbbcccccddddeefff111222233334444555566668bbbccddeef1113344557788aabbcceef12244678899aabbddfff11123334455667799aabbddeef155668899cceef12233555667888899bbccddeef1446688aacdeef122334556667899aabbcdddeff1223456778899bbddf1223355667aaaaabbeef122456689abcceef122667788aaddf122336677aabbeef1335688bbccdef123457899abccddf122446689bbddf1112244567799bcddf12244557799aabbccddeef1235566789acdf133557799ccdef13345668bbbccddeef122346677abbceef133445599abcceef1224467aabbeef134446688bbccddf122446699ccddeef133568899aaccddf122334556668899aaccddf122445567889cccccddeff122335599bbccccdeeef122334466779abbddf122335599abddeef1233344667799bbeef12244556699bbeef12233456689aaccddf1112555555677789abbccddf122445577aacceef122557788aabbccddf1124455779acdf333345588aaabcccceef12234557789aabbccddf12234557788aaccddeff344556699ccf12344668889aaddeef122445599ccddf123446688aaccdef1235588aaf13388aabbdddeeef1122333445688f14477eff144557799bbddeef12233445566778999bbddf3446699abcceef122556688abddf133555678aabbddf133445566778899aaeef145667788bbcceef122448899bbddfff111334455667accdef12233456688aaddf1447799aabbccf11112224444567788bbddf12234668899abcdf1224488aaccf1447aaaaaaabbbbccddeef1123355667799aaaaccddeff11233334455556777889aaabbccddeff1112244455566667889bbbbccddeef1122233444555567777889999bbccddeefff112223344445566778899bbbccffffff1112222334444556666777788899999aaaabbcccdddddeeeefff111222333444555666677778888899999aaaabbbbcccdddeeeefff11122223334445555667777888999aaaabbbbccddddeeeefffff11111223333344444555566667777888999aaaaddddeeeffff1111122223344556666777788889999aaaabbccccddddeeeefff111112222333344445556667777888999aaabbbbcccccddddeffff111112222333344445555666677778888999aaaabbbbeeeeff12223445566778899aabbbccdddeff11122235566aabbeef12233445566778899aaaabbccccdeeef12233444455667788889999aaaabbbbccdeeff1112233444455566677889999bbcccdddeeeefff11112233444477788bbddf14477aaddf111223333557788aabbcdf123667789aabbcceefff1223344668899ddeef133667799bbddf12244557799bbcceef1123344667788aabbcdddf13345569abbddf12555557788bbccf133446688aabbcceef122444466aabcccddf1334499ccddfff122557788bbccddf11233567788aacceef1234456777799ccdef12244667889bbddf1445566778899aabbddeef144557778aaccdef333334455678899aacceef133446689bbcdddeef133556688bbcceef12355667788aabbcceef13355667799cceef134556699bbcdeef3333344557788aacceef1334489bcf133447788aaccf133567788aabbddeef111333445668899aaccddfff122557788bbcdeef133477777888899aabbccddeef122444455667788aabbccddf12233444555667788bbddeef1122344556677788999bbccddeef1113344556677778899abbbdddef11233445566677799aabbbcccddeefff122233445667799aaabbeeeeefff1112233444455556677778899aaabbbcccdddeeeffff1111222334455556667778899aabbcccdddddeeeefff1111222223344445566777aaaaabbcceef111223355667899aabcddf12234446788abcceef1223344667799aaccdeeff333345588aabbcdf122556788aabbf123567789cceef1224466aabbddf123446688aacff122459999aabbbbcceef1335566aaddeef1225566788899bbccddeef122335677889abbccf333555578aaddeeeef1337799aaccf1446799aaccddeef12377bbeef169aacdeef122346777abccf1446699bbcceef3334455666788999abbbbccdddeeff1223334445566777888899aaabbccdddeeefff1112344556677888999aabeeeeeeffffff111112222233333445566667777888899aabbccccddeefff1112222333444556677888899aabbcccdddeefff11233334444556666788bbbbbbbbcccccccddddddeeeefff1112333445556888999aabbbcccddeefff11122333344556677778899aabbbcccdefff333334444555555666677778888899999aaaabbbbccccfffff1223355667799cccdddddeeeefff11112222233334444555566667777888899999aaaabbbbeeefff111223344556666778888999aaabbbbccddddeeeff11122334445556677778899aabbbcccddddeefff1112222334445556666777aaaaaaaabbbbccccdddeeeffff1112222333344444555566677778888999aaaaaccddeeeefff11122333344455556666677777888899aaabbbbccccddddeeeeeffff11112222233334444555566699999aaaaabbbbbccdddddeeeeefffff11122223333334444555566666667777778888889999999aaaabbbbbbccccdeeeeefff11112222333344445556677788899999aaabbccccddeeeefff111112222333344445556666777888899999aaaadddeff144556688aabcf1224488aabceef1224489bbddeef14466bbddf3457799cceef14488aaccf1335677889abbddeff111699aeef12233569accf1336788aacceef12244557799bbddf37799aaf1223455779af133789ccdddeef133667789aabbddeff14788aaabbceef1123355779cddeff133556689bbcceef344567789aacceef13455668889bbccdefff377aabceef144667888aaddf3445588bbddf1226688bbddf3445577889aabbbddeff11122334466778899bbddeef122334455668899adddeeeefffff1222233334444555566667788899999aaabbbccccdddeeefff1122333444455557777889abbccddeeeef12222444777777888999abcccddeefff111223334555677778888899abbbbcccccdddddeefff111122223333344555566677788889999aaadddeeeef1111122223333445555666667777788889999aaaabbbbccddddeff11122333344455566778899aabefff11133445577778899aabbccccddeefff11122333455667789aacff11223334466778899bbccddeef11123445566777799abccddeef1255555666677888999aabbcccdddeef112333445f33333344444555556667777888889999aaaaabbbbbbccccdddeeeeefffff17777888889999aaaabbbbbccccddddeeeefff111112333344458888999aabbbbcccccdddddeefff11122223333444455556666777788889999aaaabbbbccddddeef344556667778899aabbccddeefff1122233335556778899aaaabbccdeeef12555556666667777788888999999aaabbbbbccccdddeeeeefff1112223334445555566667778889999aaabbbccccddeeeefff33333444444555566666777788899999aaabbbcccdddddeeeeffff1111222333333444455668899adddddeeeeeefffff1111222233333444555666677777788889999aaabbbcccccddddeeefffff11122233344444558888899999aaaaabbbbbbcccccddddddeeeeffff11111222233334444445555556666777788889999aaadddddeeeefffff1111122222333334444455555666777788899999aaabeeeeefffff1112222333344444555556667778bbbbcccddddeeeefffff11122334445556666777778888999aabbbbccddddeefff11122255555666677888999aaaabbbbccccdddddeeeeefff11112223666667777888899aabbddeffff111112222223334444777788889999aaabbbbccccdddddeeeeef333334444455566666677777888889999aaaaadddddeeeeeefff11111222223333344445555666777788889999cccccccddddeeeefff1111222333345666677888899aabbccccdddeeefff333334444555566666677777788888999aaaabbbeeeeefffff111112222333333445558888899999aaaaabbbbccccddddeeeeeffff1112225555556667777888889999ccccdddddeeeefff33333334445566669999aaaaabbbbbbccccccddddeeeefffff111144445556669aaabbbcceef1123666677777889999addddddeeeeefffff1111225555556667777888899999cccccddddeeeefff3333347777888889999aaaaadddeeeffff3333344477778888899999ccccccffff11112222555666999aaaabbbeeeeefff3333344455888888999aaa';
 const QA_GEOM = { normal:{ t:[0,0,96,88,92,92,86,88,92,96,88,104,94,82,96,102,60,108,108,78,72,76,84,80,74,76,80,110,112,118,104,94,100,92,94,92,94,96,90,88,88,88,96,108,108,106,110,100,100,88,106,80,80,82,82,78,82,80,78,104,106,98,100,86,84,80,92,88,90,94,88,84,96,94,96,98,96,96,104,96,96,84,90,90,90,88,84,76,88,88,92,90,100,88,100,82,94,86,90,90,88,88,92,86,82,84,90,84,86,84,84,78,84,82,76,98,92,84,96,80,78,96,94,80,78,98,86,82,84,88,90,84,90,90,92,86,92,80,86,88,92,80,84,76,82,76,82,96,102,96,92,86,96,98,100,72,76,84,86,88,88,96,86,78,80,78,80,78,78,80,78,96,96,94,98,88,80,84,82,90,92,88,92,92,86,94,88,88,90,94,96,88,88,86,84,84,88,84,84,80,84,82,96,80,92,94,94,76,86,84,94,86,94,90,88,86,100,94,92,94,96,92,92,84,86,86,100,84,98,92,88,84,92,90,82,98,86,86,94,86,96,88,92,92,92,86,88,86,78,88,94,90,90,98,96,96,90,92,100,96,108,102,100,90,94,98,98,100,90,98,108,88,84,86,92,88,94,84,90,82,88,78,94,92,84,98,104,88,94,88,90,94,78,86,84,86,82,86,96,90,82,84,92,78,68,76,82,100,106,102,102,94,102,102,98,86,84,76,82,78,88,78,80,102,92,90,102,94,88,84,100,82,92,86,84,86,90,86,86,92,90,78,94,90,86,88,98,90,86,78,90,96,92,90,94,98,106,92,96,84,94,106,102,82,82,98,104,86,78,78,80,98,102,92,94,94,94,100,104,78,80,88,82,82,86,86,80,92,92,88,94,92,90,88,98,90,94,92,92,94,86,90,94,88,92,92,82,86,86,92,82,96,90,94,90,92,92,80,96,94,98,96,92,86,92,98,94,78,92,92,96,90,94,94,92,86,86,90,88,88,82,88,94,90,96,98,90,96,90,90,92,102,102,96,92,86,100,98,102,86,84,94,96,90,90,90,84,92,86,84,88,84,76,88,86,92,82,96,90,88,84,80,82,90,104,98,92,88,98,96,88,92,86,82,96,92,90,98,92,92,90,76,94,82,76,92,92,98,96,94,92,90,88,92,92,92,88,76,94,94,90,94,96,88,94,78,86,94,96,96,98,104,110,108,102,94,100,106,104,96,92,86,98,88,94,88,92,86,74,82,90,84,78,92,86,88,98,90,100,72,84,74,90,96,98,96,92,92,98,98,98,94,88,88,88,84,86,84,84,94,88,82,94,82,84,82,100,80,92,98,86,90,96,86,84,106,84,94,100,90,86,100,102,78,100,102,90,108,104,0], b:[0,0,907,909,915,913,917,907,909,911,903,915,909,899,913,917,885,925,921,895,893,893,901,899,893,893,899,929,927,935,919,909,911,909,901,911,905,903,907,909,905,909,915,921,921,923,921,921,917,921,923,899,903,905,897,901,899,901,901,925,921,919,917,903,899,903,903,905,911,911,907,909,913,915,911,919,913,911,919,911,909,905,909,901,909,903,905,899,901,911,911,917,919,911,917,905,913,907,909,911,905,905,913,911,905,907,907,909,903,911,905,899,903,895,901,915,913,909,913,901,899,913,917,905,901,911,909,903,907,901,909,905,911,911,911,909,911,911,909,911,909,905,905,899,897,899,897,917,921,915,911,911,911,915,917,897,895,905,905,913,909,909,911,905,901,901,903,895,899,903,901,919,913,919,917,909,909,907,907,913,909,913,911,905,903,917,919,905,911,911,913,907,911,911,905,907,905,905,907,901,899,907,909,907,909,913,913,909,903,901,909,907,913,915,905,905,917,919,915,919,911,905,913,911,903,905,915,907,915,911,909,905,909,915,905,917,905,911,911,911,913,905,907,909,911,909,909,905,903,911,907,911,909,915,909,919,909,915,917,913,921,921,915,911,915,921,915,919,909,915,923,911,905,905,911,905,907,905,907,901,905,909,909,915,905,913,915,911,911,911,909,911,909,909,907,905,905,911,911,907,907,915,915,903,895,897,901,923,927,925,923,915,921,921,919,907,895,901,899,899,911,911,903,923,909,919,931,921,907,911,923,903,913,913,901,905,907,905,905,913,911,913,913,911,903,913,911,913,907,913,905,915,911,911,909,919,919,917,915,909,909,923,921,909,907,915,921,903,901,901,901,917,917,915,915,913,911,925,917,903,901,909,909,903,907,909,903,917,909,911,915,909,907,911,907,903,911,913,907,915,911,909,915,909,911,913,907,905,907,917,905,917,911,913,915,919,911,913,913,911,919,913,913,911,913,921,917,915,905,913,915,915,909,911,913,909,911,911,911,903,903,913,911,915,921,917,913,915,913,911,911,921,923,919,915,909,913,923,919,903,901,917,917,911,911,909,911,909,903,907,905,903,899,909,911,909,913,917,913,913,903,905,913,911,919,919,909,907,915,919,905,915,905,903,913,915,913,915,915,915,911,915,907,905,901,911,913,921,923,915,915,913,913,917,915,915,911,911,913,915,909,911,917,909,911,911,907,921,915,913,917,923,929,923,921,917,923,929,923,917,911,919,921,917,909,917,915,913,907,907,909,911,905,911,911,923,917,925,919,907,901,907,907,915,917,913,917,915,915,923,915,915,913,905,911,909,911,911,903,917,909,911,913,911,905,911,921,907,911,919,911,905,911,909,901,921,921,915,917,913,903,921,929,911,913,921,915,933,925,0] }, tajweed:{ t:[0,0,90,92,84,98,90,104,96,100,92,90,92,94,84,96,92,102,96,102,92,102,98,98,92,94,94,96,88,96,86,92,86,96,94,86,90,94,88,92,92,92,88,94,86,92,88,88,84,94,88,92,88,94,92,92,88,92,88,94,92,92,88,94,86,94,88,88,82,92,78,82,86,88,82,98,92,90,94,100,86,98,98,80,84,90,74,88,84,84,84,92,92,88,88,86,90,98,96,86,78,88,82,96,94,90,94,94,92,90,88,82,82,92,100,86,84,94,90,88,92,92,88,90,82,88,84,92,76,96,84,90,84,94,88,90,82,94,84,92,88,92,84,90,92,94,90,94,86,86,84,88,86,86,82,94,90,92,88,90,82,98,90,86,78,86,84,92,90,98,90,88,78,88,88,94,90,88,82,98,98,84,74,88,86,90,82,90,84,90,86,90,86,94,94,90,90,92,84,90,82,88,84,106,102,110,102,110,108,114,110,94,92,90,84,86,84,84,82,96,88,98,94,98,94,98,94,86,80,84,76,92,86,92,84,96,90,96,94,94,94,96,96,86,78,82,84,86,84,92,86,96,88,96,88,94,94,96,92,90,88,86,82,88,80,88,74,94,88,88,82,90,84,100,94,86,80,90,86,92,92,96,94,92,94,90,98,94,98,92,96,100,98,96,92,90,96,84,92,86,90,88,84,86,80,98,96,84,86,92,90,86,98,94,90,92,90,90,92,92,92,92,94,84,86,84,88,88,94,82,92,92,90,90,88,88,86,96,98,82,80,92,88,96,90,90,98,94,90,90,90,86,80,92,88,88,88,90,82,100,94,98,94,94,86,90,84,84,72,94,84,92,90,94,92,94,94,94,92,100,94,100,94,96,88,104,100,96,90,102,92,86,84,88,84,88,90,94,88,96,88,100,90,90,86,88,84,92,82,90,84,88,84,94,88,92,90,92,86,98,92,86,86,88,90,92,84,92,86,88,80,86,82,88,92,88,90,94,90,88,86,92,88,90,86,92,88,88,84,88,84,90,86,92,86,86,88,92,88,86,80,88,80,84,80,92,88,96,90,98,92,96,82,92,88,104,98,106,92,98,100,98,102,88,90,88,84,92,86,90,88,94,94,94,92,86,88,90,88,86,82,88,88,90,84,90,88,86,84,88,84,86,82,88,76,92,84,88,80,92,92,96,86,86,80,86,84,80,76,80,80,92,86,88,86,86,84,84,80,92,84,92,82,84,78,94,88,84,80,86,78,90,82,88,86,96,88,90,88,90,84,94,88,82,78,86,74,90,78,84,80,84,88,90,86,90,80,96,86,82,78,88,80,88,84,94,86,82,74,80,80,86,78,84,74,90,86,86,82,90,82,84,80,96,84,90,84,98,64,0], b:[0,0,907,917,911,917,913,927,919,923,917,915,913,917,909,917,915,925,915,921,915,921,919,919,913,921,913,915,907,913,903,913,909,921,913,911,907,911,911,917,911,917,911,911,911,911,909,909,907,915,909,919,913,915,911,913,903,913,907,913,907,917,911,913,905,917,911,907,905,915,903,903,911,911,901,921,911,913,911,923,907,923,921,905,899,909,897,913,907,911,907,913,913,913,909,911,911,923,917,907,903,909,907,913,913,917,911,919,907,911,911,907,903,907,919,911,907,915,911,915,911,917,909,917,909,911,909,911,901,913,909,915,909,913,909,913,907,909,909,911,911,913,907,917,911,915,911,915,909,907,901,911,907,911,907,917,911,917,911,911,905,915,915,909,905,913,907,911,909,917,911,909,899,909,907,909,909,907,901,919,915,909,901,909,903,915,907,917,909,911,905,913,909,915,913,911,911,911,909,909,899,913,905,929,925,929,919,927,927,931,923,915,915,909,907,911,907,911,907,923,915,917,917,917,915,919,913,907,903,903,901,915,909,911,909,919,911,917,915,919,913,919,917,909,905,909,905,913,905,915,907,917,911,915,913,919,911,917,911,917,905,909,907,909,905,909,903,917,909,909,909,915,909,919,913,903,903,907,903,915,911,917,913,911,911,913,919,919,923,917,915,921,913,915,909,913,913,913,917,911,913,909,909,909,905,917,913,909,905,915,913,911,927,913,913,911,913,911,909,909,909,911,911,905,909,903,907,913,913,911,905,915,913,909,911,905,907,921,915,905,901,913,909,917,915,917,913,913,909,913,911,909,901,915,911,909,907,915,907,917,917,921,909,913,905,903,905,905,897,913,907,915,909,919,911,921,915,919,911,921,917,915,915,917,913,925,919,913,911,921,915,909,903,909,907,913,911,915,909,915,911,919,909,913,905,909,905,911,905,913,915,909,905,911,905,915,907,913,905,919,911,909,905,911,907,911,903,915,905,909,907,905,903,915,911,911,909,917,905,913,907,915,907,915,899,911,909,911,903,907,907,915,909,909,905,917,913,919,909,909,901,911,901,911,901,913,909,915,911,915,913,915,907,913,911,921,919,923,917,921,923,925,923,915,909,913,907,917,905,911,907,917,917,917,905,907,909,917,911,911,905,909,905,915,909,907,913,909,909,905,905,909,903,909,903,915,909,909,905,911,915,919,911,907,899,899,907,903,901,905,903,915,911,917,907,909,897,911,905,915,907,911,907,911,905,913,911,903,903,913,905,911,909,913,905,917,907,917,907,911,907,915,909,901,899,903,901,907,903,911,901,911,901,909,905,911,903,919,909,911,899,915,903,915,911,919,901,907,901,899,895,905,895,909,903,915,901,913,901,911,903,911,903,917,903,913,909,919,897,0] } }; /* per app page 2..611, in 1/1000 of the image height; 0 = use the average */
+/* ===== TARJUMA: translation of the ayahs on the open Mushaf page =====
+   Nothing is bundled. The translation of a Surah is fetched only when needed (alquran.cloud, public API), kept in memory and
+   in the browser cache, so a Surah is downloaded once. Tap a line of the page (or the Tarjuma button) to open the sheet. */
+const TR_LANGS = [{ k:'ur', n:'اردو', ed:'ur.jalandhry' }, { k:'hi', n:'हिन्दी', ed:'hi.hindi' }, { k:'en', n:'English', ed:'en.sahih' }];
+const TR_MEM = {};
+let trOpen = false, trFocus = 0;
+const trLang = ()=> (TR_LANGS.find(l=>l.k === state.quranTr) || TR_LANGS.find(l=>l.k === (state.lang === 'en' ? 'en' : 'ur'))).k;
+async function trLoad(s, lang){
+  const key = lang + s; if(TR_MEM[key]) return TR_MEM[key];
+  const url = `https://api.alquran.cloud/v1/surah/${s}/${TR_LANGS.find(l=>l.k === lang).ed}`;
+  let cache = null; try{ cache = await caches.open('waqt24-tr-v1'); const hit = await cache.match(url); if(hit){ const j = await hit.json(); return TR_MEM[key] = j.data.ayahs.map(a=>a.text); } }catch(e){}
+  const res = await fetch(url); if(!res.ok) throw new Error('tr ' + res.status);
+  try{ if(cache) cache.put(url, res.clone()); }catch(e){}
+  const j = await res.json(); return TR_MEM[key] = j.data.ayahs.map(a=>a.text);
+}
+function trPageAyahs(page){ const f = QA_PAGE_FIRST[page-1], nx = QA_PAGE_FIRST[page] || (QA_TOTAL + 1), out = []; for(let x = f; x < nx; x++) out.push(x); return out; }
+function trSheet(){
+  let el = document.getElementById('trSheet'); if(el) return el;
+  el = document.createElement('div'); el.id = 'trSheet'; el.className = 'tr-sheet'; el.setAttribute('role','dialog'); el.setAttribute('aria-label','Translation');
+  el.innerHTML = `<div class="tr-head"><div class="tr-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}">${l.n}</button>`).join('')}</div><button type="button" class="tr-x" aria-label="Close">✕</button></div><div class="tr-body" id="trBody"></div>`;
+  (document.getElementById('detailOverlay').parentElement || document.body).appendChild(el);
+  el.querySelector('.tr-x').onclick = trClose;
+  el.querySelector('.tr-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.quranTr = b.dataset.l; saveState(); trRender(); };
+  return el;
+}
+function trClose(){ trOpen = false; const el = document.getElementById('trSheet'); if(el) el.classList.remove('show'); }
+function trPlace(){
+  const el = document.getElementById('trSheet'), q = document.getElementById('qPlayer'); if(!el) return;
+  el.style.bottom = (q && q.classList.contains('show') ? q.offsetHeight + parseFloat(getComputedStyle(q).marginBottom || 0) + 8 : 0) + 'px';
+}
+async function trRender(){
+  const page = state.quranPage; if(!trOpen || !page || !document.getElementById('quranWrap')) return;
+  const el = trSheet(), body = el.querySelector('#trBody'), lang = trLang();
+  el.querySelectorAll('.tr-langs button').forEach(b=>b.classList.toggle('on', b.dataset.l === lang));
+  el.classList.add('show'); trPlace();
+  const ids = trPageAyahs(page);
+  if(!ids.length || page >= QURAN_SURAHS[113].page && false){ body.textContent = ''; return; }
+  body.innerHTML = `<div class="tr-msg">${L({rur:'Load ho raha hai…', en:'Loading…'})}</div>`;
+  const surahs = [...new Set(ids.map(x=>qaSurahAyah(x).s))];
+  let data;
+  try{ data = await Promise.all(surahs.map(s=>trLoad(s, lang))); }
+  catch(e){ if(state.quranPage === page) body.innerHTML = `<div class="tr-msg">${L({rur:'Tarjuma load nahi hua. Internet check karein.', en:'Could not load the translation. Check your internet connection.'})}<br><button type="button" class="tr-retry">${L({rur:'Dobara koshish', en:'Retry'})}</button></div>`; const rb = body.querySelector('.tr-retry'); if(rb) rb.onclick = trRender; return; }
+  if(state.quranPage !== page || !trOpen) return;
+  const rtl = lang === 'ur';
+  body.innerHTML = ids.map(x=>{ const r = qaSurahAyah(x), t = data[surahs.indexOf(r.s)][r.a-1] || ''; return `<div class="tr-ayah" data-abs="${x}"><b>${(QURAN_SURAHS[r.s-1]||{}).name || ''} ${r.s}:${r.a}</b><p${rtl ? ' dir="rtl" lang="ur"' : ''}>${t.replace(/</g,'&lt;')}</p></div>`; }).join('');
+  trSync(true);
+}
+/* mark the ayah being recited (or tapped) and bring it into view */
+function trSync(scroll){
+  const body = document.getElementById('trBody'); if(!trOpen || !body) return;
+  if(qa.on && trSync._a !== qa.abs){ if(trSync._a) trFocus = 0; trSync._a = qa.abs; }
+  const want = trFocus || (qa.on ? qa.abs : 0);
+  body.querySelectorAll('.tr-ayah.cur').forEach(n=>n.classList.remove('cur'));
+  const n = want && body.querySelector(`.tr-ayah[data-abs="${want}"]`);
+  if(n){ n.classList.add('cur'); if(scroll || (qa.on && !trFocus)) n.scrollIntoView({ block:'nearest', behavior: scroll ? 'auto' : 'smooth' }); }
+}
+function openTarjuma(focusAbs){ trOpen = true; trFocus = focusAbs || 0; trRender(); }
+function trRefresh(){ if(trOpen){ trFocus = 0; trRender(); } }
+/* tap on a line of the page -> the ayah on that line */
+function trLineTap(ev){
+  const wrap = document.getElementById('quranWrap'); if(!wrap || wrap.classList.contains('zoomed')) return;
+  const img = wrap.querySelector('.quran-page-img'), page = state.quranPage; if(!img || !img.naturalWidth || page < 2 || page >= QURAN_SURAHS[113].page) return;
+  const r = img.getBoundingClientRect(), k = Math.min(r.width / img.naturalWidth, r.height / img.naturalHeight), ih = img.naturalHeight * k, iw = img.naturalWidth * k;
+  const top = r.top + (r.height - ih) / 2, left = r.left + (r.width - iw) / 2;
+  if(ev.clientX < left || ev.clientX > left + iw) return;
+  const y = (ev.clientY - top) / ih, E = qaEdges(page, quranEd()); let line = 0;
+  for(let i = 1; i < E.length; i++) if(y >= E[i-1] && y < E[i]){ line = i; break; }
+  if(!line) return;
+  const ids = trPageAyahs(page); let hit = 0;
+  for(const x of ids){ const a = parseInt(QA_LINES[(x-1)*2], 16), b = parseInt(QA_LINES[(x-1)*2+1], 16); if(line >= a && line <= b){ hit = x; if(line < b || true) break; } }
+  if(hit) openTarjuma(hit);
+}
+(function(){
+  const ov = document.getElementById('detailOverlay');
+  if(ov) new MutationObserver(()=>{ if(!ov.classList.contains('active')) trClose(); }).observe(ov, { attributes:true, attributeFilter:['class'] });
+  document.addEventListener('click', e=>{ if(e.target.closest && e.target.closest('.quran-page-img')) trLineTap(e); });
+})();
+/* ===== NEARBY MASJID: opens the phone's maps app with a search for mosques ===== */
+function masjidMapsUrl(lat, lon){ return `https://www.google.com/maps/search/mosque/@${(+lat).toFixed(5)},${(+lon).toFixed(5)},15z`; }
+function masjidOpen(url){ try{ window.open(url, '_blank', 'noopener'); }catch(e){ location.href = url; } }
+function renderMasjid(){
+  document.getElementById('detailTitle').textContent = L({rur:'Qareebi Masjid', en:'Nearby Masjid'});
+  const loc = state.location || CITIES[0];
+  document.getElementById('detailBody').innerHTML = `<div class="masjid-card">
+      <div class="masjid-ic">🕌</div>
+      <div class="masjid-h">${L({rur:'Apne paas ki masjid dhoondhein', en:'Find a masjid near you'})}</div>
+      <p>${L({rur:'Maps khulega aur paas ki masjidein dikhayega. Aapki location sirf maps ko jaati hai, Waqt24 use save nahi karta.', en:'Your maps app opens with mosques around you. Your location goes only to maps; Waqt24 does not store it.'})}</p>
+      <button type="button" class="masjid-btn primary" id="masjidGps">📍 ${L({rur:'Meri location ke paas', en:'Near my location'})}</button>
+      <button type="button" class="masjid-btn" id="masjidCity">🏙️ ${L({rur:`${loc.name} mein masjidein`, en:`Mosques in ${loc.name}`})}</button>
+      <div class="masjid-msg" id="masjidMsg"></div>
+    </div>
+    <div class="masjid-card soft">
+      <div class="masjid-h" style="font-size:15px;">⏰ ${L({rur:'Apni masjid ki jamaat ka waqt', en:'Your masjid’s jamaat times'})}</div>
+      <p>${L({rur:'Jamaat ka waqt set karein, Home par jamaat ki yaad-dahani milegi.', en:'Set the jamaat times and get a jamaat reminder on Home.'})}</p>
+      <button type="button" class="masjid-btn" id="masjidJamaat">${L({rur:'Jamaat settings kholein', en:'Open jamaat settings'})}</button>
+    </div>`;
+  const msg = document.getElementById('masjidMsg');
+  document.getElementById('masjidCity').onclick = ()=> masjidOpen(masjidMapsUrl(loc.lat, loc.lon));
+  document.getElementById('masjidJamaat').onclick = ()=> openOverlay(renderIqamahSettings);
+  document.getElementById('masjidGps').onclick = ()=>{
+    if(!navigator.geolocation){ msg.textContent = L({rur:'Is device par location nahi mil sakti. Shehar se dhoondhein.', en:'Location is not available here. Try the city search.'}); return; }
+    msg.textContent = L({rur:'Location dhoondh rahe hain…', en:'Finding your location…'});
+    navigator.geolocation.getCurrentPosition(
+      pos=>{ msg.textContent = ''; masjidOpen(masjidMapsUrl(pos.coords.latitude, pos.coords.longitude)); },
+      ()=>{ msg.textContent = L({rur:'Location ki ijazat nahi mili. Shehar se dhoondhein.', en:'Location permission was not given. Try the city search.'}); },
+      { enableHighAccuracy:false, timeout:10000, maximumAge:300000 });
+  };
+}
+navWrap('renderMasjid', 0);
+(function(){
+  const item = document.querySelector('.more-item[data-open="masjid"]');
+  if(item) item.onclick = ()=> openOverlay(renderMasjid);
+})();

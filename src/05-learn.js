@@ -1045,7 +1045,7 @@ function renderSettingsMenu(){
     ['location','🏙️','Apna Shahar Chunein', state.location.name],
     ['qibla','🧭','Qibla ka Rukh', ''],
     ['timefmt','🕒','Waqt ka Andaaz', state.timeFormat==='12' ? '12 Ghante (AM/PM)' : '24 Ghante'],
-    ['textsize','🔠','Text ka Size', {m:'Normal',l:'Bara',xl:'Bohot Bara'}[state.textScale]||'Normal'],
+    ['textsize','🔠','Text ka Size', ({s:'Chhota',m:'Normal',l:'Bara',xl:'Bohot Bara',xxl:'Sabse Bara'}[state.textScale]||'Normal') + ((state.arScale||'m')!=='m' ? ' · Arabic ' + ({l:'Bara',xl:'Bohot Bara',xxl:'Sabse Bara'}[state.arScale]||'') : '')],
     ['homecard','🃏','Home Card', {full:'Poora',strip:'Patli patti',off:'Band'}[state.heroMode||'full']],
     ['feedback','📳','Vibration aur Awaaz', (state.haptics===false?'Vib off':'Vib on')+' · '+(state.sounds===false?'Sound off':'Sound on')],
     ['lang','🌐','Zubaan', state.lang==='en' ? 'English' : 'Hinglish / Roman Urdu'],
@@ -1172,12 +1172,12 @@ function renderMoreSettings(){
     pane.querySelectorAll('[data-fmt]').forEach(b=>{ b.onclick = ()=>{ setTimeFormat(b.dataset.fmt); renderTimeFmtPane(); }; });
   }
   function renderTextSizePane(){
-    pane.innerHTML = `<div class="theme-row" style="padding:0 0 12px;">
-      <button data-size="m" class="${state.textScale==='m'?'active':''}">Normal</button>
-      <button data-size="l" class="${state.textScale==='l'?'active':''}">Bara</button>
-      <button data-size="xl" class="${state.textScale==='xl'?'active':''}">Bohot Bara</button>
-    </div>`;
+    const sizeRow = (key, opts, label)=>`<div class="ts-lbl">${label}</div><div class="theme-row ts-row" style="padding:0 0 12px;">${opts.map(([k,n])=>`<button data-${key}="${k}" class="${(state[key==='size'?'textScale':'arScale']||'m')===k?'active':''}">${n}</button>`).join('')}</div>`;
+    pane.innerHTML = sizeRow('size', [['s','Chhota'],['m','Normal'],['l','Bara'],['xl','Bohot Bara'],['xxl','Sabse Bara']], L({rur:'Poora text', en:'All text'}))
+      + sizeRow('ar', [['m','Normal'],['l','Bara'],['xl','Bohot Bara'],['xxl','Sabse Bara']], L({rur:'Arabic text (dua, Qur’ani alfaaz…)', en:'Arabic text (duas, Qur’anic words…)'}))
+      + `<div class="ts-prev"><div class="arabic dua-ar" dir="rtl" style="font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:26px; line-height:1.9;">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div><div style="font-size:14px; color:var(--sub); margin-top:6px;">${L({rur:'Shuru Allah ke naam se, jo bada meherbaan, nihayat reham karne wala hai.', en:'In the name of Allah, the Most Gracious, the Most Merciful.'})}</div></div>`;
     pane.querySelectorAll('[data-size]').forEach(b=>{ b.onclick = ()=>{ state.textScale = b.dataset.size; saveState(); applyTextScale(); renderTextSizePane(); }; });
+    pane.querySelectorAll('[data-ar]').forEach(b=>{ b.onclick = ()=>{ state.arScale = b.dataset.ar; saveState(); applyTextScale(); renderTextSizePane(); }; });
   }
   function renderHomeCardPane(){
     const m = state.heroMode || 'full';

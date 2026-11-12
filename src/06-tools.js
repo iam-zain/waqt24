@@ -59,6 +59,34 @@ function shiftStatsPeriod(dir){
   renderStats();
 }
 /* Last seven days of the daily goal, shown as its own card in Safar-e-Taraqqi */
+/* Streak = days in a row with all five farz marked prayed. Today only counts once it is complete, but never breaks the streak early. */
+function dayAllPrayed(d){ return FIVE.every(p=>getStatus(d,p) === 'green'); }
+function streakInfo(){
+  const t = new Date(); t.setHours(0,0,0,0);
+  let best = 0, run = 0;
+  for(let i=0; i<400; i++){ const d = new Date(t); d.setDate(d.getDate() - i); if(dayAllPrayed(d)){ run++; if(run > best) best = run; } else run = 0; }
+  let cur = 0; const d0 = new Date(t); if(!dayAllPrayed(d0)) d0.setDate(d0.getDate() - 1);
+  for(let i=0; i<400; i++){ const d = new Date(d0); d.setDate(d.getDate() - i); if(dayAllPrayed(d)) cur++; else break; }
+  return { cur, best };
+}
+function weekSummaryHtml(){
+  const L7 = ['S','M','T','W','T','F','S'], days = [], per = {}; FIVE.forEach(p=>per[p]=0);
+  let total = 0;
+  for(let i=6; i>=0; i--){
+    const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
+    const n = FIVE.filter(p=>getStatus(d,p) === 'green').length;
+    FIVE.forEach(p=>{ if(getStatus(d,p) !== 'green' && i > 0) per[p]++; });
+    total += n; days.push({ d, n, today: i === 0 });
+  }
+  const { cur, best } = streakInfo();
+  const weak = FIVE.slice().sort((a,b)=>per[b]-per[a])[0], weakN = per[weak];
+  return `<div class="ramzan-card" style="margin:0 14px 12px;">
+    <div class="streak-top"><div class="streak-big">🔥 <b>${cur}</b><small>${L({rur:'din ki lagataar', en:'day streak'})}</small></div><div class="streak-best">${L({rur:'Sabse lambi', en:'Best'})}: <b>${best}</b></div></div>
+    <div style="font-size:13px; font-weight:800; margin:12px 0 8px;">${L({rur:'Is hafte ka khulasa', en:'This week at a glance'})} · ${total}/35</div>
+    <div class="wk-bars">${days.map(x=>`<div class="wk-col ${x.today?'today':''}"><div class="wk-bar"><i style="height:${x.n/5*100}%"></i></div><small>${x.n}</small><small>${L7[x.d.getDay()]}</small></div>`).join('')}</div>
+    ${weakN > 0 ? `<div class="streak-tip">${(PRAYER_META[weak]&&PRAYER_META[weak].icon)||''} ${L({rur:`${weak.charAt(0).toUpperCase()+weak.slice(1)} is hafte ${weakN} baar chhooti. Us par khaas dhyaan dein.`, en:`${weak.charAt(0).toUpperCase()+weak.slice(1)} was missed ${weakN} time${weakN>1?'s':''} this week. Give it extra care.`})}</div>` : (total >= 35 ? `<div class="streak-tip">${L({rur:'MashaAllah! Poore hafte ki saari namazein.', en:'MashaAllah! Every prayer this week.'})}</div>` : '')}
+  </div>`;
+}
 function goalWeekCardHtml(){
   const days = [];
   for(let i=6; i>=0; i--){
@@ -129,6 +157,7 @@ function renderStats(){
     <div class="detail-actions" style="justify-content:flex-end;">
       <button class="act-btn" id="statsShareBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
+    ${weekSummaryHtml()}
     ${goalWeekCardHtml()}
     <div class="cal-toggle" style="padding:0 0 8px;">
       <button id="statsGregBtn" class="${statsCal==='greg'?'active':''}">Gregorian</button>

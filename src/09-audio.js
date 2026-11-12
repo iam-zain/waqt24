@@ -40,6 +40,22 @@ function qaLineSpan(abs, bism){
   if(bism){ a = b = a - 1; if(a < 1) return null; }
   return [a, b];
 }
+/* Row edges of a page as fractions of the image height: edges[i-1]..edges[i] is line i. */
+function qaEdges(page, ed){
+  const g = QA_GEO[ed], sh = QA_GEO_SHORT[page];
+  if(sh){ const [c, st] = sh[ed], out = []; for(let l = 1; l <= 9; l++) out.push(c + st * (l - 1.5 - 1)); return out; }
+  const w = new Array(16).fill(1), f = QA_PAGE_FIRST[page-1], nx = QA_PAGE_FIRST[page] || (QA_TOTAL + 1);
+  for(let x = f; x < nx; x++){
+    const r = qaSurahAyah(x); if(r.a !== 1 || r.s === 1) continue;
+    const ln = parseInt(QA_LINES[(x-1)*2], 16), hb = qaHasBism(r.s);
+    if(hb) w[ln-1] = g.wm;
+    w[ln - (hb ? 2 : 1)] = g.wb;
+  }
+  let tot = 0; for(let i = 1; i <= 15; i++) tot += w[i];
+  const gm = QA_GEOM[ed], t = (gm.t[page-2] || g.t * 1000) / 1000, b = (gm.b[page-2] || g.b * 1000) / 1000, out = [t]; let c = 0;
+  for(let i = 1; i <= 15; i++){ c += w[i]; out.push(t + (b - t) * c / tot); }
+  return out;
+}
 function qaHL(){
   const wrap = document.getElementById('quranWrap');
   let hl = wrap && wrap.querySelector('.qhl');
@@ -48,23 +64,8 @@ function qaHL(){
   const img = wrap.querySelector('.quran-page-img'), span = qaLineSpan(qa.abs, qa.bism);
   if(!img || !span){ if(hl) hl.remove(); return; }
   if(!img.naturalWidth){ if(!img._hlw){ img._hlw = 1; img.addEventListener('load', ()=>qaHL(), { once:true }); } return; }
-  const ed = quranEd(), g = QA_GEO[ed], sh = QA_GEO_SHORT[page];
-  let y0, y1;
-  if(sh){ const [c, st] = sh[ed], h = st * .46; y0 = c + st * (span[0] - 2) - h; y1 = c + st * (span[1] - 2) + h; }
-  else {
-    /* row boundaries: this page's measured top/bottom, rows weighted by kind (banner rows are taller, Bismillah rows a little shorter) */
-    const w = new Array(16).fill(1), f = QA_PAGE_FIRST[page-1], nx = QA_PAGE_FIRST[page] || (QA_TOTAL + 1);
-    for(let x = f; x < nx; x++){
-      const r = qaSurahAyah(x); if(r.a !== 1 || r.s === 1) continue;
-      const ln = parseInt(QA_LINES[(x-1)*2], 16), hb = qaHasBism(r.s);
-      if(hb) w[ln-1] = g.wm;
-      w[ln - (hb ? 2 : 1)] = g.wb;
-    }
-    let tot = 0, c0 = 0, c1 = 0; for(let i = 1; i <= 15; i++){ tot += w[i]; if(i < span[0]) c0 += w[i]; if(i <= span[1]) c1 += w[i]; }
-    const gm = QA_GEOM[ed], t = (gm.t[page-2] || g.t * 1000) / 1000, b = (gm.b[page-2] || g.b * 1000) / 1000;
-    y0 = t + (b - t) * c0 / tot; y1 = t + (b - t) * c1 / tot;
-    const pad = (y1 - y0) * .04; y0 += pad; y1 -= pad;
-  }
+  const E = qaEdges(page, quranEd());
+  let y0 = E[span[0]-1], y1 = E[span[1]]; { const pad = (y1 - y0) * .04; y0 += pad; y1 -= pad; }
   /* the image is letterboxed inside its box (object-fit: contain): find where it really is */
   const bw = img.clientWidth, bh = img.clientHeight, k = Math.min(bw / img.naturalWidth, bh / img.naturalHeight);
   const iw = img.naturalWidth * k, ih = img.naturalHeight * k, ox = img.offsetLeft + (bw - iw) / 2, oy = img.offsetTop + (bh - ih) / 2;
@@ -89,7 +90,7 @@ function qaFollowPage(){
 }
 
 /* Player state. `bism` = currently on the Bismillah that opens a Surah (Al-Fatihah has it as ayah 1; At-Tawbah has none). */
-const qa = { dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
+const qa = { rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
 const qaHasBism = s => s !== 1 && s !== 9;
 function qaFile(abs, bism){ if(bism) return QA_BASE + '001001.mp3'; const r = qaSurahAyah(abs); return QA_BASE + qaPad(r.s) + qaPad(r.a) + '.mp3'; }
 function qaNextStep(abs, bism){
@@ -103,6 +104,25 @@ function qaPrevStep(abs, bism){
   const r = qaSurahAyah(abs);
   if(r.a === 1 && qaHasBism(r.s)) return { abs, bism:true };
   return { abs: Math.max(1, abs-1), bism:false };
+}
+function qaApplyRate(){ [qa.A, qa.B].forEach(el=>{ if(!el) return; el.defaultPlaybackRate = qa.rate; el.playbackRate = qa.rate; try{ el.preservesPitch = true; }catch(e){} }); }
+const QA_RATES = [1, 1.25, 1.5, 0.75], QA_REPS = [0, 1, 3], QA_SLEEPS = [0, 15, 30, 60];
+function qaCycle(kind){
+  if(kind === 'rate'){ qa.rate = QA_RATES[(QA_RATES.indexOf(qa.rate) + 1) % QA_RATES.length]; qaApplyRate(); state.qaRate = qa.rate; saveState(); }
+  else if(kind === 'rep'){ qa.rep = QA_REPS[(QA_REPS.indexOf(qa.rep) + 1) % QA_REPS.length]; qa.repCount = 0; }
+  else if(kind === 'sleep'){
+    qa.sleepMin = QA_SLEEPS[(QA_SLEEPS.indexOf(qa.sleepMin) + 1) % QA_SLEEPS.length];
+    clearTimeout(qa.sleepT); qa.sleepT = 0;
+    if(qa.sleepMin){ qa.sleepT = setTimeout(()=>{ qa.sleepMin = 0; qa.sleepT = 0; qaStop(); showToast(L({rur:'Sleep timer: tilawat band ho gayi', en:'Sleep timer: recitation stopped'})); }, qa.sleepMin * 60000); }
+  }
+  qaOptsUI();
+}
+function qaOptsUI(){
+  const e = document.getElementById('qPlayer'); if(!e) return;
+  e.querySelector('#qpRate').textContent = '⚡ ' + qa.rate + '×';
+  e.querySelector('#qpRep').textContent = '🔁 ' + (qa.rep === 0 ? L({rur:'Band', en:'Off'}) : qa.rep === 1 ? L({rur:'Ayat dohraayein', en:'Repeat ayah'}) : '3× ' + L({rur:'har ayat', en:'each ayah'}));
+  e.querySelector('#qpSleep').textContent = '😴 ' + (qa.sleepMin ? qa.sleepMin + ' min' : L({rur:'Band', en:'Off'}));
+  ['qpRate','qpRep','qpSleep'].forEach(id=>{ const b = e.querySelector('#'+id), on = id==='qpRate' ? qa.rate !== 1 : id==='qpRep' ? qa.rep : qa.sleepMin; b.classList.toggle('on', !!on); });
 }
 const qaKey = (abs, bism)=> bism ? 'b' : abs;
 /* Surah timing. Exact lengths of every ayah are learned lazily (tiny HEAD requests: at 128 kbps, bytes / 16000 = seconds);
@@ -152,6 +172,7 @@ function qaLocate(f){
   for(let a = 1; a <= n; a++){ const d = qa.dur[base+a] || avg; if(t < d || a === n) return { abs: base + a, bism:false, off: Math.min(t, d) }; t -= d; }
 }
 function qaSeek(f){
+  qa.repCount = 0;
   const loc = qaLocate(f); if(!loc) return;
   qaEls();
   const same = loc.abs === qa.abs && loc.bism === qa.bism && qa.cur.src === qaFile(loc.abs, loc.bism);
@@ -173,6 +194,7 @@ function qaProg(){
   e.querySelector('#qpT3').textContent = L({rur:'Poori surah', en:'Full surah'}) + ' ' + ap + qaFmt(T.total);
 }
 function qaEls(){
+  if(state.qaRate && !qa.A) qa.rate = state.qaRate;
   if(!qa.A){
     qa.A = new Audio(); qa.B = new Audio();
     [qa.A, qa.B].forEach(el=>{
@@ -186,6 +208,7 @@ function qaEls(){
       el.addEventListener('pause', ()=>{ if(el === qa.cur && !el.ended){ qa.playing = false; qaUI(); } });
     });
     qa.cur = qa.A;
+    qaApplyRate();
   }
   return qa;
 }
@@ -208,6 +231,8 @@ function qaFail(){
   showToast(L({rur:'Awaaz nahi chal saki. Internet check karein.', en:'Could not play. Check your internet connection.'}), '!');
 }
 function qaAdvance(){
+  if(qa.rep && (qa.rep === 1 || qa.repCount < qa.rep - 1)){ qa.repCount++; qa.cur.currentTime = 0; const p = qa.cur.play(); if(p && p.catch) p.catch(()=>qaFail()); return; }
+  qa.repCount = 0;
   const n = qaNextStep(qa.abs, qa.bism);
   if(!n){ qaStop(); return; }
   qa.abs = n.abs; qa.bism = n.bism; qaFollowPage();
@@ -216,6 +241,7 @@ function qaAdvance(){
   else qaPlayCurrent();
 }
 function qaStep(dir){
+  qa.repCount = 0;
   const n = dir > 0 ? qaNextStep(qa.abs, qa.bism) : qaPrevStep(qa.abs, qa.bism);
   if(!n) return;
   qa.abs = n.abs; qa.bism = n.bism; qa.exact = true; qaFollowPage();
@@ -229,7 +255,7 @@ function qaToggle(){
 }
 function qaStop(){
   if(qa.A){ [qa.A, qa.B].forEach(el=>{ el.pause(); el.removeAttribute('src'); try{ el.load(); }catch(e){} }); }
-  qa.on = false; qa.playing = false; qa.loading = false; qa.err = false;
+  qa.on = false; qa.playing = false; qa.loading = false; qa.err = false; qa.repCount = 0; clearTimeout(qa.sleepT); qa.sleepT = 0; qa.sleepMin = 0;
   try{ if(navigator.mediaSession) navigator.mediaSession.playbackState = 'none'; }catch(e){}
   qaUI();
 }
@@ -280,12 +306,14 @@ function qaBar(){
     <button type="button" id="qpNext" aria-label="Next ayah">${QA_ICON.next}</button>
     <button type="button" id="qpClose" aria-label="Close player">${QA_ICON.close}</button></div>
     <div class="qp-time"><span id="qpT1">0:00</span><div class="qp-bar" role="progressbar" aria-label="Surah progress"><i id="qpFill"></i></div><span id="qpT2">-0:00</span></div>
-    <div class="qp-tot" id="qpT3"></div>`;
+    <div class="qp-tot" id="qpT3"></div>
+    <div class="qp-opts"><button type="button" id="qpRate"></button><button type="button" id="qpRep"></button><button type="button" id="qpSleep"></button></div>`;
   (document.getElementById('detailOverlay').parentElement || document.body).appendChild(el);
   el.querySelector('#qpPrev').onclick = ()=>qaStep(-1);
   el.querySelector('#qpNext').onclick = ()=>qaStep(1);
   el.querySelector('#qpPlay').onclick = qaToggle;
   el.querySelector('#qpClose').onclick = qaStop;
+  el.querySelector('#qpRate').onclick = ()=>qaCycle('rate'); el.querySelector('#qpRep').onclick = ()=>qaCycle('rep'); el.querySelector('#qpSleep').onclick = ()=>qaCycle('sleep');
   /* tap or drag on the bar to jump: the recitation continues from that point */
   const bar = el.querySelector('.qp-bar'); let drag = false;
   const frac = ev=>{ const r = bar.getBoundingClientRect(); return Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)); };
@@ -315,7 +343,7 @@ function qaUI(){
     : (qa.exact ? cnt + ' · Mishary Alafasy' : L({rur:'Mishary Alafasy · shuruaat andaaze se, ⏮ ⏭ se theek karein', en:'Mishary Alafasy · start is approximate, adjust with ⏮ ⏭'}));
   el.querySelector('#qpPlay').innerHTML = qa.playing ? QA_ICON.pause : QA_ICON.play;
   el.classList.toggle('show', true);
-  qaPlace(); qaProg(); qaHL(); if(typeof quranTintPlayer === 'function') quranTintPlayer();
+  qaPlace(); qaProg(); qaOptsUI(); qaHL(); if(typeof trSync === 'function'){ trSync(); trPlace(); } if(typeof quranTintPlayer === 'function') quranTintPlayer();
   qaMediaMeta();
 }
 (function(){

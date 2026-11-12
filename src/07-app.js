@@ -507,12 +507,14 @@ document.addEventListener('keydown', (e)=>{
     e.preventDefault(); e.target.click();
   }
 });
-const TEXT_SCALES = { m:1, l:1.12, xl:1.25 };
+const TEXT_SCALES = { s:.92, m:1, l:1.12, xl:1.25, xxl:1.4 };
+const AR_SCALES = { m:1, l:1.2, xl:1.4, xxl:1.65 };
 function applyTextScale(){
   const k = state.textScale || 'm';
   const z = TEXT_SCALES[k] || 1;
   document.documentElement.style.zoom = z;
   document.documentElement.style.setProperty('--zoom', z);
+  document.documentElement.style.setProperty('--arz', AR_SCALES[state.arScale || 'm'] || 1);
 }
 applyTextScale();
 a11yFix();

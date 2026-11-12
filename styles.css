@@ -1524,3 +1524,53 @@ html[data-palette="graphite"][data-tone="light"][data-mode="fixed"]{ --bg:#f4f4f
 
 .qp[data-tint]{ background:color-mix(in srgb, var(--qtc) 60%, #ffffff); border-color:color-mix(in srgb, var(--qta) 30%, transparent); --accent:var(--qta); --text:#1c2530; --sub:#5a6477; --line:color-mix(in srgb, var(--qta) 24%, transparent); --card:#ffffff; --fardText:#ffffff; }
 .page-leaf-tint{ position:absolute; inset:0; mix-blend-mode:multiply; pointer-events:none; }
+.qp-opts{ display:flex; gap:6px; justify-content:center; }
+.qp .qp-opts button{ width:auto; height:auto; border-radius:14px; padding:5px 11px; font-size:11.5px; font-weight:700; flex:0 0 auto; }
+.qp .qp-opts button.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 16%, var(--card)); }
+body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
+
+/* Translation sheet */
+.tr-sheet{ position:absolute; left:0; right:0; bottom:0; z-index:65; display:none; flex-direction:column; max-height:48vh; background:var(--card2); border-top:1px solid var(--line); border-radius:18px 18px 0 0; box-shadow:0 -8px 28px rgba(0,0,0,.25); }
+.tr-sheet.show{ display:flex; animation:fadeUp .25s var(--fx-ease, ease) both; }
+.tr-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px 6px; }
+.tr-langs{ display:flex; gap:6px; }
+.tr-langs button, .tr-x, .tr-retry{ padding:6px 12px; border-radius:14px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12.5px; font-weight:700; }
+.tr-langs button.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 16%, var(--card)); }
+.tr-body{ overflow:auto; padding:2px 14px 14px; -webkit-overflow-scrolling:touch; }
+.tr-ayah{ padding:9px 10px; border-radius:12px; margin-bottom:4px; }
+.tr-ayah b{ font-size:11.5px; color:var(--sub); font-weight:700; }
+.tr-ayah p{ margin-top:3px; font-size:15px; line-height:1.6; }
+.tr-ayah[dir=rtl], .tr-ayah p[dir=rtl]{ font-size:17px; line-height:1.9; }
+.tr-ayah.cur{ background:color-mix(in srgb, var(--accent) 16%, transparent); }
+.tr-msg{ padding:18px 8px; text-align:center; color:var(--sub); font-size:13.5px; }
+
+/* Streak + weekly summary */
+.streak-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.streak-big{ display:flex; align-items:baseline; gap:8px; font-size:22px; }
+.streak-big b{ font-size:34px; font-weight:800; color:var(--accent); line-height:1; }
+.streak-big small, .streak-best{ font-size:12.5px; color:var(--sub); font-weight:600; }
+.streak-best b{ color:var(--text); }
+.wk-bars{ display:flex; gap:8px; align-items:flex-end; }
+.wk-col{ flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.wk-col small{ font-size:10.5px; color:var(--sub); font-weight:700; }
+.wk-bar{ width:100%; height:64px; background:var(--meterBg); border-radius:8px; overflow:hidden; display:flex; align-items:flex-end; }
+.wk-bar i{ display:block; width:100%; background:var(--accent); border-radius:8px 8px 0 0; min-height:0; }
+.wk-col.today .wk-bar{ outline:2px solid var(--accent); outline-offset:1px; }
+.streak-tip{ margin-top:10px; font-size:12.5px; color:var(--sub); line-height:1.4; }
+
+/* Arabic size (Settings → Text ka Size): only reading text, not icons or labels */
+.arabic, .dua-ar, .mdetail-ar, .name-detail .ar, .shabd-detail .ar, .quiz-q-ar, .dua-sec-ar, .az-ar{ zoom:var(--arz, 1); }
+.ts-lbl{ font-size:12.5px; font-weight:700; color:var(--sub); padding:6px 2px 6px; }
+.ts-row{ flex-wrap:wrap; }
+.ts-row button{ flex:1 1 auto; min-width:70px; }
+.ts-prev{ padding:14px; border:1px solid var(--line); border-radius:14px; background:var(--card); text-align:center; }
+
+/* Nearby masjid */
+.masjid-card{ margin:0 14px 14px; padding:18px 16px; border-radius:18px; background:var(--card); border:1px solid var(--line); text-align:center; display:flex; flex-direction:column; gap:10px; }
+.masjid-card.soft{ background:var(--card2); }
+.masjid-ic{ font-size:42px; line-height:1; }
+.masjid-h{ font-size:18px; font-weight:800; }
+.masjid-card p{ font-size:13px; color:var(--sub); line-height:1.5; }
+.masjid-btn{ padding:12px 14px; border-radius:14px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:14px; font-weight:700; }
+.masjid-btn.primary{ background:var(--accent); border-color:var(--accent); color:var(--fardText,#08131c); }
+.masjid-msg{ font-size:12.5px; color:var(--sub); min-height:1em; }
