@@ -740,7 +740,21 @@ function operatingDate(now){
 }
 let homeViewDate = operatingDate(new Date());
 let homeFollowsToday = true;
-let lastLiveKey = null;
+let lastLiveKey = null, liveCenterKey = null, liveUserScrolled = false;
+/* Put the live prayer row a little below the top of the list (so the next rows stay visible). */
+function centerLiveRow(instant){
+  const listEl = document.getElementById('timesList'); if(!listEl || !liveCenterKey || listEl.clientHeight < 50) return;
+  const row = listEl.querySelector('.time-row[data-key="'+liveCenterKey+'"]'); if(!row) return;
+  const want = Math.max(0, listEl.scrollTop + (row.getBoundingClientRect().top - listEl.getBoundingClientRect().top) - listEl.clientHeight * 0.22);
+  if(Math.abs(want - listEl.scrollTop) < 2) return;
+  listEl.scrollTo({ top: want, behavior: instant ? 'auto' : 'smooth' });
+}
+(function(){
+  const l = document.getElementById('timesList'); if(!l) return;
+  ['touchstart','wheel','pointerdown'].forEach(ev=> l.addEventListener(ev, ()=>{ liveUserScrolled = true; }, { passive:true }));
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && !liveUserScrolled) setTimeout(()=>centerLiveRow(true), 150); });
+  document.querySelectorAll('.tab-btn[data-tab="home"]').forEach(b=> b.addEventListener('click', ()=>{ if(!liveUserScrolled) setTimeout(()=>centerLiveRow(true), 120); }));
+})();
 let homeNextChange = 0, homeRenderedDay = null; // set by renderHome, read by homeTick
 function isSameDay(a,b){ return dayKey(a)===dayKey(b); }
 
@@ -891,13 +905,10 @@ function renderHome(){
   if(isToday){
     const liveKey = (isIftarActive && 'iftar') || (isGhurubActive && 'ghurub') || (currentIdx>=0 && sched[currentIdx].key) || null;
     if(liveKey && liveKey !== lastLiveKey){
-      const liveRow = listEl.querySelector('.time-row[data-key="'+liveKey+'"]');
-      if(liveRow){
-        const listTop = listEl.getBoundingClientRect().top;
-        const rowTop = liveRow.getBoundingClientRect().top;
-        const targetOffset = listEl.clientHeight * 0.22;
-        listEl.scrollTo({ top: Math.max(0, listEl.scrollTop + (rowTop - listTop) - targetOffset), behavior: instantScroll ? 'auto' : 'smooth' });
-      }
+      liveCenterKey = liveKey; liveUserScrolled = false;
+      centerLiveRow(instantScroll);
+      /* layout may still be settling (fonts, tab just shown): settle again unless the person has scrolled themselves */
+      [120, 500, 1200].forEach(ms=> setTimeout(()=>{ if(!liveUserScrolled) centerLiveRow(true); }, ms));
     }
     lastLiveKey = liveKey;
   }
