@@ -7209,6 +7209,7 @@ function qaLocate(f){
 }
 function qaSeek(f){
   qa.repCount = 0;
+  if(typeof trpJump === 'function') setTimeout(trpJump, 0);
   const loc = qaLocate(f); if(!loc) return;
   qaEls();
   const same = loc.abs === qa.abs && loc.bism === qa.bism && qa.cur.src === qaFile(loc.abs, loc.bism, loc.part);
@@ -7284,6 +7285,7 @@ function qaAdvance(){
 }
 function qaStep(dir){
   qa.repCount = 0;
+  if(typeof trpJump === 'function') setTimeout(trpJump, 0);
   const n = dir > 0 ? qaNextStep(qa.abs, qa.bism, qa.part) : qaPrevStep(qa.abs, qa.bism, qa.part);
   if(!n) return;
   qa.abs = n.abs; qa.bism = n.bism; qa.part = n.part; qa.exact = true; qaFollowPage();
@@ -7291,6 +7293,7 @@ function qaStep(dir){
 }
 function qaToggle(){
   qaEls();
+  if(!qa.playing && typeof trpJump === 'function') trpJump();   /* pressing play brings the Tarjuma panel back to the ayah being recited */
   if(qa.playing){ qa.cur.pause(); }
   else if(qa.cur.src && !qa.err && qa.cur.src === qaFile(qa.abs, qa.bism)){ const p = qa.cur.play(); if(p && p.catch) p.catch(()=>qaFail()); }
   else qaPlayCurrent();
@@ -7310,6 +7313,7 @@ function quranListen(page){
 }
 /* Play from a given ayah of the page that is open (used by the Tarjuma sheet and by tapping a line) */
 function qaPlayFrom(abs){
+  if(typeof trpJump === 'function') setTimeout(trpJump, 0);
   qaEls(); qa.on = true; qa.repCount = 0; qa.syncPage = state.quranPage || qa.syncPage; qa.part = 'a'; qa.abs = abs; qa.exact = true;
   const r = qaSurahAyah(abs); qa.bism = r.a === 1 && qaHasBism(r.s);
   qa.cur.pause(); qaPlayCurrent();
@@ -7776,6 +7780,8 @@ function trpKeepArabic(instant){
   const mid = r.top + r.height / 2 - (lo + (hi - lo) / 2);
   body.scrollTo({ top: Math.max(0, body.scrollTop + mid), behavior: instant ? 'auto' : 'smooth' });
 }
+/* back to the ayah being recited, whatever was scrolled meanwhile */
+function trpJump(){ trp.touch = 0; const el = document.getElementById('tpPanel'); if(el && el.classList.contains('show')) trpSync(true); }
 /* mark the ayah being recited and keep it in view */
 function trpSync(force, quiet){
   const sc = document.getElementById('tpScroll'); if(!sc || !document.getElementById('tpPanel').classList.contains('show')) return;

@@ -192,6 +192,8 @@ function trpKeepArabic(instant){
   const mid = r.top + r.height / 2 - (lo + (hi - lo) / 2);
   body.scrollTo({ top: Math.max(0, body.scrollTop + mid), behavior: instant ? 'auto' : 'smooth' });
 }
+/* back to the ayah being recited, whatever was scrolled meanwhile */
+function trpJump(){ trp.touch = 0; const el = document.getElementById('tpPanel'); if(el && el.classList.contains('show')) trpSync(true); }
 /* mark the ayah being recited and keep it in view */
 function trpSync(force, quiet){
   const sc = document.getElementById('tpScroll'); if(!sc || !document.getElementById('tpPanel').classList.contains('show')) return;
