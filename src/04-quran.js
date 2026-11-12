@@ -160,6 +160,9 @@ document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && quran
 function renderQuranReader(page){
   quranWake(true);
   page = Math.max(1, Math.min(QURAN_PAGE_COUNT, page || quranLastPage()));
+  /* A page change inside the reader (or a pick from the index) moves the recitation too; merely reopening the reader does not */
+  const qaFlip = !!document.getElementById('quranWrap') || qa.forceSync; qa.forceSync = false;
+  if(qaFlip) qaSyncToPage(page);
   state.quranPage = page;
   clearTimeout(quranReadTimer); quranReadTimer = setTimeout(()=> markQuranPageRead(page), 8000);
   state.lastRead = { k:'quran', id:page, ed:quranEd(), label:`${quranEdLabel()} · Page ${page} · ${quranSurahOf(page).name}` };
@@ -515,7 +518,7 @@ function renderQuranIndex(kind){
   document.getElementById('qiSurahTab').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('qiManzilTab').onclick = ()=> renderQuranIndex('manzil');
   document.getElementById('qiMarksTab').onclick = ()=> renderQuranIndex('marks');
-  document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=> renderQuranReader(parseInt(el.dataset.page)); });
+  document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=>{ qa.forceSync = true; renderQuranReader(parseInt(el.dataset.page)); }; });
   const qiSearch = document.getElementById('qiSearch');
   if(qiSearch){
     const rows = [...document.querySelectorAll('#detailBody .quran-idx-item')];

@@ -26,7 +26,7 @@ function qaPageStart(page){
 }
 
 /* Player state. `bism` = currently on the Bismillah that opens a Surah (Al-Fatihah has it as ayah 1; At-Tawbah has none). */
-const qa = { on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
+const qa = { syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
 const qaHasBism = s => s !== 1 && s !== 9;
 function qaFile(abs, bism){ if(bism) return QA_BASE + '001001.mp3'; const r = qaSurahAyah(abs); return QA_BASE + qaPad(r.s) + qaPad(r.a) + '.mp3'; }
 function qaNextStep(abs, bism){
@@ -102,9 +102,19 @@ function qaStop(){
 /* Start from the current Mushaf page */
 function quranListen(page){
   const st = qaPageStart(page);
-  qaEls(); qa.on = true; qa.abs = st.abs; qa.exact = st.exact;
+  qaEls(); qa.on = true; qa.syncPage = page; qa.abs = st.abs; qa.exact = st.exact;
   const r = qaSurahAyah(st.abs); qa.bism = r.a === 1 && qaHasBism(r.s);
   qa.cur.pause(); qaPlayCurrent();
+}
+/* The reader moved to another page while the player is open: follow it. A playing recitation restarts at the new page,
+   a paused one just moves its position (and stays paused). Re-renders of the same page change nothing. */
+function qaSyncToPage(page){
+  if(!qa.on || qa.syncPage === page) return;
+  const st = qaPageStart(page), was = qa.playing || qa.loading;
+  qa.syncPage = page; qa.abs = st.abs; qa.exact = st.exact;
+  const r = qaSurahAyah(st.abs); qa.bism = r.a === 1 && qaHasBism(r.s);
+  qaEls(); qa.cur.pause();
+  if(was) qaPlayCurrent(); else { qa.playing = false; qa.loading = false; qa.err = false; qaUI(); }
 }
 function qaMediaMeta(){
   try{
