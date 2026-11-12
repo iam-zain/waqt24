@@ -2532,6 +2532,20 @@ const TAJWEED_GUIDE_COUNT = 8;
 const TAJWEED_GUIDE_LIST = Array.from({ length: TAJWEED_GUIDE_COUNT }, (_, i) => i + 1);
 function quranMarked(p){ return (state.quranMarks||[]).includes(p); }
 /* Night page: white text on black. Follows the app's dark theme unless the reader switched it */
+/* Reading tints: a light colour laid over the page picture with multiply, so black text stays black. */
+const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'cream',n:'Cream',c:'#f3e6c4'},{k:'sand',n:'Sand',c:'#e6d2a8'},{k:'mint',n:'Mint',c:'#d6ecd9'},{k:'sky',n:'Sky',c:'#d3e6f6'},{k:'rose',n:'Rose',c:'#f6d9e1'},{k:'lilac',n:'Lilac',c:'#e3daf3'}];
+let quranTintOpen = false;
+function quranTintApply(){
+  const wrap = document.getElementById('quranWrap'); if(!wrap) return;
+  let el = wrap.querySelector('.qtint');
+  const t = QURAN_TINTS.find(x=>x.k === (state.quranTint||'')), img = wrap.querySelector('.quran-page-img');
+  if(!t || !t.c || !img || quranNightOn()){ if(el) el.remove(); return; }
+  if(!img.naturalWidth){ if(!img._tw){ img._tw = 1; img.addEventListener('load', quranTintApply, { once:true }); } return; }
+  const bw = img.clientWidth, bh = img.clientHeight, k = Math.min(bw / img.naturalWidth, bh / img.naturalHeight), iw = img.naturalWidth * k, ih = img.naturalHeight * k;
+  if(!el){ el = document.createElement('div'); el.className = 'qtint'; wrap.appendChild(el); }
+  el.style.cssText = `background:${t.c};left:${(img.offsetLeft + (bw - iw) / 2).toFixed(1)}px;top:${(img.offsetTop + (bh - ih) / 2).toFixed(1)}px;width:${iw.toFixed(1)}px;height:${ih.toFixed(1)}px`;
+}
+window.addEventListener('resize', ()=>quranTintApply());
 function quranNightOn(){
   if(typeof state.quranNight === 'boolean') return state.quranNight;
   const m = getComputedStyle(document.body).backgroundColor.match(/\d+/g);
@@ -2693,6 +2707,7 @@ function renderQuranReader(page){
     <div class="quran-tools">
       <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
       <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
+      <button class="quran-tool ${state.quranTint?'on':''}" id="quranTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
       <button class="quran-tool" id="quranShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
@@ -2700,6 +2715,7 @@ function renderQuranReader(page){
       <button class="quran-tool" id="quranSignsBtn">🛑 ${L({rur:'Alamaat', en:'Signs'})}</button>
       <button class="quran-tool qt-ed" id="quranEdBtn">${quranEd()==='tajweed' ? quranBookSvg(false, 22) + ' Normal' : quranBookSvg(true, 22) + ' Tajweed'}</button>
     </div>
+    <div class="q-tints" id="qTints" ${quranTintOpen ? '' : 'hidden'}>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint||'')===t.k?' active':''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
     <div class="quran-jump">
       <span>${L({rur:'Page par jaayein', en:'Go to page'})}</span>
       <input type="number" id="quranJumpInput" min="1" max="${QURAN_PAGE_COUNT}" value="${page}">
@@ -2719,9 +2735,12 @@ function renderQuranReader(page){
     saveState(); renderQuranReader(page);
     showToast(i>=0 ? L({rur:'Nishaan hata diya', en:'Bookmark removed'}) : L({rur:'Nishaan laga diya', en:'Bookmarked'}));
   };
+  document.getElementById('quranTintBtn').onclick = ()=>{ quranTintOpen = !quranTintOpen; document.getElementById('qTints').hidden = !quranTintOpen; };
+  document.getElementById('qTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderQuranReader(page); };
+  quranTintApply();
   document.getElementById('quranNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderQuranReader(page); };
   const wrap = document.getElementById('quranWrap');
-  const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); setTimeout(()=>{ if(typeof qaHL === 'function') qaHL(); }, 30); };
+  const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); setTimeout(()=>{ if(typeof qaHL === 'function') qaHL(); quranTintApply(); }, 30); };
   document.getElementById('quranZoomBtn').onclick = toggleZoom;
   document.getElementById('quranListenBtn').onclick = ()=>{ if(qa.on) qaStop(); else quranListen(page); };
   if(typeof qaHL === 'function') qaHL();
