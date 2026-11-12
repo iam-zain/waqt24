@@ -1530,19 +1530,6 @@ html[data-palette="graphite"][data-tone="light"][data-mode="fixed"]{ --bg:#f4f4f
 body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 
 /* Translation sheet */
-.tr-sheet{ position:absolute; left:0; right:0; bottom:0; z-index:65; display:none; flex-direction:column; max-height:48vh; background:var(--card2); border-top:1px solid var(--line); border-radius:18px 18px 0 0; box-shadow:0 -8px 28px rgba(0,0,0,.25); }
-.tr-sheet.show{ display:flex; animation:fadeUp .25s var(--fx-ease, ease) both; }
-.tr-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px 6px; }
-.tr-langs{ display:flex; gap:6px; }
-.tr-langs button, .tr-x, .tr-retry{ padding:6px 12px; border-radius:14px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12.5px; font-weight:700; }
-.tr-langs button.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 16%, var(--card)); }
-.tr-body{ overflow:auto; padding:2px 14px 14px; -webkit-overflow-scrolling:touch; }
-.tr-ayah{ padding:9px 10px; border-radius:12px; margin-bottom:4px; }
-.tr-ayah b{ font-size:11.5px; color:var(--sub); font-weight:700; }
-.tr-ayah p{ margin-top:3px; font-size:15px; line-height:1.6; }
-.tr-ayah[dir=rtl], .tr-ayah p[dir=rtl]{ font-size:17px; line-height:1.9; }
-.tr-ayah.cur{ background:color-mix(in srgb, var(--accent) 16%, transparent); }
-.tr-msg{ padding:18px 8px; text-align:center; color:var(--sub); font-size:13.5px; }
 
 /* Streak + weekly summary */
 .streak-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
@@ -1578,29 +1565,14 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .qp-sleep input{ width:70px; padding:5px 8px; border-radius:14px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12px; font-weight:700; text-align:center; }
 
 /* Translation sheet wears the page tint too: a lighter shade of the same colour than the player, with the stronger shade for accents */
-.tr-sheet[data-tint]{ background:color-mix(in srgb, var(--qtc) 38%, #ffffff); border-color:color-mix(in srgb, var(--qta) 28%, transparent); --accent:var(--qta); --text:#1c2530; --sub:#5a6477; --line:color-mix(in srgb, var(--qta) 22%, transparent); --card:#ffffff; --fardText:#ffffff; }
-.tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--qtc) 85%, #ffffff); box-shadow:inset 3px 0 0 var(--qta); }
-.tr-sheet[data-tint] .tr-langs button.on{ background:var(--qta); border-color:var(--qta); color:#fff; }
-.tr-sheet.tr-flush{ padding-bottom:env(safe-area-inset-bottom); }
-.tr-sheet:not(.tr-flush){ margin:0 10px; left:0; right:0; border-radius:18px; border:1px solid var(--line); }
 
 /* Urdu translation in Nastaliq (the Indo-Pak style); the font file loads only when the Urdu tab is shown */
 @font-face{ font-family:'Noto Nastaliq Urdu'; font-style:normal; font-weight:400; font-display:swap; src:url(fonts/noto-nastaliq-urdu.woff2) format('woff2'); }
-.tr-ayah p.tr-ur{ font-family:'Noto Nastaliq Urdu','Scheherazade New','Noto Naskh Arabic',serif; font-size:18px; line-height:2.5; padding-top:4px; }
 /* Neighbouring ayahs alternate in a faint shade; the ayah being recited and a tapped one stand out more */
-.tr-ayah:nth-child(odd){ background:color-mix(in srgb, var(--accent) 6%, transparent); }
-.tr-ayah.tap{ box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 45%, transparent); }
-.tr-sheet[data-tint] .tr-ayah:nth-child(odd){ background:color-mix(in srgb, var(--qtc) 55%, #ffffff); }
-.tr-ayah.cur, .tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--accent) 22%, transparent); box-shadow:inset 3px 0 0 var(--accent); }
-.tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--qtc) 100%, #ffffff); box-shadow:inset 3px 0 0 var(--qta); }
 
 /* Qur'an index: the tabs and the search box stay at the top while the list scrolls */
 .qi-sticky{ position:sticky; top:-20px; z-index:6; background:var(--bg); padding:20px 0 2px; margin-top:-20px; }
 
-.tr-ah{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
-.tr-play{ width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--accent); font-size:12px; line-height:1; padding:0 0 0 2px; flex:0 0 auto; }
-.tr-ayah.cur .tr-play{ background:var(--accent); border-color:var(--accent); color:var(--fardText,#fff); }
-.tr-body::after{ content:''; display:block; height:22vh; flex:none; }
 
 /* player voice switch: Arabic recitation / Urdu translation only */
 .qp .qp-voice{ flex-wrap:wrap; margin-bottom:2px; }
@@ -1644,11 +1616,9 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tp-panel[data-tint]{ background:linear-gradient(180deg, color-mix(in srgb, var(--qtc) 60%, #fff) 0%, var(--qtc) 100%); --accent:var(--qta); --text:#1c2530; --sub:#5a6477; --card:#ffffff; --fardText:#ffffff; color:#1c2530; }
 
 /* text colour follows the sheet's own palette (a tint is light, whatever the app theme is) */
-.tr-sheet, .tp-panel{ color:var(--text); }
-.tr-sheet[data-tint], .tp-panel[data-tint]{ color:#1c2530; }
-.tr-sheet[data-tint] .tr-ayah p, .tr-sheet[data-tint] .tr-head button, .tp-panel[data-tint] .tp-p{ color:#1c2530; }
-.tr-sheet[data-tint] .tr-langs button:not(.on), .tr-sheet[data-tint] .tr-x, .tr-sheet[data-tint] .tr-ayah:not(.cur) .tr-play{ color:var(--qta); }
-.tr-sheet[data-tint] .tr-ayah.cur .tr-play{ color:#fff; }
+.tp-panel{ color:var(--text); }
+.tp-panel[data-tint]{ color:#1c2530; }
+.tp-panel[data-tint] .tp-p{ color:#1c2530; }
 .tp-panel[data-tint] .tp-tools button:not(.on){ color:#1c2530; background:#fff; }
 .tp-panel[data-tint] .tp-top, .tp-panel[data-tint] .tp-x{ color:#fff; }
 
@@ -1666,13 +1636,12 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tp-panel.tp-free:not([style*="bottom: 0px"]){ margin:0 10px; }
 
 /* under a reading tint the player, sheet and page are light surfaces: every text, field and button inside uses dark ink, whatever the app theme */
-.qp[data-tint], .tr-sheet[data-tint], .tp-panel[data-tint]{ color:#1c2530; }
+.qp[data-tint], .tp-panel[data-tint]{ color:#1c2530; }
 .qp[data-tint] .qp-info b, .qp[data-tint] .qp-time span, .qp[data-tint] .qp-tot, .qp[data-tint] .qp-opts button, .qp[data-tint] input{ color:#1c2530; }
 .qp[data-tint] .qp-info span{ color:#4a5568; }
 .qp[data-tint] input{ background:#fff; border-color:color-mix(in srgb, var(--qta) 30%, transparent); }
 .qp[data-tint] button.qp-main{ color:#fff; }
 .qp[data-tint] .qp-opts button.on{ color:#1c2530; }
-.tr-sheet[data-tint] .tr-ah b, .tr-sheet[data-tint] .tr-msg{ color:#4a5568; }
 .tp-panel[data-tint] .tp-msg, .tp-panel[data-tint] .tp-note{ color:#4a5568; }
 .tp-panel[data-tint] .tp-surah{ color:var(--qta); }
 
@@ -1683,8 +1652,6 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tp-a.cur, .tp-a.alt.cur{ font-weight:800; background:color-mix(in srgb, var(--accent) 30%, transparent); box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
 .tp-panel.tp-follow .tp-a:not(.cur){ opacity:.68; }
 .tp-panel.tp-follow .tp-a:not(.cur) .tp-n{ opacity:.8; }
-.tr-ayah.cur p{ font-weight:800; }
-.tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--qta) 24%, #fff); }
 
 /* Tarjuma panel: continuous run of pages */
 .tp-pgno{ display:flex; align-items:center; gap:10px; margin:12px 0 4px; color:var(--sub); font-size:11.5px; font-weight:700; letter-spacing:.04em; }

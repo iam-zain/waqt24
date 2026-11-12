@@ -67,7 +67,7 @@ function trpHide(){
   const body = document.getElementById('detailBody'); if(body) body.style.paddingBottom = '';
 }
 /* The panel shows a run of pages (trp.from..trp.to) as one continuous scroll; "earlier / next" add a page at either end. */
-const trp = { from:0, to:0, lang:'', busy:false, touch:0 };
+const trp = { from:0, to:0, lang:'', busy:false, touch:0, focus:0 };
 const trpHasPage = n => n >= 2 && n <= QA_PAGE_FIRST.length && trPageAyahs(n).length > 0;
 function trpSizeApply(){
   const el = document.getElementById('tpPanel'); if(!el) return;
@@ -97,7 +97,7 @@ function trpHead(page, lang){
   const head = document.getElementById('tpHead');
   head.innerHTML = `<div class="tp-top"><span id="tpHdPara">${L({rur:'Paara', en:'Para'})} ${para.n}</span><b id="tpHdSurah">${(QURAN_SURAHS[first-1] || {}).name || ''}</b><span id="tpHdPage">${L({rur:'Safha', en:'Page'})} ${page}</span><button type="button" class="tp-x" aria-label="Close">✕</button></div>
     <div class="tp-tools"><div class="tp-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div><div class="tp-sz"><button type="button" data-z="-1" aria-label="Smaller text">A−</button><button type="button" data-z="1" aria-label="Bigger text">A+</button></div></div>`;
-  head.querySelector('.tp-x').onclick = ()=>{ state.quranTrPage = false; saveState(); trpHide(); const b = document.getElementById('quranTpBtn'); if(b) b.classList.remove('on'); const t = document.getElementById('quranTrBtn'); if(t) t.hidden = false; };
+  head.querySelector('.tp-x').onclick = ()=>{ state.quranTrPage = false; saveState(); trpHide(); const b = document.getElementById('quranTpBtn'); if(b) b.classList.remove('on'); };
   head.querySelector('.tp-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.quranTr = b.dataset.l; saveState(); trpFill(state.quranPage); };
   head.querySelector('.tp-sz').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.trpSize = Math.max(0, Math.min(TRP_SIZES.length - 1, trpSizeIdx() + (+b.dataset.z))); saveState(); trpSizeApply(); };
 }
@@ -141,7 +141,7 @@ async function trpFill(page){
   const inRange = page >= trp.from && page <= trp.to && !!sc.querySelector('.tp-pages');
   if(inRange && trp.lang === lang){   /* same run of pages: nothing to reload (e.g. the reader moved to a page already shown) */
     if(!document.getElementById('tpHdPage')) trpHead(page, lang);
-    trpHeadUpdate(); trpSync(true); return;
+    trpHeadUpdate(); trpSync(true); if(trp.focus){ trpFocus(trp.focus); trp.focus = 0; } return;
   }
   const pages = []; if(inRange){ for(let n = trp.from; n <= trp.to; n++) pages.push(n); } else { trp.from = trp.to = page; pages.push(page); }
   trp.lang = lang; trpHead(page, lang);
@@ -159,6 +159,7 @@ async function trpFill(page){
   trpMoreUI();
   const sec = sc.querySelector(`.tp-pg[data-page="${page}"]`); sc.scrollTop = inRange && sec ? Math.max(0, sec.offsetTop - sc.offsetTop - 4) : 0;
   trpHeadUpdate(); trpSync(true);
+  if(trp.focus){ trpFocus(trp.focus); trp.focus = 0; }
 }
 /* tap an ayah: the Arabic page of that ayah opens above (if it is another page) and the recitation starts from it */
 function trpTap(abs){

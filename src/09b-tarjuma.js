@@ -1,6 +1,6 @@
-/* ===== TARJUMA: translation of the ayahs on the open Mushaf page =====
+/* ===== TRANSLATION DATA for the Tarjuma page (and the Arabic-line tap) =====
    Nothing is bundled. The translation of a Surah is fetched only when needed (alquran.cloud, public API), kept in memory and
-   in the browser cache, so a Surah is downloaded once. Tap a line of the page (or the Tarjuma button) to open the sheet. */
+   in the browser cache, so a Surah is downloaded once. Tapping a line of the Mushaf opens the Tarjuma page at that ayah. */
 const TR_LANGS = [{ k:'rom', n:'Hinglish', ed:'hi.hindi', conv:'roman' }, { k:'ur', n:'اردو', ed:'ur.jalandhry' }, { k:'hi', n:'हिन्दी', ed:'hi.hindi' }, { k:'en', n:'English', ed:'en.sahih' }];
 /* Hinglish = the Hindi translation written in Roman letters, converted on the device (no Roman-Urdu translation exists as free data).
    Spelling follows everyday Roman Urdu / Hinglish: aa->a, ee, oo, schwa dropped at word ends and between syllables. */
@@ -48,7 +48,6 @@ function devaToRoman(text){
   return out;
 }
 const TR_MEM = {};
-let trOpen = false, trFocus = 0;
 const trLang = ()=> (TR_LANGS.find(l=>l.k === state.quranTr) || TR_LANGS.find(l=>l.k === (state.lang === 'en' ? 'en' : 'rom'))).k;
 async function trLoad(s, lang){
   const key = lang + s; if(TR_MEM[key]) return TR_MEM[key];
@@ -60,60 +59,6 @@ async function trLoad(s, lang){
   const j = await res.json(); return TR_MEM[key] = j.data.ayahs.map(a=>conv(a.text));
 }
 function trPageAyahs(page){ const f = QA_PAGE_FIRST[page-1], nx = QA_PAGE_FIRST[page] || (QA_TOTAL + 1), out = []; for(let x = f; x < nx; x++) out.push(x); return out; }
-function trSheet(){
-  let el = document.getElementById('trSheet'); if(el) return el;
-  el = document.createElement('div'); el.id = 'trSheet'; el.className = 'tr-sheet'; el.setAttribute('role','dialog'); el.setAttribute('aria-label','Translation');
-  el.innerHTML = `<div class="tr-head"><div class="tr-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}">${l.n}</button>`).join('')}</div><button type="button" class="tr-x" aria-label="Close">✕</button></div><div class="tr-body" id="trBody"></div>`;
-  (document.getElementById('detailOverlay').parentElement || document.body).appendChild(el);
-  el.querySelector('.tr-x').onclick = trClose;
-  el.querySelector('.tr-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.quranTr = b.dataset.l; saveState(); trRender(); };
-  return el;
-}
-function trClose(){ trOpen = false; const el = document.getElementById('trSheet'); if(el) el.classList.remove('show'); }
-function trPlace(){
-  if(typeof trpPlace === 'function') trpPlace();
-  const el = document.getElementById('trSheet'), q = document.getElementById('qPlayer'); if(!el) return;
-  const up = q && q.classList.contains('show') ? q.offsetHeight + parseFloat(getComputedStyle(q).marginBottom || 0) + 8 : 0;
-  /* flush with the bottom of the screen (above the tab bar if it shows), or just above the player while that is open */
-  const ov = document.getElementById('detailOverlay'), tb = document.getElementById('tabbar');
-  el.style.bottom = (up || ((ov && ov.classList.contains('active')) ? 0 : (tb ? tb.offsetHeight : 0))) + 'px';
-  el.classList.toggle('tr-flush', !up);
-}
-async function trRender(){
-  const page = state.quranPage; if(!trOpen || !page || !document.getElementById('quranWrap')) return;
-  const el = trSheet(), body = el.querySelector('#trBody'), lang = trLang();
-  el.querySelectorAll('.tr-langs button').forEach(b=>b.classList.toggle('on', b.dataset.l === lang));
-  el.classList.add('show'); trPlace(); if(typeof quranTintPlayer === 'function') quranTintPlayer();
-  const ids = trPageAyahs(page);
-  if(!ids.length || page >= QURAN_SURAHS[113].page && false){ body.textContent = ''; return; }
-  body.innerHTML = `<div class="tr-msg">${L({rur:'Load ho raha hai…', en:'Loading…'})}</div>`;
-  const surahs = [...new Set(ids.map(x=>qaSurahAyah(x).s))];
-  let data;
-  try{ data = await Promise.all(surahs.map(s=>trLoad(s, lang))); }
-  catch(e){ if(state.quranPage === page) body.innerHTML = `<div class="tr-msg">${L({rur:'Tarjuma load nahi hua. Internet check karein.', en:'Could not load the translation. Check your internet connection.'})}<br><button type="button" class="tr-retry">${L({rur:'Dobara koshish', en:'Retry'})}</button></div>`; const rb = body.querySelector('.tr-retry'); if(rb) rb.onclick = trRender; return; }
-  if(state.quranPage !== page || !trOpen) return;
-  const rtl = lang === 'ur';
-  body.innerHTML = ids.map(x=>{ const r = qaSurahAyah(x), t = data[surahs.indexOf(r.s)][r.a-1] || ''; return `<div class="tr-ayah" data-abs="${x}"><div class="tr-ah"><b>${(QURAN_SURAHS[r.s-1]||{}).name || ''} ${r.s}:${r.a}</b><button type="button" class="tr-play" data-play="${x}" aria-label="Play from this ayah">▶</button></div><p${rtl ? ' dir="rtl" lang="ur" class="tr-ur"' : ''}>${t.replace(/</g,'&lt;')}</p></div>`; }).join('') + (lang === 'rom' ? `<div class="tr-msg" style="padding:10px 6px; font-size:11.5px;">${L({rur:'Hindi tarjuma ko Roman mein khud-ba-khud badla gaya hai, spelling mein thodi kami ho sakti hai.', en:'The Hindi translation is converted to Roman letters automatically, so some spellings may be imperfect.'})}</div>` : '');
-  trSync(true);
-  body.onclick = e=>{ const pb = e.target.closest('.tr-play'), row = e.target.closest('.tr-ayah'); if(!row) return; const x = +row.dataset.abs; if(pb || qa.on){ trFocus = 0; qaPlayFrom(x); } };
-}
-/* mark the ayah being recited (or tapped) and bring it into view */
-function trSync(scroll){
-  const body = document.getElementById('trBody'); if(!trOpen || !body) return;
-  const changed = qa.on && trSync._a !== qa.abs;
-  if(changed){ if(trSync._a) trFocus = 0; trSync._a = qa.abs; }
-  body.querySelectorAll('.tr-ayah.cur, .tr-ayah.tap').forEach(n=>n.classList.remove('cur', 'tap'));
-  const play = qa.on ? body.querySelector(`.tr-ayah[data-abs="${qa.abs}"]`) : null, tap = trFocus ? body.querySelector(`.tr-ayah[data-abs="${trFocus}"]`) : null;
-  if(play) play.classList.add('cur');
-  if(tap && tap !== play) tap.classList.add('tap');
-  const go = (changed && play) || scroll ? (tap || play) : null;   /* follow the recitation; a tapped ayah wins when the sheet opens */
-  if(go){   /* centre it in the list, so a few ayahs show above and below */
-    const br = body.getBoundingClientRect(), gr = go.getBoundingClientRect();
-    body.scrollTo({ top: body.scrollTop + (gr.top - br.top) - (br.height - gr.height) / 2, behavior: scroll ? 'auto' : 'smooth' });
-  }
-}
-function openTarjuma(focusAbs){ trOpen = true; trFocus = focusAbs || 0; trRender(); }
-function trRefresh(){ if(trOpen){ trFocus = 0; trRender(); } }
 /* tap on a line of the page -> the ayah on that line */
 function trLineTap(ev){
   const wrap = document.getElementById('quranWrap'); if(!wrap || wrap.classList.contains('zoomed')) return;
@@ -125,11 +70,14 @@ function trLineTap(ev){
   for(let i = 1; i < E.length; i++) if(y >= E[i-1] && y < E[i]){ line = i; break; }
   if(!line) return;
   const ids = trPageAyahs(page); let hit = 0;
-  for(const x of ids){ const a = parseInt(QA_LINES[(x-1)*2], 16), b = parseInt(QA_LINES[(x-1)*2+1], 16); if(line >= a && line <= b){ hit = x; if(line < b || true) break; } }
-  if(hit){ if(state.quranTrPage){ trpFocus(hit); if(qa.on) qaPlayFrom(hit); } else { openTarjuma(hit); if(qa.on) qaPlayFrom(hit); } }
+  for(const x of ids){ const a = parseInt(QA_LINES[(x-1)*2], 16), b = parseInt(QA_LINES[(x-1)*2+1], 16); if(line >= a && line <= b){ hit = x; break; } }
+  if(!hit) return;
+  /* the Tarjuma page opens (if it is closed) and marks the ayah on that line; a running recitation moves there too */
+  trp.focus = hit;
+  if(!state.quranTrPage){ state.quranTrPage = true; saveState(); renderQuranReader(page); } else trpFocus(hit);
+  if(qa.on) qaPlayFrom(hit);
 }
 (function(){
   const ov = document.getElementById('detailOverlay');
-  if(ov) new MutationObserver(()=>{ if(!ov.classList.contains('active')) trClose(); }).observe(ov, { attributes:true, attributeFilter:['class'] });
   document.addEventListener('click', e=>{ if(e.target.closest && e.target.closest('.quran-page-img')) trLineTap(e); });
 })();

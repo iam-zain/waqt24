@@ -28,7 +28,7 @@ const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'cream',n:'Cream',c:'#f3e6c4',a
 /* the recitation player wears the same colour as the page */
 function quranTintPlayer(){
   const t = QURAN_TINTS.find(x=>x.k === (state.quranTint||'')), on = t && t.c && document.getElementById('quranWrap') && !quranNightOn();
-  ['qPlayer','trSheet','tpPanel'].forEach(id=>{
+  ['qPlayer','tpPanel'].forEach(id=>{
     const q = document.getElementById(id); if(!q) return;
     if(on){ q.setAttribute('data-tint', t.k); q.style.setProperty('--qtc', t.c); q.style.setProperty('--qta', t.a); } else q.removeAttribute('data-tint');
   });
@@ -239,9 +239,8 @@ function renderQuranReader(page){
   document.getElementById('quranTintBtn').onclick = ()=>{ quranTintOpen = !quranTintOpen; document.getElementById('qTints').hidden = !quranTintOpen; };
   document.getElementById('qTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderQuranReader(page); };
   quranTintApply();
-  document.getElementById('quranTpBtn').onclick = ()=>{ state.quranTrPage = !state.quranTrPage; saveState(); if(state.quranTrPage && typeof trClose === 'function') trClose(); renderQuranReader(page); };
+  document.getElementById('quranTpBtn').onclick = ()=>{ state.quranTrPage = !state.quranTrPage; saveState(); renderQuranReader(page); };
   if(state.quranTrPage) trpFill(page); else if(typeof trpHide === 'function') trpHide();
-  if(typeof trRefresh === 'function') trRefresh();
   document.getElementById('quranNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderQuranReader(page); };
   const wrap = document.getElementById('quranWrap');
   const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); setTimeout(()=>{ if(typeof qaHL === 'function') qaHL(); quranTintApply(); }, 30); };
