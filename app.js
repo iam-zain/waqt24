@@ -7305,7 +7305,7 @@ function qaPlace(){
 function qaUI(){
   document.body.classList.toggle('qp-on', qa.on);
   const lb = document.getElementById('quranListenBtn'); if(lb) lb.classList.toggle('on', qa.on);
-  if(!qa.on){ const e = document.getElementById('qPlayer'); if(e) e.classList.remove('show'); qaHL(); return; }
+  if(!qa.on){ const e = document.getElementById('qPlayer'); if(e) e.classList.remove('show'); qaHL(); if(typeof trPlace === 'function') trPlace(); return; }
   const el = qaBar(), r = qaSurahAyah(qa.abs), nm = (QURAN_SURAHS[r.s-1] || {}).name || '';
   el.querySelector('#qpTitle').textContent = qa.bism ? `${nm} · Bismillah` : `${nm} · ${L({rur:'Ayat', en:'Ayah'})} ${qa.exact ? '' : '≈ '}${r.s}:${r.a}`;
   const cnt = `${L({rur:'Ayat', en:'Ayah'})} ${r.a} / ${QA_COUNTS[r.s-1]}`;
@@ -7402,7 +7402,11 @@ function trSheet(){
 function trClose(){ trOpen = false; const el = document.getElementById('trSheet'); if(el) el.classList.remove('show'); }
 function trPlace(){
   const el = document.getElementById('trSheet'), q = document.getElementById('qPlayer'); if(!el) return;
-  el.style.bottom = (q && q.classList.contains('show') ? q.offsetHeight + parseFloat(getComputedStyle(q).marginBottom || 0) + 8 : 0) + 'px';
+  const up = q && q.classList.contains('show') ? q.offsetHeight + parseFloat(getComputedStyle(q).marginBottom || 0) + 8 : 0;
+  /* flush with the bottom of the screen (above the tab bar if it shows), or just above the player while that is open */
+  const ov = document.getElementById('detailOverlay'), tb = document.getElementById('tabbar');
+  el.style.bottom = (up || ((ov && ov.classList.contains('active')) ? 0 : (tb ? tb.offsetHeight : 0))) + 'px';
+  el.classList.toggle('tr-flush', !up);
 }
 async function trRender(){
   const page = state.quranPage; if(!trOpen || !page || !document.getElementById('quranWrap')) return;

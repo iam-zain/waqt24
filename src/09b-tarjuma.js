@@ -72,7 +72,11 @@ function trSheet(){
 function trClose(){ trOpen = false; const el = document.getElementById('trSheet'); if(el) el.classList.remove('show'); }
 function trPlace(){
   const el = document.getElementById('trSheet'), q = document.getElementById('qPlayer'); if(!el) return;
-  el.style.bottom = (q && q.classList.contains('show') ? q.offsetHeight + parseFloat(getComputedStyle(q).marginBottom || 0) + 8 : 0) + 'px';
+  const up = q && q.classList.contains('show') ? q.offsetHeight + parseFloat(getComputedStyle(q).marginBottom || 0) + 8 : 0;
+  /* flush with the bottom of the screen (above the tab bar if it shows), or just above the player while that is open */
+  const ov = document.getElementById('detailOverlay'), tb = document.getElementById('tabbar');
+  el.style.bottom = (up || ((ov && ov.classList.contains('active')) ? 0 : (tb ? tb.offsetHeight : 0))) + 'px';
+  el.classList.toggle('tr-flush', !up);
 }
 async function trRender(){
   const page = state.quranPage; if(!trOpen || !page || !document.getElementById('quranWrap')) return;

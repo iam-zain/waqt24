@@ -1581,3 +1581,5 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tr-sheet[data-tint]{ background:color-mix(in srgb, var(--qtc) 38%, #ffffff); border-color:color-mix(in srgb, var(--qta) 28%, transparent); --accent:var(--qta); --text:#1c2530; --sub:#5a6477; --line:color-mix(in srgb, var(--qta) 22%, transparent); --card:#ffffff; --fardText:#ffffff; }
 .tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--qtc) 85%, #ffffff); box-shadow:inset 3px 0 0 var(--qta); }
 .tr-sheet[data-tint] .tr-langs button.on{ background:var(--qta); border-color:var(--qta); color:#fff; }
+.tr-sheet.tr-flush{ padding-bottom:env(safe-area-inset-bottom); }
+.tr-sheet:not(.tr-flush){ margin:0 10px; left:0; right:0; border-radius:18px; border:1px solid var(--line); }

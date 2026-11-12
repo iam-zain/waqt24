@@ -341,7 +341,7 @@ function qaPlace(){
 function qaUI(){
   document.body.classList.toggle('qp-on', qa.on);
   const lb = document.getElementById('quranListenBtn'); if(lb) lb.classList.toggle('on', qa.on);
-  if(!qa.on){ const e = document.getElementById('qPlayer'); if(e) e.classList.remove('show'); qaHL(); return; }
+  if(!qa.on){ const e = document.getElementById('qPlayer'); if(e) e.classList.remove('show'); qaHL(); if(typeof trPlace === 'function') trPlace(); return; }
   const el = qaBar(), r = qaSurahAyah(qa.abs), nm = (QURAN_SURAHS[r.s-1] || {}).name || '';
   el.querySelector('#qpTitle').textContent = qa.bism ? `${nm} · Bismillah` : `${nm} · ${L({rur:'Ayat', en:'Ayah'})} ${qa.exact ? '' : '≈ '}${r.s}:${r.a}`;
   const cnt = `${L({rur:'Ayat', en:'Ayah'})} ${r.a} / ${QA_COUNTS[r.s-1]}`;
