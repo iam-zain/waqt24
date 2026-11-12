@@ -457,6 +457,7 @@ let IS_FIRST_RUN = false;
 try{ IS_FIRST_RUN = !localStorage.getItem('namazState'); }catch(e){}
 let state = {
   theme: 'waqti',
+  palette: 'default',
   timeFormat: '24',
   schema: 0,
   location: {name:'Delhi', lat:28.6139, lon:77.2090, source:'manual'},
@@ -587,20 +588,40 @@ function currentPrayerKey(){
 }
 function setThemeAttr(next){ document.documentElement.setAttribute('data-theme', next); } // replaced by the motion block below
 function applyTheme(){
-  const root = document.documentElement;
-  if(state.theme==='auto'){
-    const h = new Date().getHours();
-    setThemeAttr((h>=6 && h<18) ? 'light':'dark');
-  } else if(state.theme==='waqti'){
-    const key = currentPrayerKey();
-    const waqt = (PRAYER_META[key] && PRAYER_META[key].waqt) || 'waqt-dark';
-    setThemeAttr(waqt);
-  } else {
-    setThemeAttr(state.theme);
-  }
+  let name;
+  if(state.theme==='auto'){ const h = new Date().getHours(); name = (h>=6 && h<18) ? 'light' : 'dark'; }
+  else if(state.theme==='waqti'){ const key = currentPrayerKey(); name = (PRAYER_META[key] && PRAYER_META[key].waqt) || 'waqt-dark'; }
+  else name = state.theme;
+  setThemeAttr(name);
+  applyPalette(name);
   document.querySelectorAll('.theme-row button').forEach(b=>b.classList.remove('active'));
   document.getElementById('theme'+state.theme.charAt(0).toUpperCase()+state.theme.slice(1)).classList.add('active');
 }
+
+/* ---- Colour palettes (accent + tinted surfaces). Styles live in styles.css; this only picks one. ---- */
+const PALETTES = [
+  { k:'default', n:'Original', sw:['#3a9bd9','#16202f'] },
+  { k:'emerald', n:'Zumurrud', sw:['#3fb97a','#12211b'] },
+  { k:'rose',    n:'Gulaab',   sw:['#e0698d','#25151d'] },
+  { k:'gold',    n:'Sunehri',  sw:['#d4a72c','#201a10'] },
+  { k:'violet',  n:'Binafsha', sw:['#9b82e8','#1b1530'] },
+  { k:'ocean',   n:'Samundar', sw:['#2cb5c9','#0f242b'] },
+  { k:'graphite',n:'Raakh',    sw:['#b8bfcc','#1b1b1b'] }
+];
+const LIGHT_THEMES = ['light','waqt-morning','waqt-bright','waqt-dim'];
+function applyPalette(name){
+  const root = document.documentElement, pal = (PALETTES.find(p=>p.k===state.palette) || PALETTES[0]).k;
+  if(pal === 'default') root.removeAttribute('data-palette'); else root.setAttribute('data-palette', pal);
+  root.setAttribute('data-tone', LIGHT_THEMES.includes(name) ? 'light' : 'dark');
+  root.setAttribute('data-mode', state.theme === 'waqti' ? 'ambient' : 'fixed');
+  document.querySelectorAll('#palRow .pal').forEach(b=>b.classList.toggle('active', b.dataset.k === pal));
+  requestAnimationFrame(()=>{ try{ const m = document.querySelector('meta[name=theme-color]'); if(m) m.content = getComputedStyle(root).getPropertyValue('--bg').trim() || m.content; }catch(e){} });
+}
+(function(){
+  const row = document.getElementById('palRow'); if(!row) return;
+  row.innerHTML = PALETTES.map(p=>`<button type="button" class="pal" data-k="${p.k}" style="--sw:${p.sw[0]};--sw2:${p.sw[1]}" aria-label="${p.n}" title="${p.n}"></button>`).join('');
+  row.onclick = e=>{ const b = e.target.closest('.pal'); if(!b) return; state.palette = b.dataset.k; saveState(); applyTheme(); };
+})();
 document.getElementById('themeLight').onclick=()=>{state.theme='light';saveState();applyTheme();};
 document.getElementById('themeDark').onclick=()=>{state.theme='dark';saveState();applyTheme();};
 document.getElementById('themeAuto').onclick=()=>{state.theme='auto';saveState();applyTheme();};

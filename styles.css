@@ -1483,3 +1483,34 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:170px; }
 .qp-bar{ position:relative; height:6px; cursor:pointer; touch-action:none; overflow:visible; }
 .qp-bar::before{ content:''; position:absolute; left:0; right:0; top:-12px; bottom:-12px; }
 .qp-bar i{ border-radius:3px; }
+
+/* ---------- COLOUR PALETTES: an accent colour (all themes) + tinted surfaces (Light / Dark / Auto only, so Waqti keeps its time-of-day look) ---------- */
+html[data-palette="emerald"][data-tone="dark"]{ --accent:#3fb97a; --fard:#3fb97a; --accentInk:#6fd6a0; --fardText:#06131f; }
+html[data-palette="emerald"][data-tone="light"]{ --accent:#1f8a57; --fard:#1f8a57; --accentInk:#17693f; --fardText:#ffffff; }
+html[data-palette="emerald"][data-tone="dark"][data-mode="fixed"]{ --bg:#0a1511; --bg2:#101d18; --card:#12211b; --card2:#172a22; --line:#1f3329; --tabbar:#0a1410; --meterBg:#172a22; }
+html[data-palette="emerald"][data-tone="light"][data-mode="fixed"]{ --bg:#f1f8f4; --bg2:#ffffff; --card:#ffffff; --card2:#e8f2ec; --line:#d8e8de; --tabbar:#ffffff; --meterBg:#e8f2ec; }
+html[data-palette="rose"][data-tone="dark"]{ --accent:#e0698d; --fard:#e0698d; --accentInk:#f093b0; --fardText:#06131f; }
+html[data-palette="rose"][data-tone="light"]{ --accent:#c2456b; --fard:#c2456b; --accentInk:#a23458; --fardText:#ffffff; }
+html[data-palette="rose"][data-tone="dark"][data-mode="fixed"]{ --bg:#170e13; --bg2:#21141b; --card:#25151d; --card2:#2d1b24; --line:#3a2330; --tabbar:#120a0e; --meterBg:#2d1b24; }
+html[data-palette="rose"][data-tone="light"][data-mode="fixed"]{ --bg:#fbf4f6; --bg2:#ffffff; --card:#ffffff; --card2:#f6e9ee; --line:#ead7de; --tabbar:#ffffff; --meterBg:#f6e9ee; }
+html[data-palette="gold"][data-tone="dark"]{ --accent:#d4a72c; --fard:#d4a72c; --accentInk:#e8c561; --fardText:#06131f; }
+html[data-palette="gold"][data-tone="light"]{ --accent:#a8801a; --fard:#a8801a; --accentInk:#7d5c12; --fardText:#ffffff; }
+html[data-palette="gold"][data-tone="dark"][data-mode="fixed"]{ --bg:#14110a; --bg2:#1d1810; --card:#201a10; --card2:#282115; --line:#362d1c; --tabbar:#100d07; --meterBg:#282115; }
+html[data-palette="gold"][data-tone="light"][data-mode="fixed"]{ --bg:#fbf8ee; --bg2:#ffffff; --card:#ffffff; --card2:#f4eedb; --line:#e8dfc3; --tabbar:#ffffff; --meterBg:#f4eedb; }
+html[data-palette="violet"][data-tone="dark"]{ --accent:#9b82e8; --fard:#9b82e8; --accentInk:#b9a5f2; --fardText:#06131f; }
+html[data-palette="violet"][data-tone="light"]{ --accent:#6f56c8; --fard:#6f56c8; --accentInk:#5640a8; --fardText:#ffffff; }
+html[data-palette="violet"][data-tone="dark"][data-mode="fixed"]{ --bg:#110e1c; --bg2:#181328; --card:#1b1530; --card2:#221b3a; --line:#2f2650; --tabbar:#0d0a17; --meterBg:#221b3a; }
+html[data-palette="violet"][data-tone="light"][data-mode="fixed"]{ --bg:#f6f3fb; --bg2:#ffffff; --card:#ffffff; --card2:#ede7f7; --line:#ddd4ee; --tabbar:#ffffff; --meterBg:#ede7f7; }
+html[data-palette="ocean"][data-tone="dark"]{ --accent:#2cb5c9; --fard:#2cb5c9; --accentInk:#6dd0df; --fardText:#06131f; }
+html[data-palette="ocean"][data-tone="light"]{ --accent:#12809a; --fard:#12809a; --accentInk:#0c6177; --fardText:#ffffff; }
+html[data-palette="ocean"][data-tone="dark"][data-mode="fixed"]{ --bg:#07151a; --bg2:#0d1f26; --card:#0f242b; --card2:#142d36; --line:#1c3b46; --tabbar:#061216; --meterBg:#142d36; }
+html[data-palette="ocean"][data-tone="light"][data-mode="fixed"]{ --bg:#f0f8fa; --bg2:#ffffff; --card:#ffffff; --card2:#e3f1f4; --line:#d1e6eb; --tabbar:#ffffff; --meterBg:#e3f1f4; }
+html[data-palette="graphite"][data-tone="dark"]{ --accent:#b8bfcc; --fard:#b8bfcc; --accentInk:#dde1e9; --fardText:#06131f; }
+html[data-palette="graphite"][data-tone="light"]{ --accent:#3d4656; --fard:#3d4656; --accentInk:#2b3340; --fardText:#ffffff; }
+html[data-palette="graphite"][data-tone="dark"][data-mode="fixed"]{ --bg:#111111; --bg2:#181818; --card:#1b1b1b; --card2:#222222; --line:#2e2e2e; --tabbar:#0d0d0d; --meterBg:#222222; }
+html[data-palette="graphite"][data-tone="light"][data-mode="fixed"]{ --bg:#f4f4f4; --bg2:#ffffff; --card:#ffffff; --card2:#ebebeb; --line:#dcdcdc; --tabbar:#ffffff; --meterBg:#ebebeb; }
+.pal-row{ display:flex; gap:10px; padding:0 8px 16px; flex-wrap:wrap; align-items:center; }
+.pal-row .pal{ width:34px; height:34px; border-radius:50%; border:2px solid var(--line); padding:0; position:relative; background:var(--sw); cursor:pointer; flex:0 0 auto; }
+.pal-row .pal::after{ content:''; position:absolute; inset:0; border-radius:50%; background:linear-gradient(135deg, transparent 52%, var(--sw2) 52%); }
+.pal-row .pal.active{ border-color:var(--text); box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--accent); }
+.pal-lbl{ font-size:12px; color:var(--sub); padding:0 8px 8px; font-weight:600; }
