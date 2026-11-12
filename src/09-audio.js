@@ -90,9 +90,29 @@ function qaFollowPage(){
 }
 
 /* Player state. `bism` = currently on the Bismillah that opens a Surah (Al-Fatihah has it as ayah 1; At-Tawbah has none). */
-const qa = { rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
-const qaHasBism = s => s !== 1 && s !== 9;
-function qaFile(abs, bism){ if(bism) return QA_BASE + '001001.mp3'; const r = qaSurahAyah(abs); return QA_BASE + qaPad(r.s) + qaPad(r.a) + '.mp3'; }
+const qa = { voice:'ar', store:{ ar:{ dur:{}, head:{} }, ur:{ dur:{}, head:{} } }, rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
+const qaHasBism = s => qa.voice !== 'ur' && s !== 1 && s !== 9;
+/* Urdu translation voice: Shamshad Ali Khan reading the Jalandhry translation, ayah by ayah (EveryAyah, 46 kbps).
+   That set has no separate Bismillah, so in this voice the Bismillah step is skipped. */
+const QA_UR_BASE = 'https://everyayah.com/data/translations/urdu_shamshad_ali_khan_46kbps/';
+const qaBase = ()=> qa.voice === 'ur' ? QA_UR_BASE : QA_BASE;
+const qaBytesPerSec = ()=> qa.voice === 'ur' ? 5750 : 16000;
+const qaVoiceName = ()=> qa.voice === 'ur' ? 'Urdu tarjuma · Shamshad Ali Khan' : 'Mishary Alafasy';
+function qaSetVoice(v, restart){
+  v = v === 'ur' ? 'ur' : 'ar';
+  if(v === qa.voice && !restart) return;
+  qa.store[qa.voice].dur = qa.dur; qa.store[qa.voice].head = qa.headDone;
+  qa.voice = v; qa.dur = qa.store[v].dur; qa.headDone = qa.store[v].head;
+  state.qaVoice = v; saveState();
+  if(qa.on){
+    const r = qaSurahAyah(qa.abs); if(v === 'ur') qa.bism = false; else if(!qa.bism && qa.abs === QA_CUM[r.s-1] + 1) qa.bism = false;
+    const was = qa.playing || qa.loading; qa.repCount = 0;
+    if(qa.A){ qa.cur.pause(); [qa.A, qa.B].forEach(el=>{ el.removeAttribute('src'); try{ el.load(); }catch(e){} }); }
+    qa.playing = false; qa.loading = false; qa.err = false;
+    if(was) qaPlayCurrent(); else qaUI();
+  } else qaOptsUI();
+}
+function qaFile(abs, bism){ if(bism && qa.voice !== 'ur') return QA_BASE + '001001.mp3'; const r = qaSurahAyah(abs); return qaBase() + qaPad(r.s) + qaPad(r.a) + '.mp3'; }
 function qaNextStep(abs, bism){
   if(bism) return { abs, bism:false };
   if(abs >= QA_TOTAL) return null;
@@ -122,6 +142,9 @@ function qaSetSleep(min){
 }
 function qaOptsUI(){
   const e = document.getElementById('qPlayer'); if(!e) return;
+  const va = e.querySelector('#qpVoiceAr'), vu = e.querySelector('#qpVoiceUr');
+  va.textContent = '🎙 ' + L({rur:'Arabi tilawat', en:'Arabic recitation'}); vu.textContent = '🗣 ' + L({rur:'Sirf Urdu tarjuma', en:'Urdu translation only'});
+  va.classList.toggle('on', qa.voice === 'ar'); vu.classList.toggle('on', qa.voice === 'ur');
   e.querySelector('#qpRate').textContent = '⚡ ' + qa.rate + '×';
   e.querySelector('#qpRep').textContent = '🔁 ' + (qa.rep === 0 ? L({rur:'Dohraana', en:'Repeat'}) : qa.rep === 1 ? L({rur:'Ayat dohraayein', en:'Repeat ayah'}) : '3× ' + L({rur:'har ayat', en:'each ayah'}));
   e.querySelector('#qpSleep').textContent = '😴 ' + (qa.sleepMin ? qa.sleepMin + ' min' : L({rur:'Sleep timer', en:'Sleep timer'}));
@@ -139,10 +162,10 @@ function qaHeadDurations(){
     while(!dead && i < todo.length){
       const k = todo[i++], q = qaSurahAyah(k);
       try{
-        const res = await fetch(QA_BASE + qaPad(q.s) + qaPad(q.a) + '.mp3', { method:'HEAD' });
+        const res = await fetch(qaBase() + qaPad(q.s) + qaPad(q.a) + '.mp3', { method:'HEAD' });
         const n = +res.headers.get('content-length');
         if(!res.ok || !n){ dead = true; return; }
-        if(!qa.dur[k]) qa.dur[k] = n / 16000;
+        if(!qa.dur[k]) qa.dur[k] = n / qaBytesPerSec();
       }catch(e){ dead = true; return; }
     }
     if(!dead) qaProg();
@@ -198,6 +221,7 @@ function qaProg(){
 }
 function qaEls(){
   if(state.qaRate && !qa.A) qa.rate = state.qaRate;
+  if(!qa.A && state.qaVoice === 'ur' && qa.voice !== 'ur') qaSetVoice('ur');
   if(!qa.A){
     qa.A = new Audio(); qa.B = new Audio();
     [qa.A, qa.B].forEach(el=>{
@@ -289,7 +313,7 @@ function qaMediaMeta(){
   try{
     if(!('mediaSession' in navigator)) return;
     const r = qaSurahAyah(qa.abs), nm = (QURAN_SURAHS[r.s-1] || {}).name || '';
-    navigator.mediaSession.metadata = new MediaMetadata({ title: qa.bism ? `${nm} · Bismillah` : `${nm} · Ayah ${r.a}`, artist:'Mishary Alafasy', album:"Qur'an · Waqt24", artwork:[{ src:'icons/icon-192.png', sizes:'192x192', type:'image/png' }] });
+    navigator.mediaSession.metadata = new MediaMetadata({ title: qa.bism ? `${nm} · Bismillah` : `${nm} · Ayah ${r.a}`, artist: qaVoiceName(), album:"Qur'an · Waqt24", artwork:[{ src:'icons/icon-192.png', sizes:'192x192', type:'image/png' }] });
     const ms = navigator.mediaSession;
     ms.setActionHandler('play', ()=>qaToggle()); ms.setActionHandler('pause', ()=>qaToggle());
     ms.setActionHandler('previoustrack', ()=>qaStep(-1)); ms.setActionHandler('nexttrack', ()=>qaStep(1));
@@ -316,6 +340,7 @@ function qaBar(){
     <button type="button" id="qpClose" aria-label="Close player">${QA_ICON.close}</button></div>
     <div class="qp-time"><span id="qpT1">0:00</span><div class="qp-bar" role="progressbar" aria-label="Surah progress"><i id="qpFill"></i></div><span id="qpT2">-0:00</span></div>
     <div class="qp-tot" id="qpT3"></div>
+    <div class="qp-opts qp-voice"><button type="button" id="qpVoiceAr" data-v="ar"></button><button type="button" id="qpVoiceUr" data-v="ur"></button></div>
     <div class="qp-opts"><button type="button" id="qpRate"></button><button type="button" id="qpRep"></button><button type="button" id="qpSleep"></button></div>
     <div class="qp-opts qp-sleep" id="qpSleepRow" hidden><button type="button" data-m="0">${'Off'}</button><button type="button" data-m="15">15</button><button type="button" data-m="30">30</button><button type="button" data-m="60">60</button><input type="number" id="qpSleepIn" min="1" max="720" inputmode="numeric" placeholder="min" aria-label="Custom minutes"><button type="button" id="qpSleepSet">Set</button></div>`;
   (document.getElementById('detailOverlay').parentElement || document.body).appendChild(el);
@@ -326,6 +351,7 @@ function qaBar(){
   el.querySelector('#qpSleepRow').onclick = e=>{ const b = e.target.closest('button[data-m]'); if(b) qaSetSleep(b.dataset.m); };
   el.querySelector('#qpSleepSet').onclick = ()=>{ const v = +el.querySelector('#qpSleepIn').value; if(v > 0) qaSetSleep(v); };
   el.querySelector('#qpSleepIn').onkeydown = e=>{ if(e.key === 'Enter'){ const v = +e.target.value; if(v > 0) qaSetSleep(v); } };
+  el.querySelector('.qp-voice').onclick = e=>{ const b = e.target.closest('button[data-v]'); if(b) qaSetVoice(b.dataset.v); };
   el.querySelector('#qpRate').onclick = ()=>qaCycle('rate'); el.querySelector('#qpRep').onclick = ()=>qaCycle('rep'); el.querySelector('#qpSleep').onclick = ()=>qaCycle('sleep');
   /* tap or drag on the bar to jump: the recitation continues from that point */
   const bar = el.querySelector('.qp-bar'); let drag = false;
@@ -353,7 +379,7 @@ function qaUI(){
   const cnt = `${L({rur:'Ayat', en:'Ayah'})} ${r.a} / ${QA_COUNTS[r.s-1]}`;
   el.querySelector('#qpSub').textContent = qa.err ? L({rur:'Internet chahiye · dobara dabayein', en:'Needs internet · tap play to retry'})
     : qa.loading ? L({rur:'Load ho raha hai…', en:'Loading…'})
-    : (qa.exact ? cnt + ' · Mishary Alafasy' : L({rur:'Mishary Alafasy · shuruaat andaaze se, ⏮ ⏭ se theek karein', en:'Mishary Alafasy · start is approximate, adjust with ⏮ ⏭'}));
+    : (qa.exact ? cnt + ' · ' + qaVoiceName() : L({rur:qaVoiceName() + ' · shuruaat andaaze se, ⏮ ⏭ se theek karein', en:qaVoiceName() + ' · start is approximate, adjust with ⏮ ⏭'}));
   el.querySelector('#qpPlay').innerHTML = qa.playing ? QA_ICON.pause : QA_ICON.play;
   el.classList.toggle('show', true);
   qaPlace(); qaProg(); qaOptsUI(); qaHL(); if(typeof trSync === 'function'){ trSync(); trPlace(); } if(typeof quranTintPlayer === 'function') quranTintPlayer();

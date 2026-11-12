@@ -1601,3 +1601,7 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tr-play{ width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--accent); font-size:12px; line-height:1; padding:0 0 0 2px; flex:0 0 auto; }
 .tr-ayah.cur .tr-play{ background:var(--accent); border-color:var(--accent); color:var(--fardText,#fff); }
 .tr-body::after{ content:''; display:block; height:22vh; flex:none; }
+
+/* player voice switch: Arabic recitation / Urdu translation only */
+.qp .qp-voice{ flex-wrap:wrap; margin-bottom:2px; }
+.qp .qp-voice button{ padding:5px 10px; }
