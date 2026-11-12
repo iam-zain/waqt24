@@ -2702,7 +2702,7 @@ function renderQuranReader(page){
   const wrap = document.getElementById('quranWrap');
   const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); };
   document.getElementById('quranZoomBtn').onclick = toggleZoom;
-  document.getElementById('quranListenBtn').onclick = ()=> quranListen(page);
+  document.getElementById('quranListenBtn').onclick = ()=>{ if(qa.on) qaStop(); else quranListen(page); };
   document.getElementById('quranSignsBtn').onclick = renderQuranSigns;
   document.getElementById('quranShareBtn').onclick = ()=> shareQuranPage(page);
   document.getElementById('quranSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranReader(page); if(state.quranTurnSound) playPageSound(); };
@@ -6921,7 +6921,7 @@ function qaFollowPage(){
 }
 
 /* Player state. `bism` = currently on the Bismillah that opens a Surah (Al-Fatihah has it as ayah 1; At-Tawbah has none). */
-const qa = { syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
+const qa = { dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
 const qaHasBism = s => s !== 1 && s !== 9;
 function qaFile(abs, bism){ if(bism) return QA_BASE + '001001.mp3'; const r = qaSurahAyah(abs); return QA_BASE + qaPad(r.s) + qaPad(r.a) + '.mp3'; }
 function qaNextStep(abs, bism){
@@ -6936,11 +6936,61 @@ function qaPrevStep(abs, bism){
   if(r.a === 1 && qaHasBism(r.s)) return { abs, bism:true };
   return { abs: Math.max(1, abs-1), bism:false };
 }
+const qaKey = (abs, bism)=> bism ? 'b' : abs;
+/* Surah timing. Exact lengths of every ayah are learned lazily (tiny HEAD requests: at 128 kbps, bytes / 16000 = seconds);
+   until then the missing ones are estimated from the average of the known ones. */
+function qaHeadDurations(){
+  const r = qaSurahAyah(qa.abs); if(qa.headDone[r.s] || typeof fetch !== 'function') return;
+  qa.headDone[r.s] = 1;
+  const todo = []; for(let a = 1; a <= QA_COUNTS[r.s-1]; a++){ const k = QA_CUM[r.s-1] + a; if(!qa.dur[k]) todo.push(k); }
+  let i = 0, dead = false;
+  const worker = async ()=>{
+    while(!dead && i < todo.length){
+      const k = todo[i++], q = qaSurahAyah(k);
+      try{
+        const res = await fetch(QA_BASE + qaPad(q.s) + qaPad(q.a) + '.mp3', { method:'HEAD' });
+        const n = +res.headers.get('content-length');
+        if(!res.ok || !n){ dead = true; return; }
+        if(!qa.dur[k]) qa.dur[k] = n / 16000;
+      }catch(e){ dead = true; return; }
+    }
+    if(!dead) qaProg();
+  };
+  worker(); worker();
+}
+function qaTimes(){
+  const r = qaSurahAyah(qa.abs), n = QA_COUNTS[r.s-1], base = QA_CUM[r.s-1];
+  const known = []; for(let a = 1; a <= n; a++) if(qa.dur[base+a]) known.push(qa.dur[base+a]);
+  const avg = known.length ? known.reduce((x,y)=>x+y,0) / known.length : 8;
+  const d = a => qa.dur[base+a] || avg;
+  const hasB = qaHasBism(r.s), bd = qa.dur.b || 5;
+  let total = hasB ? bd : 0, done = 0;
+  for(let a = 1; a <= n; a++) total += d(a);
+  if(hasB && !qa.bism) done += bd;
+  for(let a = 1; a < r.a && !qa.bism; a++) done += d(a);
+  if(qa.bism && qa.abs !== base+1) done = 0;
+  const t = (qa.cur && qa.cur.currentTime) || 0;
+  done += qa.bism ? t : t;
+  done = Math.min(done, total);
+  return { total, done, approx: known.length < n || (hasB && !qa.dur.b) };
+}
+const qaFmt = x=>{ x = Math.max(0, Math.round(x)); return Math.floor(x/60) + ':' + String(x%60).padStart(2,'0'); };
+function qaProg(){
+  if(!qa.on) return;
+  const e = document.getElementById('qPlayer'); if(!e) return;
+  const T = qaTimes(), ap = T.approx ? '~' : '';
+  e.querySelector('#qpFill').style.width = (T.total ? T.done / T.total * 100 : 0).toFixed(2) + '%';
+  e.querySelector('#qpT1').textContent = qaFmt(T.done);
+  e.querySelector('#qpT2').textContent = '-' + ap + qaFmt(T.total - T.done);
+  e.querySelector('#qpT3').textContent = L({rur:'Poori surah', en:'Full surah'}) + ' ' + ap + qaFmt(T.total);
+}
 function qaEls(){
   if(!qa.A){
     qa.A = new Audio(); qa.B = new Audio();
     [qa.A, qa.B].forEach(el=>{
       el.preload = 'none';
+      el.addEventListener('loadedmetadata', ()=>{ if(el._k && isFinite(el.duration) && el.duration > 0){ qa.dur[el._k] = el.duration; if(el === qa.cur) qaProg(); } });
+      el.addEventListener('timeupdate', ()=>{ if(el === qa.cur) qaProg(); });
       el.addEventListener('ended', ()=>{ if(el === qa.cur) qaAdvance(); });
       el.addEventListener('error', ()=>{ if(el === qa.cur && el.src) qaFail(); });
       el.addEventListener('waiting', ()=>{ if(el === qa.cur){ qa.loading = true; qaUI(); } });
@@ -6954,12 +7004,13 @@ function qaEls(){
 function qaPreloadNext(){
   const n = qaNextStep(qa.abs, qa.bism); if(!n) return;
   const other = qa.cur === qa.A ? qa.B : qa.A, url = qaFile(n.abs, n.bism);
-  if(other.src !== url){ other.src = url; other.preload = 'auto'; try{ other.load(); }catch(e){} }
+  if(other.src !== url){ other._k = qaKey(n.abs, n.bism); other.src = url; other.preload = 'auto'; try{ other.load(); }catch(e){} }
 }
 function qaPlayCurrent(){
   qaEls();
   const url = qaFile(qa.abs, qa.bism);
-  if(qa.cur.src !== url) qa.cur.src = url;
+  if(qa.cur.src !== url){ qa.cur._k = qaKey(qa.abs, qa.bism); qa.cur.src = url; }
+  qaHeadDurations();
   qa.err = false; qa.loading = true; qaUI(); qaMediaMeta();
   const p = qa.cur.play(); if(p && p.catch) p.catch(()=>{ if(!qa.err && qa.cur.paused) qaFail(); });
   qaPreloadNext();
@@ -7035,11 +7086,13 @@ function qaBar(){
   let el = document.getElementById('qPlayer');
   if(el) return el;
   el = document.createElement('div'); el.id = 'qPlayer'; el.className = 'qp'; el.setAttribute('role','region'); el.setAttribute('aria-label', 'Qur\'an recitation');
-  el.innerHTML = `<div class="qp-info"><b id="qpTitle"></b><span id="qpSub"></span></div>
+  el.innerHTML = `<div class="qp-row"><div class="qp-info"><b id="qpTitle"></b><span id="qpSub"></span></div>
     <button type="button" id="qpPrev" aria-label="Previous ayah">${QA_ICON.prev}</button>
     <button type="button" id="qpPlay" class="qp-main" aria-label="Play or pause"></button>
     <button type="button" id="qpNext" aria-label="Next ayah">${QA_ICON.next}</button>
-    <button type="button" id="qpClose" aria-label="Close player">${QA_ICON.close}</button>`;
+    <button type="button" id="qpClose" aria-label="Close player">${QA_ICON.close}</button></div>
+    <div class="qp-time"><span id="qpT1">0:00</span><div class="qp-bar" role="progressbar" aria-label="Surah progress"><i id="qpFill"></i></div><span id="qpT2">-0:00</span></div>
+    <div class="qp-tot" id="qpT3"></div>`;
   (document.getElementById('detailOverlay').parentElement || document.body).appendChild(el);
   el.querySelector('#qpPrev').onclick = ()=>qaStep(-1);
   el.querySelector('#qpNext').onclick = ()=>qaStep(1);
@@ -7055,15 +7108,17 @@ function qaPlace(){
 }
 function qaUI(){
   document.body.classList.toggle('qp-on', qa.on);
+  const lb = document.getElementById('quranListenBtn'); if(lb) lb.classList.toggle('on', qa.on);
   if(!qa.on){ const e = document.getElementById('qPlayer'); if(e) e.classList.remove('show'); return; }
   const el = qaBar(), r = qaSurahAyah(qa.abs), nm = (QURAN_SURAHS[r.s-1] || {}).name || '';
-  el.querySelector('#qpTitle').textContent = qa.bism ? `${nm} · Bismillah` : `${nm} · ${L({rur:'Ayat', en:'Ayah'})} ${qa.exact ? '' : '≈ '}${r.a}`;
+  el.querySelector('#qpTitle').textContent = qa.bism ? `${nm} · Bismillah` : `${nm} · ${L({rur:'Ayat', en:'Ayah'})} ${qa.exact ? '' : '≈ '}${r.s}:${r.a}`;
+  const cnt = `${L({rur:'Ayat', en:'Ayah'})} ${r.a} / ${QA_COUNTS[r.s-1]}`;
   el.querySelector('#qpSub').textContent = qa.err ? L({rur:'Internet chahiye · dobara dabayein', en:'Needs internet · tap play to retry'})
     : qa.loading ? L({rur:'Load ho raha hai…', en:'Loading…'})
-    : (qa.exact ? 'Mishary Alafasy' : L({rur:'Mishary Alafasy · shuruaat andaaze se, ⏮ ⏭ se theek karein', en:'Mishary Alafasy · start is approximate, adjust with ⏮ ⏭'}));
+    : (qa.exact ? cnt + ' · Mishary Alafasy' : L({rur:'Mishary Alafasy · shuruaat andaaze se, ⏮ ⏭ se theek karein', en:'Mishary Alafasy · start is approximate, adjust with ⏮ ⏭'}));
   el.querySelector('#qpPlay').innerHTML = qa.playing ? QA_ICON.pause : QA_ICON.play;
   el.classList.toggle('show', true);
-  qaPlace();
+  qaPlace(); qaProg();
   qaMediaMeta();
 }
 (function(){

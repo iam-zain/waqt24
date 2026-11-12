@@ -214,7 +214,7 @@ function renderQuranReader(page){
   const wrap = document.getElementById('quranWrap');
   const toggleZoom = ()=>{ wrap.classList.toggle('zoomed'); document.getElementById('quranZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); };
   document.getElementById('quranZoomBtn').onclick = toggleZoom;
-  document.getElementById('quranListenBtn').onclick = ()=> quranListen(page);
+  document.getElementById('quranListenBtn').onclick = ()=>{ if(qa.on) qaStop(); else quranListen(page); };
   document.getElementById('quranSignsBtn').onclick = renderQuranSigns;
   document.getElementById('quranShareBtn').onclick = ()=> shareQuranPage(page);
   document.getElementById('quranSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranReader(page); if(state.quranTurnSound) playPageSound(); };
