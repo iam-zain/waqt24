@@ -7444,7 +7444,10 @@ function trSync(scroll){
   if(play) play.classList.add('cur');
   if(tap && tap !== play) tap.classList.add('tap');
   const go = (changed && play) || scroll ? (tap || play) : null;   /* follow the recitation; a tapped ayah wins when the sheet opens */
-  if(go) go.scrollIntoView({ block:'nearest', behavior: scroll ? 'auto' : 'smooth' });
+  if(go){   /* centre it in the list, so a few ayahs show above and below */
+    const br = body.getBoundingClientRect(), gr = go.getBoundingClientRect();
+    body.scrollTo({ top: body.scrollTop + (gr.top - br.top) - (br.height - gr.height) / 2, behavior: scroll ? 'auto' : 'smooth' });
+  }
 }
 function openTarjuma(focusAbs){ trOpen = true; trFocus = focusAbs || 0; trRender(); }
 function trRefresh(){ if(trOpen){ trFocus = 0; trRender(); } }

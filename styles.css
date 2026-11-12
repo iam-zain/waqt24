@@ -1600,3 +1600,4 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tr-ah{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .tr-play{ width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--accent); font-size:12px; line-height:1; padding:0 0 0 2px; flex:0 0 auto; }
 .tr-ayah.cur .tr-play{ background:var(--accent); border-color:var(--accent); color:var(--fardText,#fff); }
+.tr-body::after{ content:''; display:block; height:22vh; flex:none; }
