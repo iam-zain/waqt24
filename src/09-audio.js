@@ -123,8 +123,8 @@ function qaSetSleep(min){
 function qaOptsUI(){
   const e = document.getElementById('qPlayer'); if(!e) return;
   e.querySelector('#qpRate').textContent = '⚡ ' + qa.rate + '×';
-  e.querySelector('#qpRep').textContent = '🔁 ' + (qa.rep === 0 ? L({rur:'Band', en:'Off'}) : qa.rep === 1 ? L({rur:'Ayat dohraayein', en:'Repeat ayah'}) : '3× ' + L({rur:'har ayat', en:'each ayah'}));
-  e.querySelector('#qpSleep').textContent = '😴 ' + (qa.sleepMin ? qa.sleepMin + ' min' : L({rur:'Band', en:'Off'}));
+  e.querySelector('#qpRep').textContent = '🔁 ' + (qa.rep === 0 ? L({rur:'Dohraana', en:'Repeat'}) : qa.rep === 1 ? L({rur:'Ayat dohraayein', en:'Repeat ayah'}) : '3× ' + L({rur:'har ayat', en:'each ayah'}));
+  e.querySelector('#qpSleep').textContent = '😴 ' + (qa.sleepMin ? qa.sleepMin + ' min' : L({rur:'Sleep timer', en:'Sleep timer'}));
   ['qpRate','qpRep','qpSleep'].forEach(id=>{ const b = e.querySelector('#'+id), on = id==='qpRate' ? qa.rate !== 1 : id==='qpRep' ? qa.rep : qa.sleepMin; b.classList.toggle('on', !!on); });
 }
 const qaKey = (abs, bism)=> bism ? 'b' : abs;
