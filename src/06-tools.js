@@ -372,7 +372,7 @@ function renderBackup(){
   `;
   document.getElementById('backupExportBtn').onclick = ()=>{
     state.lastBackup = Date.now(); state.backupDataCount = backupDataCount(); saveState();
-    const payload = { app:'waqt24', exportedAt: new Date().toISOString(), state, hijriOffset: hijriOffset() };
+    const payload = { app:'waqt24', schema: STATE_VERSION, exportedAt: new Date().toISOString(), state, hijriOffset: hijriOffset() };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -394,11 +394,12 @@ function renderBackup(){
         const payload = JSON.parse(reader.result);
         const incoming = payload && payload.state ? payload.state : payload;
         if(!incoming || typeof incoming !== 'object') throw new Error('bad file');
-        state = Object.assign(state, incoming);
+        const newer = (parseInt(incoming.schema) || 0) > STATE_VERSION;
+        state = Object.assign(state, migrateState(incoming));
         if(payload && payload.hijriOffset!==undefined){ try{ localStorage.setItem('hijriOffset', String(payload.hijriOffset)); }catch(e){} hijriOffset._v = undefined; }
         saveState();
         renderHome(); renderCalendar(); updateRamzanLock(); updateQazaBadge();
-        document.getElementById('backupMsg').textContent = '✅ Data restore ho gaya hai.';
+        document.getElementById('backupMsg').textContent = '✅ Data restore ho gaya hai.' + (newer ? ' (Yeh backup naye version ka hai, kuch nayi settings ignore hui hongi.)' : '');
       }catch(e){
         document.getElementById('backupMsg').textContent = '❌ Yeh file valid backup nahi hai.';
       }
@@ -928,7 +929,9 @@ function renderMonthDetail(i){
    ============================================================ */
 const CONTACT_EMAIL = 'contact.waqt24@gmail.com';
 function mailtoLink(subject, extra){
-  const body = `\n\n---\nApp: Waqt24\nZubaan: ${state.lang==='en'?'English':'Hinglish / Roman Urdu'}\nDevice: ${navigator.userAgent}\n${extra||''}`;
+  const errs = errLogText(900);
+  const info = `App: Waqt24 (build ${appBuildId()}, data v${state.schema||STATE_VERSION})\nZubaan: ${state.lang==='en'?'English':'Hinglish / Roman Urdu'}\nTheme: ${state.theme} · Method: ${state.calcMethod||'mwl'} · TZ: ${locTZ()}\nInstalled: ${window.matchMedia('(display-mode: standalone)').matches?'yes':'no'}\nDevice: ${navigator.userAgent}\n`;
+  const body = `\n\n---\n${info}${extra||''}${errs ? '\nRecent errors:\n'+errs+'\n' : ''}`;
   return 'mailto:'+CONTACT_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
 }
 function renderRaabta(){
@@ -956,6 +959,14 @@ function renderRaabta(){
     </a>`).join('')}
     <div class="backup-note">${L({rur:'Hum aapke paighaam ka jald jawab dene ki koshish karenge. Bug batate waqt kaunsa screen tha aur kya hua, yeh likh dein to madad milti hai.', en:'We will try to reply soon. When reporting a problem, mention which screen you were on and what happened.'})}</div>
   `;
+  const nErr = errLogRead().length;
+  if(nErr){
+    const box = document.createElement('div'); box.className = 'backup-note'; box.id = 'errBox';
+    box.innerHTML = `${L({rur:'Is phone par '+nErr+' ghalti ka record hai. Email bhejte waqt yeh khud lag jata hai taake masla theek karna aasan ho. Kuch bhi apne aap nahi bheja jata.', en:nErr+' recent error(s) are saved on this phone. They are added to the email you send so the problem is easier to fix. Nothing is sent automatically.'})}<div class="tt-actions"><button class="backup-btn" id="errCopy">${L({rur:'Log Copy Karein', en:'Copy log'})}</button><button class="backup-btn secondary" id="errClear">${L({rur:'Log Saaf Karein', en:'Clear log'})}</button></div>`;
+    document.getElementById('detailBody').appendChild(box);
+    document.getElementById('errCopy').onclick = async ()=>{ try{ await navigator.clipboard.writeText(errLogText()); showToast(L({rur:'Log copy ho gaya', en:'Log copied'})); }catch(e){ showToast(L({rur:'Copy nahi hua', en:'Could not copy'})); } };
+    document.getElementById('errClear').onclick = ()=>{ errLogClear(); renderRaabta(); };
+  }
   document.getElementById('raabtaCopy').onclick = async ()=>{
     try{ await navigator.clipboard.writeText(CONTACT_EMAIL); showToast(L({rur:'Email copy ho gaya', en:'Email copied'})); }
     catch(e){ showToast(CONTACT_EMAIL); }

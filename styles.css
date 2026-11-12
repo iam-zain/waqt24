@@ -1455,3 +1455,8 @@ button:focus:not(:focus-visible), [role=button]:focus:not(:focus-visible){ outli
 .adj-row span{ flex:1; font-weight:700; }
 .adj-row b{ min-width:64px; text-align:center; font-variant-numeric:tabular-nums; }
 .adj-row button[data-adj]{ width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:20px; line-height:1; }
+
+/* Long lists: skip layout/paint of rows that are off screen (size is remembered once seen) */
+.shabd-row, .dua-card, .aad-card, .myth-card, .dw-row, .hadees-item, .name-tile, .hmonth-card, .howto-card, .qz-row, .shabd-cat-card{
+  content-visibility:auto; contain-intrinsic-size:auto 72px;
+}

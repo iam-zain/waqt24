@@ -1,4 +1,31 @@
 /* app.js is BUILT from src/*.js by tools/build.py. Edit the files in src/, not this one. */
+/* ===== LOCAL ERROR LOG (stays on this device; attached to the Raabta email only when the user sends it) ===== */
+const ERR_KEY = 'waqtErrLog', ERR_MAX = 30;
+function errLogRead(){ try{ return JSON.parse(localStorage.getItem(ERR_KEY)||'[]') || []; }catch(e){ return []; } }
+function errLogClear(){ try{ localStorage.removeItem(ERR_KEY); }catch(e){} }
+function errLogAdd(kind, msg, where, stack){
+  try{
+    const list = errLogRead(), m = String(msg||'').slice(0,200), w = String(where||'').replace(/^https?:\/\/[^/]+/,'').slice(0,80);
+    const last = list[list.length-1];
+    if(last && last.m===m && last.w===w){ last.n = (last.n||1)+1; last.t = Date.now(); }
+    else list.push({ t:Date.now(), k:kind, m, w, s:String(stack||'').split('\n').slice(0,3).join(' | ').replace(/https?:\/\/[^/\s]+/g,'').slice(0,240), sc:(document.getElementById('detailTitle')||{}).textContent||'' , n:1 });
+    while(list.length > ERR_MAX) list.shift();
+    localStorage.setItem(ERR_KEY, JSON.stringify(list));
+  }catch(e){}
+}
+window.addEventListener('error', e=>{ if(e.target && e.target!==window) return; errLogAdd('error', e.message, (e.filename||'')+':'+(e.lineno||0)+':'+(e.colno||0), e.error && e.error.stack); });
+window.addEventListener('unhandledrejection', e=>{ const r = e.reason; errLogAdd('promise', (r && r.message) || r, '', r && r.stack); });
+function errLogText(max){
+  const list = errLogRead().slice(-6).reverse();
+  if(!list.length) return '';
+  let out = list.map(x=>{
+    const d = new Date(x.t), ts = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    return `[${ts}] ${x.m}${x.n>1?' x'+x.n:''} @ ${x.w}${x.sc?' ('+x.sc+')':''}`;
+  }).join('\n');
+  return max && out.length > max ? out.slice(0,max)+'…' : out;
+}
+function appBuildId(){ try{ const m = (document.querySelector('script[src*="app.js"]')||{}).src.match(/v=([0-9a-f]+)/); return m ? m[1] : 'dev'; }catch(e){ return 'dev'; } }
+
 /* ============================================================
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
    ============================================================ */
@@ -432,6 +459,7 @@ try{ IS_FIRST_RUN = !localStorage.getItem('namazState'); }catch(e){}
 let state = {
   theme: 'waqti',
   timeFormat: '24',
+  schema: 0,
   location: {name:'Delhi', lat:28.6139, lon:77.2090, source:'manual'},
   status: {}, // key: date+prayer -> 'green'|'yellow'|'red'
   roza: {},
@@ -446,8 +474,37 @@ let state = {
   learnDays: {},
   bookmarks: [],
 };
+/* ---- Saved-data schema. Bump STATE_VERSION when a setting is added/renamed and add a step to MIGRATIONS.
+   Backups and stored data with an older (or missing) `schema` are upgraded step by step before use. ---- */
+const STATE_VERSION = 2;
+const MIGRATIONS = {
+  /* 1 -> 2: heroMode, calculation method, minute adjustments, haptics/sound switches, location time zone */
+  1: s=>{
+    if(!['full','strip','off'].includes(s.heroMode)) s.heroMode = 'full';
+    if(!CALC_METHODS[s.calcMethod]) s.calcMethod = 'mwl';
+    if(!s.adjust || typeof s.adjust!=='object' || Array.isArray(s.adjust)) s.adjust = {};
+    if(typeof s.haptics!=='boolean') s.haptics = true;
+    if(typeof s.sounds!=='boolean') s.sounds = true;
+    if(s.location && typeof s.location==='object' && !s.location.tz && s.location.source!=='gps') s.location.tz = 'Asia/Kolkata';
+    return s;
+  }
+};
+const STATE_SHAPE = { status:'o', roza:'o', tarabih:'o', wordStatus:'o', wordCorrect:'o', learnDays:'o', notif:'o', tasbeeh:'o', location:'o', adjust:'o', quizLog:'a', bookmarks:'a' };
+/* Returns a clean, current-version copy of any saved/imported state object (never throws). */
+function migrateState(raw){
+  let s = (raw && typeof raw==='object' && !Array.isArray(raw)) ? Object.assign({}, raw) : {};
+  Object.keys(STATE_SHAPE).forEach(k=>{
+    if(!(k in s)) return;
+    const v = s[k], isArr = Array.isArray(v), isObj = v && typeof v==='object' && !isArr;
+    if(STATE_SHAPE[k]==='a' ? !isArr : !isObj) delete s[k];   /* wrong type: drop it so the default applies */
+  });
+  let v = parseInt(s.schema); if(!(v>=1)) v = 1;
+  for(; v < STATE_VERSION; v++) if(MIGRATIONS[v]){ try{ s = MIGRATIONS[v](s) || s; }catch(e){ errLogAdd('migrate', e.message, 'v'+v); } }
+  s.schema = STATE_VERSION;
+  return s;
+}
 function loadState(){
-  try{ const s = JSON.parse(localStorage.getItem('namazState')||'{}'); state = Object.assign(state, s); }catch(e){}
+  try{ const s = migrateState(JSON.parse(localStorage.getItem('namazState')||'{}')); state = Object.assign(state, s); }catch(e){}
   if(state.timeFormat!=='12') state.timeFormat = '24';
   if(!['m','l','xl'].includes(state.textScale)) state.textScale = 'm';
   if(state.lang!=='en') state.lang = 'rur';
@@ -4850,7 +4907,7 @@ function renderBackup(){
   `;
   document.getElementById('backupExportBtn').onclick = ()=>{
     state.lastBackup = Date.now(); state.backupDataCount = backupDataCount(); saveState();
-    const payload = { app:'waqt24', exportedAt: new Date().toISOString(), state, hijriOffset: hijriOffset() };
+    const payload = { app:'waqt24', schema: STATE_VERSION, exportedAt: new Date().toISOString(), state, hijriOffset: hijriOffset() };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -4872,11 +4929,12 @@ function renderBackup(){
         const payload = JSON.parse(reader.result);
         const incoming = payload && payload.state ? payload.state : payload;
         if(!incoming || typeof incoming !== 'object') throw new Error('bad file');
-        state = Object.assign(state, incoming);
+        const newer = (parseInt(incoming.schema) || 0) > STATE_VERSION;
+        state = Object.assign(state, migrateState(incoming));
         if(payload && payload.hijriOffset!==undefined){ try{ localStorage.setItem('hijriOffset', String(payload.hijriOffset)); }catch(e){} hijriOffset._v = undefined; }
         saveState();
         renderHome(); renderCalendar(); updateRamzanLock(); updateQazaBadge();
-        document.getElementById('backupMsg').textContent = '✅ Data restore ho gaya hai.';
+        document.getElementById('backupMsg').textContent = '✅ Data restore ho gaya hai.' + (newer ? ' (Yeh backup naye version ka hai, kuch nayi settings ignore hui hongi.)' : '');
       }catch(e){
         document.getElementById('backupMsg').textContent = '❌ Yeh file valid backup nahi hai.';
       }
@@ -5406,7 +5464,9 @@ function renderMonthDetail(i){
    ============================================================ */
 const CONTACT_EMAIL = 'contact.waqt24@gmail.com';
 function mailtoLink(subject, extra){
-  const body = `\n\n---\nApp: Waqt24\nZubaan: ${state.lang==='en'?'English':'Hinglish / Roman Urdu'}\nDevice: ${navigator.userAgent}\n${extra||''}`;
+  const errs = errLogText(900);
+  const info = `App: Waqt24 (build ${appBuildId()}, data v${state.schema||STATE_VERSION})\nZubaan: ${state.lang==='en'?'English':'Hinglish / Roman Urdu'}\nTheme: ${state.theme} · Method: ${state.calcMethod||'mwl'} · TZ: ${locTZ()}\nInstalled: ${window.matchMedia('(display-mode: standalone)').matches?'yes':'no'}\nDevice: ${navigator.userAgent}\n`;
+  const body = `\n\n---\n${info}${extra||''}${errs ? '\nRecent errors:\n'+errs+'\n' : ''}`;
   return 'mailto:'+CONTACT_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
 }
 function renderRaabta(){
@@ -5434,6 +5494,14 @@ function renderRaabta(){
     </a>`).join('')}
     <div class="backup-note">${L({rur:'Hum aapke paighaam ka jald jawab dene ki koshish karenge. Bug batate waqt kaunsa screen tha aur kya hua, yeh likh dein to madad milti hai.', en:'We will try to reply soon. When reporting a problem, mention which screen you were on and what happened.'})}</div>
   `;
+  const nErr = errLogRead().length;
+  if(nErr){
+    const box = document.createElement('div'); box.className = 'backup-note'; box.id = 'errBox';
+    box.innerHTML = `${L({rur:'Is phone par '+nErr+' ghalti ka record hai. Email bhejte waqt yeh khud lag jata hai taake masla theek karna aasan ho. Kuch bhi apne aap nahi bheja jata.', en:nErr+' recent error(s) are saved on this phone. They are added to the email you send so the problem is easier to fix. Nothing is sent automatically.'})}<div class="tt-actions"><button class="backup-btn" id="errCopy">${L({rur:'Log Copy Karein', en:'Copy log'})}</button><button class="backup-btn secondary" id="errClear">${L({rur:'Log Saaf Karein', en:'Clear log'})}</button></div>`;
+    document.getElementById('detailBody').appendChild(box);
+    document.getElementById('errCopy').onclick = async ()=>{ try{ await navigator.clipboard.writeText(errLogText()); showToast(L({rur:'Log copy ho gaya', en:'Log copied'})); }catch(e){ showToast(L({rur:'Copy nahi hua', en:'Could not copy'})); } };
+    document.getElementById('errClear').onclick = ()=>{ errLogClear(); renderRaabta(); };
+  }
   document.getElementById('raabtaCopy').onclick = async ()=>{
     try{ await navigator.clipboard.writeText(CONTACT_EMAIL); showToast(L({rur:'Email copy ho gaya', en:'Email copied'})); }
     catch(e){ showToast(CONTACT_EMAIL); }
