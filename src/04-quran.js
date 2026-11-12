@@ -206,16 +206,16 @@ function renderQuranReader(page){
     </div>
     <div class="quran-tools">
       <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
-      <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
-      <button class="quran-tool ${state.quranTint?'on':''}" id="quranTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
+      <button class="quran-tool qt-ed" id="quranEdBtn">${quranEd()==='tajweed' ? quranBookSvg(false, 22) + ' Normal' : quranBookSvg(true, 22) + ' Tajweed'}</button>
+      <button class="quran-tool ${qa.on?'on':''}" id="quranListenBtn">🎧 ${L({rur:'Tilawat sunein', en:'Listen'})}</button>
       <button class="quran-tool ${state.quranTrPage?'on':''}" id="quranTpBtn">📜 ${L({rur:'Tarjuma page', en:'Translation page'})}</button>
       <button class="quran-tool" id="quranTrBtn" ${state.quranTrPage ? 'hidden' : ''}>📖 ${L({rur:'Tarjuma', en:'Meaning'})}</button>
+      <button class="quran-tool ${state.quranTint?'on':''}" id="quranTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
+      <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
       <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
       <button class="quran-tool" id="quranShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
-      <button class="quran-tool ${qa.on?'on':''}" id="quranListenBtn">🎧 ${L({rur:'Sunein', en:'Listen'})}</button>
       <button class="quran-tool" id="quranSignsBtn">🛑 ${L({rur:'Alamaat', en:'Signs'})}</button>
-      <button class="quran-tool qt-ed" id="quranEdBtn">${quranEd()==='tajweed' ? quranBookSvg(false, 22) + ' Normal' : quranBookSvg(true, 22) + ' Tajweed'}</button>
     </div>
     <div class="q-tints" id="qTints" ${quranTintOpen ? '' : 'hidden'}>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint||'')===t.k?' active':''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
     <div class="quran-jump">
