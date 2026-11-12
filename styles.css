@@ -1650,3 +1650,6 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tr-sheet[data-tint] .tr-langs button:not(.on), .tr-sheet[data-tint] .tr-x, .tr-sheet[data-tint] .tr-play:not(:hover){ color:#1c2530; }
 .tp-panel[data-tint] .tp-tools button:not(.on){ color:#1c2530; background:#fff; }
 .tp-panel[data-tint] .tp-top, .tp-panel[data-tint] .tp-x{ color:#fff; }
+
+/* Nastaliq sits low in its line box: move the ruled lines so each rule falls between two lines of text, not through them */
+.tp-p[dir=rtl]{ background-position:0 calc(var(--tpl) * .45); }
