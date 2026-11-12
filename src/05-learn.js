@@ -1047,6 +1047,7 @@ function renderSettingsMenu(){
     ['timefmt','🕒','Waqt ka Andaaz', state.timeFormat==='12' ? '12 Ghante (AM/PM)' : '24 Ghante'],
     ['textsize','🔠','Text ka Size', {m:'Normal',l:'Bara',xl:'Bohot Bara'}[state.textScale]||'Normal'],
     ['homecard','🃏','Home Card', {full:'Poora',strip:'Patli patti',off:'Band'}[state.heroMode||'full']],
+    ['feedback','📳','Vibration aur Awaaz', (state.haptics===false?'Vib off':'Vib on')+' · '+(state.sounds===false?'Sound off':'Sound on')],
     ['lang','🌐','Zubaan', state.lang==='en' ? 'English' : 'Hinglish / Roman Urdu'],
     ['notif','🔔','Yaad-dahaniyan', ''],
     ['azaan','🔊','Azaan', azaanState().on ? 'On' : 'Off'],
@@ -1075,7 +1076,7 @@ function renderSettingsMenu(){
   });
 }
 function renderMoreSettings(){
-  document.getElementById('detailTitle').textContent = ({notif:'Yaad-dahaniyan', lang:'Zubaan', timefmt:'Waqt ka Andaaz', textsize:'Text ka Size', homecard:'Home Card'})[settingsTab] || 'Apna Shahar Chunein';
+  document.getElementById('detailTitle').textContent = ({notif:'Yaad-dahaniyan', lang:'Zubaan', timefmt:'Waqt ka Andaaz', textsize:'Text ka Size', homecard:'Home Card', feedback:'Vibration aur Awaaz'})[settingsTab] || 'Apna Shahar Chunein';
   const loc = state.location;
   const body = document.getElementById('detailBody');
   const canNotify = 'Notification' in window;
@@ -1199,7 +1200,7 @@ function renderMoreSettings(){
       el.onclick = ()=>{ if(state.lang===el.dataset.lang) return; state.lang = el.dataset.lang; saveState(); reloadSmooth(true); };
     });
   }
-  if(settingsTab==='notif') renderNotifPane(); else if(settingsTab==='lang') renderLangPane(); else if(settingsTab==='timefmt') renderTimeFmtPane(); else if(settingsTab==='textsize') renderTextSizePane(); else if(settingsTab==='homecard') renderHomeCardPane(); else renderLocationPane();
+  if(settingsTab==='notif') renderNotifPane(); else if(settingsTab==='lang') renderLangPane(); else if(settingsTab==='timefmt') renderTimeFmtPane(); else if(settingsTab==='textsize') renderTextSizePane(); else if(settingsTab==='homecard') renderHomeCardPane(); else if(settingsTab==='feedback') renderFeedbackPane(pane); else renderLocationPane();
 
   function setupLocationPane(){
   const cityListEl = body.querySelector('#cityList');

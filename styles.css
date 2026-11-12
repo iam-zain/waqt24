@@ -1424,3 +1424,29 @@ body{ font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Hel
 .controlCol.bulkCol{ padding-left:8px; gap:4px; min-width:0; }
 .bulkBtns{ gap:4px; }
 .time-row .remainText, #timesList.namaz-mode .remainText{ flex:0 0 200px; }
+
+/* ===== POLISH PASS ===== */
+:focus-visible{ outline:2px solid var(--accentInk, var(--accent)); outline-offset:2px; border-radius:6px; }
+.tab-btn:focus-visible, .more-item:focus-visible{ outline-offset:-3px; }
+button:focus:not(:focus-visible), [role=button]:focus:not(:focus-visible){ outline:none; }
+.tt-nav{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 12px; }
+.tt-title{ font-weight:800; font-size:17px; }
+.tt-arrow{ width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:22px; line-height:1; }
+.tt-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:14px; background:var(--card); }
+.tt-table{ width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; font-size:12px; }
+.tt-table th{ position:sticky; top:0; background:var(--card2); color:var(--sub); font-weight:700; font-size:11px; padding:9px 2px; text-align:center; }
+.tt-table td{ padding:7px 2px; letter-spacing:-.2px; text-align:center; border-top:1px solid var(--line); }
+.tt-table th:first-child, .tt-table td.tt-d{ text-align:left; padding-left:8px; white-space:nowrap; width:21%; }
+.tt-d small{ display:block; font-size:10.5px; color:var(--sub); }
+.tt-table tr.fri td{ background:color-mix(in srgb, var(--accent) 7%, transparent); }
+.tt-table tr.today td{ background:color-mix(in srgb, var(--accent) 22%, transparent); font-weight:700; }
+.tt-actions{ display:flex; gap:10px; margin:14px 0 4px; }
+.tt-actions .backup-btn{ flex:1; }
+@media print{
+  body *{ visibility:hidden !important; }
+  #detailBody .tt-wrap, #detailBody .tt-wrap *{ visibility:visible !important; }
+  #detailOverlay{ position:absolute !important; inset:0 !important; transform:none !important; background:#fff !important; }
+  #detailBody .tt-wrap{ position:absolute; left:0; top:0; width:100%; border:0; overflow:visible; }
+  .tt-table, .tt-table td, .tt-table th{ color:#000 !important; background:#fff !important; }
+  .tt-table tr.today td{ background:#e8e8e8 !important; }
+}
