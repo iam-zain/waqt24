@@ -110,11 +110,14 @@ const QA_RATES = [1, 1.25, 1.5, 0.75], QA_REPS = [0, 1, 3], QA_SLEEPS = [0, 15, 
 function qaCycle(kind){
   if(kind === 'rate'){ qa.rate = QA_RATES[(QA_RATES.indexOf(qa.rate) + 1) % QA_RATES.length]; qaApplyRate(); state.qaRate = qa.rate; saveState(); }
   else if(kind === 'rep'){ qa.rep = QA_REPS[(QA_REPS.indexOf(qa.rep) + 1) % QA_REPS.length]; qa.repCount = 0; }
-  else if(kind === 'sleep'){
-    qa.sleepMin = QA_SLEEPS[(QA_SLEEPS.indexOf(qa.sleepMin) + 1) % QA_SLEEPS.length];
-    clearTimeout(qa.sleepT); qa.sleepT = 0;
-    if(qa.sleepMin){ qa.sleepT = setTimeout(()=>{ qa.sleepMin = 0; qa.sleepT = 0; qaStop(); showToast(L({rur:'Sleep timer: tilawat band ho gayi', en:'Sleep timer: recitation stopped'})); }, qa.sleepMin * 60000); }
-  }
+  else if(kind === 'sleep'){ const r = document.getElementById('qpSleepRow'); if(r) r.hidden = !r.hidden; }
+  qaOptsUI();
+}
+function qaSetSleep(min){
+  min = Math.max(0, Math.min(720, Math.round(+min || 0)));
+  clearTimeout(qa.sleepT); qa.sleepT = 0; qa.sleepMin = min;
+  if(min){ qa.sleepT = setTimeout(()=>{ qa.sleepMin = 0; qa.sleepT = 0; qaStop(); showToast(L({rur:'Sleep timer: tilawat band ho gayi', en:'Sleep timer: recitation stopped'})); }, min * 60000); }
+  const r = document.getElementById('qpSleepRow'); if(r) r.hidden = true;
   qaOptsUI();
 }
 function qaOptsUI(){
@@ -307,12 +310,16 @@ function qaBar(){
     <button type="button" id="qpClose" aria-label="Close player">${QA_ICON.close}</button></div>
     <div class="qp-time"><span id="qpT1">0:00</span><div class="qp-bar" role="progressbar" aria-label="Surah progress"><i id="qpFill"></i></div><span id="qpT2">-0:00</span></div>
     <div class="qp-tot" id="qpT3"></div>
-    <div class="qp-opts"><button type="button" id="qpRate"></button><button type="button" id="qpRep"></button><button type="button" id="qpSleep"></button></div>`;
+    <div class="qp-opts"><button type="button" id="qpRate"></button><button type="button" id="qpRep"></button><button type="button" id="qpSleep"></button></div>
+    <div class="qp-opts qp-sleep" id="qpSleepRow" hidden><button type="button" data-m="0">${'Off'}</button><button type="button" data-m="15">15</button><button type="button" data-m="30">30</button><button type="button" data-m="60">60</button><input type="number" id="qpSleepIn" min="1" max="720" inputmode="numeric" placeholder="min" aria-label="Custom minutes"><button type="button" id="qpSleepSet">Set</button></div>`;
   (document.getElementById('detailOverlay').parentElement || document.body).appendChild(el);
   el.querySelector('#qpPrev').onclick = ()=>qaStep(-1);
   el.querySelector('#qpNext').onclick = ()=>qaStep(1);
   el.querySelector('#qpPlay').onclick = qaToggle;
   el.querySelector('#qpClose').onclick = qaStop;
+  el.querySelector('#qpSleepRow').onclick = e=>{ const b = e.target.closest('button[data-m]'); if(b) qaSetSleep(b.dataset.m); };
+  el.querySelector('#qpSleepSet').onclick = ()=>{ const v = +el.querySelector('#qpSleepIn').value; if(v > 0) qaSetSleep(v); };
+  el.querySelector('#qpSleepIn').onkeydown = e=>{ if(e.key === 'Enter'){ const v = +e.target.value; if(v > 0) qaSetSleep(v); } };
   el.querySelector('#qpRate').onclick = ()=>qaCycle('rate'); el.querySelector('#qpRep').onclick = ()=>qaCycle('rep'); el.querySelector('#qpSleep').onclick = ()=>qaCycle('sleep');
   /* tap or drag on the bar to jump: the recitation continues from that point */
   const bar = el.querySelector('.qp-bar'); let drag = false;
