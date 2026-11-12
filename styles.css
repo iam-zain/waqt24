@@ -1438,6 +1438,7 @@ button:focus:not(:focus-visible), [role=button]:focus:not(:focus-visible){ outli
 .tt-table td{ padding:7px 2px; letter-spacing:-.2px; text-align:center; border-top:1px solid var(--line); }
 .tt-table th:first-child, .tt-table td.tt-d{ text-align:left; padding-left:8px; white-space:nowrap; width:21%; }
 .tt-d small{ display:block; font-size:10.5px; color:var(--sub); }
+.tt-table tbody tr:nth-child(even) td{ background:color-mix(in srgb, var(--text) 5%, transparent); }
 .tt-table tr.fri td{ background:color-mix(in srgb, var(--accent) 7%, transparent); }
 .tt-table tr.today td{ background:color-mix(in srgb, var(--accent) 22%, transparent); font-weight:700; }
 .tt-actions{ display:flex; gap:10px; margin:14px 0 4px; }

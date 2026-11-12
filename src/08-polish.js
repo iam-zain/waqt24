@@ -83,8 +83,9 @@ function drawMonthCanvas(){
   head.forEach((h,i)=>{ c.textAlign='center'; c.fillText(h, 32+firstW+cw*i+cw/2, y+rowH/2); c.textAlign='left'; });
   rows.forEach((r,idx)=>{
     y=headerH+rowH*(idx+1);
+    if(idx%2===1){ c.fillStyle=cText; c.globalAlpha=.06; c.fillRect(24,y,W-48,rowH); c.globalAlpha=1; }
     if(r.today){ c.fillStyle=cAcc; c.globalAlpha=.22; c.fillRect(24,y,W-48,rowH); c.globalAlpha=1; }
-    else if(r.dow===5){ c.fillStyle=cCard; c.fillRect(24,y,W-48,rowH); }
+    else if(r.dow===5){ c.fillStyle=cAcc; c.globalAlpha=.12; c.fillRect(24,y,W-48,rowH); c.globalAlpha=1; }
     c.fillStyle=cLine; c.fillRect(24,y+rowH-1,W-48,1);
     c.fillStyle=cText; c.font='700 16px Inter, system-ui, sans-serif'; c.fillText(`${r.d} ${DOW[r.dow].slice(0,3)}`, 36, y+rowH/2);
     c.fillStyle=cSub; c.font='500 12px Inter, system-ui, sans-serif'; c.fillText(`${r.hd.day} ${r.hd.monthName.split('-')[0]}`, 108, y+rowH/2);
