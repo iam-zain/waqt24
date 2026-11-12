@@ -7627,7 +7627,7 @@ function trpPanel(){
   scr.onclick = e=>{ const m = e.target.closest('.tp-more'); if(m){ trpMore(m.classList.contains('up') ? -1 : 1); return; } const a = e.target.closest('.tp-a'); if(a) trpTap(+a.dataset.abs); };
   ['touchstart', 'wheel', 'pointerdown'].forEach(ev=> scr.addEventListener(ev, ()=>{ trp.touch = Date.now(); }, { passive:true }));
   let raf = 0;
-  scr.addEventListener('scroll', ()=>{ if(raf) return; raf = requestAnimationFrame(()=>{ raf = 0; trpHeadUpdate(); if(scr.scrollTop + scr.clientHeight > scr.scrollHeight - 160 && !trp.busy && scr.querySelector('.tp-pages')) trpMore(1); }); }, { passive:true });
+  scr.addEventListener('scroll', ()=>{ if(raf) return; raf = requestAnimationFrame(()=>{ raf = 0; trpHeadUpdate(); });   /* next / earlier pages load only when their button is tapped */ }, { passive:true });
   return el;
 }
 /* where the bottom edge of a docked panel sits (above the player while it is open, else above the tab bar) */
