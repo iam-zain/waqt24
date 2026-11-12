@@ -92,8 +92,9 @@ async function trRender(){
   catch(e){ if(state.quranPage === page) body.innerHTML = `<div class="tr-msg">${L({rur:'Tarjuma load nahi hua. Internet check karein.', en:'Could not load the translation. Check your internet connection.'})}<br><button type="button" class="tr-retry">${L({rur:'Dobara koshish', en:'Retry'})}</button></div>`; const rb = body.querySelector('.tr-retry'); if(rb) rb.onclick = trRender; return; }
   if(state.quranPage !== page || !trOpen) return;
   const rtl = lang === 'ur';
-  body.innerHTML = ids.map(x=>{ const r = qaSurahAyah(x), t = data[surahs.indexOf(r.s)][r.a-1] || ''; return `<div class="tr-ayah" data-abs="${x}"><b>${(QURAN_SURAHS[r.s-1]||{}).name || ''} ${r.s}:${r.a}</b><p${rtl ? ' dir="rtl" lang="ur" class="tr-ur"' : ''}>${t.replace(/</g,'&lt;')}</p></div>`; }).join('') + (lang === 'rom' ? `<div class="tr-msg" style="padding:10px 6px; font-size:11.5px;">${L({rur:'Hindi tarjuma ko Roman mein khud-ba-khud badla gaya hai, spelling mein thodi kami ho sakti hai.', en:'The Hindi translation is converted to Roman letters automatically, so some spellings may be imperfect.'})}</div>` : '');
+  body.innerHTML = ids.map(x=>{ const r = qaSurahAyah(x), t = data[surahs.indexOf(r.s)][r.a-1] || ''; return `<div class="tr-ayah" data-abs="${x}"><div class="tr-ah"><b>${(QURAN_SURAHS[r.s-1]||{}).name || ''} ${r.s}:${r.a}</b><button type="button" class="tr-play" data-play="${x}" aria-label="Play from this ayah">▶</button></div><p${rtl ? ' dir="rtl" lang="ur" class="tr-ur"' : ''}>${t.replace(/</g,'&lt;')}</p></div>`; }).join('') + (lang === 'rom' ? `<div class="tr-msg" style="padding:10px 6px; font-size:11.5px;">${L({rur:'Hindi tarjuma ko Roman mein khud-ba-khud badla gaya hai, spelling mein thodi kami ho sakti hai.', en:'The Hindi translation is converted to Roman letters automatically, so some spellings may be imperfect.'})}</div>` : '');
   trSync(true);
+  body.onclick = e=>{ const pb = e.target.closest('.tr-play'), row = e.target.closest('.tr-ayah'); if(!row) return; const x = +row.dataset.abs; if(pb || qa.on){ trFocus = 0; qaPlayFrom(x); } };
 }
 /* mark the ayah being recited (or tapped) and bring it into view */
 function trSync(scroll){
@@ -121,7 +122,7 @@ function trLineTap(ev){
   if(!line) return;
   const ids = trPageAyahs(page); let hit = 0;
   for(const x of ids){ const a = parseInt(QA_LINES[(x-1)*2], 16), b = parseInt(QA_LINES[(x-1)*2+1], 16); if(line >= a && line <= b){ hit = x; if(line < b || true) break; } }
-  if(hit) openTarjuma(hit);
+  if(hit){ openTarjuma(hit); if(qa.on) qaPlayFrom(hit); }
 }
 (function(){
   const ov = document.getElementById('detailOverlay');

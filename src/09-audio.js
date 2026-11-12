@@ -269,6 +269,12 @@ function quranListen(page){
   const r = qaSurahAyah(st.abs); qa.bism = r.a === 1 && qaHasBism(r.s);
   qa.cur.pause(); qaPlayCurrent();
 }
+/* Play from a given ayah of the page that is open (used by the Tarjuma sheet and by tapping a line) */
+function qaPlayFrom(abs){
+  qaEls(); qa.on = true; qa.repCount = 0; qa.syncPage = state.quranPage || qa.syncPage; qa.abs = abs; qa.exact = true;
+  const r = qaSurahAyah(abs); qa.bism = r.a === 1 && qaHasBism(r.s);
+  qa.cur.pause(); qaPlayCurrent();
+}
 /* The reader moved to another page while the player is open: follow it. A playing recitation restarts at the new page,
    a paused one just moves its position (and stays paused). Re-renders of the same page change nothing. */
 function qaSyncToPage(page){
