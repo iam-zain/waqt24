@@ -1605,3 +1605,30 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 /* player voice switch: Arabic recitation / Urdu translation only */
 .qp .qp-voice{ flex-wrap:wrap; margin-bottom:2px; }
 .qp .qp-voice button{ padding:5px 10px; }
+
+/* ===== Tarjuma page (framed translation page) ===== */
+.quran-page-wrap.tp-mode{ display:block; height:auto; min-height:0; }
+.tp-page{ --tpz:20px; --tpu:28px; border:3px double color-mix(in srgb, var(--accent) 65%, #b8923a); border-radius:16px; background:var(--card); padding:10px 12px 14px; box-shadow:0 2px 10px rgba(0,0,0,.06); }
+.tp-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 12px; border-radius:10px; background:color-mix(in srgb, var(--accent) 14%, var(--card)); font-size:14px; font-weight:700; }
+.tp-top b{ font-size:17px; }
+.tp-tools{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin:9px 0 8px; flex-wrap:wrap; }
+.tp-langs, .tp-sz{ display:flex; gap:5px; }
+.tp-tools button{ border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; padding:6px 12px; font-size:13px; font-weight:700; }
+.tp-tools button.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 16%, var(--card)); color:var(--accent); }
+.tp-p{ font-size:var(--tpz); line-height:1.8; text-align:left; margin:0 0 8px; overflow-wrap:anywhere; }
+.tp-p[dir=rtl]{ text-align:right; font-family:'Noto Nastaliq Urdu','Scheherazade New','Noto Naskh Arabic',serif; font-size:var(--tpu); line-height:2.6; }
+.tp-a{ border-radius:8px; padding:2px 3px; cursor:pointer; -webkit-box-decoration-break:clone; box-decoration-break:clone; transition:background .25s; }
+.tp-a.alt{ background:color-mix(in srgb, var(--accent) 7%, transparent); }
+.tp-a.cur, .tp-a.alt.cur{ background:color-mix(in srgb, var(--accent) 26%, transparent); }
+.tp-n{ font-style:normal; font-size:.78em; font-weight:800; color:var(--accent); white-space:nowrap; margin:0 2px; }
+.tp-surah{ text-align:center; font-weight:800; font-size:calc(var(--tpz) + 1px); padding:9px; margin:10px 0 8px; border-radius:10px; background:color-mix(in srgb, var(--accent) 14%, var(--card)); }
+.tp-msg, .tp-note{ text-align:center; color:var(--sub); font-size:13px; padding:18px 8px; line-height:1.5; }
+.tp-note{ padding:6px; font-size:11.5px; }
+.tp-retry{ margin-top:8px; border:1px solid var(--accent); background:var(--card); color:var(--accent); border-radius:999px; padding:6px 14px; font-weight:700; }
+.tp-night .tp-page{ background:#14181d; color:#e8e2d4; border-color:#8a7440; }
+.tp-night .tp-tools button{ background:#1d232a; color:#e8e2d4; border-color:#333b44; }
+.tp-page[data-tint]{ background:var(--qtc); color:#222; }
+.tp-page[data-tint] .tp-top{ background:color-mix(in srgb, var(--qta) 18%, var(--qtc)); }
+.tp-page[data-tint] .tp-a.alt{ background:color-mix(in srgb, var(--qta) 10%, transparent); }
+.tp-page[data-tint] .tp-a.cur, .tp-page[data-tint] .tp-a.alt.cur{ background:color-mix(in srgb, var(--qta) 30%, transparent); }
+.tp-page[data-tint] .tp-n{ color:var(--qta); }
