@@ -35,7 +35,7 @@ async function trpFill(page){
       else if(!html.endsWith('</p>')) html += '</p>';
       html += `<div class="tp-surah">${r.s}. ${(QURAN_SURAHS[r.s-1] || {}).name || ''}</div><p class="tp-p"${ur ? ' dir="rtl" lang="ur"' : ''}>`;
     }
-    html += `<span class="tp-a${k++ % 2 ? ' alt' : ''}" data-abs="${x}">${t} <i class="tp-n">﴿${trpDigits(r.a, ur)}﴾</i></span> `;
+    html += `<span class="tp-a${k++ % 2 ? ' alt' : ''}" data-abs="${x}">${t} <i class="tp-n" dir="ltr">&#xFD3E;${trpDigits(r.a, ur)}&#xFD3F;</i></span> `;
   });
   html += '</p>';
   if(lang === 'rom') html += `<div class="tp-note">${L({rur:'Hindi tarjuma ko Roman mein khud-ba-khud badla gaya hai, spelling mein thodi kami ho sakti hai.', en:'The Hindi translation is converted to Roman letters automatically, so some spellings may be imperfect.'})}</div>`;

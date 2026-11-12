@@ -1632,3 +1632,5 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tp-page[data-tint] .tp-a.alt{ background:color-mix(in srgb, var(--qta) 10%, transparent); }
 .tp-page[data-tint] .tp-a.cur, .tp-page[data-tint] .tp-a.alt.cur{ background:color-mix(in srgb, var(--qta) 30%, transparent); }
 .tp-page[data-tint] .tp-n{ color:var(--qta); }
+
+.tp-n{ unicode-bidi:isolate; direction:ltr; }
