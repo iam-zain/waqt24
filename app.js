@@ -2969,7 +2969,7 @@ function renderQuranIndex(kind){
     ${isMarks ? '' : `<div class="search-bar-wrap" style="margin:0 14px 10px;"><input id="qiSearch" type="search" inputmode="search" autocomplete="off" placeholder="${kind==='surah' ? L({rur:'Surah ka naam ya number', en:'Search surah by name or number'}) : isPara ? L({rur:'Paara number', en:'Para number'}) : L({rur:'Manzil number', en:'Manzil number'})}" aria-label="Search"></div>`}
     ${isMarks && !marks.length ? `<div class="empty-state">${L({rur:'Abhi koi nishaan nahi. Kisi page par 🔖 dabayein.', en:'No bookmarks yet. Tap 🔖 on any page.'})}</div>` : ''}
     <div class="more-list" style="padding-top:0;">${list.map(x=>`
-      <div class="more-item quran-idx-item ${x===curItem?'on':''}" data-page="${x.page}" data-n="${isMarks?'':x.n}" data-q="${isMarks?'':String(x.name+' '+(x.ar||'')).toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]/g,'')}">
+      <div class="more-item quran-idx-item ${x===curItem?'on':''}" data-page="${x.page}" data-n="${isMarks?'':x.n}" data-f="${isMarks||kind!=='surah'?'':String(x.name).replace(/^(al|an|ar|as|at|ad|az|ash|adh|ath)-/i,'').charAt(0).toLowerCase()+'|'+String(x.ar||'').replace(/^ال/,'').charAt(0)}" data-q="${isMarks?'':String(x.name+' '+(x.ar||'')).toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]/g,'')}">
         <div class="ic">${x.n}</div>
         <div class="lbl">${x.name}${sub(x)}</div>
         <div class="qi-page">${L({rur:'Page', en:'Page'})} ${x.page}</div>
@@ -3016,6 +3016,18 @@ function renderQuranIndex(kind){
         r.style.animation = 'none'; r.style.display = ok ? '' : 'none'; if(ok) shown++;
       });
       none.style.display = shown ? 'none' : '';
+      /* No match: suggest surahs that start with the same first letter the person typed (later letters are ignored) */
+      if(!shown && kind==='surah' && !/^\d+$/.test(q)){
+        const first = q.charAt(0);
+        const isAr = /[\u0600-\u06ff]/.test(first);
+        let sug = 0;
+        rows.forEach(r=>{
+          const [en, ar] = r.dataset.f.split('|');
+          if(isAr ? ar===first : en===first){ r.style.display = ''; sug++; }
+        });
+        if(sug) none.textContent = L({rur:`Koi nateeja nahi mila. "${first.toUpperCase()}" se shuru hone wale Surah:`, en:`No match. Surahs starting with "${first.toUpperCase()}":`});
+        else none.textContent = L({rur:'Koi nateeja nahi mila.', en:'No match found.'});
+      }
     };
   }
   const on = document.querySelector('#detailBody .quran-idx-item.on');
