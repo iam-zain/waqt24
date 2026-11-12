@@ -4056,6 +4056,7 @@ function renderSettingsMenu(){
     ['qibla','🧭','Qibla ka Rukh', ''],
     ['timefmt','🕒','Waqt ka Andaaz', state.timeFormat==='12' ? '12 Ghante (AM/PM)' : '24 Ghante'],
     ['textsize','🔠','Text ka Size', {m:'Normal',l:'Bara',xl:'Bohot Bara'}[state.textScale]||'Normal'],
+    ['homecard','🃏','Home Card', {full:'Poora',strip:'Patli patti',off:'Band'}[state.heroMode||'full']],
     ['lang','🌐','Zubaan', state.lang==='en' ? 'English' : 'Hinglish / Roman Urdu'],
     ['notif','🔔','Yaad-dahaniyan', ''],
     ['azaan','🔊','Azaan', azaanState().on ? 'On' : 'Off'],
@@ -4084,7 +4085,7 @@ function renderSettingsMenu(){
   });
 }
 function renderMoreSettings(){
-  document.getElementById('detailTitle').textContent = ({notif:'Yaad-dahaniyan', lang:'Zubaan', timefmt:'Waqt ka Andaaz', textsize:'Text ka Size'})[settingsTab] || 'Apna Shahar Chunein';
+  document.getElementById('detailTitle').textContent = ({notif:'Yaad-dahaniyan', lang:'Zubaan', timefmt:'Waqt ka Andaaz', textsize:'Text ka Size', homecard:'Home Card'})[settingsTab] || 'Apna Shahar Chunein';
   const loc = state.location;
   const body = document.getElementById('detailBody');
   const canNotify = 'Notification' in window;
@@ -4187,6 +4188,16 @@ function renderMoreSettings(){
     </div>`;
     pane.querySelectorAll('[data-size]').forEach(b=>{ b.onclick = ()=>{ state.textScale = b.dataset.size; saveState(); applyTextScale(); renderTextSizePane(); }; });
   }
+  function renderHomeCardPane(){
+    const m = state.heroMode || 'full';
+    pane.innerHTML = `<div class="theme-row" style="padding:0 0 12px;">
+      <button data-hm="full" class="${m==='full'?'active':''}">${L({rur:'Poora card', en:'Full card'})}</button>
+      <button data-hm="strip" class="${m==='strip'?'active':''}">${L({rur:'Patli patti', en:'Slim strip'})}</button>
+      <button data-hm="off" class="${m==='off'?'active':''}">${L({rur:'Band', en:'Off'})}</button>
+    </div>
+    <div class="backup-note">${L({rur:'Home par abhi ki namaz aur agli namaz ka card. Card ko left/right swipe ya ✕ se chhota ya band kar sakte hain; yahan se wapas la sakte hain.', en:'The card on Home showing the current and next prayer. Swipe it sideways or tap ✕ to shrink or hide it; bring it back here.'})}</div>`;
+    pane.querySelectorAll('[data-hm]').forEach(b=>{ b.onclick = ()=>{ setHeroMode(b.dataset.hm); renderHomeCardPane(); }; });
+  }
   function renderLangPane(){
     pane.innerHTML = `
       <div class="section-title" style="margin-top:0;">${L({rur:'Zubaan chuniye',en:'Choose language'})}</div>
@@ -4198,7 +4209,7 @@ function renderMoreSettings(){
       el.onclick = ()=>{ if(state.lang===el.dataset.lang) return; state.lang = el.dataset.lang; saveState(); reloadSmooth(true); };
     });
   }
-  if(settingsTab==='notif') renderNotifPane(); else if(settingsTab==='lang') renderLangPane(); else if(settingsTab==='timefmt') renderTimeFmtPane(); else if(settingsTab==='textsize') renderTextSizePane(); else renderLocationPane();
+  if(settingsTab==='notif') renderNotifPane(); else if(settingsTab==='lang') renderLangPane(); else if(settingsTab==='timefmt') renderTimeFmtPane(); else if(settingsTab==='textsize') renderTextSizePane(); else if(settingsTab==='homecard') renderHomeCardPane(); else renderLocationPane();
 
   function setupLocationPane(){
   const cityListEl = body.querySelector('#cityList');
@@ -6441,42 +6452,97 @@ function reloadSmooth(backToSettings){
   document.querySelectorAll('.tab-btn[data-tab]').forEach(b=>{ const ic = b.querySelector('.ic'), d = ICON[b.dataset.tab]; if(ic && d) ic.innerHTML = body(d); });
   document.querySelectorAll('.more-item[data-open]').forEach(it=>{ const ic = it.querySelector('.ic'), d = ICON[it.dataset.open]; if(ic && d) ic.innerHTML = body(d); });
 
-  /* ---- Hero: the live prayer (or the next one) with a progress ring and countdown ---- */
+  /* ---- Hero card: the live prayer, with the next one underneath. Full / slim strip / off (swipe or ✕ steps it down;
+          Settings → Home Card brings it back). Small screens get the slim strip so the list keeps its room. ---- */
   const C = 138.23; // circumference of r=22
   const cd = ms => { const m = Math.max(0, Math.ceil(ms / 60000)); return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + 'm'; };
-  function renderHero(){
-    const el = document.getElementById('homeHero'); if(!el) return;
-    if(!(homeFollowsToday || isSameDay(homeViewDate, new Date()))){ el.classList.add('hide'); return; }
+  const inTxt = ms => L({ rur: cd(ms) + ' mein', en: 'in ' + cd(ms) });
+  const heroMode = ()=>{ const m = state.heroMode || 'full'; return (m === 'full' && window.matchMedia('(max-height:680px)').matches) ? 'strip' : m; };
+  const iconOf = k => (PRAYER_META[k] && PRAYER_META[k].icon) || '🕌';
+  function heroData(){
     const now = Date.now(), base = operatingDate(new Date());
     const list = [];
     [-1, 0, 1].forEach(d=> buildSchedule(new Date(base.getTime() + d * 86400000)).forEach(p=>{ if(FIVE.includes(p.key)) list.push(p); }));
     list.sort((a, b)=> a.start - b.start);
     const cur = list.filter(p=> p.start <= now && now < p.end).pop();
-    let mode, p, prog, left, prevEnd;
-    if(cur){ mode = 'now'; p = cur; prog = (now - p.start) / (p.end - p.start); left = p.end - now; }
+    const upcoming = list.filter(x=> x.start > now);
+    let mode, p, prog, left, after;
+    if(cur){ mode = 'now'; p = cur; prog = (now - p.start) / (p.end - p.start); left = p.end - now; after = upcoming[0]; }
     else {
-      p = list.find(x=> x.start > now); if(!p){ el.classList.add('hide'); return; }
-      prevEnd = list.filter(x=> x.end <= now).pop();
+      p = upcoming[0]; if(!p) return null;
+      const prevEnd = list.filter(x=> x.end <= now).pop();
       const from = prevEnd ? +prevEnd.end : p.start - 4 * 3600000;
-      mode = 'next'; prog = (now - from) / (p.start - from); left = p.start - now;
+      mode = 'next'; prog = (now - from) / (p.start - from); left = p.start - now; after = upcoming[1];
     }
-    prog = Math.min(1, Math.max(0, prog));
-    const key = mode + p.key + (+p.start);
+    return { now, mode, p, after, prog: Math.min(1, Math.max(0, prog)), left };
+  }
+  function renderHero(animate){
+    const el = document.getElementById('homeHero'); if(!el) return;
+    const vm = heroMode();
+    if(vm === 'off' || !(homeFollowsToday || isSameDay(homeViewDate, new Date()))){ el.classList.add('hide'); el.dataset.k = ''; return; }
+    const d = heroData(); if(!d){ el.classList.add('hide'); return; }
+    const { now, mode, p, after, prog, left } = d;
+    const key = vm + mode + p.key + (+p.start) + (after ? after.key : '');
     if(el.dataset.k !== key){
       el.dataset.k = key;
-      const icon = (PRAYER_META[p.key] && PRAYER_META[p.key].icon) || '🕌';
-      el.innerHTML = `<div class="hero-ring"><svg viewBox="0 0 54 54"><circle class="trk" cx="27" cy="27" r="22"/><circle class="bar" cx="27" cy="27" r="22" stroke-dashoffset="${C}"/></svg><div class="hero-ic">${icon}</div></div>
-        <div class="hero-txt"><div class="hero-k">${mode === 'now' ? L({rur:'Abhi ka waqt', en:'Now'}) : L({rur:'Agli namaz', en:'Next prayer'})}</div><div class="hero-n"></div><div class="hero-t"></div></div>
-        <div class="hero-cd"><b></b><span>${mode === 'now' ? L({rur:'khatam hone mein', en:'time left'}) : L({rur:'shuru hone mein', en:'starts in'})}</span></div>`;
-      el.querySelector('.hero-n').textContent = p.name;
-      el.querySelector('.hero-t').textContent = fmtTime(new Date(p.start)) + ' – ' + fmtTime(new Date(p.end));
-      requestAnimationFrame(()=> requestAnimationFrame(()=>{ const bar = el.querySelector('.bar'); if(bar) bar.setAttribute('stroke-dashoffset', C * (1 - prog)); }));
-    } else {
-      const bar = el.querySelector('.bar'); if(bar) bar.setAttribute('stroke-dashoffset', C * (1 - prog));
+      el.classList.toggle('strip', vm === 'strip');
+      const x = `<button class="hero-x" type="button" aria-label="${L({rur:'Card band karein', en:'Close card'})}">✕</button>`;
+      const afterLbl = mode === 'now' ? L({rur:'Agla', en:'Next'}) : L({rur:'Phir', en:'Then'});
+      if(vm === 'strip'){
+        el.innerHTML = `<div class="hero-strip"><span class="hs-ic">${iconOf(p.key)}</span>
+          <span class="hs-main"><b></b> · <span class="hs-left"></span></span>
+          ${after ? `<span class="hs-next">${afterLbl} <b></b> <span class="hs-t"></span></span>` : ''}</div>${x}`;
+        el.querySelector('.hs-main b').textContent = p.name;
+        if(after){ el.querySelector('.hs-next b').textContent = after.name; el.querySelector('.hs-t').textContent = fmtTime(new Date(after.start)); }
+      } else {
+        el.innerHTML = `<div class="hero-main"><div class="hero-ring"><svg viewBox="0 0 54 54"><circle class="trk" cx="27" cy="27" r="22"/><circle class="bar" cx="27" cy="27" r="22" stroke-dashoffset="${C}"/></svg><div class="hero-ic">${iconOf(p.key)}</div></div>
+          <div class="hero-txt"><div class="hero-k">${mode === 'now' ? L({rur:'Abhi ka waqt', en:'Now'}) : L({rur:'Agli namaz', en:'Next prayer'})}</div><div class="hero-n"></div><div class="hero-t"></div></div>
+          <div class="hero-cd"><b></b><span>${mode === 'now' ? L({rur:'khatam hone mein', en:'time left'}) : L({rur:'shuru hone mein', en:'starts in'})}</span></div></div>
+          ${after ? `<div class="hero-after"><span>${afterLbl}:</span><span class="ha-ic">${iconOf(after.key)}</span><b></b><span class="ha-t"></span><span class="in"></span></div>` : ''}${x}`;
+        el.querySelector('.hero-n').textContent = p.name;
+        el.querySelector('.hero-t').textContent = fmtTime(new Date(p.start)) + ' – ' + fmtTime(new Date(p.end));
+        if(after){ el.querySelector('.hero-after b').textContent = after.name; el.querySelector('.ha-t').textContent = fmtTime(new Date(after.start)); }
+        requestAnimationFrame(()=> requestAnimationFrame(()=>{ const bar = el.querySelector('.bar'); if(bar) bar.setAttribute('stroke-dashoffset', C * (1 - prog)); }));
+      }
+      if(animate){ el.classList.remove('hero-in'); void el.offsetWidth; el.classList.add('hero-in'); }
     }
-    el.querySelector('.hero-cd b').textContent = cd(left);
+    const bar = el.querySelector('.bar'); if(bar) bar.setAttribute('stroke-dashoffset', C * (1 - prog));
+    const cdEl = el.querySelector('.hero-cd b'); if(cdEl) cdEl.textContent = cd(left);
+    const hl = el.querySelector('.hs-left'); if(hl) hl.textContent = L({ rur: cd(left) + ' baaqi', en: cd(left) + ' left' });
+    const ai = el.querySelector('.hero-after .in'); if(ai && after) ai.textContent = (mode === 'now' && Math.abs(after.start - p.end) < 60000) ? '' : inTxt(after.start - now); // same as the big countdown when one prayer follows the other directly
     el.classList.remove('hide');
   }
+  window.setHeroMode = function(m){ state.heroMode = m; saveState(); const el = document.getElementById('homeHero'); if(el){ el.dataset.k = ''; el.style.transform = ''; el.style.opacity = ''; } try{ renderHero(true); }catch(e){} };
+  // ✕ and swipe step the card down: full → slim strip → off
+  function stepDown(el, dir){
+    const next = heroMode() === 'full' ? 'strip' : 'off';
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ setHeroMode(next); return; }
+    el.classList.remove('dragging'); el.classList.add('snap');
+    el.style.transform = `translateX(${dir * 110}%)`; el.style.opacity = '0';
+    setTimeout(()=>{ el.classList.remove('snap'); setHeroMode(next); }, 200);
+  }
+  (()=>{
+    const el = document.getElementById('homeHero'); if(!el) return;
+    el.addEventListener('click', e=>{
+      if(e.target.closest('.hero-x')){ e.stopPropagation(); stepDown(el, 1); return; }
+      if(el.classList.contains('strip')) setHeroMode('full'); // tap the slim strip: open it again
+    });
+    let st = null;
+    el.addEventListener('touchstart', e=>{ const t = e.touches[0]; st = { x:t.clientX, y:t.clientY, t:performance.now(), live:false, dx:0 }; }, { passive:true });
+    el.addEventListener('touchmove', e=>{
+      if(!st) return; const t = e.touches[0], dx = t.clientX - st.x, dy = t.clientY - st.y;
+      if(!st.live){ if(Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)){ st = null; return; } if(Math.abs(dx) > 10){ st.live = true; el.classList.add('dragging'); } else return; }
+      st.dx = dx; el.style.transform = `translateX(${dx}px)`; el.style.opacity = String(Math.max(0.25, 1 - Math.abs(dx) / 280));
+    }, { passive:true });
+    const end = ()=>{
+      if(!st || !st.live){ st = null; return; }
+      const s = st; st = null; const v = Math.abs(s.dx) / Math.max(1, performance.now() - s.t);
+      if(Math.abs(s.dx) > 90 || (v > 0.55 && Math.abs(s.dx) > 40)) stepDown(el, s.dx < 0 ? -1 : 1);
+      else { el.classList.remove('dragging'); el.classList.add('snap'); el.style.transform = ''; el.style.opacity = ''; setTimeout(()=> el.classList.remove('snap'), 220); }
+    };
+    el.addEventListener('touchend', end); el.addEventListener('touchcancel', end);
+  })();
+  window.addEventListener('resize', ()=>{ try{ const el = document.getElementById('homeHero'); if(el) el.dataset.k = ''; renderHero(); }catch(e){} });
   const _renderHome = renderHome;
   renderHome = function(){ const r = _renderHome.apply(this, arguments); try{ renderHero(); }catch(e){} return r; };
   setInterval(()=>{ try{ renderHero(); }catch(e){} }, 5000);

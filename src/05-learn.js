@@ -1046,6 +1046,7 @@ function renderSettingsMenu(){
     ['qibla','🧭','Qibla ka Rukh', ''],
     ['timefmt','🕒','Waqt ka Andaaz', state.timeFormat==='12' ? '12 Ghante (AM/PM)' : '24 Ghante'],
     ['textsize','🔠','Text ka Size', {m:'Normal',l:'Bara',xl:'Bohot Bara'}[state.textScale]||'Normal'],
+    ['homecard','🃏','Home Card', {full:'Poora',strip:'Patli patti',off:'Band'}[state.heroMode||'full']],
     ['lang','🌐','Zubaan', state.lang==='en' ? 'English' : 'Hinglish / Roman Urdu'],
     ['notif','🔔','Yaad-dahaniyan', ''],
     ['azaan','🔊','Azaan', azaanState().on ? 'On' : 'Off'],
@@ -1074,7 +1075,7 @@ function renderSettingsMenu(){
   });
 }
 function renderMoreSettings(){
-  document.getElementById('detailTitle').textContent = ({notif:'Yaad-dahaniyan', lang:'Zubaan', timefmt:'Waqt ka Andaaz', textsize:'Text ka Size'})[settingsTab] || 'Apna Shahar Chunein';
+  document.getElementById('detailTitle').textContent = ({notif:'Yaad-dahaniyan', lang:'Zubaan', timefmt:'Waqt ka Andaaz', textsize:'Text ka Size', homecard:'Home Card'})[settingsTab] || 'Apna Shahar Chunein';
   const loc = state.location;
   const body = document.getElementById('detailBody');
   const canNotify = 'Notification' in window;
@@ -1177,6 +1178,16 @@ function renderMoreSettings(){
     </div>`;
     pane.querySelectorAll('[data-size]').forEach(b=>{ b.onclick = ()=>{ state.textScale = b.dataset.size; saveState(); applyTextScale(); renderTextSizePane(); }; });
   }
+  function renderHomeCardPane(){
+    const m = state.heroMode || 'full';
+    pane.innerHTML = `<div class="theme-row" style="padding:0 0 12px;">
+      <button data-hm="full" class="${m==='full'?'active':''}">${L({rur:'Poora card', en:'Full card'})}</button>
+      <button data-hm="strip" class="${m==='strip'?'active':''}">${L({rur:'Patli patti', en:'Slim strip'})}</button>
+      <button data-hm="off" class="${m==='off'?'active':''}">${L({rur:'Band', en:'Off'})}</button>
+    </div>
+    <div class="backup-note">${L({rur:'Home par abhi ki namaz aur agli namaz ka card. Card ko left/right swipe ya ✕ se chhota ya band kar sakte hain; yahan se wapas la sakte hain.', en:'The card on Home showing the current and next prayer. Swipe it sideways or tap ✕ to shrink or hide it; bring it back here.'})}</div>`;
+    pane.querySelectorAll('[data-hm]').forEach(b=>{ b.onclick = ()=>{ setHeroMode(b.dataset.hm); renderHomeCardPane(); }; });
+  }
   function renderLangPane(){
     pane.innerHTML = `
       <div class="section-title" style="margin-top:0;">${L({rur:'Zubaan chuniye',en:'Choose language'})}</div>
@@ -1188,7 +1199,7 @@ function renderMoreSettings(){
       el.onclick = ()=>{ if(state.lang===el.dataset.lang) return; state.lang = el.dataset.lang; saveState(); reloadSmooth(true); };
     });
   }
-  if(settingsTab==='notif') renderNotifPane(); else if(settingsTab==='lang') renderLangPane(); else if(settingsTab==='timefmt') renderTimeFmtPane(); else if(settingsTab==='textsize') renderTextSizePane(); else renderLocationPane();
+  if(settingsTab==='notif') renderNotifPane(); else if(settingsTab==='lang') renderLangPane(); else if(settingsTab==='timefmt') renderTimeFmtPane(); else if(settingsTab==='textsize') renderTextSizePane(); else if(settingsTab==='homecard') renderHomeCardPane(); else renderLocationPane();
 
   function setupLocationPane(){
   const cityListEl = body.querySelector('#cityList');
