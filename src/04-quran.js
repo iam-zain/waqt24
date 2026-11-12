@@ -209,7 +209,6 @@ function renderQuranReader(page){
       <button class="quran-tool qt-ed" id="quranEdBtn">${quranEd()==='tajweed' ? quranBookSvg(false, 22) + ' Normal' : quranBookSvg(true, 22) + ' Tajweed'}</button>
       <button class="quran-tool ${qa.on?'on':''}" id="quranListenBtn">🎧 ${L({rur:'Tilawat sunein', en:'Listen'})}</button>
       <button class="quran-tool ${state.quranTrPage?'on':''}" id="quranTpBtn">📜 ${L({rur:'Tarjuma page', en:'Translation page'})}</button>
-      <button class="quran-tool" id="quranTrBtn" ${state.quranTrPage ? 'hidden' : ''}>📖 ${L({rur:'Tarjuma', en:'Meaning'})}</button>
       <button class="quran-tool ${state.quranTint?'on':''}" id="quranTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
       <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
@@ -240,7 +239,6 @@ function renderQuranReader(page){
   document.getElementById('quranTintBtn').onclick = ()=>{ quranTintOpen = !quranTintOpen; document.getElementById('qTints').hidden = !quranTintOpen; };
   document.getElementById('qTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderQuranReader(page); };
   quranTintApply();
-  document.getElementById('quranTrBtn').onclick = ()=> openTarjuma(qa.on ? qa.abs : 0);
   document.getElementById('quranTpBtn').onclick = ()=>{ state.quranTrPage = !state.quranTrPage; saveState(); if(state.quranTrPage && typeof trClose === 'function') trClose(); renderQuranReader(page); };
   if(state.quranTrPage) trpFill(page); else if(typeof trpHide === 'function') trpHide();
   if(typeof trRefresh === 'function') trRefresh();
