@@ -78,7 +78,7 @@ async function trRender(){
   const page = state.quranPage; if(!trOpen || !page || !document.getElementById('quranWrap')) return;
   const el = trSheet(), body = el.querySelector('#trBody'), lang = trLang();
   el.querySelectorAll('.tr-langs button').forEach(b=>b.classList.toggle('on', b.dataset.l === lang));
-  el.classList.add('show'); trPlace();
+  el.classList.add('show'); trPlace(); if(typeof quranTintPlayer === 'function') quranTintPlayer();
   const ids = trPageAyahs(page);
   if(!ids.length || page >= QURAN_SURAHS[113].page && false){ body.textContent = ''; return; }
   body.innerHTML = `<div class="tr-msg">${L({rur:'Load ho raha hai…', en:'Loading…'})}</div>`;

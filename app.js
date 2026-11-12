@@ -2537,9 +2537,11 @@ function quranMarked(p){ return (state.quranMarks||[]).includes(p); }
 const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'cream',n:'Cream',c:'#f3e6c4',a:'#a8801a'},{k:'sand',n:'Sand',c:'#e6d2a8',a:'#8a6a2a'},{k:'mint',n:'Mint',c:'#d6ecd9',a:'#2f8f57'},{k:'sky',n:'Sky',c:'#d3e6f6',a:'#2b7fc0'},{k:'rose',n:'Rose',c:'#f6d9e1',a:'#c2456b'},{k:'lilac',n:'Lilac',c:'#e3daf3',a:'#7a5fc8'}];
 /* the recitation player wears the same colour as the page */
 function quranTintPlayer(){
-  const q = document.getElementById('qPlayer'); if(!q) return;
   const t = QURAN_TINTS.find(x=>x.k === (state.quranTint||'')), on = t && t.c && document.getElementById('quranWrap') && !quranNightOn();
-  if(on){ q.setAttribute('data-tint', t.k); q.style.setProperty('--qtc', t.c); q.style.setProperty('--qta', t.a); } else { q.removeAttribute('data-tint'); }
+  ['qPlayer','trSheet'].forEach(id=>{
+    const q = document.getElementById(id); if(!q) return;
+    if(on){ q.setAttribute('data-tint', t.k); q.style.setProperty('--qtc', t.c); q.style.setProperty('--qta', t.a); } else q.removeAttribute('data-tint');
+  });
 }
 let quranTintOpen = false;
 function quranTintApply(){
@@ -7406,7 +7408,7 @@ async function trRender(){
   const page = state.quranPage; if(!trOpen || !page || !document.getElementById('quranWrap')) return;
   const el = trSheet(), body = el.querySelector('#trBody'), lang = trLang();
   el.querySelectorAll('.tr-langs button').forEach(b=>b.classList.toggle('on', b.dataset.l === lang));
-  el.classList.add('show'); trPlace();
+  el.classList.add('show'); trPlace(); if(typeof quranTintPlayer === 'function') quranTintPlayer();
   const ids = trPageAyahs(page);
   if(!ids.length || page >= QURAN_SURAHS[113].page && false){ body.textContent = ''; return; }
   body.innerHTML = `<div class="tr-msg">${L({rur:'Load ho raha hai…', en:'Loading…'})}</div>`;

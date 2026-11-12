@@ -1576,3 +1576,8 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .masjid-msg{ font-size:12.5px; color:var(--sub); min-height:1em; }
 .qp-sleep[hidden]{ display:none; }
 .qp-sleep input{ width:70px; padding:5px 8px; border-radius:14px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12px; font-weight:700; text-align:center; }
+
+/* Translation sheet wears the page tint too: a lighter shade of the same colour than the player, with the stronger shade for accents */
+.tr-sheet[data-tint]{ background:color-mix(in srgb, var(--qtc) 38%, #ffffff); border-color:color-mix(in srgb, var(--qta) 28%, transparent); --accent:var(--qta); --text:#1c2530; --sub:#5a6477; --line:color-mix(in srgb, var(--qta) 22%, transparent); --card:#ffffff; --fardText:#ffffff; }
+.tr-sheet[data-tint] .tr-ayah.cur{ background:color-mix(in srgb, var(--qtc) 85%, #ffffff); box-shadow:inset 3px 0 0 var(--qta); }
+.tr-sheet[data-tint] .tr-langs button.on{ background:var(--qta); border-color:var(--qta); color:#fff; }
