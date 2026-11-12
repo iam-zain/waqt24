@@ -1642,3 +1642,11 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tp-night .tp-tools button{ background:#1d232a; color:#e8e2d4; }
 .tp-night .tp-tools button.on{ background:var(--accent); color:#fff; }
 .tp-panel[data-tint]{ background:linear-gradient(180deg, color-mix(in srgb, var(--qtc) 60%, #fff) 0%, var(--qtc) 100%); --accent:var(--qta); --text:#1c2530; --sub:#5a6477; --card:#ffffff; --fardText:#ffffff; color:#1c2530; }
+
+/* text colour follows the sheet's own palette (a tint is light, whatever the app theme is) */
+.tr-sheet, .tp-panel{ color:var(--text); }
+.tr-sheet[data-tint], .tp-panel[data-tint]{ color:#1c2530; }
+.tr-sheet[data-tint] .tr-ayah p, .tr-sheet[data-tint] .tr-head button, .tp-panel[data-tint] .tp-p{ color:#1c2530; }
+.tr-sheet[data-tint] .tr-langs button:not(.on), .tr-sheet[data-tint] .tr-x, .tr-sheet[data-tint] .tr-play:not(:hover){ color:#1c2530; }
+.tp-panel[data-tint] .tp-tools button:not(.on){ color:#1c2530; background:#fff; }
+.tp-panel[data-tint] .tp-top, .tp-panel[data-tint] .tp-x{ color:#fff; }
