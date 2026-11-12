@@ -28,7 +28,7 @@ const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'cream',n:'Cream',c:'#f3e6c4',a
 /* the recitation player wears the same colour as the page */
 function quranTintPlayer(){
   const t = QURAN_TINTS.find(x=>x.k === (state.quranTint||'')), on = t && t.c && document.getElementById('quranWrap') && !quranNightOn();
-  ['qPlayer','trSheet','trPage'].forEach(id=>{
+  ['qPlayer','trSheet','tpPanel'].forEach(id=>{
     const q = document.getElementById(id); if(!q) return;
     if(on){ q.setAttribute('data-tint', t.k); q.style.setProperty('--qtc', t.c); q.style.setProperty('--qta', t.a); } else q.removeAttribute('data-tint');
   });
@@ -201,8 +201,8 @@ function renderQuranReader(page){
       <button class="quran-index-btn" id="quranSurahBtn"><span>📜</span> ${surah.n}. ${surah.name}</button>
       <button class="quran-index-btn qi-short" id="quranManzilBtn"><span>🏷️</span> ${L({rur:'Manzil', en:'Manzil'})} ${manzil.n}</button>
     </div>
-    <div class="quran-page-wrap${state.quranTrPage ? ' tp-mode' + (quranNightOn() ? ' tp-night' : '') : (quranNightOn() ? (quranEd()==='tajweed' ? ' night-color' : ' night') : '')}" id="quranWrap">
-      ${state.quranTrPage ? trpShell() : `<img class="quran-page-img" src="${quranImg(page)}" alt="Quran page ${page}" draggable="false">`}
+    <div class="quran-page-wrap${quranNightOn() ? (quranEd()==='tajweed' ? ' night-color' : ' night') : ''}" id="quranWrap">
+      <img class="quran-page-img" src="${quranImg(page)}" alt="Quran page ${page}" draggable="false">
     </div>
     <div class="quran-tools">
       <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
@@ -210,7 +210,7 @@ function renderQuranReader(page){
       <button class="quran-tool ${state.quranTint?'on':''}" id="quranTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${state.quranTrPage?'on':''}" id="quranTpBtn">📜 ${L({rur:'Tarjuma page', en:'Translation page'})}</button>
       <button class="quran-tool" id="quranTrBtn" ${state.quranTrPage ? 'hidden' : ''}>📖 ${L({rur:'Tarjuma', en:'Meaning'})}</button>
-      <button class="quran-tool" id="quranZoomBtn" ${state.quranTrPage ? 'hidden' : ''}>🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
+      <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
       <button class="quran-tool" id="quranShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool ${qa.on?'on':''}" id="quranListenBtn">🎧 ${L({rur:'Sunein', en:'Listen'})}</button>
@@ -242,7 +242,7 @@ function renderQuranReader(page){
   quranTintApply();
   document.getElementById('quranTrBtn').onclick = ()=> openTarjuma(qa.on ? qa.abs : 0);
   document.getElementById('quranTpBtn').onclick = ()=>{ state.quranTrPage = !state.quranTrPage; saveState(); if(state.quranTrPage && typeof trClose === 'function') trClose(); renderQuranReader(page); };
-  if(state.quranTrPage) trpFill(page);
+  if(state.quranTrPage) trpFill(page); else if(typeof trpHide === 'function') trpHide();
   if(typeof trRefresh === 'function') trRefresh();
   document.getElementById('quranNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderQuranReader(page); };
   const wrap = document.getElementById('quranWrap');
@@ -255,7 +255,7 @@ function renderQuranReader(page){
   document.getElementById('quranSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranReader(page); if(state.quranTurnSound) playPageSound(); };
   document.getElementById('quranEdBtn').onclick = ()=>{ state.quranEd = quranEd()==='tajweed' ? 'normal' : 'tajweed'; saveState(); renderQuranReader(page); };
   let lastTap = 0;
-  if(!state.quranTrPage) wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) toggleZoom(); lastTap = t; });
+  wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) toggleZoom(); lastTap = t; });
   document.getElementById('quranParaBtn').onclick = ()=> renderQuranIndex('para');
   document.getElementById('quranSurahBtn').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('quranManzilBtn').onclick = ()=> renderQuranIndex('manzil');

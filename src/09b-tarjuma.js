@@ -71,6 +71,7 @@ function trSheet(){
 }
 function trClose(){ trOpen = false; const el = document.getElementById('trSheet'); if(el) el.classList.remove('show'); }
 function trPlace(){
+  if(typeof trpPlace === 'function') trpPlace();
   const el = document.getElementById('trSheet'), q = document.getElementById('qPlayer'); if(!el) return;
   const up = q && q.classList.contains('show') ? q.offsetHeight + parseFloat(getComputedStyle(q).marginBottom || 0) + 8 : 0;
   /* flush with the bottom of the screen (above the tab bar if it shows), or just above the player while that is open */
@@ -125,7 +126,7 @@ function trLineTap(ev){
   if(!line) return;
   const ids = trPageAyahs(page); let hit = 0;
   for(const x of ids){ const a = parseInt(QA_LINES[(x-1)*2], 16), b = parseInt(QA_LINES[(x-1)*2+1], 16); if(line >= a && line <= b){ hit = x; if(line < b || true) break; } }
-  if(hit){ openTarjuma(hit); if(qa.on) qaPlayFrom(hit); }
+  if(hit){ if(state.quranTrPage){ trpFocus(hit); if(qa.on) qaPlayFrom(hit); } else { openTarjuma(hit); if(qa.on) qaPlayFrom(hit); } }
 }
 (function(){
   const ov = document.getElementById('detailOverlay');

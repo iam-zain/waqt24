@@ -1605,32 +1605,40 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 /* player voice switch: Arabic recitation / Urdu translation only */
 .qp .qp-voice{ flex-wrap:wrap; margin-bottom:2px; }
 .qp .qp-voice button{ padding:5px 10px; }
-
-/* ===== Tarjuma page (framed translation page) ===== */
-.quran-page-wrap.tp-mode{ display:block; height:auto; min-height:0; }
-.tp-page{ --tpz:20px; --tpu:28px; border:3px double color-mix(in srgb, var(--accent) 65%, #b8923a); border-radius:16px; background:var(--card); padding:10px 12px 14px; box-shadow:0 2px 10px rgba(0,0,0,.06); }
-.tp-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 12px; border-radius:10px; background:color-mix(in srgb, var(--accent) 14%, var(--card)); font-size:14px; font-weight:700; }
-.tp-top b{ font-size:17px; }
-.tp-tools{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin:9px 0 8px; flex-wrap:wrap; }
+/* ===== Tarjuma page: a book-like panel docked under the Mushaf, resizable by its handle ===== */
+.tp-panel{ --tpz:20px; --tpu:27px; --tpl:calc(var(--tpz) * 1.9); position:absolute; left:0; right:0; bottom:0; z-index:64; display:none; flex-direction:column; height:46vh; max-height:86vh; box-sizing:border-box;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 5%, var(--card)) 0%, color-mix(in srgb, var(--accent) 13%, var(--card)) 100%);
+  border:1px solid color-mix(in srgb, var(--accent) 38%, transparent); border-bottom:0; border-radius:20px 20px 0 0; box-shadow:0 -8px 26px rgba(0,0,0,.2), inset 0 0 0 4px var(--card), inset 0 0 0 5px color-mix(in srgb, var(--accent) 26%, transparent); }
+.tp-panel.show{ display:flex; animation:fadeUp .25s var(--fx-ease, ease) both; }
+.tp-panel:not(.drag){ transition:height .12s ease; }
+.tp-panel[style*="bottom: 0px"]{ padding-bottom:env(safe-area-inset-bottom); }
+.tp-panel:not([style*="bottom: 0px"]){ margin:0 10px; left:0; right:0; border-radius:20px; border-bottom:1px solid color-mix(in srgb, var(--accent) 38%, transparent); }
+.tp-grip{ flex:0 0 auto; height:22px; display:flex; align-items:center; justify-content:center; cursor:ns-resize; touch-action:none; }
+.tp-grip i{ width:44px; height:5px; border-radius:3px; background:color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.tp-head{ flex:0 0 auto; padding:0 12px; }
+.tp-top{ display:flex; align-items:center; gap:8px; justify-content:space-between; padding:6px 12px; border-radius:10px; background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 88%, #000) 0%, color-mix(in srgb, var(--accent) 62%, #fff) 100%); color:#fff; font-size:13px; font-weight:700; }
+.tp-top b{ font-size:16px; flex:1; text-align:center; }
+.tp-x{ border:0; background:rgba(255,255,255,.22); color:#fff; width:26px; height:26px; border-radius:50%; font-size:12px; line-height:1; padding:0; flex:0 0 auto; }
+.tp-tools{ display:flex; justify-content:space-between; align-items:center; gap:6px; margin:8px 0 6px; flex-wrap:wrap; }
 .tp-langs, .tp-sz{ display:flex; gap:5px; }
-.tp-tools button{ border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; padding:6px 12px; font-size:13px; font-weight:700; }
-.tp-tools button.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 16%, var(--card)); color:var(--accent); }
-.tp-p{ font-size:var(--tpz); line-height:1.8; text-align:left; margin:0 0 8px; overflow-wrap:anywhere; }
-.tp-p[dir=rtl]{ text-align:right; font-family:'Noto Nastaliq Urdu','Scheherazade New','Noto Naskh Arabic',serif; font-size:var(--tpu); line-height:2.6; }
-.tp-a{ border-radius:8px; padding:2px 3px; cursor:pointer; -webkit-box-decoration-break:clone; box-decoration-break:clone; transition:background .25s; }
-.tp-a.alt{ background:color-mix(in srgb, var(--accent) 7%, transparent); }
-.tp-a.cur, .tp-a.alt.cur{ background:color-mix(in srgb, var(--accent) 26%, transparent); }
-.tp-n{ font-style:normal; font-size:.78em; font-weight:800; color:var(--accent); white-space:nowrap; margin:0 2px; }
-.tp-surah{ text-align:center; font-weight:800; font-size:calc(var(--tpz) + 1px); padding:9px; margin:10px 0 8px; border-radius:10px; background:color-mix(in srgb, var(--accent) 14%, var(--card)); }
+.tp-tools button{ border:1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); background:color-mix(in srgb, var(--card) 80%, transparent); color:var(--text); border-radius:999px; padding:5px 11px; font-size:13px; font-weight:700; }
+.tp-tools button.on{ border-color:var(--accent); background:var(--accent); color:var(--fardText,#fff); }
+.tp-scroll{ flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:0 16px 22px; margin:0 4px; }
+.tp-text{ padding-bottom:12vh; }
+/* ruled lines like a printed book: every text line rests on a thin rule */
+.tp-p{ font-size:var(--tpz); line-height:var(--tpl); margin:0; text-align:left; overflow-wrap:anywhere;
+  background-image:repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--tpl) - 1px), color-mix(in srgb, var(--accent) 22%, transparent) calc(var(--tpl) - 1px), color-mix(in srgb, var(--accent) 22%, transparent) var(--tpl)); }
+.tp-p[dir=rtl]{ --tpl:calc(var(--tpu) * 2.35); text-align:right; font-family:'Noto Nastaliq Urdu','Scheherazade New','Noto Naskh Arabic',serif; font-size:var(--tpu); }
+.tp-a{ border-radius:6px; cursor:pointer; -webkit-box-decoration-break:clone; box-decoration-break:clone; transition:background .25s; }
+.tp-a.cur{ background:color-mix(in srgb, var(--accent) 24%, transparent); }
+.tp-a.tap{ box-shadow:0 0 0 1.5px color-mix(in srgb, var(--accent) 50%, transparent); }
+.tp-n{ unicode-bidi:isolate; direction:ltr; font-style:normal; font-size:.74em; font-weight:800; color:var(--accent); white-space:nowrap; margin:0 3px; }
+.tp-surah{ text-align:center; font-weight:800; font-size:calc(var(--tpz) + 1px); padding:6px; margin:10px 0 6px; border-radius:10px; color:var(--accent);
+  background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 14%, transparent), transparent); border-top:1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-bottom:1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
 .tp-msg, .tp-note{ text-align:center; color:var(--sub); font-size:13px; padding:18px 8px; line-height:1.5; }
-.tp-note{ padding:6px; font-size:11.5px; }
+.tp-note{ padding:8px; font-size:11.5px; }
 .tp-retry{ margin-top:8px; border:1px solid var(--accent); background:var(--card); color:var(--accent); border-radius:999px; padding:6px 14px; font-weight:700; }
-.tp-night .tp-page{ background:#14181d; color:#e8e2d4; border-color:#8a7440; }
-.tp-night .tp-tools button{ background:#1d232a; color:#e8e2d4; border-color:#333b44; }
-.tp-page[data-tint]{ background:var(--qtc); color:#222; }
-.tp-page[data-tint] .tp-top{ background:color-mix(in srgb, var(--qta) 18%, var(--qtc)); }
-.tp-page[data-tint] .tp-a.alt{ background:color-mix(in srgb, var(--qta) 10%, transparent); }
-.tp-page[data-tint] .tp-a.cur, .tp-page[data-tint] .tp-a.alt.cur{ background:color-mix(in srgb, var(--qta) 30%, transparent); }
-.tp-page[data-tint] .tp-n{ color:var(--qta); }
-
-.tp-n{ unicode-bidi:isolate; direction:ltr; }
+.tp-night{ background:linear-gradient(180deg, #14181d, #1b2128); color:#e8e2d4; }
+.tp-night .tp-tools button{ background:#1d232a; color:#e8e2d4; }
+.tp-night .tp-tools button.on{ background:var(--accent); color:#fff; }
+.tp-panel[data-tint]{ background:linear-gradient(180deg, color-mix(in srgb, var(--qtc) 60%, #fff) 0%, var(--qtc) 100%); --accent:var(--qta); --text:#1c2530; --sub:#5a6477; --card:#ffffff; --fardText:#ffffff; color:#1c2530; }

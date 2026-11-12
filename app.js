@@ -2549,7 +2549,7 @@ const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'cream',n:'Cream',c:'#f3e6c4',a
 /* the recitation player wears the same colour as the page */
 function quranTintPlayer(){
   const t = QURAN_TINTS.find(x=>x.k === (state.quranTint||'')), on = t && t.c && document.getElementById('quranWrap') && !quranNightOn();
-  ['qPlayer','trSheet','trPage'].forEach(id=>{
+  ['qPlayer','trSheet','tpPanel'].forEach(id=>{
     const q = document.getElementById(id); if(!q) return;
     if(on){ q.setAttribute('data-tint', t.k); q.style.setProperty('--qtc', t.c); q.style.setProperty('--qta', t.a); } else q.removeAttribute('data-tint');
   });
@@ -2722,8 +2722,8 @@ function renderQuranReader(page){
       <button class="quran-index-btn" id="quranSurahBtn"><span>📜</span> ${surah.n}. ${surah.name}</button>
       <button class="quran-index-btn qi-short" id="quranManzilBtn"><span>🏷️</span> ${L({rur:'Manzil', en:'Manzil'})} ${manzil.n}</button>
     </div>
-    <div class="quran-page-wrap${state.quranTrPage ? ' tp-mode' + (quranNightOn() ? ' tp-night' : '') : (quranNightOn() ? (quranEd()==='tajweed' ? ' night-color' : ' night') : '')}" id="quranWrap">
-      ${state.quranTrPage ? trpShell() : `<img class="quran-page-img" src="${quranImg(page)}" alt="Quran page ${page}" draggable="false">`}
+    <div class="quran-page-wrap${quranNightOn() ? (quranEd()==='tajweed' ? ' night-color' : ' night') : ''}" id="quranWrap">
+      <img class="quran-page-img" src="${quranImg(page)}" alt="Quran page ${page}" draggable="false">
     </div>
     <div class="quran-tools">
       <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
@@ -2731,7 +2731,7 @@ function renderQuranReader(page){
       <button class="quran-tool ${state.quranTint?'on':''}" id="quranTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${state.quranTrPage?'on':''}" id="quranTpBtn">📜 ${L({rur:'Tarjuma page', en:'Translation page'})}</button>
       <button class="quran-tool" id="quranTrBtn" ${state.quranTrPage ? 'hidden' : ''}>📖 ${L({rur:'Tarjuma', en:'Meaning'})}</button>
-      <button class="quran-tool" id="quranZoomBtn" ${state.quranTrPage ? 'hidden' : ''}>🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
+      <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
       <button class="quran-tool" id="quranShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool ${qa.on?'on':''}" id="quranListenBtn">🎧 ${L({rur:'Sunein', en:'Listen'})}</button>
@@ -2763,7 +2763,7 @@ function renderQuranReader(page){
   quranTintApply();
   document.getElementById('quranTrBtn').onclick = ()=> openTarjuma(qa.on ? qa.abs : 0);
   document.getElementById('quranTpBtn').onclick = ()=>{ state.quranTrPage = !state.quranTrPage; saveState(); if(state.quranTrPage && typeof trClose === 'function') trClose(); renderQuranReader(page); };
-  if(state.quranTrPage) trpFill(page);
+  if(state.quranTrPage) trpFill(page); else if(typeof trpHide === 'function') trpHide();
   if(typeof trRefresh === 'function') trRefresh();
   document.getElementById('quranNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderQuranReader(page); };
   const wrap = document.getElementById('quranWrap');
@@ -2776,7 +2776,7 @@ function renderQuranReader(page){
   document.getElementById('quranSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranReader(page); if(state.quranTurnSound) playPageSound(); };
   document.getElementById('quranEdBtn').onclick = ()=>{ state.quranEd = quranEd()==='tajweed' ? 'normal' : 'tajweed'; saveState(); renderQuranReader(page); };
   let lastTap = 0;
-  if(!state.quranTrPage) wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) toggleZoom(); lastTap = t; });
+  wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) toggleZoom(); lastTap = t; });
   document.getElementById('quranParaBtn').onclick = ()=> renderQuranIndex('para');
   document.getElementById('quranSurahBtn').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('quranManzilBtn').onclick = ()=> renderQuranIndex('manzil');
@@ -7484,6 +7484,7 @@ function trSheet(){
 }
 function trClose(){ trOpen = false; const el = document.getElementById('trSheet'); if(el) el.classList.remove('show'); }
 function trPlace(){
+  if(typeof trpPlace === 'function') trpPlace();
   const el = document.getElementById('trSheet'), q = document.getElementById('qPlayer'); if(!el) return;
   const up = q && q.classList.contains('show') ? q.offsetHeight + parseFloat(getComputedStyle(q).marginBottom || 0) + 8 : 0;
   /* flush with the bottom of the screen (above the tab bar if it shows), or just above the player while that is open */
@@ -7538,7 +7539,7 @@ function trLineTap(ev){
   if(!line) return;
   const ids = trPageAyahs(page); let hit = 0;
   for(const x of ids){ const a = parseInt(QA_LINES[(x-1)*2], 16), b = parseInt(QA_LINES[(x-1)*2+1], 16); if(line >= a && line <= b){ hit = x; if(line < b || true) break; } }
-  if(hit){ openTarjuma(hit); if(qa.on) qaPlayFrom(hit); }
+  if(hit){ if(state.quranTrPage){ trpFocus(hit); if(qa.on) qaPlayFrom(hit); } else { openTarjuma(hit); if(qa.on) qaPlayFrom(hit); } }
 }
 (function(){
   const ov = document.getElementById('detailOverlay');
@@ -7581,71 +7582,130 @@ navWrap('renderMasjid', 0);
   const item = document.querySelector('.more-item[data-open="masjid"]');
   if(item) item.onclick = ()=> openOverlay(renderMasjid);
 })();
-/* ===== TARJUMA PAGE: the translation laid out as a framed page, one Mushaf page at a time =====
-   Same pages as the Mushaf (swipe / page number work as usual). The ayahs of the open page run on as continuous text with
-   ayah numbers; the ayah being recited is highlighted and kept in view; tap an ayah to play from it.
+/* ===== TARJUMA PAGE: the translation as a book-like page docked under the Mushaf =====
+   A panel at the bottom of the reader (drag the handle to make it taller or shorter; default about half the screen), so the Arabic
+   page stays visible above it. The ayahs of the open page run on as continuous text with ayah numbers on ruled lines; the ayah
+   being recited is highlighted and kept in view, and the Arabic page scrolls so the recited line is never hidden behind the panel.
    Languages: Hinglish, اردو (Nastaliq), हिन्दी, English. Uses the same translation data as the Tarjuma sheet. */
 const TRP_SIZES = [17, 20, 23, 27];
 const trpSizeIdx = ()=> (state.trpSize >= 0 && state.trpSize < TRP_SIZES.length) ? state.trpSize : 1;
 const trpDigits = (n, ur)=> ur ? String(n).replace(/\d/g, d=>'٠١٢٣٤٥٦٧٨٩'[d]) : String(n);
-function trpShell(){ return '<div class="tp-page" id="trPage"><div class="tp-msg">' + L({rur:'Load ho raha hai…', en:'Loading…'}) + '</div></div>'; }
+const trpMsg = ()=> L({rur:'Load ho raha hai…', en:'Loading…'});
+function trpPanel(){
+  let el = document.getElementById('tpPanel'); if(el) return el;
+  el = document.createElement('div'); el.id = 'tpPanel'; el.className = 'tp-panel'; el.setAttribute('role', 'region'); el.setAttribute('aria-label', 'Translation page');
+  el.innerHTML = '<div class="tp-grip" aria-label="Drag to resize"><i></i></div><div class="tp-head" id="tpHead"></div><div class="tp-scroll" id="tpScroll"></div>';
+  (document.getElementById('detailOverlay').parentElement || document.body).appendChild(el);
+  const g = el.querySelector('.tp-grip'); let y0 = 0, h0 = 0, drag = false;
+  g.addEventListener('pointerdown', e=>{ drag = true; y0 = e.clientY; h0 = el.offsetHeight; try{ g.setPointerCapture(e.pointerId); }catch(x){} el.classList.add('drag'); });
+  g.addEventListener('pointermove', e=>{ if(drag) trpSetH(h0 + (y0 - e.clientY), false); });
+  const end = ()=>{ if(!drag) return; drag = false; el.classList.remove('drag'); state.trpH = +(el.offsetHeight / innerHeight).toFixed(3); saveState(); trpKeepArabic(true); };
+  g.addEventListener('pointerup', end); g.addEventListener('pointercancel', end);
+  el.querySelector('.tp-scroll').onclick = e=>{ const a = e.target.closest('.tp-a'); if(a) qaPlayFrom(+a.dataset.abs); };
+  return el;
+}
+function trpSetH(px, save){
+  const el = document.getElementById('tpPanel'); if(!el) return;
+  const h = Math.round(Math.max(innerHeight * .24, Math.min(innerHeight * .86, px)));
+  el.style.height = h + 'px'; trpPad();
+  if(save){ state.trpH = +(h / innerHeight).toFixed(3); saveState(); }
+}
+/* the reader page can scroll up past the panel, so the lowest lines of the Arabic page are reachable above it */
+function trpPad(){
+  const el = document.getElementById('tpPanel'), body = document.getElementById('detailBody'); if(!body) return;
+  body.style.paddingBottom = (el && el.classList.contains('show')) ? (el.offsetHeight + (parseFloat(el.style.bottom) || 0) + 16) + 'px' : '';
+}
+function trpPlace(){
+  const el = document.getElementById('tpPanel'); if(!el || !el.classList.contains('show')) return;
+  const q = document.getElementById('qPlayer'), ov = document.getElementById('detailOverlay'), tb = document.getElementById('tabbar');
+  const up = q && q.classList.contains('show') ? q.offsetHeight + parseFloat(getComputedStyle(q).marginBottom || 0) + 8 : 0;
+  el.style.bottom = (up || ((ov && ov.classList.contains('active')) ? 0 : (tb ? tb.offsetHeight : 0))) + 'px';
+  trpPad();
+}
+function trpHide(){
+  const el = document.getElementById('tpPanel'); if(el) el.classList.remove('show');
+  const body = document.getElementById('detailBody'); if(body) body.style.paddingBottom = '';
+}
 async function trpFill(page){
-  const el = document.getElementById('trPage'); if(!el) return;
-  const lang = trLang(), ids = trPageAyahs(page), ur = lang === 'ur';
-  const z = TRP_SIZES[trpSizeIdx()]; el.style.setProperty('--tpz', z + 'px'); el.style.setProperty('--tpu', (z + 8) + 'px');
-  const para = quranParaOf(page);
-  if(!ids.length){ el.innerHTML = `<div class="tp-msg">${L({rur:'Is safhe par ayaat nahi hain.', en:'There are no ayahs on this page.'})}</div>`; return; }
-  const first = qaSurahAyah(ids[0]).s, sname = (QURAN_SURAHS[first-1] || {}).name || '';
-  const bar = `<div class="tp-tools"><div class="tp-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div><div class="tp-sz"><button type="button" data-z="-1" aria-label="Smaller text">A−</button><button type="button" data-z="1" aria-label="Bigger text">A+</button></div></div>`;
-  const top = `<div class="tp-top"><span>${L({rur:'Paara', en:'Para'})} ${para.n}</span><b>${sname}</b><span>${L({rur:'Safha', en:'Page'})} ${page}</span></div>`;
-  el.innerHTML = top + bar + `<div class="tp-msg">${L({rur:'Load ho raha hai…', en:'Loading…'})}</div>`;
-  wireBar(el);
+  if(!document.getElementById('quranWrap')) return trpHide();
+  const el = trpPanel(), head = el.querySelector('#tpHead'), sc = el.querySelector('#tpScroll');
+  const lang = trLang(), ids = trPageAyahs(page), ur = lang === 'ur', z = TRP_SIZES[trpSizeIdx()];
+  el.style.setProperty('--tpz', z + 'px'); el.style.setProperty('--tpu', (z + 7) + 'px');
+  el.classList.toggle('tp-night', typeof quranNightOn === 'function' && quranNightOn());
+  if(!el.classList.contains('show')){ el.classList.add('show'); trpSetH(innerHeight * (state.trpH || .46), false); }
+  trpPlace(); if(typeof quranTintPlayer === 'function') quranTintPlayer();
+  const para = quranParaOf(page), first = ids.length ? qaSurahAyah(ids[0]).s : quranSurahOf(page).n, sname = (QURAN_SURAHS[first-1] || {}).name || '';
+  head.innerHTML = `<div class="tp-top"><span>${L({rur:'Paara', en:'Para'})} ${para.n}</span><b>${sname}</b><span>${L({rur:'Safha', en:'Page'})} ${page}</span><button type="button" class="tp-x" aria-label="Close">✕</button></div>
+    <div class="tp-tools"><div class="tp-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div><div class="tp-sz"><button type="button" data-z="-1" aria-label="Smaller text">A−</button><button type="button" data-z="1" aria-label="Bigger text">A+</button></div></div>`;
+  head.querySelector('.tp-x').onclick = ()=>{ state.quranTrPage = false; saveState(); trpHide(); const b = document.getElementById('quranTpBtn'); if(b) b.classList.remove('on'); const t = document.getElementById('quranTrBtn'); if(t) t.hidden = false; };
+  head.querySelector('.tp-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.quranTr = b.dataset.l; saveState(); trpFill(state.quranPage); };
+  head.querySelector('.tp-sz').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.trpSize = Math.max(0, Math.min(TRP_SIZES.length - 1, trpSizeIdx() + (+b.dataset.z))); saveState(); trpFill(state.quranPage); };
+  if(!ids.length){ sc.innerHTML = `<div class="tp-msg">${L({rur:'Is safhe par ayaat nahi hain.', en:'There are no ayahs on this page.'})}</div>`; return; }
+  sc.innerHTML = `<div class="tp-msg">${trpMsg()}</div>`;
   const surahs = [...new Set(ids.map(x=>qaSurahAyah(x).s))];
   let data;
   try{ data = await Promise.all(surahs.map(s=>trLoad(s, lang))); }
   catch(e){
-    if(state.quranPage !== page || !document.getElementById('trPage')) return;
-    el.innerHTML = top + bar + `<div class="tp-msg">${L({rur:'Tarjuma load nahi hua. Internet check karein.', en:'Could not load the translation. Check your internet connection.'})}<br><button type="button" class="tp-retry">${L({rur:'Dobara koshish', en:'Retry'})}</button></div>`;
-    wireBar(el); const rb = el.querySelector('.tp-retry'); if(rb) rb.onclick = ()=>trpFill(page); return;
+    if(state.quranPage !== page) return;
+    sc.innerHTML = `<div class="tp-msg">${L({rur:'Tarjuma load nahi hua. Internet check karein.', en:'Could not load the translation. Check your internet connection.'})}<br><button type="button" class="tp-retry">${L({rur:'Dobara koshish', en:'Retry'})}</button></div>`;
+    sc.querySelector('.tp-retry').onclick = ()=>trpFill(page); return;
   }
-  if(state.quranPage !== page || document.getElementById('trPage') !== el) return;
-  let html = '<p class="tp-p"' + (ur ? ' dir="rtl" lang="ur"' : '') + '>', k = 0;
+  if(state.quranPage !== page || !state.quranTrPage) return;
+  const open = '<p class="tp-p"' + (ur ? ' dir="rtl" lang="ur"' : '') + '>';
+  let html = open;
   ids.forEach(x=>{
     const r = qaSurahAyah(x), t = (data[surahs.indexOf(r.s)][r.a-1] || '').replace(/</g, '&lt;');
-    if(r.a === 1 && x !== ids[0] || (r.a === 1 && x === ids[0] && false)){ html += '</p>'; }
     if(r.a === 1){
-      if(html.endsWith('<p class="tp-p"' + (ur ? ' dir="rtl" lang="ur"' : '') + '>')) html = html.slice(0, -('<p class="tp-p"' + (ur ? ' dir="rtl" lang="ur"' : '') + '>').length);
-      else if(!html.endsWith('</p>')) html += '</p>';
-      html += `<div class="tp-surah">${r.s}. ${(QURAN_SURAHS[r.s-1] || {}).name || ''}</div><p class="tp-p"${ur ? ' dir="rtl" lang="ur"' : ''}>`;
+      if(html.endsWith(open)) html = html.slice(0, -open.length); else html += '</p>';
+      html += `<div class="tp-surah">${r.s}. ${(QURAN_SURAHS[r.s-1] || {}).name || ''}</div>${open}`;
     }
-    html += `<span class="tp-a${k++ % 2 ? ' alt' : ''}" data-abs="${x}">${t} <i class="tp-n" dir="ltr">&#xFD3E;${trpDigits(r.a, ur)}&#xFD3F;</i></span> `;
+    html += `<span class="tp-a" data-abs="${x}">${t} <i class="tp-n" dir="ltr">&#xFD3E;${trpDigits(r.a, ur)}&#xFD3F;</i></span> `;
   });
   html += '</p>';
   if(lang === 'rom') html += `<div class="tp-note">${L({rur:'Hindi tarjuma ko Roman mein khud-ba-khud badla gaya hai, spelling mein thodi kami ho sakti hai.', en:'The Hindi translation is converted to Roman letters automatically, so some spellings may be imperfect.'})}</div>`;
-  el.innerHTML = top + bar + `<div class="tp-text">${html}</div>`;
-  wireBar(el);
-  el.querySelector('.tp-text').onclick = e=>{ const a = e.target.closest('.tp-a'); if(a) qaPlayFrom(+a.dataset.abs); };
+  sc.innerHTML = `<div class="tp-text">${html}</div>`;
+  sc.scrollTop = 0;
   trpSync(true);
 }
-function wireBar(el){
-  const langs = el.querySelector('.tp-langs'), sz = el.querySelector('.tp-sz');
-  if(langs) langs.onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.quranTr = b.dataset.l; saveState(); trpFill(state.quranPage); };
-  if(sz) sz.onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.trpSize = Math.max(0, Math.min(TRP_SIZES.length - 1, trpSizeIdx() + (+b.dataset.z))); saveState(); trpFill(state.quranPage); };
+/* a line of the Arabic page was tapped: mark that ayah in the panel */
+function trpFocus(abs){
+  const sc = document.getElementById('tpScroll'); if(!sc) return;
+  sc.querySelectorAll('.tp-a.tap').forEach(n=>n.classList.remove('tap'));
+  const a = sc.querySelector(`.tp-a[data-abs="${abs}"]`); if(!a) return;
+  a.classList.add('tap'); trpScrollTo(a, false);
 }
-/* mark the ayah being recited and keep it in view above the player */
+function trpScrollTo(a, instant){
+  const sc = document.getElementById('tpScroll'); if(!sc) return;
+  const br = sc.getBoundingClientRect(), rects = a.getClientRects(); if(!rects.length) return;
+  const top = rects[0].top, bot = rects[rects.length - 1].bottom, h = bot - top;
+  const want = h > br.height * .7 ? top - br.top - br.height * .12 : (top + bot) / 2 - br.top - br.height / 2;
+  sc.scrollTo({ top: Math.max(0, sc.scrollTop + want), behavior: instant ? 'auto' : 'smooth' });
+}
+/* keep the line being recited visible above the panel */
+function trpKeepArabic(instant){
+  const el = document.getElementById('tpPanel'), body = document.getElementById('detailBody'), hl = document.querySelector('#quranWrap .qhl');
+  if(!el || !el.classList.contains('show') || !body || !hl || !qa.on) return;
+  const r = hl.getBoundingClientRect(), br = body.getBoundingClientRect(), lo = br.top + 6, hi = el.getBoundingClientRect().top - 8;
+  if(r.top >= lo && r.bottom <= hi) return;
+  const mid = r.top + r.height / 2 - (lo + (hi - lo) / 2);
+  body.scrollTo({ top: Math.max(0, body.scrollTop + mid), behavior: instant ? 'auto' : 'smooth' });
+}
+/* mark the ayah being recited and keep it in view */
 function trpSync(force){
-  const el = document.getElementById('trPage'); if(!el) return;
-  el.querySelectorAll('.tp-a.cur').forEach(n=>n.classList.remove('cur'));
-  const cur = qa.on ? el.querySelector(`.tp-a[data-abs="${qa.abs}"]`) : null;
+  const sc = document.getElementById('tpScroll'); if(!sc || !document.getElementById('tpPanel').classList.contains('show')) return;
+  sc.querySelectorAll('.tp-a.cur').forEach(n=>n.classList.remove('cur'));
+  const cur = qa.on ? sc.querySelector(`.tp-a[data-abs="${qa.abs}"]`) : null;
   if(!cur){ trpSync._a = 0; return; }
-  cur.classList.add('cur');
+  cur.classList.add('cur'); sc.querySelectorAll('.tp-a.tap').forEach(n=>n.classList.remove('tap'));
   if(trpSync._a === qa.abs && !force) return;
   trpSync._a = qa.abs;
-  const body = document.getElementById('detailBody'), q = document.getElementById('qPlayer');
-  if(!body) return;
-  const br = body.getBoundingClientRect(), qh = q && q.classList.contains('show') ? q.offsetHeight + 12 : 0, vis = br.height - qh;
-  const rects = cur.getClientRects(); if(!rects.length) return;
-  const top = rects[0].top, bot = rects[rects.length - 1].bottom, h = bot - top;
-  const want = h > vis * .7 ? top - br.top - vis * .15 : (top + bot) / 2 - br.top - vis / 2;   /* long ayah: start near the top, else centre it */
-  body.scrollTo({ top: Math.max(0, body.scrollTop + want), behavior: force ? 'auto' : 'smooth' });
+  trpScrollTo(cur, force);
+  trpKeepArabic(force);
 }
+(function(){
+  const ov = document.getElementById('detailOverlay');
+  if(ov) new MutationObserver(()=>{ if(!ov.classList.contains('active')) trpHide(); else trpPlace(); }).observe(ov, { attributes:true, attributeFilter:['class'] });
+  const body = document.getElementById('detailBody');
+  if(body) new MutationObserver(()=>{ if(!document.getElementById('quranWrap')) trpHide(); }).observe(body, { childList:true });
+  window.addEventListener('resize', ()=>{ const el = document.getElementById('tpPanel'); if(el && el.classList.contains('show')){ trpSetH(innerHeight * (state.trpH || .46), false); trpPlace(); } });
+})();
