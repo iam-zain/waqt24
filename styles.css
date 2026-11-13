@@ -1726,3 +1726,15 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .qibla-off.ok{ color:var(--green); }
 #qiblaDial circle:first-child{ transition:stroke .2s, fill .2s; }
 #qiblaDial.aligned circle:first-child{ stroke:var(--green); stroke-width:5; }
+
+/* Khatm planner */
+.kp{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); }
+.kp-title{ font-weight:700; font-size:13.5px; margin-bottom:4px; }
+.kp-chips{ display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+.kp-chip{ font:inherit; font-size:12px; padding:5px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; }
+.kp-chip.on{ background:var(--accent); color:var(--fardText); border-color:var(--accent); }
+.kp-custom{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--sub); }
+.kp-custom input{ width:72px; padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; }
+.kp-custom button, .kp-clear{ font:inherit; font-size:12.5px; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; }
+.kp-clear{ margin-top:8px; }
+.kp-ok{ color:var(--green); font-weight:700; } .kp-bad{ color:var(--red); font-weight:700; }

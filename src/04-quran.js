@@ -83,7 +83,7 @@ function quranLastPage(){ return (state.quranPage>=1 && state.quranPage<=QURAN_P
    ============================================================ */
 let quranReadTimer = null;
 const KHATM_FIRST = 2, KHATM_LAST = 611, KHATM_PAGES = KHATM_LAST - KHATM_FIRST + 1;
-function tilawatTarget(){ return Math.max(1, Math.min(40, state.tilawatTarget || 2)); }
+function tilawatTarget(){ return Math.max(1, Math.min(120, state.tilawatTarget || 2)); }
 function tilawatCount(d){ const k = dayKey(d||new Date()); return ((state.qread||{})[k] || []).length + ((state.qmanual||{})[k] || 0); }
 /* Pages read from a printed Qur'an (or anywhere outside the app), entered by hand */
 function addManualPages(n){
@@ -118,6 +118,38 @@ function khatmInfo(){
   const eta = pace > 0 && left > 0 ? new Date(Date.now() + Math.ceil(left / pace) * 86400000) : null;
   return { read, left, pct: Math.min(100, Math.round(read / KHATM_PAGES * 100)), pace, eta, days, done: k.done || 0 };
 }
+/* Khatm plan: finish in N days (preset or custom). Expected pages by today vs pages read; sets the daily reading target. */
+function khatmPlanInfo(){
+  const k = khatmState(), pl = k.plan; if(!pl || !pl.days) return null;
+  const read = khatmInfo().read, N = pl.days;
+  const dayNo = Math.min(N, Math.max(1, Math.floor((Date.now() - pl.start) / 86400000) + 1));
+  const perDay = Math.ceil(KHATM_PAGES / N);
+  const expected = Math.min(KHATM_PAGES, Math.ceil(KHATM_PAGES * dayNo / N)), before = Math.ceil(KHATM_PAGES * (dayNo - 1) / N); // pages due by end of today / by end of yesterday
+  const end = new Date(pl.start + N * 86400000 - 86400000);
+  return { N, dayNo, perDay, expected, before, read, diff: read - expected, behind: Math.max(0, before - read), end, over: Date.now() > pl.start + N * 86400000 && read < KHATM_PAGES, left: KHATM_PAGES - read, daysLeft: Math.max(1, N - dayNo + 1) };
+}
+function khatmSetPlan(days){
+  days = Math.max(1, Math.min(730, Math.round(days) || 0)); if(!days) return;
+  khatmState().plan = { days, start: new Date().setHours(0, 0, 0, 0) };
+  state.tilawatTarget = Math.min(120, Math.ceil(KHATM_PAGES / days));
+  saveState();
+}
+function khatmPlanHtml(){
+  const pi = khatmPlanInfo();
+  const presets = [7, 15, 30, 40, 60, 90, 180, 365];
+  const chips = `<div class="kp-chips">${presets.map(d=>`<button type="button" class="kp-chip${pi && pi.N === d ? ' on' : ''}" data-kp="${d}">${d} ${L({rur:'din', en:'days'})}</button>`).join('')}</div>
+    <div class="kp-custom"><span>${L({rur:'Apne din:', en:'Custom days:'})}</span><input type="number" id="kpDays" min="1" max="730" inputmode="numeric" placeholder="45" value="${pi && presets.indexOf(pi.N) < 0 ? pi.N : ''}"><button type="button" id="kpSet">${L({rur:'Plan banayein', en:'Set plan'})}</button></div>`;
+  if(!pi) return `<div class="kp"><div class="kp-title">🗓️ ${L({rur:'Khatm ka plan', en:'Khatm planner'})}</div><div class="tl-sub">${L({rur:'Kitne din mein Khatm karna hai? Rozana ke page khud ban jayenge.', en:'How many days to finish? Daily pages are worked out for you.'})}</div>${chips}</div>`;
+  const ahead = pi.behind > 0 ? `<span class="kp-bad">${pi.behind} ${L({rur:'page peeche', en:'pages behind'})}</span>`
+    : pi.diff >= 0 ? `<span class="kp-ok">${pi.diff > 0 ? '+' + pi.diff + ' ' + L({rur:'page aage', en:'pages ahead'}) : L({rur:'Aaj ka hissa poora ✓', en:'Today\u2019s part done ✓'})}</span>`
+    : `<span class="kp-ok">${L({rur:'Waqt par', en:'On track'})}</span> · ${L({rur:'aaj ke', en:'today:'})} ${-pi.diff} ${L({rur:'page baaki', en:'pages to go'})}`;
+  const catchUp = pi.behind > 0 && pi.left > 0 ? `<div class="tl-sub">${L({rur:'Barabar hone ke liye ab rozana', en:'To catch up, read'})} <b>${Math.ceil(pi.left / pi.daysLeft)}</b> ${L({rur:'page padhein', en:'pages a day now'})}</div>` : '';
+  return `<div class="kp"><div class="kp-title">🗓️ ${L({rur:'Khatm ka plan', en:'Khatm planner'})}: ${pi.N} ${L({rur:'din', en:'days'})} <span class="tl-sub">(${L({rur:'din', en:'day'})} ${pi.dayNo}/${pi.N})</span></div>
+    <div class="tl-sub">${L({rur:'Rozana', en:'Daily'})} <b>${pi.perDay}</b> ${L({rur:'page', en:'pages'})} · ${L({rur:'Aaj ke aakhir tak', en:'By end of today'})} ${pi.expected} ${L({rur:'page', en:'pages'})}, ${L({rur:'aapne', en:'you read'})} ${pi.read} · ${ahead}</div>
+    ${catchUp}${pi.over ? `<div class="tl-sub kp-bad">${L({rur:'Plan ke din poore ho gaye; naya plan banayein ya jaari rakhein.', en:'Plan days are over; set a new plan or keep reading.'})}</div>` : ''}
+    <div class="tl-sub">${L({rur:'Aakhri din', en:'Finish date'})}: ${pi.end.getDate()} ${MON[pi.end.getMonth()]} ${pi.end.getFullYear()}</div>
+    ${chips}<button type="button" class="kp-clear" id="kpClear">${L({rur:'Plan hatayein', en:'Remove plan'})}</button></div>`;
+}
 function tilawatCardsHtml(){
   const n = tilawatCount(), t = tilawatTarget(), kh = khatmInfo();
   const etaTxt = kh.left <= 0 ? L({rur:'Khatm mukammal! Mashallah', en:'Khatm complete! Mashallah'})
@@ -133,17 +165,23 @@ function tilawatCardsHtml(){
       <div class="tl-head"><b>🏁 ${L({rur:'Khatm', en:'Khatm'})}${kh.done ? ` <span class="tl-sub">(${kh.done} ${L({rur:'mukammal', en:'completed'})})</span>` : ''}</b><span class="tl-count">${kh.pct}%</span></div>
       <div class="tl-bar"><i style="width:${kh.pct}%"></i></div>
       <div class="tl-sub">${kh.read} / ${KHATM_PAGES} ${L({rur:'page', en:'pages'})} · ${kh.pace.toFixed(1)} ${L({rur:'page rozana', en:'pages a day'})} · ${etaTxt}</div>
+      ${khatmPlanHtml()}
       <button class="quran-tool" id="khatmNew" style="margin-top:8px;">${L({rur:'Naya Khatm shuru karein', en:'Start a new Khatm'})}</button>
     </div>`;
 }
 function wireTilawatCards(rerender){
   const t = tilawatTarget();
   document.getElementById('tlMinus').onclick = ()=>{ state.tilawatTarget = Math.max(1, t-1); saveState(); rerender(); };
-  document.getElementById('tlPlus').onclick = ()=>{ state.tilawatTarget = Math.min(40, t+1); saveState(); rerender(); };
+  document.getElementById('tlPlus').onclick = ()=>{ state.tilawatTarget = Math.min(120, t+1); saveState(); rerender(); };
   document.getElementById('tlManPlus').onclick = ()=>{ addManualPages(1); rerender(); };
   document.getElementById('tlManMinus').onclick = ()=>{ addManualPages(-1); rerender(); };
   const done = document.getElementById('tlDone');
   if(done) done.onclick = ()=>{ addManualPages(Math.max(0, tilawatTarget() - tilawatCount())); rerender(); };
+  document.querySelectorAll('.kp-chip').forEach(b=>{ b.onclick = ()=>{ khatmSetPlan(+b.dataset.kp); rerender(); showToast(L({rur:'Plan ban gaya: rozana ' + Math.ceil(KHATM_PAGES / +b.dataset.kp) + ' page', en:'Plan set: ' + Math.ceil(KHATM_PAGES / +b.dataset.kp) + ' pages a day'})); }; });
+  const kpSet = document.getElementById('kpSet');
+  if(kpSet) kpSet.onclick = ()=>{ const v = parseInt(document.getElementById('kpDays').value); if(!(v >= 1)) return showToast(L({rur:'Din likhein (1 se 730)', en:'Enter days (1 to 730)'})); khatmSetPlan(v); rerender(); showToast(L({rur:'Plan ban gaya: rozana ' + Math.ceil(KHATM_PAGES / v) + ' page', en:'Plan set: ' + Math.ceil(KHATM_PAGES / v) + ' pages a day'})); };
+  const kpClear = document.getElementById('kpClear');
+  if(kpClear) kpClear.onclick = ()=>{ delete khatmState().plan; saveState(); rerender(); };
   document.getElementById('khatmNew').onclick = async ()=>{
     const kh = khatmInfo();
     if(!(await appConfirm(L({rur:'Naya Khatm shuru karein? Abhi ka hisaab (' + kh.read + ' page) saaf ho jayega.', en:'Start a new Khatm? The current count (' + kh.read + ' pages) will be cleared.'})))) return;
