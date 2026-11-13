@@ -8287,3 +8287,13 @@ setTimeout(()=> startTour(false), 20000);
   const t = state.startTab; if(!t || t === 'home') return;
   const b = document.querySelector(`.tab-btn[data-tab="${t}"]`); if(b) setTimeout(()=> b.click(), 0);
 })();
+
+/* cold-start safety: some phones paint the tab bar and lists late until the first touch; re-lay-out and re-promote the bar a few times right after launch and whenever the app comes back to the front */
+function paintNudge(){
+  const tb = document.getElementById('tabbar'); if(!tb) return;
+  void document.body.offsetHeight; tb.style.willChange = 'transform';
+  requestAnimationFrame(()=> requestAnimationFrame(()=>{ tb.style.willChange = ''; }));
+}
+[100, 400, 1000, 2500].forEach(t=> setTimeout(paintNudge, t));
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) paintNudge(); });
+window.addEventListener('pageshow', paintNudge);
