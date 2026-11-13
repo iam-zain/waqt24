@@ -7536,8 +7536,8 @@ navWrap('renderMasjid', 0);
    page stays visible above it. The ayahs of the open page run on as continuous text with ayah numbers on ruled lines; the ayah
    being recited is highlighted and kept in view, and the Arabic page scrolls so the recited line is never hidden behind the panel.
    Languages: Hinglish, اردو (Nastaliq), हिन्दी, English. Uses the same translation data as the Tarjuma sheet. */
-const TRP_SIZES = [17, 20, 23, 27];
-const trpSizeIdx = ()=> (state.trpSize >= 0 && state.trpSize < TRP_SIZES.length) ? state.trpSize : 1;
+const TRP_SIZES = [11, 12, 13, 14, 15, 17, 20, 23, 27];   /* px of the Latin / Devanagari text; Urdu is drawn 7px larger */
+const trpSizeIdx = ()=>{ const i = TRP_SIZES.indexOf(state.trpPx); return i >= 0 ? i : 6; };   /* default 20px */
 const trpDigits = (n, ur)=> ur ? String(n).replace(/\d/g, d=>'٠١٢٣٤٥٦٧٨٩'[d]) : String(n);
 const trpMsg = ()=> L({rur:'Load ho raha hai…', en:'Loading…'});
 const trpFree = ()=> typeof state.trpTop === 'number';
@@ -7632,7 +7632,7 @@ function trpHead(page, lang){
     <div class="tp-tools"><div class="tp-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div><div class="tp-sz"><button type="button" data-z="-1" aria-label="Smaller text">A−</button><button type="button" data-z="1" aria-label="Bigger text">A+</button></div></div>`;
   head.querySelector('.tp-x').onclick = ()=>{ state.quranTrPage = false; saveState(); trpHide(); const b = document.getElementById('quranTpBtn'); if(b) b.classList.remove('on'); };
   head.querySelector('.tp-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.quranTr = b.dataset.l; saveState(); trpFill(state.quranPage); };
-  head.querySelector('.tp-sz').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.trpSize = Math.max(0, Math.min(TRP_SIZES.length - 1, trpSizeIdx() + (+b.dataset.z))); saveState(); trpSizeApply(); };
+  head.querySelector('.tp-sz').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.trpPx = TRP_SIZES[Math.max(0, Math.min(TRP_SIZES.length - 1, trpSizeIdx() + (+b.dataset.z)))]; saveState(); trpSizeApply(); };
 }
 /* the header follows what is at the top of the scroll: its page, para and surah */
 function trpHeadUpdate(){
