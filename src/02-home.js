@@ -63,7 +63,7 @@ function renderMissedBar(viewDate, isToday, sched, now){
     }
     saveState(); renderHome(); if(typeof updateQazaBadge === 'function') updateQazaBadge();
   };
-  document.getElementById('timesList').before(bar);
+  document.getElementById('timesList').prepend(bar);
 }
 function renderHome(){
   const now = new Date();
@@ -82,6 +82,7 @@ function renderHome(){
 
   const sched = buildSchedule(viewDate);
   const listEl = document.getElementById('timesList');
+  const dcNode = document.getElementById('dailyCard'); if(dcNode && dcNode.parentElement === listEl) listEl.removeChild(dcNode);   // keep the daily card through the redraw
   listEl.innerHTML = '';
   listEl.classList.toggle('namaz-mode', state.namazMode);
 
@@ -212,6 +213,7 @@ function renderHome(){
     listEl.appendChild(row);
   });
 
+  if(dcNode) listEl.appendChild(dcNode);   // the daily card is the last item of the scrolling list, so it can never squeeze the prayer rows
   if(isToday){
     const liveKey = (isIftarActive && 'iftar') || (isGhurubActive && 'ghurub') || (currentIdx>=0 && sched[currentIdx].key) || null;
     if(liveKey && liveKey !== lastLiveKey){

@@ -28,7 +28,7 @@ function renderRamzanBar(){
   const list = document.getElementById('timesList'); if(!list) return;
   const bar = old || document.createElement('div');
   bar.id = 'ramzanBar'; bar.className = 'rz-bar'; bar.innerHTML = ramzanLiveHtml();
-  if(!old) list.before(bar);
+  if(!old) list.prepend(bar);
   document.getElementById('rzBarRoza').onclick = ()=>{ const k = dayKey(new Date()); state.roza[k] = !state.roza[k]; saveState(); renderRamzanBar(); };
 }
 function ramzanBarTick(){

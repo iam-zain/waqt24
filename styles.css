@@ -1904,3 +1904,17 @@ body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yello
 .disp-start-row button span{ font-size:20px; line-height:1.1; }
 .disp-start-row button.on{ background:var(--accent); border-color:var(--accent); color:var(--onAccent); font-weight:700; }
 .mb-tog{ white-space:nowrap; } .missed-bar .mb-head b{ flex:1; min-width:0; } .missed-bar .mb-head span{ flex:0 0 auto; gap:2px; }
+
+/* Daily card: the same size for Du'a and Hadees; long text scrolls inside, buttons stay in view */
+.daily-card{ display:flex; flex-direction:column; }
+.dc-body{ height:clamp(200px, 31vh, 260px); overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; display:flex; flex-direction:column; padding:2px 2px 8px; scrollbar-width:thin;
+  background:linear-gradient(var(--card) 30%, transparent), linear-gradient(transparent, var(--card) 70%) 0 100%, radial-gradient(farthest-side at 50% 0, color-mix(in srgb, var(--accent) 22%, transparent), transparent), radial-gradient(farthest-side at 50% 100%, color-mix(in srgb, var(--accent) 22%, transparent), transparent) 0 100%;
+  background-repeat:no-repeat; background-size:100% 26px, 100% 26px, 100% 10px, 100% 10px; background-attachment:local, local, scroll, scroll; }
+.dc-body > :first-child{ margin-top:auto; } .dc-body > :last-child{ margin-bottom:auto; }   /* short text sits in the middle */
+.dc-h{ font-size:15.5px; line-height:1.75; text-align:center; }
+.dc-dots{ display:flex; gap:6px; justify-content:center; margin:6px 0 2px; } .dc-dots i{ width:6px; height:6px; border-radius:50%; background:color-mix(in srgb, var(--accent) 30%, var(--line)); transition:width .25s, background .25s; } .dc-dots i.on{ width:18px; border-radius:4px; background:var(--accent); }
+.dc-btns{ margin-top:6px; }
+.dc-body{ flex:0 0 auto; } .daily-card{ flex-shrink:0; }
+/* banners and the daily card live inside the scrolling list now */
+.times-list > .missed-bar, .times-list > .rz-bar{ margin:2px 0 2px 0; flex:0 0 auto; }
+.times-list > .daily-card{ margin:10px 0 18px 0; flex:0 0 auto; }
