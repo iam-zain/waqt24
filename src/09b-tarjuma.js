@@ -52,16 +52,19 @@ function devaToRoman(text){
   out = out.replace(/(^|[.?!]\s+)([a-z])/g, (m, a, b)=>a + b.toUpperCase()).replace(/\ballah/g, 'Allah').replace(/\bmuhammad\b/gi, 'Muhammad');
   return out;
 }
+/* ayahs where the Hindi edition's wording is odd ("aibjoo"): Hindi + Hinglish follow the Urdu (Jalandhry) text instead */
+const TR_OVR = { '68:10': { hi:'और किसी ऐसे शख़्स के कहने में न आ जाना जो बहुत क़समें खाने वाला, ज़लील औक़ात है', rom:'Aur kisi aise shakhs ke kahne mein na aa jana jo bahut qasmein khane wala, zaleel auqat hai' } };
+const trOvr = (s, a, lang)=>{ const o = TR_OVR[s + ':' + a.numberInSurah]; return o && o[lang] || null; };
 const TR_MEM = {};
 const trLang = ()=> (TR_LANGS.find(l=>l.k === state.quranTr) || TR_LANGS.find(l=>l.k === (state.lang === 'en' ? 'en' : 'rom'))).k;
 async function trLoad(s, lang){
   const key = lang + s; if(TR_MEM[key]) return TR_MEM[key];
   const def = TR_LANGS.find(l=>l.k === lang), conv = def.conv === 'roman' ? devaToRoman : (x=>x);
   const url = `https://api.alquran.cloud/v1/surah/${s}/${def.ed}`;
-  let cache = null; try{ cache = await caches.open('waqt24-tr-v1'); const hit = await cache.match(url); if(hit){ const j = await hit.json(); return TR_MEM[key] = j.data.ayahs.map(a=>conv(a.text)); } }catch(e){}
+  let cache = null; try{ cache = await caches.open('waqt24-tr-v1'); const hit = await cache.match(url); if(hit){ const j = await hit.json(); return TR_MEM[key] = j.data.ayahs.map(a=>trOvr(s, a, lang) || conv(a.text)); } }catch(e){}
   const res = await fetch(url); if(!res.ok) throw new Error('tr ' + res.status);
   try{ if(cache) cache.put(url, res.clone()); }catch(e){}
-  const j = await res.json(); return TR_MEM[key] = j.data.ayahs.map(a=>conv(a.text));
+  const j = await res.json(); return TR_MEM[key] = j.data.ayahs.map(a=>trOvr(s, a, lang) || conv(a.text));
 }
 function trPageAyahs(page){ const f = QA_PAGE_FIRST[page-1], nx = QA_PAGE_FIRST[page] || (QA_TOTAL + 1), out = []; for(let x = f; x < nx; x++) out.push(x); return out; }
 /* tap on a line of the page -> the ayah on that line */
