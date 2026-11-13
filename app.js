@@ -805,6 +805,7 @@ function renderHome(){
 
   renderMissedBar(viewDate, isToday, sched, now);
   if(typeof renderDailyCard === 'function') renderDailyCard();
+  if(typeof renderRamzanBar === 'function') renderRamzanBar();
   let currentIdx = -1, currentStart = null;
   if(isToday){
     for(let i=0;i<sched.length;i++){
@@ -1212,6 +1213,10 @@ function scheduleNotifications(force){
       }catch(e){}
     }, delay);
     notifTimers.push(id);
+  });
+  if(typeof ramzanReminders === 'function') ramzanReminders(operatingDate(now)).forEach(r=>{
+    const delay = r.at - now; if(delay <= 0 || delay > 24*3600000) return;
+    notifTimers.push(setTimeout(()=>{ try{ showNotif(r.title, { body:r.body, icon:'icons/icon-192.png', tag:'waqt24-' + r.key }); }catch(e){} }, delay));
   });
   const iq = iqamahState();
   if(iq.on && iq.remind > 0){
@@ -4611,6 +4616,7 @@ function renderMoreRamzan(){
   const live = gregorianToHijri(new Date()).month===9;
   document.getElementById('detailBody').innerHTML = `
     ${live ? '' : `<div class="backup-note" style="margin-bottom:12px;">🌙 Abhi Ramzan nahi hai, yeh sirf jhalak hai. Ramzan mein yahan roza aur namaz mark kar sakenge.</div>`}
+    ${live ? ramzanScreenTopHtml() : ''}
     <div class="${live ? '' : 'ramzan-locked'}">
     <div class="section-title" style="margin-top:0;">Aaj ka Roza</div>
     <div class="ramzan-card" style="margin:0 0 14px;">
@@ -4625,6 +4631,7 @@ function renderMoreRamzan(){
     <div id="ramzanCal"></div>
   `;
   renderRamzan();
+  if(live) wireRamzanScreenTop();
   renderRamzanCalendar();
 }
 let rzView = 'grid', rzSel = null;
@@ -8009,6 +8016,74 @@ function renderDailyCard(){
   };
 }
 renderDailyCard();
+/* ============================================================
+   RAMZAN MODE: while it is Ramzan, a bar on Home counts down to Sehri end / Iftar and shows the roza count with a one-tap Roza switch.
+   The Ramzan screen gets the same live card plus two optional reminders (Sehri, Taraweeh).
+   ============================================================ */
+function isRamzanNow(d){ return gregorianToHijri(d || new Date()).month === 9; }
+/* what is next: Sehri ends (at Fajr) -> Iftar (Maghrib) -> tomorrow's Sehri */
+function ramzanNext(now){
+  const find = (d, k)=> buildSchedule(d).find(x=>x.key === k);
+  const today = find(now, 'sehri'), iftar = find(now, 'iftar');
+  if(today && now < today.end) return { kind:'sehri', at:today.end, label:L({rur:'Sehri ka waqt khatam hone mein', en:'Sehri ends in'}), ic:'🍽️' };
+  if(iftar && now < iftar.start) return { kind:'iftar', at:iftar.start, label:L({rur:'Iftar mein', en:'Iftar in'}), ic:'🌅' };
+  const tm = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 12), nt = find(tm, 'sehri');
+  return { kind:'sehri', at:nt.end, label:L({rur:'Kal Sehri ka waqt khatam hone mein', en:'Tomorrow Sehri ends in'}), ic:'🍽️' };
+}
+/* roza kept so far in this Ramzan (state.roza is keyed by day) */
+function ramzanRozaCount(now){
+  const hd = gregorianToHijri(now), first = hijriToGregorian(1, 9, hd.year); let n = 0;
+  for(let d = new Date(first); d <= now; d.setDate(d.getDate() + 1)) if(state.roza[dayKey(d)]) n++;
+  return { kept:n, day:hd.day };
+}
+function ramzanLiveHtml(){
+  const now = new Date(), nx = ramzanNext(now), rc = ramzanRozaCount(now), on = !!state.roza[dayKey(now)];
+  return `<span class="rz-ic">${nx.ic}</span><span class="rz-txt"><b class="rz-cd" data-at="${nx.at.getTime()}">${nx.label} ${fmtRemain(nx.at - now)}</b><small>${L({rur:'Ramzan', en:'Ramadan'})} ${rc.day} · ${L({rur:'Roze', en:'Roza'})} ${rc.kept}</small></span><button type="button" class="rz-roza${on ? ' on' : ''}" id="rzBarRoza">${on ? '✓ ' + L({rur:'Roza rakha', en:'Fasting'}) : L({rur:'Roza rakha?', en:'Fasting?'})}</button>`;
+}
+function renderRamzanBar(){
+  const old = document.getElementById('ramzanBar');
+  if(!isRamzanNow()){ if(old) old.remove(); return; }
+  const list = document.getElementById('timesList'); if(!list) return;
+  const bar = old || document.createElement('div');
+  bar.id = 'ramzanBar'; bar.className = 'rz-bar'; bar.innerHTML = ramzanLiveHtml();
+  if(!old) list.before(bar);
+  document.getElementById('rzBarRoza').onclick = ()=>{ const k = dayKey(new Date()); state.roza[k] = !state.roza[k]; saveState(); renderRamzanBar(); };
+}
+function ramzanBarTick(){
+  document.querySelectorAll('.rz-cd[data-at]').forEach(el=>{
+    const at = +el.dataset.at; if(Date.now() >= at){ renderRamzanBar(); const c = document.getElementById('rzNowCard'); if(c) c.innerHTML = ramzanLiveHtml(); return; }
+    const t = el.textContent.replace(/ \d.*$/, '') + ' ' + fmtRemain(at - Date.now()); if(el.textContent !== t) el.textContent = t;
+  });
+}
+setInterval(ramzanBarTick, 5000);
+/* reminders for a given day: Sehri (30 min before it ends) and Taraweeh (20 min after Isha starts) */
+function ramzanReminders(day){
+  if(!isRamzanNow(day)) return [];
+  const out = [], sch = buildSchedule(day), n = state.notif || {};
+  const sehri = sch.find(x=>x.key === 'sehri'), isha = sch.find(x=>x.key === 'isha');
+  if(n.rzSehri && sehri) out.push({ at:new Date(sehri.end.getTime() - 30 * 60000), title:'🍽️ ' + L({rur:'Sehri ka waqt khatam hone wala hai', en:'Sehri is about to end'}), body:L({rur:'30 minute baaqi hain.', en:'30 minutes left.'}), key:'rzs' + dayKey(day) });
+  if(n.rzTaraweeh && isha) out.push({ at:new Date(isha.start.getTime() + 20 * 60000), title:'🌙 ' + L({rur:'Taraaweeh ka waqt', en:'Time for Taraweeh'}), body:L({rur:'Isha ke baad Taraaweeh padh lein.', en:'Pray Taraweeh after Isha.'}), key:'rzt' + dayKey(day) });
+  return out;
+}
+/* toggles + live card, drawn at the top of the Ramzan screen */
+function ramzanScreenTopHtml(){
+  const n = state.notif || {};
+  return `<div class="rz-bar rz-card" id="rzNowCard">${ramzanLiveHtml()}</div>
+    <div class="rz-opts">
+      <div class="tasbeeh-sound-toggle">🍽️ ${L({rur:'Sehri ka reminder (30 min pehle)', en:'Sehri reminder (30 min before)'})}<div class="roza-mini ${n.rzSehri ? 'on' : ''}" data-rzn="rzSehri"><div class="roza-mini-knob"></div></div></div>
+      <div class="tasbeeh-sound-toggle">🌙 ${L({rur:'Taraaweeh ka reminder', en:'Taraweeh reminder'})}<div class="roza-mini ${n.rzTaraweeh ? 'on' : ''}" data-rzn="rzTaraweeh"><div class="roza-mini-knob"></div></div></div>
+    </div>`;
+}
+function wireRamzanScreenTop(){
+  const roza = document.getElementById('rzBarRoza'); if(roza) roza.onclick = ()=>{ const k = dayKey(new Date()); state.roza[k] = !state.roza[k]; saveState(); document.getElementById('rzNowCard').innerHTML = ramzanLiveHtml(); wireRamzanScreenTop(); renderRamzan(); };
+  document.querySelectorAll('[data-rzn]').forEach(b=>{
+    b.onclick = async ()=>{
+      const k = b.dataset.rzn; state.notif[k] = !state.notif[k];
+      if(state.notif[k] && 'Notification' in window && Notification.permission === 'default'){ try{ await Notification.requestPermission(); }catch(e){} }
+      saveState(); b.classList.toggle('on', !!state.notif[k]); if(typeof scheduleNotifications === 'function') scheduleNotifications(true);
+    };
+  });
+}
 /* ===== Salutation after the name of Allah: "Allah ﷻ" everywhere =====
    Every text on screen is covered: the names, the Qur'an translations (Hinglish / English, Hindi अल्लाह, Urdu اللہ), the quiz and
    all other screens. It is applied to the text of the page as it appears or changes, so nothing needs editing one by one.
@@ -8062,6 +8137,10 @@ function nativePlan(now){
       if(isAz){ out.push({ at:p.start, title:(PRAYER_META[p.key] ? PRAYER_META[p.key].icon : '🕌') + ' ' + p.name + ' ki Azaan', body:p.name + ' ka waqt ho gaya hai.', key:dayKey(day) + p.key, azan:az.pick[p.key] }); return; }
       if(state.notif && state.notif[p.type]) out.push({ at:p.start, title:(PRAYER_META[p.key] ? PRAYER_META[p.key].icon : '🕐') + ' ' + p.name + ' ka waqt', body:p.name + ' ka waqt ho gaya hai.', key:dayKey(day) + p.key, azan:null });
     });
+  }
+  for(let d = 0; d < NATIVE_DAYS; d++){
+    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + d, 12, 0, 0);
+    ramzanReminders(day).forEach(r=>{ if(r.at > now) out.push({ at:r.at, title:r.title, body:r.body, key:r.key, azan:null }); });
   }
   return out.sort((a, b)=> a.at - b.at);
 }

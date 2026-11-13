@@ -81,6 +81,7 @@ function renderHome(){
 
   renderMissedBar(viewDate, isToday, sched, now);
   if(typeof renderDailyCard === 'function') renderDailyCard();
+  if(typeof renderRamzanBar === 'function') renderRamzanBar();
   let currentIdx = -1, currentStart = null;
   if(isToday){
     for(let i=0;i<sched.length;i++){
@@ -488,6 +489,10 @@ function scheduleNotifications(force){
       }catch(e){}
     }, delay);
     notifTimers.push(id);
+  });
+  if(typeof ramzanReminders === 'function') ramzanReminders(operatingDate(now)).forEach(r=>{
+    const delay = r.at - now; if(delay <= 0 || delay > 24*3600000) return;
+    notifTimers.push(setTimeout(()=>{ try{ showNotif(r.title, { body:r.body, icon:'icons/icon-192.png', tag:'waqt24-' + r.key }); }catch(e){} }, delay));
   });
   const iq = iqamahState();
   if(iq.on && iq.remind > 0){

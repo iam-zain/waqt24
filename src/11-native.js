@@ -25,6 +25,10 @@ function nativePlan(now){
       if(state.notif && state.notif[p.type]) out.push({ at:p.start, title:(PRAYER_META[p.key] ? PRAYER_META[p.key].icon : '🕐') + ' ' + p.name + ' ka waqt', body:p.name + ' ka waqt ho gaya hai.', key:dayKey(day) + p.key, azan:null });
     });
   }
+  for(let d = 0; d < NATIVE_DAYS; d++){
+    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + d, 12, 0, 0);
+    ramzanReminders(day).forEach(r=>{ if(r.at > now) out.push({ at:r.at, title:r.title, body:r.body, key:r.key, azan:null }); });
+  }
   return out.sort((a, b)=> a.at - b.at);
 }
 async function nativeSchedule(force){

@@ -1311,6 +1311,7 @@ function renderMoreRamzan(){
   const live = gregorianToHijri(new Date()).month===9;
   document.getElementById('detailBody').innerHTML = `
     ${live ? '' : `<div class="backup-note" style="margin-bottom:12px;">🌙 Abhi Ramzan nahi hai, yeh sirf jhalak hai. Ramzan mein yahan roza aur namaz mark kar sakenge.</div>`}
+    ${live ? ramzanScreenTopHtml() : ''}
     <div class="${live ? '' : 'ramzan-locked'}">
     <div class="section-title" style="margin-top:0;">Aaj ka Roza</div>
     <div class="ramzan-card" style="margin:0 0 14px;">
@@ -1325,6 +1326,7 @@ function renderMoreRamzan(){
     <div id="ramzanCal"></div>
   `;
   renderRamzan();
+  if(live) wireRamzanScreenTop();
   renderRamzanCalendar();
 }
 let rzView = 'grid', rzSel = null;
