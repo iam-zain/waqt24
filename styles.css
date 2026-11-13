@@ -1701,3 +1701,8 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 /* more air between lines; the rules are placed from the measured baseline by trpRules() */
 .tp-panel{ --tpl:calc(var(--tpz) * 2.35); }
 .tp-pb{ display:inline-block; width:0; height:0; vertical-align:baseline; }
+
+/* the small ayah-number badge must not make its line taller than the others */
+.tp-n{ line-height:1; vertical-align:baseline; }
+.tp-p[dir=rtl] .tp-n{ line-height:1; vertical-align:middle; }
+.tp-p, .tp-surah{ box-sizing:border-box; }

@@ -79,6 +79,12 @@ function trpSizeApply(){
    between the descenders of one line and the capitals / headline of the next. (Urdu keeps a hand-tuned offset in the stylesheet.) */
 function trpRules(){
   const sc = document.getElementById('tpScroll'); if(!sc) return;
+  const panel = document.getElementById('tpPanel');
+  /* whole-pixel line height everywhere, so the lines and the rules can never drift apart down the page */
+  sc.querySelectorAll('.tp-p').forEach(p=>{
+    const rtl = p.matches('[dir=rtl]'), z = parseFloat(getComputedStyle(panel).getPropertyValue(rtl ? '--tpu' : '--tpz'));
+    if(z) p.style.setProperty('--tpl', Math.round(z * (rtl ? 2.9 : 2.35)) + 'px');
+  });
   sc.querySelectorAll('.tp-p:not([dir=rtl])').forEach(p=>{
     let probe = p.querySelector('.tp-pb');
     if(!probe){ probe = document.createElement('i'); probe.className = 'tp-pb'; p.insertBefore(probe, p.firstChild); }
