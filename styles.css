@@ -1690,3 +1690,6 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 
 /* Urdu rules: halfway between the two extremes tried, so the text clears the rule above and below */
 .tp-p[dir=rtl]{ background-position:0 calc(var(--tpu) * .1); }
+
+/* Hinglish / Hindi / English: rules a little higher so each one sits midway between two lines */
+.tp-p:not([dir=rtl]){ background-position:0 calc(var(--tpz) * -.35); }
