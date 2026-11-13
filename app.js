@@ -7610,7 +7610,7 @@ function trpSizeApply(){
 async function trpBuild(pages, lang){
   const ur = lang === 'ur', ids = pages.flatMap(trPageAyahs), surahs = [...new Set(ids.map(x=>qaSurahAyah(x).s))];
   const data = await Promise.all(surahs.map(s=>trLoad(s, lang)));
-  const open = '<p class="tp-p"' + (ur ? ' dir="rtl" lang="ur"' : '') + '>';
+  const open = '<p class="tp-p"' + (ur ? ' dir="rtl" lang="ur"' : lang === 'hi' ? ' lang="hi"' : '') + '>';
   return pages.map(pg=>{
     const list = trPageAyahs(pg); if(!list.length) return '';
     let html = open;

@@ -1693,3 +1693,7 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 
 /* Hinglish / Hindi / English: rules a little higher so each one sits midway between two lines */
 .tp-p:not([dir=rtl]){ background-position:0 calc(var(--tpz) * -.35); }
+
+/* rules midway between lines, tuned per script (the shift scales with the text size) */
+.tp-p:not([dir=rtl]){ background-position:0 calc(var(--tpz) * -.55); }
+.tp-p[lang=hi]{ background-position:0 calc(var(--tpz) * -.42); }
