@@ -7605,6 +7605,22 @@ const trpHasPage = n => n >= 2 && n <= QA_PAGE_FIRST.length && trPageAyahs(n).le
 function trpSizeApply(){
   const el = document.getElementById('tpPanel'); if(!el) return;
   const z = TRP_SIZES[trpSizeIdx()]; el.style.setProperty('--tpz', z + 'px'); el.style.setProperty('--tpu', (z + 7) + 'px');
+  trpRules();
+}
+/* Ruled lines: put each rule exactly midway between two lines of text, whatever the font. The first baseline of every paragraph is
+   measured (a zero-size probe sits on it); a rule then goes at baseline + half a line - a quarter em, which is the middle of the gap
+   between the descenders of one line and the capitals / headline of the next. (Urdu keeps a hand-tuned offset in the stylesheet.) */
+function trpRules(){
+  const sc = document.getElementById('tpScroll'); if(!sc) return;
+  sc.querySelectorAll('.tp-p:not([dir=rtl])').forEach(p=>{
+    let probe = p.querySelector('.tp-pb');
+    if(!probe){ probe = document.createElement('i'); probe.className = 'tp-pb'; p.insertBefore(probe, p.firstChild); }
+    const cs = getComputedStyle(p), L = parseFloat(cs.lineHeight), fs = parseFloat(cs.fontSize);
+    if(!L || !fs) return;
+    const base = probe.getBoundingClientRect().bottom - p.getBoundingClientRect().top;
+    const rule = base + L / 2 - fs * .25;
+    p.style.backgroundPosition = '0 ' + (rule - L).toFixed(2) + 'px';
+  });
 }
 /* HTML of whole pages, in one language */
 async function trpBuild(pages, lang){
@@ -7660,7 +7676,7 @@ async function trpMore(dir){
     if(!document.getElementById('tpScroll') || trp.lang !== trLang()) return;
     if(dir < 0){ const h0 = sc.scrollHeight; box.insertAdjacentHTML('afterbegin', html); sc.scrollTop += sc.scrollHeight - h0; trp.from = n; }
     else { box.insertAdjacentHTML('beforeend', html); trp.to = n; }
-    trpMoreUI(); trpSync(true, true);
+    trpMoreUI(); trpRules(); trpSync(true, true);
   }catch(e){ showToast(L({rur:'Tarjuma load nahi hua. Internet check karein.', en:'Could not load the translation. Check your internet connection.'}), '!'); }
   finally{ trp.busy = false; }
 }
@@ -7689,7 +7705,7 @@ async function trpFill(page){
   }
   if(state.quranPage !== page || !state.quranTrPage) return;
   sc.innerHTML = `<div class="tp-text"><button type="button" class="tp-more up"></button><div class="tp-pages">${html}</div><button type="button" class="tp-more down"></button>${lang === 'rom' ? `<div class="tp-note">${L({rur:'Hindi tarjuma ko Roman mein khud-ba-khud badla gaya hai, spelling mein thodi kami ho sakti hai.', en:'The Hindi translation is converted to Roman letters automatically, so some spellings may be imperfect.'})}</div>` : ''}</div>`;
-  trpMoreUI();
+  trpMoreUI(); trpRules();
   const sec = sc.querySelector(`.tp-pg[data-page="${page}"]`); sc.scrollTop = inRange && sec ? Math.max(0, sec.offsetTop - sc.offsetTop - 4) : 0;
   trpHeadUpdate(); trpSync(true);
   if(trp.focus){ trpFocus(trp.focus); trp.focus = 0; }
@@ -7740,6 +7756,7 @@ function trpSync(force, quiet){
   trpSync._a = qa.abs;
   if(!quiet && (force || Date.now() - trp.touch > 8000)){ trpScrollTo(cur, force); trpKeepArabic(force); }   /* while someone is reading on their own, the recitation does not pull the scroll away */
 }
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>trpRules());
 (function(){
   const ov = document.getElementById('detailOverlay');
   if(ov) new MutationObserver(()=>{ if(!ov.classList.contains('active')) trpHide(); else trpPlace(); }).observe(ov, { attributes:true, attributeFilter:['class'] });

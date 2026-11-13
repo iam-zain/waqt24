@@ -1692,8 +1692,12 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tp-p[dir=rtl]{ background-position:0 calc(var(--tpu) * .1); }
 
 /* Hinglish / Hindi / English: rules a little higher so each one sits midway between two lines */
-.tp-p:not([dir=rtl]){ background-position:0 calc(var(--tpz) * -.35); }
+
 
 /* rules midway between lines, tuned per script (the shift scales with the text size) */
-.tp-p:not([dir=rtl]){ background-position:0 calc(var(--tpz) * -.55); }
-.tp-p[lang=hi]{ background-position:0 calc(var(--tpz) * -.42); }
+
+
+
+/* more air between lines; the rules are placed from the measured baseline by trpRules() */
+.tp-panel{ --tpl:calc(var(--tpz) * 2.35); }
+.tp-pb{ display:inline-block; width:0; height:0; vertical-align:baseline; }
