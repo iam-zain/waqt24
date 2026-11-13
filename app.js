@@ -5181,6 +5181,26 @@ const TASBEEH_TARGETS = [33, 34, 99, 100];
 const TASBEEH_COLORS = ['#3fae6a','#3a9bd9','#d4a72c','#c85a4a','#a074e0','#e0729a'];
 const TASBEEH_SHAPES = ['●','◆','■','★'];
 const TASBEEH_DESIGNS = [ {id:'tap', label:'🔘 Button'}, {id:'beadsH', label:'📿 Beads ↔'}, {id:'beadsV', label:'📿 Beads ↕'} ];
+/* Quick zikr presets: tap one to set the label and target and start from zero. Tasbeeh-e-Fatima runs 33 + 33 + 34 in a row. */
+const TASBEEH_PRESETS = [
+  { n:'SubhanAllah', ar:'سُبْحَانَ اللّٰهِ', t:33 }, { n:'Alhamdulillah', ar:'اَلْحَمْدُ لِلّٰهِ', t:33 }, { n:'Allahu Akbar', ar:'اللّٰهُ أَكْبَرُ', t:34 },
+  { n:'La ilaha illallah', ar:'لَا إِلٰهَ إِلَّا اللّٰهُ', t:100 }, { n:'Astaghfirullah', ar:'أَسْتَغْفِرُ اللّٰهَ', t:100 }, { n:'Durood Sharif', ar:'اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ', t:100 },
+];
+const TASBEEH_FATIMA = [0, 1, 2];
+function tasbeehLog(){ if(!state.tasbeeh.log) state.tasbeeh.log = {}; return state.tasbeeh.log; }
+function tasbeehHistoryHtml(){
+  const log = tasbeehLog(), days = [];
+  for(let i = 6; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); days.push({ d, n: log[dayKey(d)] || 0 }); }
+  const max = Math.max(1, ...days.map(x=>x.n)), total = days.reduce((a, x)=>a + x.n, 0);
+  return `<div class="ts-hist"><div class="ts-hist-head"><b>${L({rur:'Aaj', en:'Today'})}: ${days[6].n}</b><span>${L({rur:'7 din', en:'7 days'})}: ${total}</span></div><div class="ts-bars">${days.map(x=>`<div class="ts-bar"><i style="height:${Math.round(x.n / max * 100)}%"></i><small>${['S','M','T','W','T','F','S'][x.d.getDay()]}</small></div>`).join('')}</div></div>`;
+}
+function tasbeehApplyPreset(i){
+  const pr = TASBEEH_PRESETS[i], t = state.tasbeeh; t.label = pr.n; t.labelAr = pr.ar; t.target = pr.t; t.count = 0; t.seq = null; saveState(); renderTasbeeh();
+}
+function tasbeehStartFatima(){
+  const t = state.tasbeeh; t.seq = 0; const pr = TASBEEH_PRESETS[0]; t.label = pr.n; t.labelAr = pr.ar; t.target = 33; t.count = 0; saveState(); renderTasbeeh();
+  showToast(L({rur:'Tasbeeh-e-Fatima: 33 + 33 + 34', en:'Tasbeeh of Fatima: 33 + 33 + 34'}));
+}
 let tasbeehAudioCtx = null;
 function tasbeehBeep(){
   if(!state.tasbeeh.sound) return;
@@ -5200,8 +5220,17 @@ function tasbeehBeep(){
 function tasbeehTick(){
   const t = state.tasbeeh;
   t.count++;
+  const lg = tasbeehLog(), dk = dayKey(new Date()); lg[dk] = (lg[dk] || 0) + 1;
+  Object.keys(lg).forEach(x=>{ const [y, m, dd] = x.split('-').map(Number); if(Date.now() - new Date(y, m - 1, dd).getTime() > 120 * 86400000) delete lg[x]; });
   saveState();
-  if(navigator.vibrate) navigator.vibrate(t.count % t.target === 0 ? [40,40,80] : 15);
+  if(t.vibrate !== false && navigator.vibrate) navigator.vibrate(t.count % t.target === 0 ? [40,40,80] : 15);
+  if(t.seq !== null && t.seq !== undefined && t.count >= t.target){
+    const next = t.seq + 1;
+    setTimeout(()=>{
+      if(next >= TASBEEH_FATIMA.length){ t.seq = null; saveState(); showToast(L({rur:'Mashallah! Tasbeeh-e-Fatima mukammal 🎉', en:'Mashallah! Tasbeeh of Fatima complete 🎉'})); renderTasbeeh(); return; }
+      const pr = TASBEEH_PRESETS[TASBEEH_FATIMA[next]]; t.seq = next; t.label = pr.n; t.labelAr = pr.ar; t.target = pr.t; t.count = 0; saveState(); renderTasbeeh();
+    }, 650);
+  }
   tasbeehBeep();
   const countEl = document.querySelector('.tasbeeh-count');
   if(countEl){
@@ -5259,9 +5288,11 @@ function renderTasbeeh(){
     ? `<div class="beads-track v" id="beadsTrack" style="--tasbeehColor:${t.color};">${beadsHtml}</div><div class="beads-hint">Ungli se neeche se upar swipe karein 👆</div>`
     : `<button class="tasbeeh-tap" id="tasbeehTapBtn" style="--tasbeehColor:${t.color};"><span class="tasbeeh-tap-icon">${t.shape}</span>Dabaiye</button>`;
   document.getElementById('detailBody').innerHTML = `
+    ${t.label ? `<div class="ts-label"><div class="ts-label-ar" dir="rtl">${t.labelAr || ''}</div><div class="ts-label-n">${t.label}${t.seq != null ? ` · ${t.seq + 1}/3` : ''}</div></div>` : ''}
     <div class="tasbeeh-count" style="--tasbeehColor:${t.color};">${t.count}</div>
     <div class="tasbeeh-target">Target: ${t.target}</div>
     ${tapAreaHtml}
+    <div class="ts-presets" id="tsPresets">${TASBEEH_PRESETS.map((p, i)=>`<button type="button" class="ts-preset${t.label === p.n ? ' on' : ''}" data-pr="${i}">${p.n} · ${p.t}</button>`).join('')}<button type="button" class="ts-preset fatima${t.seq != null ? ' on' : ''}" id="tsFatima">📿 ${L({rur:'Tasbeeh-e-Fatima', en:'Fatima tasbeeh'})} 33·33·34</button></div>
     <div class="tasbeeh-design-row" id="tasbeehDesignRow">
       ${TASBEEH_DESIGNS.map(d=>`<button class="tasbeeh-design-btn ${t.design===d.id?'active':''}" data-design="${d.id}">${d.label}</button>`).join('')}
     </div>
@@ -5279,9 +5310,14 @@ function renderTasbeeh(){
       🔊 Awaaz
       <div class="roza-mini ${t.sound?'on':''}" id="tasbeehSoundBtn"><div class="roza-mini-knob"></div></div>
     </div>
+    <div class="tasbeeh-sound-toggle">
+      📳 ${L({rur:'Vibration', en:'Vibration'})}
+      <div class="roza-mini ${t.vibrate !== false ? 'on' : ''}" id="tasbeehVibBtn"><div class="roza-mini-knob"></div></div>
+    </div>
     <div class="tasbeeh-actions">
       <button id="tasbeehResetBtn">↺ Reset Karein</button>
     </div>
+    ${tasbeehHistoryHtml()}
 
     <div class="section-title" style="padding:22px 0 10px;">Zikr Profiles</div>
     <div id="zikrProfileList"></div>
@@ -5295,12 +5331,15 @@ function renderTasbeeh(){
     setupBeadsDrag(document.getElementById('beadsTrack'), t.design==='beadsH');
   }
   document.getElementById('tasbeehResetBtn').onclick = ()=>{ t.count = 0; saveState(); renderTasbeeh(); };
+  document.querySelectorAll('#tsPresets [data-pr]').forEach(b=>{ b.onclick = ()=> tasbeehApplyPreset(+b.dataset.pr); });
+  document.getElementById('tsFatima').onclick = tasbeehStartFatima;
+  document.getElementById('tasbeehVibBtn').onclick = ()=>{ t.vibrate = t.vibrate === false; saveState(); renderTasbeeh(); if(t.vibrate && navigator.vibrate) navigator.vibrate(30); };
   document.getElementById('tasbeehSoundBtn').onclick = ()=>{ t.sound = !t.sound; saveState(); renderTasbeeh(); };
   document.getElementById('tasbeehDesignRow').querySelectorAll('[data-design]').forEach(btn=>{
     btn.onclick = ()=>{ t.design = btn.dataset.design; saveState(); renderTasbeeh(); };
   });
   document.getElementById('tasbeehTargetRow').querySelectorAll('[data-target]').forEach(btn=>{
-    btn.onclick = ()=>{ t.target = parseInt(btn.dataset.target); saveState(); renderTasbeeh(); };
+    btn.onclick = ()=>{ t.target = parseInt(btn.dataset.target); t.seq = null; saveState(); renderTasbeeh(); };
   });
   document.getElementById('tasbeehCustomBtn').onclick = ()=>{
     const val = prompt('Custom target darj karein:', t.target);

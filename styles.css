@@ -1770,3 +1770,18 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .dc-ref{ font-size:11px; color:var(--sub); text-align:center; margin-top:6px; }
 .dc-btns{ display:flex; gap:8px; margin-top:10px; }
 .dc-btns button{ flex:1; font:inherit; font-size:12.5px; padding:8px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; }
+
+/* Tasbeeh presets, label, 7-day history */
+.ts-label{ text-align:center; margin-bottom:2px; }
+.ts-label-ar{ font-family:'Scheherazade New','Noto Naskh Arabic',serif; font-size:26px; line-height:1.7; }
+.ts-label-n{ font-size:12.5px; color:var(--sub); }
+.ts-presets{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:12px 4px; }
+.ts-preset{ font:inherit; font-size:12px; padding:6px 11px; border-radius:999px; border:1px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; }
+.ts-preset.on{ background:var(--accent); border-color:var(--accent); color:var(--fardText); }
+.ts-hist{ margin:16px 4px 4px; padding:10px 12px; border-radius:14px; background:var(--card); border:1px solid var(--line); }
+.ts-hist-head{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--sub); margin-bottom:8px; }
+.ts-hist-head b{ color:var(--text); }
+.ts-bars{ display:flex; gap:8px; align-items:flex-end; height:70px; }
+.ts-bar{ flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:3px; }
+.ts-bar i{ display:block; width:100%; min-height:3px; border-radius:4px 4px 0 0; background:var(--green); opacity:.85; }
+.ts-bar small{ font-size:10px; color:var(--sub); }
