@@ -1871,3 +1871,34 @@ body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yello
 .daily-card{ position:relative; }
 .dc-x{ position:absolute; top:6px; right:6px; z-index:1; width:36px; height:36px; border:0; border-radius:50%; background:transparent; color:var(--sub); font-size:16px; cursor:pointer; }
 .dc-tabs{ margin-right:30px; }
+
+/* ===== Daily card: app-coloured, animated ===== */
+.daily-card{ position:relative; overflow:hidden; margin:14px 12px 22px; padding:14px 14px 12px; border-radius:20px;
+  background:radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--accent) 20%, transparent) 0, transparent 60%), linear-gradient(160deg, color-mix(in srgb, var(--accent) 9%, var(--card)) 0, var(--card) 70%);
+  border:1px solid color-mix(in srgb, var(--accent) 32%, var(--line)); box-shadow:0 6px 22px color-mix(in srgb, var(--accent) 14%, transparent); }
+.daily-card::before{ content:'✦'; position:absolute; right:14px; bottom:6px; font-size:70px; line-height:1; color:color-mix(in srgb, var(--accent) 9%, transparent); pointer-events:none; }
+.dc-top{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.dc-tabs{ flex:1; margin:0; display:flex; gap:6px; padding:4px; border-radius:14px; background:color-mix(in srgb, var(--accent) 10%, var(--card2)); }
+.dc-tabs button{ flex:1; min-height:38px; border:0; border-radius:10px; background:transparent; color:var(--sub); font:inherit; font-size:12.5px; transition:background .25s, color .25s, box-shadow .25s; }
+.dc-tabs button.on{ background:var(--accent); color:var(--onAccent); font-weight:700; box-shadow:0 3px 10px color-mix(in srgb, var(--accent) 40%, transparent); }
+.dc-x{ position:static; flex:0 0 auto; width:38px; height:38px; border-radius:50%; border:1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); background:color-mix(in srgb, var(--accent) 8%, var(--card2)); color:var(--sub); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .2s, color .2s, transform .2s; }
+.dc-x:hover, .dc-x:focus-visible{ background:color-mix(in srgb, var(--red) 16%, var(--card2)); color:var(--red); } .dc-x:active{ transform:scale(.9) rotate(90deg); }
+.dc-title{ color:var(--accentInk); font-size:14.5px; letter-spacing:.2px; }
+.dc-ar{ color:var(--text); margin:6px 0 4px; } .dc-ar::after{ content:'❖'; display:block; text-align:center; font-size:13px; color:color-mix(in srgb, var(--accent) 55%, transparent); margin-top:2px; }
+.dc-tr{ color:var(--sub); } .dc-m{ color:var(--text); }
+.dc-ref{ display:table; margin:8px auto 0; padding:3px 12px; border-radius:999px; background:color-mix(in srgb, var(--accent) 12%, var(--card2)); color:var(--accentInk); font-size:11.5px; }
+.dc-btns button{ border:1px solid color-mix(in srgb, var(--accent) 26%, var(--line)); background:color-mix(in srgb, var(--accent) 9%, var(--card2)); color:var(--text); transition:background .2s, transform .15s; }
+.dc-btns button:active{ transform:scale(.96); background:color-mix(in srgb, var(--accent) 22%, var(--card2)); }
+.daily-card.dc-in{ animation:dcIn .6s var(--fx-ease, ease) both; }
+.daily-card.dc-in .dc-ar{ animation:dcFade .7s .15s both; } .daily-card.dc-in .dc-m{ animation:dcFade .7s .3s both; }
+.daily-card.dc-out{ animation:dcOut .28s ease-in forwards; }
+.dc-body.dc-swap{ animation:dcFade .35s var(--fx-ease, ease) both; }
+@keyframes dcIn{ from{ opacity:0; transform:translateY(26px) scale(.97); } to{ opacity:1; transform:none; } }
+@keyframes dcOut{ to{ opacity:0; transform:translateY(14px) scale(.96); } }
+@keyframes dcFade{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+.disp-start{ margin:4px 0 10px; } .disp-start-t{ font-size:13px; color:var(--sub); margin:0 2px 8px; }
+.disp-start-row{ display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; }
+.disp-start-row button{ display:flex; flex-direction:column; align-items:center; gap:2px; min-height:56px; padding:8px 2px; font:inherit; font-size:12px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; }
+.disp-start-row button span{ font-size:20px; line-height:1.1; }
+.disp-start-row button.on{ background:var(--accent); border-color:var(--accent); color:var(--onAccent); font-weight:700; }
+.mb-tog{ white-space:nowrap; } .missed-bar .mb-head b{ flex:1; min-width:0; } .missed-bar .mb-head span{ flex:0 0 auto; gap:2px; }

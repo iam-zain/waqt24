@@ -15,14 +15,16 @@ function renderDailyCard(){
   if(key === dailyDrawnKey && el.firstChild) return;
   dailyDrawnKey = key;
   const x = dailyPick(dailyTab), en = isEn(), isDua = dailyTab === 'dua';
-  el.innerHTML = `<button type="button" class="dc-x" id="dcClose" aria-label="${L({rur:'Band karein', en:'Close'})}">✕</button><div class="dc-tabs"><button type="button" class="${isDua ? 'on' : ''}" data-dt="dua">🤲 ${L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'})}</button><button type="button" class="${isDua ? '' : 'on'}" data-dt="hadees">📜 ${L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'})}</button></div>
+  const wasHidden = !el.firstChild;
+  el.innerHTML = `<div class="dc-top"><div class="dc-tabs"><button type="button" class="${isDua ? 'on' : ''}" data-dt="dua">🤲 ${L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'})}</button><button type="button" class="${isDua ? '' : 'on'}" data-dt="hadees">📜 ${L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'})}</button></div><button type="button" class="dc-x" id="dcClose" aria-label="${L({rur:'Band karein', en:'Close'})}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button></div>
     <div class="dc-body">
       ${isDua ? `<div class="dc-title">${en && x.ent ? x.ent : x.title}</div><div class="dc-ar" dir="rtl">${x.arabic}</div><div class="dc-tr">${x.translit}</div><div class="dc-m">${en && x.enm ? x.enm : x.meaning}</div><div class="dc-ref">${x.ref || ''}</div>`
         : `<div class="dc-m dc-h">${en && x.en ? x.en : x.txt}</div><div class="dc-ref">${x.src}</div>`}
     </div>
     <div class="dc-btns"><button type="button" id="dcMore">🔄 ${L({rur:'Doosri', en:'Another'})}</button><button type="button" id="dcShare">📤 ${L({rur:'Share', en:'Share'})}</button></div>`;
-  el.querySelectorAll('[data-dt]').forEach(b=>{ b.onclick = ()=>{ dailyTab = b.dataset.dt; renderDailyCard(); }; });
-  document.getElementById('dcClose').onclick = ()=>{ state.dailyHideDay = dayKey(new Date()); saveState(); renderDailyCard(); };
+  if(wasHidden){ el.classList.remove('dc-in'); void el.offsetWidth; el.classList.add('dc-in'); } else { const bd = el.querySelector('.dc-body'); bd.classList.add('dc-swap'); }
+  el.querySelectorAll('[data-dt]').forEach(b=>{ b.onclick = ()=>{ if(dailyTab === b.dataset.dt) return; dailyTab = b.dataset.dt; renderDailyCard(); }; });
+  document.getElementById('dcClose').onclick = ()=>{ state.dailyHideDay = dayKey(new Date()); saveState(); el.classList.add('dc-out'); setTimeout(()=>{ el.classList.remove('dc-out', 'dc-in'); renderDailyCard(); }, document.body.classList.contains('calm') ? 0 : 280); };
   document.getElementById('dcMore').onclick = ()=>{ dailyShift[dailyTab]++; renderDailyCard(); };
   document.getElementById('dcShare').onclick = ()=>{
     openCardShareChooser(isDua
