@@ -32,6 +32,7 @@ function quranTintPlayer(){
     const q = document.getElementById(id); if(!q) return;
     if(on){ q.setAttribute('data-tint', t.k); q.style.setProperty('--qtc', t.c); q.style.setProperty('--qta', t.a); } else q.removeAttribute('data-tint');
   });
+  if(typeof trpRulesLater === 'function') trpRulesLater();
 }
 let quranTintOpen = false;
 function quranTintApply(){

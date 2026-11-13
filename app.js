@@ -2553,6 +2553,7 @@ function quranTintPlayer(){
     const q = document.getElementById(id); if(!q) return;
     if(on){ q.setAttribute('data-tint', t.k); q.style.setProperty('--qtc', t.c); q.style.setProperty('--qta', t.a); } else q.removeAttribute('data-tint');
   });
+  if(typeof trpRulesLater === 'function') trpRulesLater();
 }
 let quranTintOpen = false;
 function quranTintApply(){
@@ -7611,8 +7612,7 @@ function trpSizeApply(){
    measured (a zero-size probe sits on it); a rule then goes at baseline + half a line - a quarter em, which is the middle of the gap
    between the descenders of one line and the capitals / headline of the next. (Urdu keeps a hand-tuned offset in the stylesheet.) */
 function trpRules(){
-  const sc = document.getElementById('tpScroll'); if(!sc) return;
-  const panel = document.getElementById('tpPanel');
+  const sc = document.getElementById('tpScroll'), panel = document.getElementById('tpPanel'); if(!sc || !panel) return;
   /* whole-pixel line height everywhere, so the lines and the rules can never drift apart down the page */
   sc.querySelectorAll('.tp-p').forEach(p=>{
     const rtl = p.matches('[dir=rtl]'), z = parseFloat(getComputedStyle(panel).getPropertyValue(rtl ? '--tpu' : '--tpz'));
@@ -7622,12 +7622,17 @@ function trpRules(){
     let probe = p.querySelector('.tp-pb');
     if(!probe){ probe = document.createElement('i'); probe.className = 'tp-pb'; p.insertBefore(probe, p.firstChild); }
     const cs = getComputedStyle(p), L = parseFloat(cs.lineHeight), fs = parseFloat(cs.fontSize);
-    if(!L || !fs) return;
-    const base = probe.getBoundingClientRect().bottom - p.getBoundingClientRect().top;
-    const rule = base + L / 2 - fs * .25;
-    p.style.backgroundPosition = '0 ' + (rule - L).toFixed(2) + 'px';
+    if(!L || !fs || !probe.offsetParent) return;
+    const base = probe.offsetTop;                  /* layout position of the first baseline (not affected by animations / transforms) */
+    const rule = base + L / 2 - fs * .25, first = rule - L;
+    p.style.backgroundPosition = '0 ' + first.toFixed(2) + 'px';
+    /* no rule above the very first line (the page divider is already there) */
+    const cut = first > -1 && first < L / 2 ? Math.ceil(first + 3) : 0;
+    p.style.webkitMaskImage = p.style.maskImage = cut ? `linear-gradient(to bottom, transparent ${cut}px, #000 ${cut}px)` : '';
   });
 }
+/* measure again once things have settled (fonts, tint change, animations, resize) */
+function trpRulesLater(){ requestAnimationFrame(()=>{ trpRules(); requestAnimationFrame(trpRules); }); setTimeout(trpRules, 300); setTimeout(trpRules, 900); }
 /* HTML of whole pages, in one language */
 async function trpBuild(pages, lang){
   const ur = lang === 'ur', ids = pages.flatMap(trPageAyahs), surahs = [...new Set(ids.map(x=>qaSurahAyah(x).s))];
@@ -7682,7 +7687,7 @@ async function trpMore(dir){
     if(!document.getElementById('tpScroll') || trp.lang !== trLang()) return;
     if(dir < 0){ const h0 = sc.scrollHeight; box.insertAdjacentHTML('afterbegin', html); sc.scrollTop += sc.scrollHeight - h0; trp.from = n; }
     else { box.insertAdjacentHTML('beforeend', html); trp.to = n; }
-    trpMoreUI(); trpRules(); trpSync(true, true);
+    trpMoreUI(); trpRules(); trpRulesLater(); trpSync(true, true);
   }catch(e){ showToast(L({rur:'Tarjuma load nahi hua. Internet check karein.', en:'Could not load the translation. Check your internet connection.'}), '!'); }
   finally{ trp.busy = false; }
 }
@@ -7696,7 +7701,7 @@ async function trpFill(page){
   const inRange = page >= trp.from && page <= trp.to && !!sc.querySelector('.tp-pages');
   if(inRange && trp.lang === lang){   /* same run of pages: nothing to reload (e.g. the reader moved to a page already shown) */
     if(!document.getElementById('tpHdPage')) trpHead(page, lang);
-    trpHeadUpdate(); trpSync(true); if(trp.focus){ trpFocus(trp.focus); trp.focus = 0; } return;
+    trpRulesLater(); trpHeadUpdate(); trpSync(true); if(trp.focus){ trpFocus(trp.focus); trp.focus = 0; } return;
   }
   const pages = []; if(inRange){ for(let n = trp.from; n <= trp.to; n++) pages.push(n); } else { trp.from = trp.to = page; pages.push(page); }
   trp.lang = lang; trpHead(page, lang);
@@ -7711,7 +7716,7 @@ async function trpFill(page){
   }
   if(state.quranPage !== page || !state.quranTrPage) return;
   sc.innerHTML = `<div class="tp-text"><button type="button" class="tp-more up"></button><div class="tp-pages">${html}</div><button type="button" class="tp-more down"></button>${lang === 'rom' ? `<div class="tp-note">${L({rur:'Hindi tarjuma ko Roman mein khud-ba-khud badla gaya hai, spelling mein thodi kami ho sakti hai.', en:'The Hindi translation is converted to Roman letters automatically, so some spellings may be imperfect.'})}</div>` : ''}</div>`;
-  trpMoreUI(); trpRules();
+  trpMoreUI(); trpRules(); trpRulesLater();
   const sec = sc.querySelector(`.tp-pg[data-page="${page}"]`); sc.scrollTop = inRange && sec ? Math.max(0, sec.offsetTop - sc.offsetTop - 4) : 0;
   trpHeadUpdate(); trpSync(true);
   if(trp.focus){ trpFocus(trp.focus); trp.focus = 0; }
@@ -7768,5 +7773,5 @@ if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>trpRule
   if(ov) new MutationObserver(()=>{ if(!ov.classList.contains('active')) trpHide(); else trpPlace(); }).observe(ov, { attributes:true, attributeFilter:['class'] });
   const body = document.getElementById('detailBody');
   if(body) new MutationObserver(()=>{ if(!document.getElementById('quranWrap')) trpHide(); }).observe(body, { childList:true });
-  window.addEventListener('resize', ()=>trpPlace());
+  window.addEventListener('resize', ()=>{ trpPlace(); trpRulesLater(); });
 })();

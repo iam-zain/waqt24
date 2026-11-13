@@ -1706,3 +1706,4 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .tp-n{ line-height:1; vertical-align:baseline; }
 .tp-p[dir=rtl] .tp-n{ line-height:1; vertical-align:middle; }
 .tp-p, .tp-surah{ box-sizing:border-box; }
+.tp-p{ position:relative; }
