@@ -65,9 +65,11 @@ body{
   background:var(--bg); color:var(--text);
   display:flex; justify-content:center;
 }
+/* The app is pinned to the screen edges (top/bottom 0) instead of a computed height, so the tab bar always sits at the visible bottom,
+   whatever the phone's address bar or navigation bar is doing at launch. */
 #app{
-  width:100%; max-width:560px; height:calc(100vh / var(--zoom,1)); height:calc(100dvh / var(--zoom,1)); height:calc(var(--appH, 100dvh) / var(--zoom,1)); display:flex; flex-direction:column;
-  background:var(--bg); position:relative;
+  position:fixed; top:0; bottom:0; left:0; right:0; margin:0 auto; width:100%; max-width:560px; display:flex; flex-direction:column;
+  background:var(--bg);
 }
 .screen{ flex:1; min-height:0; display:none; }
 .screen.active{ display:flex; flex-direction:column; }
