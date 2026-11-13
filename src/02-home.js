@@ -34,6 +34,31 @@ function centerLiveRow(instant){
 let homeNextChange = 0, homeRenderedDay = null; // set by renderHome, read by homeTick
 function isSameDay(a,b){ return dayKey(a)===dayKey(b); }
 
+/* Missed-prayer banner: a Farz whose time has ended and which was never marked. ✓ = padh li, Qaza = adds one to the Qaza tracker and marks it Baaki. */
+function renderMissedBar(viewDate, isToday, sched, now){
+  const old = document.getElementById('missedBar'); if(old) old.remove();
+  if(!isToday) return;
+  const dk = dayKey(viewDate); if(state.missedOff && state.missedOff[dk]) return;
+  const miss = sched.filter(p=> FIVE.includes(p.key) && now >= p.end && getStatus(viewDate, p.key) === undefined);
+  if(!miss.length) return;
+  const bar = document.createElement('div'); bar.id = 'missedBar'; bar.className = 'missed-bar';
+  bar.innerHTML = `<div class="mb-head"><b>⏰ ${miss.length === 1 ? miss[0].name + ' ka waqt nikal gaya' : miss.length + ' namazon ka waqt nikal gaya'}</b><button type="button" class="mb-x" aria-label="Aaj ke liye chhupayein">✕</button></div>`
+    + miss.map(p=>`<div class="mb-row"><span>${PRAYER_META[p.key] ? PRAYER_META[p.key].icon : ''} ${p.name}</span><span class="mb-btns"><button type="button" class="mb-ok" data-k="${p.key}">✓ Padh li</button><button type="button" class="mb-qz" data-k="${p.key}">＋ Qaza mein</button></span></div>`).join('');
+  bar.onclick = e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    if(b.classList.contains('mb-x')){ state.missedOff = state.missedOff || {}; state.missedOff[dk] = true; saveState(); bar.remove(); return; }
+    const k = b.dataset.k; if(!k) return;
+    if(b.classList.contains('mb-ok')){ state.status[statusKey(viewDate, k)] = 'green'; showToast('Allah qubool farmaye'); }
+    else{
+      state.status[statusKey(viewDate, k)] = 'red';
+      state.qazaAdded = state.qazaAdded || {}; const qk = dk + k;
+      if(!state.qazaAdded[qk]){ state.qazaAdded[qk] = 1; qazaState(); state.qaza[k] = (state.qaza[k] || 0) + 1; }
+      showToast('Qaza tracker mein jud gayi');
+    }
+    saveState(); renderHome(); if(typeof updateQazaBadge === 'function') updateQazaBadge();
+  };
+  document.getElementById('timesList').before(bar);
+}
 function renderHome(){
   const now = new Date();
   if(homeFollowsToday){ homeViewDate = operatingDate(now); }
@@ -54,6 +79,7 @@ function renderHome(){
   listEl.innerHTML = '';
   listEl.classList.toggle('namaz-mode', state.namazMode);
 
+  renderMissedBar(viewDate, isToday, sched, now);
   let currentIdx = -1, currentStart = null;
   if(isToday){
     for(let i=0;i<sched.length;i++){
