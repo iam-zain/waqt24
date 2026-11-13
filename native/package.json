@@ -1,0 +1,12 @@
+{
+  "name": "waqt24-android",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Android wrapper (Capacitor) for Waqt24: Azan and prayer notifications while the app is closed",
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/local-notifications": "^6.1.0"
+  }
+}

@@ -1,0 +1,43 @@
+name: Build Android APK
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - name: Build the web app
+        run: python3 tools/build.py
+      - name: Prepare Capacitor project
+        working-directory: native
+        run: |
+          npm install
+          rm -rf www && mkdir www
+          cp ../index.html ../app.js ../data.js ../i18n.js ../styles.css ../sw.js ../manifest.json www/
+          cp -r ../fonts ../icons ../azan ../quran www/
+          npx cap add android
+          # notification small icon + Azan sounds as raw resources (Android names: lowercase, digits, underscore)
+          mkdir -p android/app/src/main/res/raw android/app/src/main/res/drawable
+          for f in ../azan/*.mp3; do b=$(basename "$f" .mp3); cp "$f" "android/app/src/main/res/raw/$(echo "$b" | tr '-' '_').mp3"; done
+          cp ../icons/icon-192.png android/app/src/main/res/drawable/ic_stat_waqt24.png
+          # permissions for exact-time notifications
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's#<application#<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>\n    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>\n    <uses-permission android:name="android.permission.VIBRATE"/>\n    <application#' "$M"
+          npx cap sync android
+      - name: Build debug APK
+        working-directory: native/android
+        run: ./gradlew assembleDebug --no-daemon
+      - name: Publish APK
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          cp native/android/app/build/outputs/apk/debug/app-debug.apk Waqt24.apk
+          gh release delete apk-latest --yes --cleanup-tag 2>/dev/null || true
+          gh release create apk-latest Waqt24.apk --title "Waqt24 Android (latest)" --notes "Debug APK built from $GITHUB_SHA. Install it, allow notifications and alarms when asked."
+      - uses: actions/upload-artifact@v4
+        with: { name: Waqt24-apk, path: Waqt24.apk }
