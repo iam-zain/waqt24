@@ -40,11 +40,11 @@ function devaWord(w){
   }
   return syl.map(y=> y.lit ? y.lit : y.c + (y.inh ? (y.drop ? '' : 'a') : (y.tail === 'n' && y.v === 'ee' ? '' : (y.v || ''))) + (y.tail === 'n' && y.v === 'e' ? 'in' : (y.tail === 'n' && y.v === 'ee' ? 'in' : (y.tail || '')))).join('');
 }
-const DV_FIX = { lie:'liye', koee:'koi', naheen:'nahin', yah:'yeh', vah:'woh', kiya:'kiya', nam:'naam', bara:'bada', kisee:'kisi', hee:'hi', bhee:'bhi', jaaoge:'jaoge', gae:'gaye', gaee:'gayi', kee:'ki', ke:'ke', meree:'meri', tumhaaree:'tumhari', hamaaree:'hamari', unheen:'unhein' };
+const DV_FIX = { lie:'liye', koee:'koi', naheen:'nahin', yah:'yeh', vah:'woh', kiya:'kiya', nam:'naam', bara:'bada', kisee:'kisi', hee:'hi', bhee:'bhi', jaaoge:'jaoge', gae:'gaye', gaee:'gayi', kee:'ki', ke:'ke', meree:'meri', tumhaaree:'tumhari', hamaaree:'hamari', unheen:'unhein', aphsos:'afsos', hae:'haye' };
 function devaToRoman(text){
   let out = text.replace(/[\u0900-\u097F]+/g, w=>devaWord(w)).replace(/।/g, '.').replace(/\s+/g, ' ').trim();
   out = out.replace(/[a-z]+/g, w=>DV_FIX[w] || (w.length > 3 && /ee$/.test(w) ? w.slice(0, -2) + 'i' : w));
-  out = out.replace(/(^|[.?!]\s+)([a-z])/g, (m, a, b)=>a + b.toUpperCase()).replace(/\ballah\b/g, 'Allah').replace(/\bmuhammad\b/gi, 'Muhammad');
+  out = out.replace(/(^|[.?!]\s+)([a-z])/g, (m, a, b)=>a + b.toUpperCase()).replace(/\ballah/g, 'Allah').replace(/\bmuhammad\b/gi, 'Muhammad');
   return out;
 }
 const TR_MEM = {};

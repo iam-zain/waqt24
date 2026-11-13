@@ -7455,11 +7455,11 @@ function devaWord(w){
   }
   return syl.map(y=> y.lit ? y.lit : y.c + (y.inh ? (y.drop ? '' : 'a') : (y.tail === 'n' && y.v === 'ee' ? '' : (y.v || ''))) + (y.tail === 'n' && y.v === 'e' ? 'in' : (y.tail === 'n' && y.v === 'ee' ? 'in' : (y.tail || '')))).join('');
 }
-const DV_FIX = { lie:'liye', koee:'koi', naheen:'nahin', yah:'yeh', vah:'woh', kiya:'kiya', nam:'naam', bara:'bada', kisee:'kisi', hee:'hi', bhee:'bhi', jaaoge:'jaoge', gae:'gaye', gaee:'gayi', kee:'ki', ke:'ke', meree:'meri', tumhaaree:'tumhari', hamaaree:'hamari', unheen:'unhein' };
+const DV_FIX = { lie:'liye', koee:'koi', naheen:'nahin', yah:'yeh', vah:'woh', kiya:'kiya', nam:'naam', bara:'bada', kisee:'kisi', hee:'hi', bhee:'bhi', jaaoge:'jaoge', gae:'gaye', gaee:'gayi', kee:'ki', ke:'ke', meree:'meri', tumhaaree:'tumhari', hamaaree:'hamari', unheen:'unhein', aphsos:'afsos', hae:'haye' };
 function devaToRoman(text){
   let out = text.replace(/[\u0900-\u097F]+/g, w=>devaWord(w)).replace(/।/g, '.').replace(/\s+/g, ' ').trim();
   out = out.replace(/[a-z]+/g, w=>DV_FIX[w] || (w.length > 3 && /ee$/.test(w) ? w.slice(0, -2) + 'i' : w));
-  out = out.replace(/(^|[.?!]\s+)([a-z])/g, (m, a, b)=>a + b.toUpperCase()).replace(/\ballah\b/g, 'Allah').replace(/\bmuhammad\b/gi, 'Muhammad');
+  out = out.replace(/(^|[.?!]\s+)([a-z])/g, (m, a, b)=>a + b.toUpperCase()).replace(/\ballah/g, 'Allah').replace(/\bmuhammad\b/gi, 'Muhammad');
   return out;
 }
 const TR_MEM = {};
@@ -7774,4 +7774,31 @@ if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>trpRule
   const body = document.getElementById('detailBody');
   if(body) new MutationObserver(()=>{ if(!document.getElementById('quranWrap')) trpHide(); }).observe(body, { childList:true });
   window.addEventListener('resize', ()=>{ trpPlace(); trpRulesLater(); });
+})();
+/* ===== Salutation after the name of Allah: "Allah ﷻ" everywhere =====
+   Every text on screen is covered: the names, the Qur'an translations (Hinglish / English, Hindi अल्लाह, Urdu اللہ), the quiz and
+   all other screens. It is applied to the text of the page as it appears or changes, so nothing needs editing one by one.
+   Forms such as Allahu, Allahumma, MashaAllah and the Arabic script of the Mushaf are left as they are. */
+const HON_RE = /(\bAllah\b(?!['’])|अल्लाह(?![ऀ-ॿ])|اللّ?ٰ?ہ(?![؀-ۿ]))(?!\s?ﷻ)/g;
+const HON_FAST = /Allah|अल्लाह|الل/;
+const HON_SKIP = /^(SCRIPT|STYLE|TEXTAREA|INPUT|NOSCRIPT)$/;
+function honorific(s){ return HON_FAST.test(s) ? s.replace(HON_RE, '$1 ﷻ') : s; }
+function honNode(n){
+  if(!n) return;
+  if(n.nodeType === 3){
+    const p = n.parentNode; if(!p || HON_SKIP.test(p.nodeName) || p.isContentEditable) return;
+    const v = n.nodeValue; if(v && HON_FAST.test(v)){ const w = v.replace(HON_RE, '$1 ﷻ'); if(w !== v) n.nodeValue = w; }
+    return;
+  }
+  if(n.nodeType !== 1 || HON_SKIP.test(n.nodeName)) return;
+  const walk = document.createTreeWalker(n, NodeFilter.SHOW_TEXT); const list = []; while(walk.nextNode()) list.push(walk.currentNode);
+  list.forEach(honNode);
+}
+(function(){
+  const start = ()=>{
+    honNode(document.body);
+    new MutationObserver(ms=>{ for(const m of ms){ if(m.type === 'characterData') honNode(m.target); else m.addedNodes.forEach(honNode); } })
+      .observe(document.body, { childList:true, subtree:true, characterData:true });
+  };
+  if(document.body) start(); else document.addEventListener('DOMContentLoaded', start);
 })();
