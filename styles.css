@@ -1720,3 +1720,9 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .missed-bar .mb-btns button{ font:inherit; font-size:12.5px; padding:5px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; }
 .missed-bar .mb-ok{ border-color:var(--green); color:var(--green); }
 .missed-bar .mb-qz{ border-color:var(--yellow); color:var(--yellow); }
+
+/* Qibla: off-by readout and aligned glow */
+.qibla-off{ margin-top:8px; font-size:15px; font-weight:700; color:var(--sub); min-height:22px; }
+.qibla-off.ok{ color:var(--green); }
+#qiblaDial circle:first-child{ transition:stroke .2s, fill .2s; }
+#qiblaDial.aligned circle:first-child{ stroke:var(--green); stroke-width:5; }

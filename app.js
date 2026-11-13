@@ -5012,7 +5012,8 @@ function renderQibla(){
           <circle cx="100" cy="100" r="5" fill="var(--accent)"/>
         </svg>
       </div>
-      <div style="font-size:13px; color:var(--text); margin-top:16px; font-weight:700;">Qibla: ${Math.round(bearing)}° (Shumaal se)</div>
+      <div style="font-size:13px; color:var(--text); margin-top:16px; font-weight:700;">Qibla: ${Math.round(bearing)}° (Shumaal se) · Kaaba ${Math.round(qiblaDistanceKm(loc.lat, loc.lon)).toLocaleString('en-US')} km door</div>
+      <div id="qiblaOff" class="qibla-off" aria-live="polite"></div>
       <div id="qiblaStatus" style="font-size:11.5px; color:var(--sub); margin-top:6px; line-height:1.6;">
         Compass on karne ke liye button dabayein, ya phone ko flat rakh kar upar diya hua angle khud North se naapein.
       </div>
@@ -5024,17 +5025,40 @@ function renderQibla(){
   const dial = document.getElementById('qiblaDial');
   needle.style.transform = `rotate(${bearing}deg)`;
 
+  /* smoothed heading (circular low-pass), "off by N°" readout, green + vibration when aligned, calibration hint if readings are poor or missing */
+  const offEl = document.getElementById('qiblaOff'), svg = document.getElementById('qiblaDial');
+  let smooth = null, wasAligned = false, lastEvt = 0, calTimer = null, jitter = [];
+  const angDiff = (a, b)=> ((a - b + 540) % 360) - 180;
+  const onHeading = (raw, acc)=>{
+    lastEvt = Date.now();
+    smooth = smooth === null ? raw : (smooth + angDiff(raw, smooth) * 0.25 + 360) % 360;
+    jitter.push(Math.abs(angDiff(raw, smooth))); if(jitter.length > 25) jitter.shift();
+    dial.style.transition = 'none'; dial.style.transform = `rotate(${-smooth}deg)`;
+    needle.style.transform = `rotate(${bearing}deg)`;
+    const off = angDiff(bearing, smooth);               // how far to turn: + is clockwise (right)
+    const ok = Math.abs(off) <= 4;
+    svg.classList.toggle('aligned', ok);
+    offEl.className = 'qibla-off' + (ok ? ' ok' : '');
+    offEl.textContent = ok ? '✅ Aap Qibla ki taraf hain' : (off > 0 ? 'Daayein ghoomein ' : 'Baayein ghoomein ') + Math.round(Math.abs(off)) + '°';
+    if(ok && !wasAligned){ try{ navigator.vibrate && navigator.vibrate([30, 40, 30]); }catch(e){} }
+    wasAligned = ok;
+    const poor = (acc != null && acc > 25) || (jitter.length > 15 && jitter.reduce((x, y)=>x + y, 0) / jitter.length > 9);
+    statusEl.innerHTML = poor
+      ? '⚠️ Compass theek se calibrate nahi lag raha. Phone ko hawa mein <b>8 (aath) ke shakal mein</b> kuch baar ghumayein, phir lohe/magnet/chhat ke paas se hat kar dekhein.'
+      : 'Phone ko seedha (flat) pakdein, 🕋 wahi Qibla ki taraf ishara karega.';
+  };
   document.getElementById('qiblaCompassBtn').onclick = async ()=>{
     const start = ()=>{
       qiblaOrientHandler = (e)=>{
-        let heading = (typeof e.webkitCompassHeading === 'number') ? e.webkitCompassHeading : (e.alpha!=null ? (360 - e.alpha) : null);
-        if(heading==null) return;
-        dial.style.transform = `rotate(${-heading}deg)`;
-        needle.style.transform = `rotate(${bearing}deg)`;
-        statusEl.textContent = 'Compass chalu hai, phone ko seedha pakdein, 🕋 wahi Qibla ki taraf ishara karega.';
+        let heading = (typeof e.webkitCompassHeading === 'number') ? e.webkitCompassHeading : (e.alpha != null ? (360 - e.alpha) % 360 : null);
+        if(heading == null) return;
+        onHeading(heading, typeof e.webkitCompassAccuracy === 'number' && e.webkitCompassAccuracy >= 0 ? e.webkitCompassAccuracy : null);
       };
       const evt = ('ondeviceorientationabsolute' in window) ? 'deviceorientationabsolute' : 'deviceorientation';
       window.addEventListener(evt, qiblaOrientHandler);
+      document.getElementById('qiblaCompassBtn').textContent = '🧭 Compass chalu hai';
+      clearTimeout(calTimer);
+      calTimer = setTimeout(()=>{ if(!lastEvt) statusEl.textContent = 'Compass se koi reading nahi mil rahi. Phone ki Settings mein Location/Motion sensors on karein, ya upar diya hua angle khud North se naapein.'; }, 3000);
     };
     if(typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
       try{
@@ -5048,6 +5072,14 @@ function renderQibla(){
       statusEl.textContent = 'Is browser/device mein compass sensor uplabdh nahi hai.';
     }
   };
+  if('DeviceOrientationEvent' in window && typeof DeviceOrientationEvent.requestPermission !== 'function') document.getElementById('qiblaCompassBtn').click(); // Android: no permission prompt, so start at once
+}
+/* great-circle distance to the Kaaba */
+function qiblaDistanceKm(lat, lon){
+  const R = 6371, r = x=>x * Math.PI / 180, kl = 21.4225, ko = 39.8262;
+  const dLat = r(kl - lat), dLon = r(ko - lon);
+  const a = Math.sin(dLat/2)**2 + Math.cos(r(lat)) * Math.cos(r(kl)) * Math.sin(dLon/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(a));
 }
 
 /* ============================================================
