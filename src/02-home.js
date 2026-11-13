@@ -80,6 +80,7 @@ function renderHome(){
   listEl.classList.toggle('namaz-mode', state.namazMode);
 
   renderMissedBar(viewDate, isToday, sched, now);
+  if(typeof renderDailyCard === 'function') renderDailyCard();
   let currentIdx = -1, currentStart = null;
   if(isToday){
     for(let i=0;i<sched.length;i++){
