@@ -222,22 +222,23 @@ function renderBookmarks(){
   document.getElementById('detailTitle').textContent = 'Mere Pasandeeda';
   const items = bmList().map(k=>({k, r:bmResolve(k)})).filter(x=>x.r);
   const body = document.getElementById('detailBody');
-  if(!items.length){
-    body.innerHTML = `<div class="empty-state">Abhi tak kuch pasandeeda nahi.<br>Kisi bhi dua, hadees, naam ya lafz par ☆ dabayein.</div>`;
-    return;
-  }
   const types = [...new Set(items.map(x=>x.r.type))];
-  body.innerHTML = types.map(t=>`
+  body.innerHTML = notesSectionHtml() + (!items.length ? `<div class="empty-state">Abhi tak kuch pasandeeda nahi.<br>Kisi bhi dua, hadees, naam ya lafz par ☆ dabayein.</div>` : types.map(t=>`
     <div class="dw-section">
       <div class="dw-section-title"><span>${t}</span><span class="dw-count">${items.filter(x=>x.r.type===t).length}</span></div>
-      ${items.filter(x=>x.r.type===t).map(x=>`<div class="dw-row" data-k="${x.k.replace(/"/g,'&quot;')}">
+      ${items.filter(x=>x.r.type===t).map(x=>{ const nn = notesForBm(x.k); return `<div class="dw-row" data-k="${x.k.replace(/"/g,'&quot;')}">
         ${x.r.ar ? `<div class="ar">${x.r.ar}</div>` : ''}
-        <div class="info"><div class="tr">${x.r.title}</div><div class="m">${x.r.sub}</div></div>
+        <div class="info"><div class="tr">${x.r.title}</div><div class="m">${x.r.sub}</div>${nn.length ? `<div class="bm-note">📝 ${noteEsc(nn[0].text).slice(0, 90)}${nn.length > 1 ? ' (+' + (nn.length - 1) + ')' : ''}</div>` : ''}</div>
+        <button type="button" class="bm-btn bm-note-btn ${nn.length ? 'on' : ''}" data-nt="${x.k.replace(/"/g,'&quot;')}" title="Note">📝</button>
         ${bmBtn(x.k, 'data-refresh="1"')}
-      </div>`).join('')}
-    </div>`).join('');
-  body.querySelectorAll('.dw-row').forEach(el=>{
+      </div>`; }).join('')}
+    </div>`).join(''));
+  wireNotesSection(renderBookmarks);
+  body.querySelectorAll('.dw-row[data-k]').forEach(el=>{
     el.onclick = ()=>{ const r = bmResolve(el.dataset.k); if(r) r.open(); };
+  });
+  body.querySelectorAll('[data-nt]').forEach(b=>{
+    b.onclick = e=>{ e.stopPropagation(); const k = b.dataset.nt, r = bmResolve(k); openNoteBox({ bm:k, title:r ? r.title : '' }, renderBookmarks); };
   });
 }
 

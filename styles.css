@@ -1738,3 +1738,22 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .kp-custom button, .kp-clear{ font:inherit; font-size:12.5px; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; }
 .kp-clear{ margin-top:8px; }
 .kp-ok{ color:var(--green); font-weight:700; } .kp-bad{ color:var(--red); font-weight:700; }
+
+/* Notes */
+.note-ov{ position:fixed; inset:0; z-index:650; background:rgba(0,0,0,.5); display:flex; align-items:flex-end; justify-content:center; animation:backdropIn .2s ease; }
+.note-sheet{ width:100%; max-width:560px; max-height:86vh; overflow:auto; background:var(--bg2); color:var(--text); border-radius:18px 18px 0 0; padding:14px 14px 18px; box-shadow:0 -8px 30px rgba(0,0,0,.35); }
+.note-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:14.5px; }
+.note-x{ background:none; border:0; color:var(--sub); font-size:18px; padding:4px 8px; cursor:pointer; }
+.note-item{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:9px 11px; margin-bottom:8px; }
+.note-text{ font-size:14px; line-height:1.55; word-break:break-word; }
+.note-meta{ display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:11px; color:var(--sub); }
+.note-meta button{ background:none; border:0; color:var(--accent); font:inherit; font-size:12px; padding:2px 6px; cursor:pointer; }
+.note-empty{ text-align:center; color:var(--sub); font-size:12.5px; padding:10px 0 12px; }
+#noteTa{ width:100%; box-sizing:border-box; padding:10px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font:inherit; font-size:14px; resize:vertical; }
+.note-btns{ display:flex; gap:8px; margin-top:10px; }
+.note-btns button{ font:inherit; font-size:13.5px; padding:9px 16px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; }
+.note-btns .note-save{ background:var(--accent); border-color:var(--accent); color:var(--fardText); font-weight:700; flex:1; }
+.note-add{ width:100%; font:inherit; font-size:13.5px; padding:10px; margin-bottom:8px; border-radius:12px; border:1px dashed var(--accent); background:none; color:var(--accent); cursor:pointer; }
+.note-row .m{ white-space:pre-wrap; } .note-when{ font-size:10.5px; color:var(--sub); white-space:nowrap; }
+.bm-note{ font-size:11.5px; color:var(--sub); margin-top:3px; }
+.bm-note-btn{ opacity:.55; } .bm-note-btn.on{ opacity:1; }
