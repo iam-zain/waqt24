@@ -7419,7 +7419,7 @@ const QA_GEOM = { normal:{ t:[0,0,96,88,92,92,86,88,92,96,88,104,94,82,96,102,60
 const TR_LANGS = [{ k:'rom', n:'Hinglish', ed:'hi.hindi', conv:'roman' }, { k:'ur', n:'اردو', ed:'ur.jalandhry' }, { k:'hi', n:'हिन्दी', ed:'hi.hindi' }, { k:'en', n:'English', ed:'en.sahih' }];
 /* Hinglish = the Hindi translation written in Roman letters, converted on the device (no Roman-Urdu translation exists as free data).
    Spelling follows everyday Roman Urdu / Hinglish: aa->a, ee, oo, schwa dropped at word ends and between syllables. */
-const DV_C = { 'क':'k','ख':'kh','ग':'g','घ':'gh','ङ':'n','च':'ch','छ':'chh','ज':'j','झ':'jh','ञ':'n','ट':'t','ठ':'th','ड':'d','ढ':'dh','ण':'n','त':'t','थ':'th','द':'d','ध':'dh','न':'n','प':'p','फ':'ph','ब':'b','भ':'bh','म':'m','य':'y','र':'r','ल':'l','व':'v','श':'sh','ष':'sh','स':'s','ह':'h','ळ':'l',
+const DV_C = { 'क':'k','ख':'kh','ग':'g','घ':'gh','ङ':'n','च':'ch','छ':'chh','ज':'j','झ':'jh','ञ':'n','ट':'t','ठ':'th','ड':'d','ढ':'dh','ण':'n','त':'t','थ':'th','द':'d','ध':'dh','न':'n','प':'p','फ':'f','ब':'b','भ':'bh','म':'m','य':'y','र':'r','ल':'l','व':'v','श':'sh','ष':'sh','स':'s','ह':'h','ळ':'l',
   'क़':'q','ख़':'kh','ग़':'gh','ज़':'z','ड़':'r','ढ़':'rh','फ़':'f','य़':'y' };
 const DV_NUKTA = { 'क':'क़','ख':'ख़','ग':'ग़','ज':'ज़','ड':'ड़','ढ':'ढ़','फ':'फ़','य':'य़' };
 const DV_V = { 'अ':'a','आ':'a','इ':'i','ई':'ee','उ':'u','ऊ':'oo','ऋ':'ri','ए':'e','ऐ':'ai','ओ':'o','औ':'au','ऑ':'o' };
@@ -7455,10 +7455,15 @@ function devaWord(w){
   }
   return syl.map(y=> y.lit ? y.lit : y.c + (y.inh ? (y.drop ? '' : 'a') : (y.tail === 'n' && y.v === 'ee' ? '' : (y.v || ''))) + (y.tail === 'n' && y.v === 'e' ? 'in' : (y.tail === 'n' && y.v === 'ee' ? 'in' : (y.tail || '')))).join('');
 }
-const DV_FIX = { lie:'liye', koee:'koi', naheen:'nahin', yah:'yeh', vah:'woh', kiya:'kiya', nam:'naam', bara:'bada', kisee:'kisi', hee:'hi', bhee:'bhi', jaaoge:'jaoge', gae:'gaye', gaee:'gayi', kee:'ki', ke:'ke', meree:'meri', tumhaaree:'tumhari', hamaaree:'hamari', unheen:'unhein', aphsos:'afsos', hae:'haye' };
+const DV_FIX = { lie:'liye', koee:'koi', naheen:'nahin', yah:'yeh', vah:'woh', kiya:'kiya', nam:'naam', bara:'bada', kisee:'kisi', hee:'hi', bhee:'bhi', jaaoge:'jaoge', gae:'gaye', gaee:'gayi', kee:'ki', ke:'ke', meree:'meri', tumhaaree:'tumhari', hamaaree:'hamari', unheen:'unhein', aphsos:'afsos', hae:'haye', fir:'phir', fal:'phal', aibjoo:'aib-joo', aee:'aayi', aeen:'aayen', bhaeeyon:'bhaiyon', bhaee:'bhai', israeel:'israeel', onkhein:'ankhein', onkhon:'ankhon', onkh:'ankh', paighmbar:'paighambar', ikttha:'ikattha', iktthe:'ikatthe', iktthi:'ikatthi', ondhi:'aandhi', onsoo:'aansoo' };
+/* spelling clean-up on the finished Roman word: 'ae' needs a y (jaye, laye); 'ein' before ge/gi is 'en' (jayenge); long final ee -> i */
+function dvPost(w){
+  if(w.length > 3 && /ee$/.test(w)) w = w.slice(0, -2) + 'i';
+  return w.replace(/chchh/g, 'chh').replace(/ngein$/, 'ngen').replace(/^ae/, 'aaye').replace(/ae/g, 'aye').replace(/ein(?=g[eiy])/g, 'en').replace(/yein$/, 'yen');
+}
 function devaToRoman(text){
   let out = text.replace(/[\u0900-\u097F]+/g, w=>devaWord(w)).replace(/।/g, '.').replace(/\s+/g, ' ').trim();
-  out = out.replace(/[a-z]+/g, w=>DV_FIX[w] || (w.length > 3 && /ee$/.test(w) ? w.slice(0, -2) + 'i' : w));
+  out = out.replace(/[a-z]+/g, w=>DV_FIX[w] || dvPost(w));
   out = out.replace(/(^|[.?!]\s+)([a-z])/g, (m, a, b)=>a + b.toUpperCase()).replace(/\ballah/g, 'Allah').replace(/\bmuhammad\b/gi, 'Muhammad');
   return out;
 }
