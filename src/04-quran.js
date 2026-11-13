@@ -225,7 +225,7 @@ function renderQuranReader(page){
   /* A page change inside the reader (or a pick from the index) moves the recitation too; merely reopening the reader does not */
   const qaFlip = !!document.getElementById('quranWrap') || qa.forceSync; qa.forceSync = false;
   if(qaFlip) qaSyncToPage(page);
-  state.quranPage = page;
+  const prevPage = state.quranPage; state.quranPage = page;
   clearTimeout(quranReadTimer); quranReadTimer = setTimeout(()=> markQuranPageRead(page), 8000);
   state.lastRead = { k:'quran', id:page, ed:quranEd(), label:`${quranEdLabel()} · Page ${page} · ${quranSurahOf(page).name}` };
   saveState();
@@ -249,12 +249,15 @@ function renderQuranReader(page){
       <button class="quran-tool ${qa.on?'on':''}" id="quranListenBtn">🎧 ${L({rur:'Tilawat sunein', en:'Listen'})}</button>
       <button class="quran-tool ${state.quranTrPage?'on':''}" id="quranTpBtn">📜 ${L({rur:'Tarjuma', en:'Translation'})}</button>
       <button class="quran-tool ${notesForPage(page).length?'on':''}" id="quranNoteBtn">📝 ${L({rur:'Note', en:'Note'})}${notesForPage(page).length ? ' (' + notesForPage(page).length + ')' : ''}</button>
+      <button class="quran-tool qt-moretog ${state.qToolsOpen?'on':''}" id="quranMoreBtn" aria-expanded="${!!state.qToolsOpen}">${state.qToolsOpen ? '▴' : '⋯'} ${L({rur:'Aur', en:'More'})}</button>
+      <span class="qt-more" ${state.qToolsOpen ? '' : 'hidden'}>
       <button class="quran-tool ${state.quranTint?'on':''}" id="quranTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
       <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
       <button class="quran-tool" id="quranShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool" id="quranSignsBtn">🛑 ${L({rur:'Alamaat', en:'Signs'})}</button>
+      </span>
     </div>
     <div class="q-tints" id="qTints" ${quranTintOpen ? '' : 'hidden'}>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint||'')===t.k?' active':''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
     <div class="quran-jump">
@@ -277,6 +280,7 @@ function renderQuranReader(page){
     showToast(i>=0 ? L({rur:'Nishaan hata diya', en:'Bookmark removed'}) : L({rur:'Nishaan laga diya', en:'Bookmarked'}));
   };
   document.getElementById('quranNoteBtn').onclick = ()=> openNoteBox({ page }, ()=>{ const b = document.getElementById('quranNoteBtn'); if(b){ const c = notesForPage(page).length; b.classList.toggle('on', c > 0); b.textContent = '📝 ' + L({rur:'Note', en:'Note'}) + (c ? ' (' + c + ')' : ''); } });
+  document.getElementById('quranMoreBtn').onclick = ()=>{ state.qToolsOpen = !state.qToolsOpen; saveState(); const sp = document.querySelector('.qt-more'); sp.hidden = !state.qToolsOpen; const b = document.getElementById('quranMoreBtn'); b.classList.toggle('on', !!state.qToolsOpen); b.setAttribute('aria-expanded', !!state.qToolsOpen); b.textContent = (state.qToolsOpen ? '▴' : '⋯') + ' ' + L({rur:'Aur', en:'More'}); };
   document.getElementById('quranTintBtn').onclick = ()=>{ quranTintOpen = !quranTintOpen; document.getElementById('qTints').hidden = !quranTintOpen; };
   document.getElementById('qTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderQuranReader(page); };
   quranTintApply();
@@ -297,6 +301,8 @@ function renderQuranReader(page){
   document.getElementById('quranParaBtn').onclick = ()=> renderQuranIndex('para');
   document.getElementById('quranSurahBtn').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('quranManzilBtn').onclick = ()=> renderQuranIndex('manzil');
+  if(qaFlip && prevPage && prevPage !== page){ const im = document.querySelector('.quran-page-img'); if(im){ im.classList.add(page > prevPage ? 'turn-l' : 'turn-r'); setTimeout(()=>im.classList.remove('turn-l', 'turn-r'), 360); } }
+  { const im = document.querySelector('.quran-page-img'), w = im && im.parentElement; if(im && w){ const ready = ()=> w.classList.add('ready'); if(im.complete) ready(); else { im.addEventListener('load', ready); im.addEventListener('error', ready); } } }
   wirePnBar();
   // two pages each way, so fast page turns never show a blank page
   [page + 1, page - 1, page + 2, page - 2].forEach(n=>{ if(n>=1 && n<=QURAN_PAGE_COUNT){ const im = new Image(); im.src = quranImg(n); } });

@@ -42,10 +42,12 @@ function renderMissedBar(viewDate, isToday, sched, now){
   const miss = sched.filter(p=> FIVE.includes(p.key) && now >= p.end && getStatus(viewDate, p.key) === undefined);
   if(!miss.length) return;
   const bar = document.createElement('div'); bar.id = 'missedBar'; bar.className = 'missed-bar';
-  bar.innerHTML = `<div class="mb-head"><b>⏰ ${miss.length === 1 ? miss[0].name + ' ka waqt nikal gaya' : miss.length + ' namazon ka waqt nikal gaya'}</b><button type="button" class="mb-x" aria-label="Aaj ke liye chhupayein">✕</button></div>`
-    + miss.map(p=>`<div class="mb-row"><span>${PRAYER_META[p.key] ? PRAYER_META[p.key].icon : ''} ${p.name}</span><span class="mb-btns"><button type="button" class="mb-ok" data-k="${p.key}">✓ Padh li</button><button type="button" class="mb-qz" data-k="${p.key}">＋ Qaza mein</button></span></div>`).join('');
+  const open = miss.length === 1 || !!window.__missedOpen;   /* several missed: one collapsed line until opened */
+  bar.innerHTML = `<div class="mb-head"><b>⏰ ${miss.length === 1 ? miss[0].name + ' ka waqt nikal gaya' : miss.length + ' namazon ka waqt nikal gaya'}</b><span>${miss.length > 1 ? `<button type="button" class="mb-tog" aria-expanded="${open}">${open ? '▴' : '▾ ' + L({rur:'Dekhein', en:'View'})}</button>` : ''}<button type="button" class="mb-x" aria-label="Aaj ke liye chhupayein">✕</button></span></div>`
+    + (open ? miss : []).map(p=>`<div class="mb-row"><span>${PRAYER_META[p.key] ? PRAYER_META[p.key].icon : ''} ${p.name}</span><span class="mb-btns"><button type="button" class="mb-ok" data-k="${p.key}">✓ Padh li</button><button type="button" class="mb-qz" data-k="${p.key}">＋ Qaza mein</button></span></div>`).join('');
   bar.onclick = e=>{
     const b = e.target.closest('button'); if(!b) return;
+    if(b.classList.contains('mb-tog')){ window.__missedOpen = !window.__missedOpen; renderMissedBar(viewDate, isToday, sched, now); return; }
     if(b.classList.contains('mb-x')){ state.missedOff = state.missedOff || {}; state.missedOff[dk] = true; saveState(); bar.remove(); return; }
     const k = b.dataset.k; if(!k) return;
     if(b.classList.contains('mb-ok')){ state.status[statusKey(viewDate, k)] = 'green'; showToast('Allah qubool farmaye'); }
@@ -214,6 +216,7 @@ function renderHome(){
       /* layout may still be settling (fonts, tab just shown): settle again unless the person has scrolled themselves */
       [120, 500, 1200].forEach(ms=> setTimeout(()=>{ if(!liveUserScrolled) centerLiveRow(true); }, ms));
     }
+    if(liveKey && lastLiveKey && liveKey !== lastLiveKey){ const nr = listEl.querySelector(`.time-row[data-key="${liveKey}"]`); if(nr){ nr.classList.add('row-in'); setTimeout(()=>nr.classList.remove('row-in'), 900); } }
     lastLiveKey = liveKey;
   }
   homeNextChange = Infinity;

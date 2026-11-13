@@ -610,13 +610,20 @@ const PALETTES = [
   { k:'graphite',n:'Raakh',    sw:['#b8bfcc','#1b1b1b'] }
 ];
 const LIGHT_THEMES = ['light','waqt-morning','waqt-bright','waqt-dim'];
+/* text colour that is readable on the current accent: dark or white, whichever has the higher contrast */
+function applyOnAccent(){
+  const root = document.documentElement, probe = document.createElement('i'); probe.style.color = getComputedStyle(root).getPropertyValue('--accent'); document.body.appendChild(probe);
+  const m = getComputedStyle(probe).color.match(/[\d.]+/g); probe.remove(); if(!m) return;
+  const f = v=>{ v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }, L = .2126 * f(+m[0]) + .7152 * f(+m[1]) + .0722 * f(+m[2]);
+  root.style.setProperty('--onAccent', (L + .05) / .05 > 1.05 / (L + .05) ? '#08131c' : '#ffffff'); // dark ink if it beats white
+}
 function applyPalette(name){
   const root = document.documentElement, pal = (PALETTES.find(p=>p.k===state.palette) || PALETTES[0]).k;
   if(pal === 'default') root.removeAttribute('data-palette'); else root.setAttribute('data-palette', pal);
   root.setAttribute('data-tone', LIGHT_THEMES.includes(name) ? 'light' : 'dark');
   root.setAttribute('data-mode', state.theme === 'waqti' ? 'ambient' : 'fixed');
   document.querySelectorAll('#palRow .pal').forEach(b=>b.classList.toggle('active', b.dataset.k === pal));
-  requestAnimationFrame(()=>{ try{ const m = document.querySelector('meta[name=theme-color]'); if(m) m.content = getComputedStyle(root).getPropertyValue('--bg').trim() || m.content; }catch(e){} });
+  requestAnimationFrame(()=>{ try{ const m = document.querySelector('meta[name=theme-color]'); if(m) m.content = getComputedStyle(root).getPropertyValue('--bg').trim() || m.content; }catch(e){} try{ applyOnAccent(); }catch(e){} });
 }
 (function(){
   const row = document.getElementById('palRow'); if(!row) return;

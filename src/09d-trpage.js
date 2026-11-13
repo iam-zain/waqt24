@@ -172,7 +172,7 @@ async function trpFill(page){
   const pages = []; if(inRange){ for(let n = trp.from; n <= trp.to; n++) pages.push(n); } else { trp.from = trp.to = page; pages.push(page); }
   trp.lang = lang; trpHead(page, lang);
   if(!trPageAyahs(page).length){ sc.innerHTML = `<div class="tp-msg">${L({rur:'Is safhe par ayaat nahi hain.', en:'There are no ayahs on this page.'})}</div>`; return; }
-  sc.innerHTML = `<div class="tp-msg">${trpMsg()}</div>`;
+  sc.innerHTML = `<div class="tp-msg loading">${trpMsg()}</div>`;
   let html;
   try{ html = await trpBuild(pages, lang); }
   catch(e){

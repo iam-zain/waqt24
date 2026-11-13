@@ -9,6 +9,8 @@ function dailyPick(kind){
 }
 function renderDailyCard(){
   const el = document.getElementById('dailyCard'); if(!el || !dailyShift) return; // not initialised yet (called from the first renderHome)
+  if(state.dailyOff){ el.style.display = 'none'; el.innerHTML = ''; dailyDrawnKey = ''; return; }
+  el.style.display = '';
   const key = dayKey(new Date()) + dailyTab + dailyShift[dailyTab] + (isEn() ? 'e' : 'u');
   if(key === dailyDrawnKey && el.firstChild) return;
   dailyDrawnKey = key;

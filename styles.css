@@ -1792,3 +1792,79 @@ body.qp-on #detailBody, body.qp-on .screen.scrollable{ padding-bottom:210px; }
 .rz-roza{ font:inherit; font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; white-space:nowrap; }
 .rz-roza.on{ background:var(--green); border-color:var(--green); color:#fff; }
 .rz-card{ margin:0 0 10px; } .rz-opts{ margin-bottom:12px; }
+
+/* ===== Contrast pass: dim by colour, not by opacity; readable fills; no tiny labels ===== */
+:root{ --greenFill:#23804a; --redFill:#b24535; --onAccent:#08131c; }
+.bulk-green, .dot-btn.on-green{ background:var(--greenFill); border-color:var(--greenFill); color:#fff; }
+.bulk-red, .dot-btn.on-red{ background:var(--redFill); border-color:var(--redFill); color:#fff; }
+.bulk-green, .bulk-red{ color:#fff; }
+.time-row.past{ opacity:1; }
+.time-row.past .pIcon, .time-row.past .arrow, .time-row.past .meter{ opacity:.6; }
+.time-row.past .name, .time-row.past .clock, .time-row.past .nameTxt{ color:var(--sub) !important; }
+.time-row.future{ opacity:1; }
+#timesList.namaz-mode .time-row.future{ opacity:1; }
+.time-row .remainLabel{ opacity:1; font-size:12px; }
+.goal-day small, .ts-bar small, .goal-day small{ font-size:11px; }
+.cal-toggle button.active, .kp-chip.on, .dc-tabs button.on, .ts-preset.on, .note-btns .note-save{ color:var(--onAccent); }
+.roza-label-s, #timesList span[style*="font-size:10px"]{ font-size:11.5px !important; }
+.note-when, .tl-sub, .bm-note, .note-meta, .dc-ref{ font-size:12px; }
+/* high-contrast option (Settings): stronger text, borders and focus; status marks keep their ✓ ~ ⏳ shapes */
+body.hc{ --sub:var(--text); --line:color-mix(in srgb, var(--text) 45%, transparent); --dotBorder:var(--text); }
+body.hc .time-row, body.hc .ramzan-card, body.hc .dw-row, body.hc .daily-card, body.hc .note-item, body.hc .missed-bar, body.hc .rz-bar{ border:2px solid var(--line); }
+body.hc button, body.hc .more-item{ border-width:2px; }
+body.hc :focus-visible{ outline:3px solid var(--text); outline-offset:2px; }
+body.hc .time-row.past, body.hc .time-row.future{ opacity:1; }
+body.hc .time-row.past .pIcon, body.hc .time-row.past .arrow{ opacity:1; }
+body.hc .dot-btn.on-green{ outline:2px solid #fff; } body.hc .dot-btn.on-red{ outline:2px dashed #fff; } body.hc .dot-btn.on-yellow{ outline:2px dotted #000; }
+/* type colours keep their hue but are pulled toward the text colour, so names stay readable on every theme */
+.time-row.fard .name, .time-row.nafil .name, .time-row.meal .name, .time-row.special .name{ color:color-mix(in srgb, var(--rowc) 62%, var(--text)); }
+.time-row.fard{ --rowc:var(--fard); } .time-row.nafil{ --rowc:var(--nafil); } .time-row.meal{ --rowc:var(--meal); } .time-row.special{ --rowc:var(--text); }
+.time-row.current .name{ color:color-mix(in srgb, var(--rowc) 70%, var(--text)); }
+.goal-day small, .ts-bar small{ color:color-mix(in srgb, var(--sub) 55%, var(--text)); }
+.hero-cd b{ color:color-mix(in srgb, var(--hc) 62%, var(--text)); }
+
+/* ===== UI polish ===== */
+/* display options */
+.disp-opts{ margin:6px 0 4px; } .disp-tour{ width:100%; margin-top:8px; font:inherit; font-size:13px; padding:10px; border-radius:12px; border:1px dashed var(--line); background:none; color:var(--accentInk); cursor:pointer; }
+/* calmer motion (in-app switch; the phone's own reduce-motion setting is honoured above) */
+body.calm *, body.calm *::before, body.calm *::after{ animation-duration:.01ms !important; animation-delay:0s !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+/* touch targets: 44px comfortable minimum for the new small controls */
+.missed-bar .mb-btns button, .mb-tog, .mb-x{ min-height:40px; padding:8px 12px; }
+.ts-preset, .kp-chip, .dc-tabs button, .note-meta button, .kp-custom button, .kp-clear, .note-add{ min-height:40px; }
+.dc-btns button, .note-btns button, .quran-tool, .rz-roza{ min-height:44px; }
+.note-meta button{ padding:8px 10px; } .mb-tog{ background:none; border:0; color:var(--accentInk); font:inherit; font-size:12.5px; cursor:pointer; }
+.missed-bar .mb-head span{ display:flex; align-items:center; }
+/* reader: secondary tools folded under "More" */
+.qt-more{ display:contents; } .qt-more[hidden]{ display:none; }
+.qt-moretog{ min-width:84px; }
+/* sheets: a grab handle and a slide-in */
+.note-sheet::before{ content:''; display:block; width:38px; height:4px; border-radius:4px; background:var(--line); margin:0 auto 10px; }
+.note-sheet{ animation:sheetUp .26s var(--fx-ease, ease); }
+@keyframes sheetUp{ from{ transform:translateY(40px); opacity:0; } to{ transform:none; opacity:1; } }
+/* the live prayer changes: the new row eases in and glows once */
+@keyframes rowIn{ 0%{ transform:scale(.97); box-shadow:0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); } 60%{ transform:scale(1.015); box-shadow:0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent); } 100%{ transform:none; } }
+.time-row.row-in{ animation:rowIn .8s var(--fx-ease, ease); }
+/* marking a prayer: the row gives a small pop */
+@keyframes rowPop{ 0%{ transform:scale(1); } 40%{ transform:scale(1.02); } 100%{ transform:scale(1); } }
+body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yellow{ animation:rowPop .35s var(--fx-spring, ease); }
+/* Quran page turn: the new page slides in from the side it came from (Arabic reads right to left) */
+@keyframes turnL{ from{ transform:translateX(-26px); opacity:.2; } to{ transform:none; opacity:1; } }
+@keyframes turnR{ from{ transform:translateX(26px); opacity:.2; } to{ transform:none; opacity:1; } }
+.quran-page-img.turn-l{ animation:turnL .28s var(--fx-ease, ease); } .quran-page-img.turn-r{ animation:turnR .28s var(--fx-ease, ease); }
+/* skeleton shimmer behind a Quran page until its picture has loaded, and while the translation loads */
+@keyframes shimmer{ from{ background-position:-200px 0; } to{ background-position:calc(200px + 100%) 0; } }
+.quran-page-wrap:not(.ready){ background-image:linear-gradient(90deg, transparent 0, color-mix(in srgb, var(--text) 10%, transparent) 50%, transparent 100%); background-size:200px 100%; background-repeat:no-repeat; animation:shimmer 1.2s linear infinite; min-height:320px; }
+.tp-msg.loading::before, .tp-msg:empty::before{ content:''; display:block; height:14px; margin:6px auto; width:70%; border-radius:7px; background:linear-gradient(90deg, var(--line) 0, color-mix(in srgb, var(--text) 14%, var(--line)) 50%, var(--line) 100%); background-size:200px 100%; animation:shimmer 1.2s linear infinite; box-shadow:0 22px 0 -0px var(--line), 0 44px 0 0 var(--line); }
+/* tasbeeh: tap ripple and a ring at the target */
+.tasbeeh-tap{ position:relative; overflow:hidden; }
+.tap-ripple{ position:absolute; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:50%; background:var(--tasbeehColor, var(--accent)); opacity:.45; pointer-events:none; animation:tapRipple .55s ease-out forwards; }
+@keyframes tapRipple{ to{ transform:scale(24); opacity:0; } }
+.tasbeeh-count{ position:relative; }
+.tasbeeh-count.hit::after{ content:''; position:absolute; left:50%; top:50%; width:90px; height:90px; margin:-45px 0 0 -45px; border-radius:50%; border:3px solid var(--tasbeehColor, var(--accent)); pointer-events:none; animation:hitRing .7s ease-out forwards; }
+@keyframes hitRing{ from{ transform:scale(.6); opacity:.9; } to{ transform:scale(2.6); opacity:0; } }
+/* first-run tour */
+.tour-ov{ position:fixed; inset:0; z-index:800; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; padding:18px; animation:backdropIn .25s ease; }
+.tour-card{ width:100%; max-width:380px; background:var(--bg2); color:var(--text); border-radius:20px; padding:22px 20px 16px; text-align:center; box-shadow:0 12px 40px rgba(0,0,0,.4); animation:sheetUp .3s var(--fx-ease, ease); }
+.tour-ic{ font-size:42px; line-height:1.2; } .tour-card h3{ margin:8px 0 6px; font-size:18px; } .tour-card p{ font-size:14px; line-height:1.6; color:var(--sub); margin:0 0 12px; }
+.tour-dots{ display:flex; gap:6px; justify-content:center; margin-bottom:14px; } .tour-dots i{ width:8px; height:8px; border-radius:50%; background:var(--line); } .tour-dots i.on{ background:var(--accent); width:22px; border-radius:4px; }
+.tour-btns{ display:flex; gap:10px; } .tour-btns button{ flex:1; min-height:44px; font:inherit; font-size:14px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; } .tour-btns .go{ background:var(--accent); border-color:var(--accent); color:var(--onAccent); font-weight:700; }

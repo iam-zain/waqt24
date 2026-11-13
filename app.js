@@ -611,13 +611,20 @@ const PALETTES = [
   { k:'graphite',n:'Raakh',    sw:['#b8bfcc','#1b1b1b'] }
 ];
 const LIGHT_THEMES = ['light','waqt-morning','waqt-bright','waqt-dim'];
+/* text colour that is readable on the current accent: dark or white, whichever has the higher contrast */
+function applyOnAccent(){
+  const root = document.documentElement, probe = document.createElement('i'); probe.style.color = getComputedStyle(root).getPropertyValue('--accent'); document.body.appendChild(probe);
+  const m = getComputedStyle(probe).color.match(/[\d.]+/g); probe.remove(); if(!m) return;
+  const f = v=>{ v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }, L = .2126 * f(+m[0]) + .7152 * f(+m[1]) + .0722 * f(+m[2]);
+  root.style.setProperty('--onAccent', (L + .05) / .05 > 1.05 / (L + .05) ? '#08131c' : '#ffffff'); // dark ink if it beats white
+}
 function applyPalette(name){
   const root = document.documentElement, pal = (PALETTES.find(p=>p.k===state.palette) || PALETTES[0]).k;
   if(pal === 'default') root.removeAttribute('data-palette'); else root.setAttribute('data-palette', pal);
   root.setAttribute('data-tone', LIGHT_THEMES.includes(name) ? 'light' : 'dark');
   root.setAttribute('data-mode', state.theme === 'waqti' ? 'ambient' : 'fixed');
   document.querySelectorAll('#palRow .pal').forEach(b=>b.classList.toggle('active', b.dataset.k === pal));
-  requestAnimationFrame(()=>{ try{ const m = document.querySelector('meta[name=theme-color]'); if(m) m.content = getComputedStyle(root).getPropertyValue('--bg').trim() || m.content; }catch(e){} });
+  requestAnimationFrame(()=>{ try{ const m = document.querySelector('meta[name=theme-color]'); if(m) m.content = getComputedStyle(root).getPropertyValue('--bg').trim() || m.content; }catch(e){} try{ applyOnAccent(); }catch(e){} });
 }
 (function(){
   const row = document.getElementById('palRow'); if(!row) return;
@@ -766,10 +773,12 @@ function renderMissedBar(viewDate, isToday, sched, now){
   const miss = sched.filter(p=> FIVE.includes(p.key) && now >= p.end && getStatus(viewDate, p.key) === undefined);
   if(!miss.length) return;
   const bar = document.createElement('div'); bar.id = 'missedBar'; bar.className = 'missed-bar';
-  bar.innerHTML = `<div class="mb-head"><b>⏰ ${miss.length === 1 ? miss[0].name + ' ka waqt nikal gaya' : miss.length + ' namazon ka waqt nikal gaya'}</b><button type="button" class="mb-x" aria-label="Aaj ke liye chhupayein">✕</button></div>`
-    + miss.map(p=>`<div class="mb-row"><span>${PRAYER_META[p.key] ? PRAYER_META[p.key].icon : ''} ${p.name}</span><span class="mb-btns"><button type="button" class="mb-ok" data-k="${p.key}">✓ Padh li</button><button type="button" class="mb-qz" data-k="${p.key}">＋ Qaza mein</button></span></div>`).join('');
+  const open = miss.length === 1 || !!window.__missedOpen;   /* several missed: one collapsed line until opened */
+  bar.innerHTML = `<div class="mb-head"><b>⏰ ${miss.length === 1 ? miss[0].name + ' ka waqt nikal gaya' : miss.length + ' namazon ka waqt nikal gaya'}</b><span>${miss.length > 1 ? `<button type="button" class="mb-tog" aria-expanded="${open}">${open ? '▴' : '▾ ' + L({rur:'Dekhein', en:'View'})}</button>` : ''}<button type="button" class="mb-x" aria-label="Aaj ke liye chhupayein">✕</button></span></div>`
+    + (open ? miss : []).map(p=>`<div class="mb-row"><span>${PRAYER_META[p.key] ? PRAYER_META[p.key].icon : ''} ${p.name}</span><span class="mb-btns"><button type="button" class="mb-ok" data-k="${p.key}">✓ Padh li</button><button type="button" class="mb-qz" data-k="${p.key}">＋ Qaza mein</button></span></div>`).join('');
   bar.onclick = e=>{
     const b = e.target.closest('button'); if(!b) return;
+    if(b.classList.contains('mb-tog')){ window.__missedOpen = !window.__missedOpen; renderMissedBar(viewDate, isToday, sched, now); return; }
     if(b.classList.contains('mb-x')){ state.missedOff = state.missedOff || {}; state.missedOff[dk] = true; saveState(); bar.remove(); return; }
     const k = b.dataset.k; if(!k) return;
     if(b.classList.contains('mb-ok')){ state.status[statusKey(viewDate, k)] = 'green'; showToast('Allah qubool farmaye'); }
@@ -938,6 +947,7 @@ function renderHome(){
       /* layout may still be settling (fonts, tab just shown): settle again unless the person has scrolled themselves */
       [120, 500, 1200].forEach(ms=> setTimeout(()=>{ if(!liveUserScrolled) centerLiveRow(true); }, ms));
     }
+    if(liveKey && lastLiveKey && liveKey !== lastLiveKey){ const nr = listEl.querySelector(`.time-row[data-key="${liveKey}"]`); if(nr){ nr.classList.add('row-in'); setTimeout(()=>nr.classList.remove('row-in'), 900); } }
     lastLiveKey = liveKey;
   }
   homeNextChange = Infinity;
@@ -2779,7 +2789,7 @@ function renderQuranReader(page){
   /* A page change inside the reader (or a pick from the index) moves the recitation too; merely reopening the reader does not */
   const qaFlip = !!document.getElementById('quranWrap') || qa.forceSync; qa.forceSync = false;
   if(qaFlip) qaSyncToPage(page);
-  state.quranPage = page;
+  const prevPage = state.quranPage; state.quranPage = page;
   clearTimeout(quranReadTimer); quranReadTimer = setTimeout(()=> markQuranPageRead(page), 8000);
   state.lastRead = { k:'quran', id:page, ed:quranEd(), label:`${quranEdLabel()} · Page ${page} · ${quranSurahOf(page).name}` };
   saveState();
@@ -2803,12 +2813,15 @@ function renderQuranReader(page){
       <button class="quran-tool ${qa.on?'on':''}" id="quranListenBtn">🎧 ${L({rur:'Tilawat sunein', en:'Listen'})}</button>
       <button class="quran-tool ${state.quranTrPage?'on':''}" id="quranTpBtn">📜 ${L({rur:'Tarjuma', en:'Translation'})}</button>
       <button class="quran-tool ${notesForPage(page).length?'on':''}" id="quranNoteBtn">📝 ${L({rur:'Note', en:'Note'})}${notesForPage(page).length ? ' (' + notesForPage(page).length + ')' : ''}</button>
+      <button class="quran-tool qt-moretog ${state.qToolsOpen?'on':''}" id="quranMoreBtn" aria-expanded="${!!state.qToolsOpen}">${state.qToolsOpen ? '▴' : '⋯'} ${L({rur:'Aur', en:'More'})}</button>
+      <span class="qt-more" ${state.qToolsOpen ? '' : 'hidden'}>
       <button class="quran-tool ${state.quranTint?'on':''}" id="quranTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${quranNightOn()?'on':''}" id="quranNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
       <button class="quran-tool" id="quranZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
       <button class="quran-tool" id="quranShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound?'on':''}" id="quranSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool" id="quranSignsBtn">🛑 ${L({rur:'Alamaat', en:'Signs'})}</button>
+      </span>
     </div>
     <div class="q-tints" id="qTints" ${quranTintOpen ? '' : 'hidden'}>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint||'')===t.k?' active':''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
     <div class="quran-jump">
@@ -2831,6 +2844,7 @@ function renderQuranReader(page){
     showToast(i>=0 ? L({rur:'Nishaan hata diya', en:'Bookmark removed'}) : L({rur:'Nishaan laga diya', en:'Bookmarked'}));
   };
   document.getElementById('quranNoteBtn').onclick = ()=> openNoteBox({ page }, ()=>{ const b = document.getElementById('quranNoteBtn'); if(b){ const c = notesForPage(page).length; b.classList.toggle('on', c > 0); b.textContent = '📝 ' + L({rur:'Note', en:'Note'}) + (c ? ' (' + c + ')' : ''); } });
+  document.getElementById('quranMoreBtn').onclick = ()=>{ state.qToolsOpen = !state.qToolsOpen; saveState(); const sp = document.querySelector('.qt-more'); sp.hidden = !state.qToolsOpen; const b = document.getElementById('quranMoreBtn'); b.classList.toggle('on', !!state.qToolsOpen); b.setAttribute('aria-expanded', !!state.qToolsOpen); b.textContent = (state.qToolsOpen ? '▴' : '⋯') + ' ' + L({rur:'Aur', en:'More'}); };
   document.getElementById('quranTintBtn').onclick = ()=>{ quranTintOpen = !quranTintOpen; document.getElementById('qTints').hidden = !quranTintOpen; };
   document.getElementById('qTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderQuranReader(page); };
   quranTintApply();
@@ -2851,6 +2865,8 @@ function renderQuranReader(page){
   document.getElementById('quranParaBtn').onclick = ()=> renderQuranIndex('para');
   document.getElementById('quranSurahBtn').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('quranManzilBtn').onclick = ()=> renderQuranIndex('manzil');
+  if(qaFlip && prevPage && prevPage !== page){ const im = document.querySelector('.quran-page-img'); if(im){ im.classList.add(page > prevPage ? 'turn-l' : 'turn-r'); setTimeout(()=>im.classList.remove('turn-l', 'turn-r'), 360); } }
+  { const im = document.querySelector('.quran-page-img'), w = im && im.parentElement; if(im && w){ const ready = ()=> w.classList.add('ready'); if(im.complete) ready(); else { im.addEventListener('load', ready); im.addEventListener('error', ready); } } }
   wirePnBar();
   // two pages each way, so fast page turns never show a blank page
   [page + 1, page - 1, page + 2, page - 2].forEach(n=>{ if(n>=1 && n<=QURAN_PAGE_COUNT){ const im = new Image(); im.src = quranImg(n); } });
@@ -7860,7 +7876,7 @@ async function trpFill(page){
   const pages = []; if(inRange){ for(let n = trp.from; n <= trp.to; n++) pages.push(n); } else { trp.from = trp.to = page; pages.push(page); }
   trp.lang = lang; trpHead(page, lang);
   if(!trPageAyahs(page).length){ sc.innerHTML = `<div class="tp-msg">${L({rur:'Is safhe par ayaat nahi hain.', en:'There are no ayahs on this page.'})}</div>`; return; }
-  sc.innerHTML = `<div class="tp-msg">${trpMsg()}</div>`;
+  sc.innerHTML = `<div class="tp-msg loading">${trpMsg()}</div>`;
   let html;
   try{ html = await trpBuild(pages, lang); }
   catch(e){
@@ -7997,6 +8013,8 @@ function dailyPick(kind){
 }
 function renderDailyCard(){
   const el = document.getElementById('dailyCard'); if(!el || !dailyShift) return; // not initialised yet (called from the first renderHome)
+  if(state.dailyOff){ el.style.display = 'none'; el.innerHTML = ''; dailyDrawnKey = ''; return; }
+  el.style.display = '';
   const key = dayKey(new Date()) + dailyTab + dailyShift[dailyTab] + (isEn() ? 'e' : 'u');
   if(key === dailyDrawnKey && el.firstChild) return;
   dailyDrawnKey = key;
@@ -8170,3 +8188,85 @@ if(nativeLN()){
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) nativeSchedule(); });
   setInterval(()=>nativeSchedule(), 5 * 60000);
 }
+/* ============================================================
+   UI POLISH: display options (high contrast, calm motion, daily card), swipe-down sheets, tap ripple, first-run tour
+   ============================================================ */
+function applyDisplayPrefs(){
+  document.body.classList.toggle('hc', !!state.hc);
+  document.body.classList.toggle('calm', !!state.calm);
+  if(typeof renderDailyCard === 'function') renderDailyCard();
+}
+(function displayOptions(){
+  const anchor = document.getElementById('palRow'); if(!anchor) return;
+  const box = document.createElement('div'); box.className = 'disp-opts'; box.id = 'dispOpts';
+  const rows = [
+    ['hc',  '◐', {rur:'Zyada contrast', en:'High contrast'}, ()=>!!state.hc],
+    ['calm','🍃', {rur:'Kam animation', en:'Calmer motion'}, ()=>!!state.calm],
+    ['daily','🤲', {rur:'Home par Aaj ki Du\'a / Hadees', en:'Daily Du\'a / Hadees on Home'}, ()=>!state.dailyOff],
+  ];
+  const draw = ()=>{
+    box.innerHTML = rows.map(r=>`<div class="tasbeeh-sound-toggle"><span>${r[1]} ${L(r[2])}</span><div class="roza-mini ${r[3]() ? 'on' : ''}" role="switch" aria-checked="${r[3]()}" tabindex="0" data-disp="${r[0]}"><div class="roza-mini-knob"></div></div></div>`).join('')
+      + `<button type="button" class="disp-tour" id="dispTour">🧭 ${L({rur:'Tour dobara dekhein', en:'Show the tour again'})}</button>`;
+    box.querySelectorAll('[data-disp]').forEach(b=>{
+      const flip = ()=>{ const k = b.dataset.disp; if(k === 'hc') state.hc = !state.hc; else if(k === 'calm') state.calm = !state.calm; else state.dailyOff = !state.dailyOff; saveState(); applyDisplayPrefs(); draw(); };
+      b.onclick = flip; b.onkeydown = e=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); flip(); } };
+    });
+    document.getElementById('dispTour').onclick = ()=> startTour(true);
+  };
+  anchor.after(box); draw(); applyDisplayPrefs();
+})();
+
+/* one behaviour for every bottom sheet: drag down from its top (when scrolled to the top) to close */
+function sheetSwipe(container, sheetSel, close){
+  let y0 = null, dy = 0, sheet = null;
+  container.addEventListener('touchstart', e=>{
+    sheet = e.target.closest(sheetSel); if(!sheet || e.target.closest('textarea, input, select')){ y0 = null; return; }
+    if(sheet.scrollTop > 0){ y0 = null; return; }
+    y0 = e.touches[0].clientY; dy = 0; sheet.style.transition = 'none';
+  }, { passive:true });
+  container.addEventListener('touchmove', e=>{
+    if(y0 === null || !sheet) return; dy = e.touches[0].clientY - y0;
+    if(dy > 0) sheet.style.transform = `translateY(${dy}px)`; else dy = 0;
+  }, { passive:true });
+  const end = ()=>{
+    if(y0 === null || !sheet) return; const s = sheet; y0 = null;
+    s.style.transition = 'transform .22s var(--fx-ease, ease)';
+    if(dy > 90){ s.style.transform = 'translateY(110%)'; setTimeout(()=>{ s.style.transform = ''; s.style.transition = ''; close(); }, 180); }
+    else{ s.style.transform = ''; setTimeout(()=>{ s.style.transition = ''; }, 240); }
+  };
+  container.addEventListener('touchend', end); container.addEventListener('touchcancel', end);
+}
+(function(){
+  const sc = document.getElementById('shareChooser'); if(sc) sheetSwipe(sc, '.info-card', ()=> closeModal());
+  new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{
+    if(n.nodeType === 1 && n.classList.contains('note-ov')) sheetSwipe(n, '.note-sheet', ()=>{ const x = n.querySelector('.note-x'); if(x) x.click(); else n.remove(); });
+  }))).observe(document.body, { childList:true });
+})();
+
+/* tap ripple on the Tasbeeh button */
+document.addEventListener('pointerdown', e=>{
+  const b = e.target.closest('.tasbeeh-tap'); if(!b || document.body.classList.contains('calm')) return;
+  const r = b.getBoundingClientRect(), s = document.createElement('i'); s.className = 'tap-ripple';
+  s.style.left = (e.clientX - r.left) + 'px'; s.style.top = (e.clientY - r.top) + 'px'; b.appendChild(s); setTimeout(()=>s.remove(), 600);
+});
+
+/* first-run tour: three cards, once, never during automated tests */
+const TOUR = [
+  { ic:'✓', t:{rur:'Namaz mark karein', en:'Mark your prayers'}, b:{rur:'Har namaz ke saamne ✓ (padh li), ~ (qaza padhi) ya ⏳ (baaki) dabayein. Waqt nikal jaye aur mark na ho to Home par yaad dilane wali patti aati hai, jahan se seedha Qaza mein jod sakte hain.', en:'Tap ✓ (prayed), ~ (made up) or ⏳ (pending) beside each prayer. If a time passes unmarked, a reminder bar on Home lets you add it straight to your Qaza.'} },
+  { ic:'📖', t:{rur:'Qur\'an aur Tarjuma', en:'Quran and Translation'}, b:{rur:'Qur\'an mein Tilawat sunein, Tarjuma (Hinglish, Urdu, Hindi, English) kholen, kisi bhi page par Note likhein, aur Khatm ka plan banayein. "Aur" button mein baaki auzaar hain.', en:'In the Quran, listen to recitation, open the Translation, write a Note on any page and set a Khatm plan. More tools are under the "More" button.'} },
+  { ic:'🕌', t:{rur:'Aur kya hai', en:'What else'}, b:{rur:'Deegar mein Qaza, Tasbeeh, Ramzan, Qibla aur Azaan milenge. Band app mein bhi Azaan ke liye Android app install karein (Install wali screen mein link hai).', en:'Under More you will find Qaza, Tasbeeh, Ramzan, Qibla and Azan. For Azan while the app is closed, install the Android app (link on the Install screen).'} },
+];
+function startTour(force){
+  if(!force && (state.tourDone || navigator.webdriver || document.getElementById('setupOverlay'))) return;
+  if(document.getElementById('tourOv')) return;
+  let i = 0; const ov = document.createElement('div'); ov.id = 'tourOv'; ov.className = 'tour-ov';
+  const done = ()=>{ state.tourDone = true; saveState(); ov.remove(); };
+  const draw = ()=>{
+    const s = TOUR[i];
+    ov.innerHTML = `<div class="tour-card" role="dialog" aria-label="Tour"><div class="tour-ic">${s.ic}</div><h3>${L(s.t)}</h3><p>${L(s.b)}</p><div class="tour-dots">${TOUR.map((_, k)=>`<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div><div class="tour-btns"><button type="button" id="tourSkip">${L({rur:'Chhodein', en:'Skip'})}</button><button type="button" id="tourNext" class="go">${i === TOUR.length - 1 ? L({rur:'Shuru karein', en:'Start'}) : L({rur:'Aage', en:'Next'})}</button></div></div>`;
+    document.getElementById('tourSkip').onclick = done;
+    document.getElementById('tourNext').onclick = ()=>{ if(i >= TOUR.length - 1) done(); else{ i++; draw(); } };
+  };
+  document.body.appendChild(ov); draw();
+}
+setTimeout(()=> startTour(false), 2500);
