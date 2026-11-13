@@ -35,9 +35,13 @@ let homeNextChange = 0, homeRenderedDay = null; // set by renderHome, read by ho
 function isSameDay(a,b){ return dayKey(a)===dayKey(b); }
 
 /* Missed-prayer banner: a Farz whose time has ended and which was never marked. ✓ = padh li, Qaza = adds one to the Qaza tracker and marks it Baaki. */
+/* Home extras (missed-prayer bar, Ramzan bar) wait a little after the app opens, so the prayer list comes first */
+var UI_OPEN_AT = Date.now(), UI_GATE_SEC = 20;
+function uiGateOpen(sec){ return Date.now() - UI_OPEN_AT >= (sec || UI_GATE_SEC) * 1000; }
+setTimeout(()=>{ try{ renderHome(); }catch(e){} }, UI_GATE_SEC * 1000 + 100);
 function renderMissedBar(viewDate, isToday, sched, now){
   const old = document.getElementById('missedBar'); if(old) old.remove();
-  if(!isToday) return;
+  if(!isToday || !uiGateOpen()) return;
   const dk = dayKey(viewDate); if(state.missedOff && state.missedOff[dk]) return;
   const miss = sched.filter(p=> FIVE.includes(p.key) && now >= p.end && getStatus(viewDate, p.key) === undefined);
   if(!miss.length) return;

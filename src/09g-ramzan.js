@@ -24,7 +24,7 @@ function ramzanLiveHtml(){
 }
 function renderRamzanBar(){
   const old = document.getElementById('ramzanBar');
-  if(!isRamzanNow()){ if(old) old.remove(); return; }
+  if(!isRamzanNow() || !uiGateOpen()){ if(old) old.remove(); return; }
   const list = document.getElementById('timesList'); if(!list) return;
   const bar = old || document.createElement('div');
   bar.id = 'ramzanBar'; bar.className = 'rz-bar'; bar.innerHTML = ramzanLiveHtml();

@@ -766,9 +766,13 @@ let homeNextChange = 0, homeRenderedDay = null; // set by renderHome, read by ho
 function isSameDay(a,b){ return dayKey(a)===dayKey(b); }
 
 /* Missed-prayer banner: a Farz whose time has ended and which was never marked. ✓ = padh li, Qaza = adds one to the Qaza tracker and marks it Baaki. */
+/* Home extras (missed-prayer bar, Ramzan bar) wait a little after the app opens, so the prayer list comes first */
+var UI_OPEN_AT = Date.now(), UI_GATE_SEC = 20;
+function uiGateOpen(sec){ return Date.now() - UI_OPEN_AT >= (sec || UI_GATE_SEC) * 1000; }
+setTimeout(()=>{ try{ renderHome(); }catch(e){} }, UI_GATE_SEC * 1000 + 100);
 function renderMissedBar(viewDate, isToday, sched, now){
   const old = document.getElementById('missedBar'); if(old) old.remove();
-  if(!isToday) return;
+  if(!isToday || !uiGateOpen()) return;
   const dk = dayKey(viewDate); if(state.missedOff && state.missedOff[dk]) return;
   const miss = sched.filter(p=> FIVE.includes(p.key) && now >= p.end && getStatus(viewDate, p.key) === undefined);
   if(!miss.length) return;
@@ -8013,19 +8017,20 @@ function dailyPick(kind){
 }
 function renderDailyCard(){
   const el = document.getElementById('dailyCard'); if(!el || !dailyShift) return; // not initialised yet (called from the first renderHome)
-  if(state.dailyOff){ el.style.display = 'none'; el.innerHTML = ''; dailyDrawnKey = ''; return; }
+  if(state.dailyOff || state.dailyHideDay === dayKey(new Date()) || !uiGateOpen(30)){ el.style.display = 'none'; el.innerHTML = ''; dailyDrawnKey = ''; return; }
   el.style.display = '';
   const key = dayKey(new Date()) + dailyTab + dailyShift[dailyTab] + (isEn() ? 'e' : 'u');
   if(key === dailyDrawnKey && el.firstChild) return;
   dailyDrawnKey = key;
   const x = dailyPick(dailyTab), en = isEn(), isDua = dailyTab === 'dua';
-  el.innerHTML = `<div class="dc-tabs"><button type="button" class="${isDua ? 'on' : ''}" data-dt="dua">🤲 ${L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'})}</button><button type="button" class="${isDua ? '' : 'on'}" data-dt="hadees">📜 ${L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'})}</button></div>
+  el.innerHTML = `<button type="button" class="dc-x" id="dcClose" aria-label="${L({rur:'Band karein', en:'Close'})}">✕</button><div class="dc-tabs"><button type="button" class="${isDua ? 'on' : ''}" data-dt="dua">🤲 ${L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'})}</button><button type="button" class="${isDua ? '' : 'on'}" data-dt="hadees">📜 ${L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'})}</button></div>
     <div class="dc-body">
       ${isDua ? `<div class="dc-title">${en && x.ent ? x.ent : x.title}</div><div class="dc-ar" dir="rtl">${x.arabic}</div><div class="dc-tr">${x.translit}</div><div class="dc-m">${en && x.enm ? x.enm : x.meaning}</div><div class="dc-ref">${x.ref || ''}</div>`
         : `<div class="dc-m dc-h">${en && x.en ? x.en : x.txt}</div><div class="dc-ref">${x.src}</div>`}
     </div>
     <div class="dc-btns"><button type="button" id="dcMore">🔄 ${L({rur:'Doosri', en:'Another'})}</button><button type="button" id="dcShare">📤 ${L({rur:'Share', en:'Share'})}</button></div>`;
   el.querySelectorAll('[data-dt]').forEach(b=>{ b.onclick = ()=>{ dailyTab = b.dataset.dt; renderDailyCard(); }; });
+  document.getElementById('dcClose').onclick = ()=>{ state.dailyHideDay = dayKey(new Date()); saveState(); renderDailyCard(); };
   document.getElementById('dcMore').onclick = ()=>{ dailyShift[dailyTab]++; renderDailyCard(); };
   document.getElementById('dcShare').onclick = ()=>{
     openCardShareChooser(isDua
@@ -8034,6 +8039,7 @@ function renderDailyCard(){
   };
 }
 renderDailyCard();
+setTimeout(()=>{ renderDailyCard(); }, 30100); // the card first appears 30 seconds after the app opens
 /* ============================================================
    RAMZAN MODE: while it is Ramzan, a bar on Home counts down to Sehri end / Iftar and shows the roza count with a one-tap Roza switch.
    The Ramzan screen gets the same live card plus two optional reminders (Sehri, Taraweeh).
@@ -8060,7 +8066,7 @@ function ramzanLiveHtml(){
 }
 function renderRamzanBar(){
   const old = document.getElementById('ramzanBar');
-  if(!isRamzanNow()){ if(old) old.remove(); return; }
+  if(!isRamzanNow() || !uiGateOpen()){ if(old) old.remove(); return; }
   const list = document.getElementById('timesList'); if(!list) return;
   const bar = old || document.createElement('div');
   bar.id = 'ramzanBar'; bar.className = 'rz-bar'; bar.innerHTML = ramzanLiveHtml();
@@ -8269,4 +8275,4 @@ function startTour(force){
   };
   document.body.appendChild(ov); draw();
 }
-setTimeout(()=> startTour(false), 2500);
+setTimeout(()=> startTour(false), 20000);

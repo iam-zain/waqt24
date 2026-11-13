@@ -79,4 +79,4 @@ function startTour(force){
   };
   document.body.appendChild(ov); draw();
 }
-setTimeout(()=> startTour(false), 2500);
+setTimeout(()=> startTour(false), 20000);

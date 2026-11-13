@@ -1868,3 +1868,6 @@ body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yello
 .tour-ic{ font-size:42px; line-height:1.2; } .tour-card h3{ margin:8px 0 6px; font-size:18px; } .tour-card p{ font-size:14px; line-height:1.6; color:var(--sub); margin:0 0 12px; }
 .tour-dots{ display:flex; gap:6px; justify-content:center; margin-bottom:14px; } .tour-dots i{ width:8px; height:8px; border-radius:50%; background:var(--line); } .tour-dots i.on{ background:var(--accent); width:22px; border-radius:4px; }
 .tour-btns{ display:flex; gap:10px; } .tour-btns button{ flex:1; min-height:44px; font:inherit; font-size:14px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--text); cursor:pointer; } .tour-btns .go{ background:var(--accent); border-color:var(--accent); color:var(--onAccent); font-weight:700; }
+.daily-card{ position:relative; }
+.dc-x{ position:absolute; top:6px; right:6px; z-index:1; width:36px; height:36px; border:0; border-radius:50%; background:transparent; color:var(--sub); font-size:16px; cursor:pointer; }
+.dc-tabs{ margin-right:30px; }
