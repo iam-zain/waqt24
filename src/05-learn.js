@@ -1307,7 +1307,7 @@ function renderMoreSettings(){
   }
 }
 function renderMoreRamzan(){
-  document.getElementById('detailTitle').textContent = 'Ramzan';
+  document.getElementById('detailTitle').textContent = 'Roza';
   const live = gregorianToHijri(new Date()).month===9;
   document.getElementById('detailBody').innerHTML = `
     ${live ? '' : `<div class="backup-note" style="margin-bottom:12px;">🌙 Abhi Ramzan nahi hai, yeh sirf jhalak hai. Ramzan mein yahan roza aur namaz mark kar sakenge.</div>`}

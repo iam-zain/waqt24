@@ -4648,7 +4648,7 @@ function renderMoreSettings(){
   }
 }
 function renderMoreRamzan(){
-  document.getElementById('detailTitle').textContent = 'Ramzan';
+  document.getElementById('detailTitle').textContent = 'Roza';
   const live = gregorianToHijri(new Date()).month===9;
   document.getElementById('detailBody').innerHTML = `
     ${live ? '' : `<div class="backup-note" style="margin-bottom:12px;">🌙 Abhi Ramzan nahi hai, yeh sirf jhalak hai. Ramzan mein yahan roza aur namaz mark kar sakenge.</div>`}
@@ -7057,7 +7057,7 @@ function renderMonthTable(){
     </div>
     <div class="theme-row" style="padding:0 0 12px;" role="group">
       <button data-ttm="namaz" class="${ttMode==='namaz'?'active':''}" aria-pressed="${ttMode==='namaz'}">${L({rur:'Namaz', en:'Prayers'})}</button>
-      <button data-ttm="ramzan" class="${ttMode==='ramzan'?'active':''}" aria-pressed="${ttMode==='ramzan'}">${L({rur:'Ramzan (Sehri/Iftar)', en:'Ramadan (Suhoor/Iftar)'})}</button>
+      <button data-ttm="ramzan" class="${ttMode==='ramzan'?'active':''}" aria-pressed="${ttMode==='ramzan'}">${L({rur:'Roza (Sehri/Iftar)', en:'Roza (Suhoor/Iftar)'})}</button>
     </div>
     <div class="tt-wrap"><table class="tt-table">
       <thead><tr><th>${L({rur:'Din', en:'Day'})}</th>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead>

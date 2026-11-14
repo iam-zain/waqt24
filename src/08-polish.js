@@ -42,7 +42,7 @@ function renderMonthTable(){
     </div>
     <div class="theme-row" style="padding:0 0 12px;" role="group">
       <button data-ttm="namaz" class="${ttMode==='namaz'?'active':''}" aria-pressed="${ttMode==='namaz'}">${L({rur:'Namaz', en:'Prayers'})}</button>
-      <button data-ttm="ramzan" class="${ttMode==='ramzan'?'active':''}" aria-pressed="${ttMode==='ramzan'}">${L({rur:'Ramzan (Sehri/Iftar)', en:'Ramadan (Suhoor/Iftar)'})}</button>
+      <button data-ttm="ramzan" class="${ttMode==='ramzan'?'active':''}" aria-pressed="${ttMode==='ramzan'}">${L({rur:'Roza (Sehri/Iftar)', en:'Roza (Suhoor/Iftar)'})}</button>
     </div>
     <div class="tt-wrap"><table class="tt-table">
       <thead><tr><th>${L({rur:'Din', en:'Day'})}</th>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
