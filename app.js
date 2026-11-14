@@ -7668,6 +7668,8 @@ const TR_NABI = {
   ur: /(آدم|ادریس|نوح|ہود|ابرا[ہھ]یم|لوط|اسماعیل|اسحاق|اسحٰق|یعقوب|یوسف|ایوب|شعیب|موس[یى]ٰ?|ہارون|ذوالکفل|داؤد|داود|سلیمان|الیاس|الیسع|یونس|زکریا|یحی[یى]?ٰ?|عیس[یى]ٰ?)(?![؀-ۿ])/g,
   hi: new RegExp('(' + ['आदम','इदरीस','नूह','हूद','इब्राही[मम]','इब्राहिम','लूत','इस्माई?ल','इसमाई?ल','इस्माइल','इस्हाक','इसहाक','याकू?ब','यूसुफ','अय्यूब','शुऐब','शुएब','शुऎब','मूसा','हारून','ज़ुलकिफ्ल','जुलकिफ्ल','ज़ुल्किफ्ल','दाऊद','दाउद','सुलैमान','सुलेमान','इल्यास','इलियास','अल्यसअ','अलयसअ','यूनुस','ज़करिया','जकरिया','ज़कारिया','यह्या','यहया','ईसा'].map(trDv).join('|') + ')(?![ऀ-ॿ])', 'g')
 };
+/* "(ऐ रसूल)" in brackets always addresses the Prophet: name him, as the Urdu edition does ("اے محمد") */
+const trAddr = t => t ? t.replace(/\(\s*[एऐ]\s+रसूल\s*\)/g, '(ऐ मुहम्मद)').replace(/तुमको को(?![\u0900-\u097F])/g, 'तुमको') : t;
 function trNabi(t, lang){
   if(!t) return t; const k = lang === 'rom' ? 'hi' : lang, re = TR_NABI[k]; if(!re) return t;
   const skip = new RegExp('^\\s*(?:\\(\\s*)?(?:alaihis|alayhi|عليه|علیہ|अलैहिस|अलैहि|\\(?(?:a\\.?s|peace)\\b)', 'i');
@@ -7683,7 +7685,7 @@ function trSal(t, lang){
 }
 async function trLoad(s, lang){
   const key = lang + s; if(TR_MEM[key]) return TR_MEM[key];
-  const def = TR_LANGS.find(l=>l.k === lang), conv = def.conv === 'roman' ? (x=> devaToRoman(trNabi(x, 'rom')).replace(/\btumko ko\b/gi, m=> m.slice(0, 5))) : (x=> trNabi(x, lang));
+  const def = TR_LANGS.find(l=>l.k === lang), conv = def.conv === 'roman' ? (x=> devaToRoman(trNabi(trAddr(x), 'rom')).replace(/\btumko ko\b/gi, m=> m.slice(0, 5))) : (x=> trNabi(lang === 'hi' ? trAddr(x) : x, lang));
   const url = `https://api.alquran.cloud/v1/surah/${s}/${def.ed}`;
   let cache = null; try{ cache = await caches.open('waqt24-tr-v1'); const hit = await cache.match(url); if(hit){ const j = await hit.json(); return TR_MEM[key] = j.data.ayahs.map(a=>trSal(trOvr(s, a, lang) || conv(a.text), lang)); } }catch(e){}
   const res = await fetch(url); if(!res.ok) throw new Error('tr ' + res.status);
