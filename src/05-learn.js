@@ -360,6 +360,7 @@ function renderNamesList(which){
   grid.querySelectorAll('[data-idx]').forEach(el=>{
     el.onclick = ()=>{
       const i = parseInt(el.dataset.idx);
+      if(which==='asma' && typeof asmaStop === 'function') asmaStop();   // opening a name stops whatever was playing
       setNavCtx(dataset, i, (w,j)=>renderNameDetail(which, j), null);
       renderNameDetail(which, i);
     };
