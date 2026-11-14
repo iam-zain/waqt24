@@ -3678,7 +3678,7 @@ const QUIZ_CAT_ICON = {
 let namesView = 'grid';
 /* Yaad status for a name, stored with the other memorisation statuses */
 function nameKey(which, w){ return 'name:' + which + ':' + w.tr; }
-function nameAccent(which){ return which==='asma' ? '#c99a4a' : '#3fa8a0'; }
+function nameAccent(which){ return which==='asma' ? 'var(--accent)' : '#3fa8a0'; }
 function renderNamesList(which){
   const dataset = which==='asma' ? ASMA_UL_HUSNA : PROPHET_NAMES;
   const title = which==='asma' ? 'Asma-ul-Husna' : "Muhammad ﷺ ke 99 Naam";

@@ -2026,30 +2026,30 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .ts-t mark{ background:color-mix(in srgb, var(--accent) 28%, transparent); color:inherit; border-radius:3px; padding:0 1px; }
 
 /* Asma-ul-Husna audio */
-.asma-full{ display:flex; align-items:center; gap:12px; margin:0 14px 12px; padding:12px; background:var(--card); border:1px solid var(--line); border-left:4px solid #c99a4a; border-radius:14px; }
-.asma-fbtn{ flex:0 0 46px; width:46px; height:46px; border-radius:50%; border:none; background:#c99a4a; color:#fff; font-size:17px; font-weight:800; cursor:pointer; }
+.asma-full{ display:flex; align-items:center; gap:12px; margin:0 14px 12px; padding:12px; background:var(--card); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:14px; }
+.asma-fbtn{ flex:0 0 46px; width:46px; height:46px; border-radius:50%; border:none; background:var(--accent); color:#fff; font-size:17px; font-weight:800; cursor:pointer; }
 .asma-fbtn:active{ transform:scale(.92); }
 .asma-fbtn.on{ background:var(--red); }
 .asma-fmid{ flex:1; min-width:0; }
 .asma-ftitle{ font-weight:700; font-size:14px; }
 .asma-fnow{ font-size:12px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .asma-fseek{ display:flex; align-items:center; gap:8px; margin-top:6px; font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
-.asma-fseek input{ flex:1; min-width:0; accent-color:#c99a4a; }
+.asma-fseek input{ flex:1; min-width:0; accent-color:var(--accent); }
 .names-cards .aad-card{ position:relative; }
-.asma-pl{ position:absolute; z-index:2; width:32px; height:32px; border-radius:50%; border:none; background:#c99a4a; color:#fff; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; }
+.asma-pl{ position:absolute; z-index:2; width:32px; height:32px; border-radius:50%; border:none; background:var(--accent); color:#fff; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; }
 .asma-pl.on{ background:var(--red); color:#fff; }
 .asma-pl:active{ transform:scale(.9); }
 .dua-grid:not(.list) .asma-pl{ top:6px; right:6px; }
 .dua-grid.list .asma-pl{ top:50%; right:34px; margin-top:-16px; }
 .dua-grid.list .aad-card{ padding-right:74px; }
-.aad-card.asma-now{ outline:2px solid #c99a4a; background:color-mix(in srgb, #c99a4a 16%, var(--card)); }
-.asma-listen{ display:flex; align-items:center; justify-content:center; gap:8px; width:calc(100% - 28px); margin:0 14px 12px; padding:12px; border:none; border-radius:12px; background:#c99a4a; color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
+.aad-card.asma-now{ outline:2px solid var(--accent); background:color-mix(in srgb, var(--accent) 16%, var(--card)); }
+.asma-listen{ display:flex; align-items:center; justify-content:center; gap:8px; width:calc(100% - 28px); margin:0 14px 12px; padding:12px; border:none; border-radius:12px; background:var(--accent); color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
 .asma-listen.on{ background:var(--red); }
 .asma-full{ position:sticky; top:-20px; z-index:5; margin-top:0; box-shadow:0 6px 14px -8px rgba(0,0,0,.55); background:var(--card); }
 
 .asma-ftop{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .asma-rate{ flex:0 0 auto; padding:5px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12px; font-weight:700; cursor:pointer; }
-.asma-rate.on{ background:#c99a4a; color:#fff; border-color:#c99a4a; }
+.asma-rate.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
 .asma-ftop .asma-ftitle{ font-size:13px; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 /* Daily card: folded to one slim title row; tap to open */
@@ -2072,4 +2072,9 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 
 .asma-opts{ display:flex; gap:8px; justify-content:center; margin:-4px 14px 12px; }
 .asma-opts button{ flex:1; padding:9px 12px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; font-weight:700; cursor:pointer; }
-.asma-opts button.on{ background:#c99a4a; border-color:#c99a4a; color:#fff; }
+.asma-opts button.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* in a tinted (Rang) page the name cards and their accents follow the chosen colour too */
+#detailOverlay[data-tint] .aad-card, #detailOverlay[data-tint] .aad-head, #detailOverlay[data-tint] .aad-status-row{ --aad-c:var(--accent) !important; }
+#detailOverlay[data-tint] .aad-ic, #detailOverlay[data-tint] .aad-cat-lbl{ color:var(--accent); }
+.asma-fbtn, .asma-pl, .asma-listen, .asma-rate.on, .asma-opts button.on{ color:#fff; }
