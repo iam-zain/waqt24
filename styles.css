@@ -1951,3 +1951,8 @@ body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yello
 .tb-sz{ display:flex; gap:8px; }
 .tb-surah{ background:var(--tbbg); position:relative; }
 .tb-top b.tb-urname{ font-family:'Noto Nastaliq Urdu','Scheherazade New',serif; font-size:16px; line-height:1.6; }
+.tb-ay{ border-radius:4px; -webkit-box-decoration-break:clone; box-decoration-break:clone; transition:background .2s; cursor:pointer; }
+.tb-ay.hl{ background:color-mix(in srgb, var(--tbac) 24%, transparent); box-shadow:0 0 0 2px color-mix(in srgb, var(--tbac) 24%, transparent); }
+.tb-surah.hl span{ background:color-mix(in srgb, var(--tbac) 24%, transparent); border-radius:6px; }
+.tb-listen.on{ border-color:var(--accent); background:var(--accent); color:var(--fardText,#fff); }
+body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }

@@ -7575,7 +7575,7 @@ function qaPlace(){
 function qaUI(){
   document.body.classList.toggle('qp-on', qa.on);
   const lb = document.getElementById('quranListenBtn'); if(lb) lb.classList.toggle('on', qa.on);
-  if(!qa.on){ const e = document.getElementById('qPlayer'); if(e) e.classList.remove('show'); qaHL(); if(typeof trpPlace === 'function') trpPlace(); return; }
+  if(!qa.on){ const e = document.getElementById('qPlayer'); if(e) e.classList.remove('show'); qaHL(); if(typeof trpPlace === 'function') trpPlace(); if(typeof tbSync === 'function') tbSync(); return; }
   const el = qaBar(), r = qaSurahAyah(qa.abs), nm = (QURAN_SURAHS[r.s-1] || {}).name || '';
   el.querySelector('#qpTitle').textContent = qa.bism ? `${nm} · Bismillah` : `${nm} · ${L({rur:'Ayat', en:'Ayah'})} ${qa.exact ? '' : '≈ '}${r.s}:${r.a}`;
   const cnt = `${L({rur:'Ayat', en:'Ayah'})} ${r.a} / ${QA_COUNTS[r.s-1]}`;
@@ -7584,7 +7584,7 @@ function qaUI(){
     : (qa.exact ? cnt + ' · ' + qaVoiceName() : L({rur:qaVoiceName() + ' · shuruaat andaaze se, ⏮ ⏭ se theek karein', en:qaVoiceName() + ' · start is approximate, adjust with ⏮ ⏭'}));
   el.querySelector('#qpPlay').innerHTML = qa.playing ? QA_ICON.pause : QA_ICON.play;
   el.classList.toggle('show', true);
-  qaPlace(); qaProg(); qaOptsUI(); qaHL(); if(typeof trpSync === 'function'){ trpSync(); trpPlace(); } if(typeof quranTintPlayer === 'function') quranTintPlayer();
+  qaPlace(); qaProg(); qaOptsUI(); qaHL(); if(typeof trpSync === 'function'){ trpSync(); trpPlace(); } if(typeof quranTintPlayer === 'function') quranTintPlayer(); if(typeof tbSync === 'function') tbSync();
   qaMediaMeta();
 }
 (function(){
@@ -8194,14 +8194,15 @@ async function tbBuild(page, lang){
     const r = qaSurahAyah(x), t = (data[surahs.indexOf(r.s)][r.a-1] || '').replace(/</g, '&lt;').replace(/\uFDFA/g, '<span class="tb-sw">\uFDFA</span>');
     if(r.a === 1){
       if(html.endsWith(open)) html = html.slice(0, -open.length); else html += '</p>';
-      html += `<div class="tb-surah"><span>${ur ? 'سورۃ ' + tbSurahName(r.s, lang) : r.s + '. ' + tbSurahName(r.s, lang)}</span></div>${open}`;
+      html += `<div class="tb-surah" data-a="${x}"><span>${ur ? 'سورۃ ' + tbSurahName(r.s, lang) : r.s + '. ' + tbSurahName(r.s, lang)}</span></div>${open}`;
     }
-    html += `${t} <i class="tb-n" dir="ltr">&#xFD3E;${trpDigits(r.a, ur)}&#xFD3F;</i> `;
+    html += `<span class="tb-ay" data-a="${x}">${t} <i class="tb-n" dir="ltr">&#xFD3E;${trpDigits(r.a, ur)}&#xFD3F;</i></span> `;
   });
   return html + '</p>';
 }
 function renderTarjumaBook(page, sheet){
   page = tbClamp(page); const lang = trLang(), lh = tbLh(), ur = lang === 'ur';
+  if(qa.on && !tbSt.following && qa.syncPage !== page && typeof qaSyncToPage === 'function') qaSyncToPage(page);   /* turning the page by hand moves a playing recitation with it */
   state.tbPage = page; saveState(); tbSt.page = page; tbSt.lang = lang; tbSt.sheet = 0; tbSt.total = 1;
   setNavCtx([0, 1, 2], 1, ()=>{}, null); __navCtx.rtl = false; __navCtx.turn = true;
   document.getElementById('detailTitle').textContent = L({rur:'Tarjuma', en:'Translation'});
@@ -8220,6 +8221,7 @@ function renderTarjumaBook(page, sheet){
       <button class="quran-tool" id="tbTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${night ? 'on' : ''}" id="tbNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
       <span class="tb-sz"><button class="quran-tool" type="button" data-z="-1" aria-label="Smaller text">A−</button><button class="quran-tool" type="button" data-z="1" aria-label="Bigger text">A+</button></span>
+      <button class="quran-tool tb-listen" id="tbListenBtn"></button>
       <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tbSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool" id="tbMushafBtn">${tbBookSvg('tarjuma').replace('width="48" height="36"', 'width="22" height="17"')} ${L({rur:'Mushaf', en:'Mushaf'})}</button>
     </div>
@@ -8231,6 +8233,8 @@ function renderTarjumaBook(page, sheet){
   $('tbTintBtn').onclick = ()=>{ $('tbTints').hidden = !$('tbTints').hidden; };
   $('tbTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); $('tbTints').hidden = false; };
   $('tbNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
+  $('tbListenBtn').onclick = ()=>{ if(qa.on) qaStop(); else tbPlayFrom(tbFirstAyah()); };
+  $('tbFlow').onclick = e=>{ const ay = e.target.closest('.tb-ay'); if(ay) tbPlayFrom(+ay.dataset.a); };
   $('tbSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); if(state.quranTurnSound) playPageSound(); };
   $('tbMushafBtn').onclick = ()=> renderQuranReader(tbSt.page);
   const jump = ()=>{ const v = parseInt($('tbJump').value); if(v >= 2 && v <= tbLastPage()) renderTarjumaBook(v); };
@@ -8250,7 +8254,7 @@ async function tbLoad(page, sheet){
   const flow = document.getElementById('tbFlow'); if(my !== tbSt.tok || !flow) return;
   flow.innerHTML = html;
   if(lang === 'ur' && document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} if(my !== tbSt.tok || !document.getElementById('tbFlow')) return; }
-  tbMeasure(sheet);
+  tbMeasure(sheet); tbSt.following = false; tbSync();
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(my === tbSt.tok) tbMeasure(tbSt.sheet); });
 }
 /* how many 15-line sheets the page needs, and show sheet n of them */
@@ -8275,6 +8279,44 @@ function tbPrev(){
   if(tbSt.sheet > 0){ tbMeasure(tbSt.sheet - 1); }
   else if(tbSt.page > 2) renderTarjumaBook(tbSt.page - 1, 'last');
 }
+/* ---- Urdu tarjuma audio inside the book (no Arabic): plays the Shamshad Ali Khan recording ayah by ayah, highlights the ayah and turns the sheet/page with it ---- */
+function tbFirstAyah(){
+  const flow = document.getElementById('tbFlow'), sh = document.getElementById('tbSheet');
+  const ids = trPageAyahs(tbSt.page); if(!flow || !sh) return ids[0];
+  const H = parseFloat(getComputedStyle(sh).getPropertyValue('--lh')) * TB_ROWS, fr = flow.getBoundingClientRect().top;
+  for(const el of flow.querySelectorAll('.tb-ay')){ const r = el.getClientRects(); const last = r[r.length - 1]; if(last && last.bottom - fr > tbSt.sheet * H + 4) return +el.dataset.a; }
+  return ids[0];
+}
+function tbPlayFrom(abs){
+  if(qa.voice !== 'ur'){ tbSt.prevVoice = tbSt.prevVoice || qa.voice; qaSetVoice('ur'); }
+  qaEls(); qa.on = true; qa.repCount = 0; qa.syncPage = tbSt.page; qa.part = 'a'; qa.abs = abs; qa.exact = true;
+  const r = qaSurahAyah(abs); qa.bism = r.a === 1 && qaHasBism(r.s);
+  qa.cur.pause(); qaPlayCurrent();
+}
+function tbSync(){
+  const sh = document.getElementById('tbSheet'); if(!sh) { if(!qa.on) tbRestoreVoice(); return; }
+  const btn = document.getElementById('tbListenBtn');
+  if(btn){ btn.classList.toggle('on', !!qa.on); btn.innerHTML = qa.on ? '⏹ ' + L({rur:'Band karein', en:'Stop'}) : '🔊 ' + L({rur:'Suniye', en:'Listen'}); }
+  const flow = document.getElementById('tbFlow'); flow.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl'));
+  if(!qa.on){ tbRestoreVoice(); return; }
+  const pg = qaAyahPage(qa.abs);
+  if(pg !== tbSt.page){
+    if(pg >= 2 && pg <= tbLastPage() && !tbSt.following && flow.querySelector('.tb-ay')){
+      tbSt.following = true; qa.syncPage = pg; const fwd = pg > tbSt.page;
+      const go = ()=> renderTarjumaBook(pg, 0);
+      if(typeof slideDetail === 'function') slideDetail(fwd ? -1 : 1, go); else go();
+      setTimeout(()=>{ if(tbSt.following && tbSt.page !== pg) go(); }, 900);
+    }
+    return;
+  }
+  const el = qa.bism ? flow.querySelector(`.tb-surah[data-a="${qa.abs}"]`) : flow.querySelector(`.tb-ay[data-a="${qa.abs}"]`);
+  if(!el) return;
+  el.classList.add('hl');
+  const H = parseFloat(getComputedStyle(sh).getPropertyValue('--lh')) * TB_ROWS, rs = el.getClientRects();
+  const idx = Math.max(0, Math.min(tbSt.total - 1, Math.floor((rs[0].top - flow.getBoundingClientRect().top + 2) / H)));
+  if(idx !== tbSt.sheet){ const dir = idx > tbSt.sheet ? -1 : 1, go = ()=>{ tbMeasure(idx); tbSync(); }; if(typeof slideDetail === 'function') slideDetail(dir, go); else go(); }
+}
+function tbRestoreVoice(){ if(tbSt.prevVoice){ const v = tbSt.prevVoice; tbSt.prevVoice = null; if(!qa.on) qaSetVoice(v); } }
 window.addEventListener('resize', ()=>{ if(document.getElementById('tbSheet')) renderTarjumaBook(tbSt.page, tbSt.sheet); });
 
 /* ============================================================ TAFSEER ============================================================ */

@@ -415,7 +415,7 @@ function qaPlace(){
 function qaUI(){
   document.body.classList.toggle('qp-on', qa.on);
   const lb = document.getElementById('quranListenBtn'); if(lb) lb.classList.toggle('on', qa.on);
-  if(!qa.on){ const e = document.getElementById('qPlayer'); if(e) e.classList.remove('show'); qaHL(); if(typeof trpPlace === 'function') trpPlace(); return; }
+  if(!qa.on){ const e = document.getElementById('qPlayer'); if(e) e.classList.remove('show'); qaHL(); if(typeof trpPlace === 'function') trpPlace(); if(typeof tbSync === 'function') tbSync(); return; }
   const el = qaBar(), r = qaSurahAyah(qa.abs), nm = (QURAN_SURAHS[r.s-1] || {}).name || '';
   el.querySelector('#qpTitle').textContent = qa.bism ? `${nm} · Bismillah` : `${nm} · ${L({rur:'Ayat', en:'Ayah'})} ${qa.exact ? '' : '≈ '}${r.s}:${r.a}`;
   const cnt = `${L({rur:'Ayat', en:'Ayah'})} ${r.a} / ${QA_COUNTS[r.s-1]}`;
@@ -424,7 +424,7 @@ function qaUI(){
     : (qa.exact ? cnt + ' · ' + qaVoiceName() : L({rur:qaVoiceName() + ' · shuruaat andaaze se, ⏮ ⏭ se theek karein', en:qaVoiceName() + ' · start is approximate, adjust with ⏮ ⏭'}));
   el.querySelector('#qpPlay').innerHTML = qa.playing ? QA_ICON.pause : QA_ICON.play;
   el.classList.toggle('show', true);
-  qaPlace(); qaProg(); qaOptsUI(); qaHL(); if(typeof trpSync === 'function'){ trpSync(); trpPlace(); } if(typeof quranTintPlayer === 'function') quranTintPlayer();
+  qaPlace(); qaProg(); qaOptsUI(); qaHL(); if(typeof trpSync === 'function'){ trpSync(); trpPlace(); } if(typeof quranTintPlayer === 'function') quranTintPlayer(); if(typeof tbSync === 'function') tbSync();
   qaMediaMeta();
 }
 (function(){
