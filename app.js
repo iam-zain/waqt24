@@ -2609,7 +2609,7 @@ function quranMarked(p){ return (state.quranMarks||[]).includes(p); }
 const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'cream',n:'Cream',c:'#f3e6c4',a:'#a8801a'},{k:'sand',n:'Sand',c:'#e6d2a8',a:'#8a6a2a'},{k:'mint',n:'Mint',c:'#d6ecd9',a:'#2f8f57'},{k:'sky',n:'Sky',c:'#d3e6f6',a:'#2b7fc0'},{k:'rose',n:'Rose',c:'#f6d9e1',a:'#c2456b'},{k:'lilac',n:'Lilac',c:'#e3daf3',a:'#7a5fc8'}];
 /* the recitation player wears the same colour as the page */
 function quranTintPlayer(){
-  const t = QURAN_TINTS.find(x=>x.k === (state.quranTint||'')), on = t && t.c && document.getElementById('quranWrap') && !quranNightOn();
+  const t = QURAN_TINTS.find(x=>x.k === (state.quranTint||'')), on = t && t.c && (document.getElementById('quranWrap') || document.getElementById('tbSheet') || document.getElementById('tfWrap')) && !quranNightOn();
   ['qPlayer','tpPanel'].forEach(id=>{
     const q = document.getElementById(id); if(!q) return;
     if(on){ q.setAttribute('data-tint', t.k); q.style.setProperty('--qtc', t.c); q.style.setProperty('--qta', t.a); } else q.removeAttribute('data-tint');
@@ -8186,14 +8186,40 @@ function tbBookSvg(kind){
   return `<svg viewBox="0 0 64 48" width="48" height="36" aria-hidden="true"><path d="M32 9 C24 4 12 4 4 7 V43 C12 40 24 40 32 45 C40 40 52 40 60 43 V7 C52 4 40 4 32 9 Z" fill="var(--card2)" stroke="var(--sub)" stroke-width="2" stroke-linejoin="round"/><line x1="32" y1="9" x2="32" y2="45" stroke="var(--sub)" stroke-width="2"/>${lines}</svg>`;
 }
 /* the section on the Qur'an home screen */
+/* bookmarks (state.tbMarks: Mushaf page numbers; state.tfMarks: Tafseer pages) and sharing */
+function bkMarks(sec){ const k = sec === 'tf' ? 'tfMarks' : 'tbMarks'; return state[k] || (state[k] = []); }
+function bkHas(sec, p){ return bkMarks(sec).includes(p); }
+function bkLabel(sec, p){ return bkHas(sec, p) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'}); }
+function bkToggle(sec, p){ const m = bkMarks(sec), i = m.indexOf(p); if(i >= 0) m.splice(i, 1); else { m.push(p); m.sort((x, y)=>x - y); } saveState(); showToast(i >= 0 ? L({rur:'Nishaan hata diya', en:'Bookmark removed'}) : L({rur:'Nishaan laga diya', en:'Bookmarked'})); }
+async function tbShareText(){
+  const flow = document.getElementById('tbFlow'); if(!flow) return;
+  const ays = [...flow.querySelectorAll('.tb-ay')].map(e=>e.textContent.replace(/[\uFD3E\uFD3F]/g, '').replace(/\s+/g, ' ').trim());
+  const sn = quranSurahOf(tbSt.page), text = `${sn.n}. ${sn.name} · Page ${tbSt.page} (Waqt24)\n\n` + ays.join('\n');
+  if(navigator.share){ try{ await navigator.share({ text, title:`${sn.name} · Page ${tbSt.page}` }); return; }catch(e){ if(e && e.name === 'AbortError') return; } }
+  try{ await navigator.clipboard.writeText(text); showToast(L({rur:'Page ka matan copy ho gaya', en:'Page text copied'})); }catch(e){ showToast(L({rur:'Share nahi ho saka', en:'Could not share'})); }
+}
+async function tfShareImage(n){
+  try{
+    const img = new Image(); img.src = tfImg(n); await img.decode();
+    const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const x = c.getContext('2d'); x.fillStyle = tfTintBg(); x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0);
+    const blob = await new Promise(r=> c.toBlob(r, 'image/jpeg', 0.9)), name = `tafseer-page-${n}.jpg`, file = new File([blob], name, { type:'image/jpeg' });
+    const s = tfSurahOf(n), text = `Tafseer · Page ${n}${s ? ' · ' + s + '. ' + QURAN_SURAHS[s - 1].name : ''} (Waqt24)`;
+    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], title:text, text }); return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=> URL.revokeObjectURL(a.href), 2000); showToast(L({rur:'Page download ho gaya', en:'Page downloaded'}));
+  }catch(e){ if(!(e && e.name === 'AbortError')) showToast(L({rur:'Share nahi ho saka', en:'Could not share'})); }
+}
 function tbHomeHtml(){
   return `<div class="section-title" style="margin:6px 14px 8px;">${L({rur:'Tarjuma aur Tafseer', en:'Translation and Tafseer'})}</div>
     <div class="qbook-row">
       <button class="qbook" id="qhTbook">${tbBookSvg('tarjuma')}<b>${L({rur:'Tarjuma', en:'Translation'})}</b><span>${L({rur:'15 line ka safha, 4 zubaan', en:'15-line pages, 4 languages'})}</span></button>
       <button class="qbook" id="qhTafseer">${tbBookSvg('tafseer')}<b>${L({rur:'Tafseer', en:'Tafseer'})}</b><span>${L({rur:'Aasan Tarjuma · Urdu', en:'Aasan Tarjuma · Urdu'})}</span></button>
-    </div>`;
+    </div>
+    ${bkMarks('tb').length || bkMarks('tf').length ? `<div class="bk-chips"><span>🔖</span>${bkMarks('tb').map(p=>`<button type="button" data-bk="tb" data-p="${p}">📘 ${p}</button>`).join('')}${bkMarks('tf').map(p=>`<button type="button" data-bk="tf" data-p="${p}">📕 ${p}</button>`).join('')}</div>` : ''}`;
 }
 function tbHomeWire(){
+  document.querySelectorAll('.bk-chips [data-bk]').forEach(b=>{ b.onclick = ()=>{ const p = +b.dataset.p; if(b.dataset.bk === 'tf') renderTafseerPage(p); else renderTarjumaBook(p); }; });
   const a = document.getElementById('qhTbook'), b = document.getElementById('qhTafseer');
   if(a) a.onclick = ()=> renderTarjumaBook(state.tbPage || 2);
   if(b) b.onclick = ()=> renderTafseerIndex();
@@ -8232,10 +8258,12 @@ function renderTarjumaBook(page, sheet){
     <div class="pn-bar tb-bar"><button class="pn-btn pn-prev" id="pnPrevBtn"><span class="pn-ic">⬅️</span>${isEn() ? 'Previous' : 'Pichla'}</button><span class="pn-pos" id="tbPos"></span><button class="pn-btn pn-next" id="pnNextBtn">${isEn() ? 'Next' : 'Agla'}<span class="pn-ic">➡️</span></button></div>
     <div class="tb-tools"><div class="tb-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div><span class="tb-sz"><button class="quran-tool" type="button" data-z="-1" aria-label="Smaller text">A−</button><button class="quran-tool" type="button" data-z="1" aria-label="Bigger text">A+</button></span></div>
     <div class="quran-tools tb-acts">
+      <button class="quran-tool ${bkHas('tb', page) ? 'on' : ''}" id="tbMarkBtn">🔖 ${bkLabel('tb', page)}</button>
       <button class="quran-tool tb-listen" id="tbListenBtn">🎧 ${L({rur:'Tilawat sunein', en:'Listen'})}</button>
       <button class="quran-tool ${notesForPage(page, 'tb').length ? 'on' : ''}" id="tbNoteBtn">📝 ${L({rur:'Note', en:'Note'})}${notesForPage(page, 'tb').length ? ' (' + notesForPage(page, 'tb').length + ')' : ''}</button>
       <button class="quran-tool" id="tbTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${night ? 'on' : ''}" id="tbNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
+      <button class="quran-tool" id="tbShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tbSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool" id="tbMushafBtn">${tbBookSvg('tarjuma').replace('width="48" height="36"', 'width="22" height="17"')} ${L({rur:'Mushaf', en:'Mushaf'})}</button>
     </div>
@@ -8245,9 +8273,12 @@ function renderTarjumaBook(page, sheet){
   document.querySelector('.tb-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.tbLang = b.dataset.l; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
   document.querySelector('.tb-sz').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.tbZ = Math.max(-3, Math.min(8, (state.tbZ || 0) + (+b.dataset.z))); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
   $('tbTintBtn').onclick = ()=>{ $('tbTints').hidden = !$('tbTints').hidden; };
-  $('tbTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); $('tbTints').hidden = false; };
+  $('tbTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); $('tbTints').hidden = false; quranTintPlayer(); };
   $('tbNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
   $('tbListenBtn').onclick = ()=>{ if(qa.on) qaStop(); else tbPlayFrom(tbFirstAyah()); };
+  quranTintPlayer();
+  $('tbMarkBtn').onclick = ()=>{ bkToggle('tb', page); const b = $('tbMarkBtn'); b.classList.toggle('on', bkHas('tb', page)); b.textContent = '🔖 ' + bkLabel('tb', page); };
+  $('tbShareBtn').onclick = ()=> tbShareText();
   $('tbNoteBtn').onclick = ()=> openNoteBox({ page, sec:'tb' }, ()=>{ const b = document.getElementById('tbNoteBtn'); if(b){ const c = notesForPage(page, 'tb').length; b.classList.toggle('on', c > 0); b.textContent = '📝 ' + L({rur:'Note', en:'Note'}) + (c ? ' (' + c + ')' : ''); } });
   $('tbFlow').onclick = e=>{ const ay = e.target.closest('.tb-ay'); if(ay) tbPlayFrom(+ay.dataset.a); };
   $('tbSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); if(state.quranTurnSound) playPageSound(); };
@@ -8370,10 +8401,12 @@ function renderTafseerPage(n){
     <div class="quran-page-wrap tf-wrap${night ? ' night' : ''}" id="tfWrap"><img class="quran-page-img tf-img" src="${tfImg(n)}" alt="Tafseer page ${n}" draggable="false" style="background-color:${night ? '#fff' : tfTintBg()}"></div>
     ${pnBarHtml()}
     <div class="quran-tools">
+      <button class="quran-tool ${bkHas('tf', n) ? 'on' : ''}" id="tfMarkBtn">🔖 ${bkLabel('tf', n)}</button>
       <button class="quran-tool ${notesForPage(n, 'tf').length ? 'on' : ''}" id="tfNoteBtn">📝 ${L({rur:'Note', en:'Note'})}${notesForPage(n, 'tf').length ? ' (' + notesForPage(n, 'tf').length + ')' : ''}</button>
       <button class="quran-tool" id="tfTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${night ? 'on' : ''}" id="tfNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
       <button class="quran-tool" id="tfZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
+      <button class="quran-tool" id="tfShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tfSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
     </div>
     <div class="q-tints" id="tfTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
@@ -8381,10 +8414,13 @@ function renderTafseerPage(n){
   const $ = id => document.getElementById(id);
   $('tfIndexBtn').onclick = ()=> renderTafseerIndex();
   $('tfTintBtn').onclick = ()=>{ $('tfTints').hidden = !$('tfTints').hidden; };
-  $('tfTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderTafseerPage(n); $('tfTints').hidden = false; };
+  $('tfTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderTafseerPage(n); $('tfTints').hidden = false; quranTintPlayer(); };
   $('tfNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderTafseerPage(n); };
   const wrap = $('tfWrap'), zoom = ()=>{ wrap.classList.toggle('zoomed'); $('tfZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); };
   $('tfZoomBtn').onclick = zoom;
+  quranTintPlayer();
+  $('tfMarkBtn').onclick = ()=>{ bkToggle('tf', n); const b = $('tfMarkBtn'); b.classList.toggle('on', bkHas('tf', n)); b.textContent = '🔖 ' + bkLabel('tf', n); };
+  $('tfShareBtn').onclick = ()=> tfShareImage(n);
   $('tfNoteBtn').onclick = ()=> openNoteBox({ page:n, sec:'tf' }, ()=>{ const b = document.getElementById('tfNoteBtn'); if(b){ const c = notesForPage(n, 'tf').length; b.classList.toggle('on', c > 0); b.textContent = '📝 ' + L({rur:'Note', en:'Note'}) + (c ? ' (' + c + ')' : ''); } });
   $('tfSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTafseerPage(n); if(state.quranTurnSound) playPageSound(); };
   let lastTap = 0; wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) zoom(); lastTap = t; });
