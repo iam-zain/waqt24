@@ -20,11 +20,13 @@ function renderDailyCard(){
   const wasHidden = !el.firstChild;
   const closeIt = ()=>{ state.dailyHideDay = dayKey(new Date()); saveState(); el.classList.add('dc-out'); setTimeout(()=>{ el.classList.remove('dc-out', 'dc-in', 'dc-grow'); renderDailyCard(); }, document.body.classList.contains('calm') ? 0 : 280); };
   el.classList.toggle('dc-collapsed', !open);
+  const tabsHtml = `<div class="dc-tabs"><button type="button" class="${isDua ? 'on' : ''}" data-dt="dua">🤲 ${L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'})}</button><button type="button" class="${isDua ? '' : 'on'}" data-dt="hadees">📜 ${L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'})}</button></div>`;
+  const openCard = ()=>{ state.dailyOpenDay = dayKey(new Date()); saveState(); dailyDrawnKey = ''; renderDailyCard(); el.classList.remove('dc-grow'); void el.offsetWidth; el.classList.add('dc-grow'); setTimeout(()=>{ try{ el.scrollIntoView({ block:'nearest', behavior:'smooth' }); }catch(e){} }, 80); };
   if(!open){
-    const ttl = isDua ? (en && x.ent ? x.ent : x.title) : L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'});
-    el.innerHTML = `<button type="button" class="dc-strip" id="dcStrip" aria-expanded="false"><span class="dc-sic">${isDua ? '🤲' : '📜'}</span><span class="dc-stl">${ttl}</span><span class="dc-chev" aria-hidden="true">▾</span></button><button type="button" class="dc-x" id="dcClose" aria-label="${L({rur:'Band karein', en:'Close'})}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>`;
+    el.innerHTML = `<div class="dc-top">${tabsHtml}<button type="button" class="dc-fold" id="dcFold" aria-expanded="false" aria-label="${L({rur:'Kholein', en:'Expand'})}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button><button type="button" class="dc-x" id="dcClose" aria-label="${L({rur:'Band karein', en:'Close'})}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button></div>`;
     if(wasHidden){ el.classList.remove('dc-in'); void el.offsetWidth; el.classList.add('dc-in'); }
-    document.getElementById('dcStrip').onclick = ()=>{ state.dailyOpenDay = dayKey(new Date()); saveState(); dailyDrawnKey = ''; renderDailyCard(); el.classList.remove('dc-grow'); void el.offsetWidth; el.classList.add('dc-grow'); setTimeout(()=>{ try{ el.scrollIntoView({ block:'nearest', behavior:'smooth' }); }catch(e){} }, 80); };
+    el.querySelectorAll('[data-dt]').forEach(b=>{ b.onclick = ()=>{ dailyTab = b.dataset.dt; openCard(); }; });
+    document.getElementById('dcFold').onclick = openCard;
     document.getElementById('dcClose').onclick = closeIt;
     return;
   }
