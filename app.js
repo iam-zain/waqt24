@@ -8169,14 +8169,16 @@ function tbSurahName(n, lang){
   if(lang === 'hi') return TB_HI[n-1] || x.name || '';
   return x.name || '';
 }
-const tbIsUr = ()=> trLang() === 'ur';
+/* the book has its own language, Hinglish by default (separate from the Mushaf's Tarjuma panel) */
+const tbLang = ()=> TR_LANGS.some(l=>l.k === state.tbLang) ? state.tbLang : 'rom';
+const tbIsUr = ()=> tbLang() === 'ur';
 /* line height: fills the screen under the controls; A−/A+ change it by 3px a step */
 function tbLh(){
   const base = Math.max(26, Math.min(42, Math.floor((innerHeight - 330) / TB_ROWS)));
   return Math.max(22, Math.min(64, base + 3 * (state.tbZ || 0)));
 }
 /* text size from the line height: Urdu (Nastaliq) and Devanagari need more air than Latin */
-function tbFs(lh){ const l = trLang(); return Math.round(lh / (l === 'ur' ? 2.2 : l === 'hi' ? 1.85 : 1.72) * 10) / 10; }
+function tbFs(lh){ const l = tbLang(); return Math.round(lh / (l === 'ur' ? 2.2 : l === 'hi' ? 1.85 : 1.72) * 10) / 10; }
 function tbBookSvg(kind){
   const c = 'var(--accent)', lines = [0,1,2,3].map(i=>{ const y = 15 + i * 6; return `<line x1="9" y1="${y}" x2="27" y2="${y+1.5}" stroke="${c}" stroke-width="2.6" stroke-linecap="round"/><line x1="37" y1="${y+1.5}" x2="55" y2="${y}" stroke="${kind === 'tafseer' ? 'currentColor' : c}" stroke-width="2.6" stroke-linecap="round"/>`; }).join('');
   return `<svg viewBox="0 0 64 48" width="48" height="36" aria-hidden="true"><path d="M32 9 C24 4 12 4 4 7 V43 C12 40 24 40 32 45 C40 40 52 40 60 43 V7 C52 4 40 4 32 9 Z" fill="var(--card2)" stroke="var(--sub)" stroke-width="2" stroke-linejoin="round"/><line x1="32" y1="9" x2="32" y2="45" stroke="var(--sub)" stroke-width="2"/>${lines}</svg>`;
@@ -8211,7 +8213,7 @@ async function tbBuild(page, lang){
   return html + '</p>';
 }
 function renderTarjumaBook(page, sheet){
-  page = tbClamp(page); const lang = trLang(), lh = tbLh(), ur = lang === 'ur';
+  page = tbClamp(page); const lang = tbLang(), lh = tbLh(), ur = lang === 'ur';
   if(qa.on && !tbSt.following && qa.syncPage !== page && typeof qaSyncToPage === 'function') qaSyncToPage(page);   /* turning the page by hand moves a playing recitation with it */
   state.tbPage = page; saveState(); tbSt.page = page; tbSt.lang = lang; tbSt.sheet = 0; tbSt.total = 1;
   setNavCtx([0, 1, 2], 1, ()=>{}, null); __navCtx.rtl = false; __navCtx.turn = true;
@@ -8221,12 +8223,12 @@ function renderTarjumaBook(page, sheet){
   const pageCss = night ? '' : tint && tint.c ? `--tbbg:${tint.c};--tbac:${tint.a};` : '';
   document.getElementById('detailBody').innerHTML = `
     <div class="tb-top"><span>${L({rur:'Paara', en:'Para'})} ${para.n}</span><b${ur ? ' dir="rtl" lang="ur" class="tb-urname"' : ''}>${tbSurahName(sn, lang)}</b><span>${L({rur:'Page', en:'Page'})} ${page}</span></div>
-    <div class="tb-tools"><div class="tb-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div></div>
     <div class="tb-sheet${night ? ' night' : ''}" id="tbSheet" style="--lh:${lh}px;--fs:${tbFs(lh)}px;${pageCss}">
       <div class="tb-view${ur ? ' ur' : ''}" id="tbView"><div class="tb-rules">${Array.from({length:TB_ROWS},(_, k)=>`<i style="--k:${k+1}"></i>`).join('')}</div><div class="tb-flow" id="tbFlow"><div class="tb-msg">${trpMsg()}</div></div></div>
       <div class="tb-foot"><span id="tbPart"></span></div>
     </div>
     <div class="pn-bar tb-bar"><button class="pn-btn pn-prev" id="pnPrevBtn"><span class="pn-ic">⬅️</span>${isEn() ? 'Previous' : 'Pichla'}</button><span class="pn-pos" id="tbPos"></span><button class="pn-btn pn-next" id="pnNextBtn">${isEn() ? 'Next' : 'Agla'}<span class="pn-ic">➡️</span></button></div>
+    <div class="tb-tools"><div class="tb-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div></div>
     <div class="quran-tools tb-acts">
       <button class="quran-tool" id="tbTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${night ? 'on' : ''}" id="tbNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
@@ -8238,7 +8240,7 @@ function renderTarjumaBook(page, sheet){
     <div class="q-tints" id="tbTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
     <div class="quran-jump"><span>${L({rur:'Page par jaayein', en:'Go to page'})}</span><input type="number" id="tbJump" min="2" max="${tbLastPage()}" value="${page}"><button id="tbJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button></div>`;
   const $ = id => document.getElementById(id);
-  document.querySelector('.tb-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.quranTr = b.dataset.l; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
+  document.querySelector('.tb-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.tbLang = b.dataset.l; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
   document.querySelector('.tb-sz').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.tbZ = Math.max(-3, Math.min(8, (state.tbZ || 0) + (+b.dataset.z))); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
   $('tbTintBtn').onclick = ()=>{ $('tbTints').hidden = !$('tbTints').hidden; };
   $('tbTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); $('tbTints').hidden = false; };
@@ -8254,7 +8256,7 @@ function renderTarjumaBook(page, sheet){
   [page + 1].forEach(n=>{ if(n <= tbLastPage()) tbBuild(n, lang).catch(()=>{}); });   /* the next page's translation is fetched while this one is read */
 }
 async function tbLoad(page, sheet){
-  const my = ++tbSt.tok, lang = trLang(); let html;
+  const my = ++tbSt.tok, lang = tbLang(); let html;
   try{ html = await tbBuild(page, lang); }
   catch(e){
     const f = document.getElementById('tbFlow'); if(my !== tbSt.tok || !f) return;

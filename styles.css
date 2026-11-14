@@ -1923,7 +1923,7 @@ body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yello
 /* ===== Tarjuma book (15 ruled lines a page) and Tafseer pages ===== */
 .tb-top{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin:0 14px 8px; padding:7px 12px; border-radius:10px; background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 88%, #fff), var(--accent)); color:var(--fardText,#fff); font-size:12.5px; font-weight:700; }
 .tb-top b{ flex:1; text-align:center; font-size:15px; }
-.tb-tools{ display:flex; justify-content:center; align-items:center; gap:6px; margin:0 14px 10px; flex-wrap:wrap; }
+.tb-tools{ display:flex; justify-content:center; align-items:center; gap:6px; margin:12px 14px 6px; flex-wrap:wrap; }
 .tb-langs, .tb-sz{ display:flex; gap:5px; }
 .tb-tools button{ border:1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); background:var(--card); color:var(--text); border-radius:999px; padding:6px 11px; font:inherit; font-size:12.5px; font-weight:700; min-height:34px; }
 .tb-tools button.on{ border-color:var(--accent); background:var(--accent); color:var(--fardText,#fff); }
@@ -1952,7 +1952,11 @@ body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yello
 .tb-surah{ background:var(--tbbg); position:relative; }
 .tb-top b.tb-urname{ font-family:'Noto Nastaliq Urdu','Scheherazade New',serif; font-size:16px; line-height:1.6; }
 .tb-ay{ border-radius:4px; -webkit-box-decoration-break:clone; box-decoration-break:clone; transition:background .2s; cursor:pointer; }
-.tb-ay.hl{ background:color-mix(in srgb, var(--tbac) 24%, transparent); box-shadow:0 0 0 2px color-mix(in srgb, var(--tbac) 24%, transparent); }
+.tb-ay.hl{ --hl:color-mix(in srgb, var(--tbac) 24%, transparent); background:var(--hl); }
+/* Nastaliq boxes are taller than the line: paint the highlight only as tall as one ruled line, so rows never overlap */
+.tb-view.ur .tb-ay.hl{ background:linear-gradient(var(--hl),var(--hl)) no-repeat 0 92% / 100% calc(var(--lh) * .92); border-radius:0; }
+.tb-view.ur .tb-surah, .tb-view.ur .tb-surah span{ font-family:'Noto Nastaliq Urdu','Scheherazade New',serif; font-weight:400; }
+.tb-view.ur .tb-n{ background:none; }
 .tb-surah.hl span{ background:color-mix(in srgb, var(--tbac) 24%, transparent); border-radius:6px; }
 .tb-listen.on{ border-color:var(--accent); background:var(--accent); color:var(--fardText,#fff); }
 body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
