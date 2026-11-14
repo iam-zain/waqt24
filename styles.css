@@ -1984,3 +1984,4 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .pj-row span{ color:var(--sub); font-weight:700; }
 .pj-row .note-save{ flex:0 0 auto; }
 .pj-row .note-save{ background:var(--accent); border:1px solid var(--accent); color:var(--fardText,#fff); font:inherit; font-weight:800; border-radius:11px; padding:11px 18px; }
+.tb-top #tbSurahBtn.tb-urname{ font-family:'Noto Nastaliq Urdu','Scheherazade New',serif; font-weight:400; }
