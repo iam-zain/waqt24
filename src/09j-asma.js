@@ -5,7 +5,9 @@
 const ASMA_CLIPS = 99;
 /* second at which each name starts in asma/full.m4a (used to highlight the name being recited) */
 const ASMA_T = [0.68, 1.52, 2.49, 3.31, 4.56, 5.6, 6.39, 7.46, 8.31, 9.37, 10.39, 11.45, 12.26, 13.31, 14.26, 15.21, 16.27, 17.23, 18.33, 19.17, 20.19, 21.07, 22.07, 22.93, 23.93, 24.9, 25.85, 26.87, 27.74, 28.53, 29.66, 30.46, 31.42, 32.39, 33.35, 34.37, 35.15, 36.09, 37.03, 38.0, 38.96, 39.83, 40.74, 41.68, 42.58, 43.5, 44.47, 45.39, 46.35, 47.31, 48.26, 49.04, 49.96, 50.83, 51.8, 52.67, 53.59, 54.49, 55.4, 56.31, 57.16, 58.1, 58.85, 59.86, 60.78, 61.67, 62.6, 63.41, 64.22, 65.17, 66.17, 67.13, 68.08, 68.91, 69.74, 70.65, 71.54, 72.4, 73.48, 74.23, 75.25, 76.24, 77.18, 78.15, 79.33, 80.9, 81.92, 82.82, 83.69, 84.53, 85.39, 86.19, 87.07, 87.87, 88.74, 89.55, 90.41, 91.37, 92.5];
-const asmaSt = { mode:null, idx:-1, n:1 };   // n: which repeat of a single name is playing   // mode: 'full' | 'one' | null
+const ASMA_GAP_MS = 1500;   // pause between the repeats of a name
+let asmaGapT = 0;
+const asmaSt = { mode:null, idx:-1, n:1, gap:false };   // n: which repeat of a single name is playing   // mode: 'full' | 'one' | null
 let asmaAu = null;
 const ASMA_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 function asmaRate(){ return ASMA_RATES.indexOf(state.asmaRate) >= 0 ? state.asmaRate : 1; }
@@ -17,7 +19,11 @@ function asmaEl(){
   if(asmaAu) return asmaAu;
   asmaAu = new Audio(); asmaAu.preload = 'auto';
   asmaAu.addEventListener('ended', ()=>{
-    if(asmaSt.mode === 'one' && asmaRep() && asmaSt.n < asmaRep()){ asmaSt.n++; asmaAu.currentTime = 0; const p = asmaAu.play(); if(p && p.catch) p.catch(()=>{}); asmaUI(); return; }
+    if(asmaSt.mode === 'one' && asmaRep() && asmaSt.n < asmaRep()){
+      asmaSt.n++; asmaSt.gap = true; asmaUI();
+      clearTimeout(asmaGapT); asmaGapT = setTimeout(()=>{ asmaSt.gap = false; if(asmaSt.mode !== 'one' || !asmaAu) return; asmaAu.currentTime = 0; const p = asmaAu.play(); if(p && p.catch) p.catch(()=>{}); asmaUI(); }, ASMA_GAP_MS);
+      return;
+    }
     asmaSt.mode = null; asmaSt.idx = -1; asmaSt.n = 1; asmaUI();
   });
   asmaAu.addEventListener('pause', ()=>{ if(asmaSt.mode && !asmaAu.ended) asmaUI(); });
@@ -28,12 +34,14 @@ function asmaEl(){
 }
 function asmaName(i){ return ASMA_UL_HUSNA[i] ? ASMA_UL_HUSNA[i].tr : ''; }
 function asmaStop(){
+  clearTimeout(asmaGapT); asmaSt.gap = false;
   if(asmaAu){ asmaAu.pause(); asmaAu.removeAttribute('src'); try{ asmaAu.load(); }catch(e){} }
   asmaSt.mode = null; asmaSt.idx = -1; asmaUI();
 }
 function asmaBegin(src, mode){
   if(typeof qa !== 'undefined' && qa.on && typeof qaStop === 'function') qaStop();
   if(typeof stopAzaan === 'function') stopAzaan();
+  clearTimeout(asmaGapT); asmaSt.gap = false;
   const a = asmaEl(); a.pause(); a.src = src; asmaApplyRate(); asmaSt.mode = mode; asmaSt.idx = -1; asmaSt.n = 1;
   const p = a.play(); if(p && p.catch) p.catch(()=>{ asmaSt.mode = null; asmaUI(); showToast(L({rur:'Audio chalane ke liye ek baar aur tap karein', en:'Tap once more to play the audio'})); });
   try{ if(navigator.mediaSession){ navigator.mediaSession.metadata = new MediaMetadata({ title:'Asma-ul-Husna', artist:'Waqt24' }); } }catch(e){}
@@ -62,7 +70,7 @@ function asmaTick(){
   if(k !== asmaLastNow){ asmaLastNow = k; asmaUI(true); }
 }
 function asmaUI(scroll){
-  const full = asmaSt.mode === 'full', playing = !!(asmaAu && !asmaAu.paused && asmaSt.mode);
+  const full = asmaSt.mode === 'full', playing = !!(asmaSt.mode && asmaAu && (!asmaAu.paused || asmaSt.gap));
   const fb = document.getElementById('asmaFullBtn');
   if(fb){ fb.textContent = full && playing ? '❚❚' : '▶'; fb.classList.toggle('on', full && playing); }
   const now = full ? asmaFullIdx(asmaAu ? asmaAu.currentTime : 0) : (asmaSt.mode === 'one' ? asmaSt.idx : -1);
