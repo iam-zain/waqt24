@@ -23,7 +23,7 @@ function tbLh(){
   return Math.max(22, Math.min(64, base + 3 * (state.tbZ || 0)));
 }
 /* text size from the line height: Urdu (Nastaliq) and Devanagari need more air than Latin */
-function tbFs(lh){ const l = tbLang(); return Math.round(lh / (l === 'ur' ? 2.2 : l === 'hi' ? 1.85 : 1.72) * 10) / 10; }
+function tbFs(lh){ const l = tbLang(); return Math.round(lh / (l === 'ur' ? 2.6 : l === 'hi' ? 1.85 : 1.72) * 10) / 10; }
 function tbBookSvg(kind){
   const c = 'var(--accent)', lines = [0,1,2,3].map(i=>{ const y = 15 + i * 6; return `<line x1="9" y1="${y}" x2="27" y2="${y+1.5}" stroke="${c}" stroke-width="2.6" stroke-linecap="round"/><line x1="37" y1="${y+1.5}" x2="55" y2="${y}" stroke="${kind === 'tafseer' ? 'currentColor' : c}" stroke-width="2.6" stroke-linecap="round"/>`; }).join('');
   return `<svg viewBox="0 0 64 48" width="48" height="36" aria-hidden="true"><path d="M32 9 C24 4 12 4 4 7 V43 C12 40 24 40 32 45 C40 40 52 40 60 43 V7 C52 4 40 4 32 9 Z" fill="var(--card2)" stroke="var(--sub)" stroke-width="2" stroke-linejoin="round"/><line x1="32" y1="9" x2="32" y2="45" stroke="var(--sub)" stroke-width="2"/>${lines}</svg>`;
