@@ -112,7 +112,7 @@ function renderTarjumaBook(page, sheet, surah){
   const ui = tbUnitIdx(page, surah), sn = tbUnits()[ui].s, ids = tbUnitIds(page, sn);
   if(sheet && typeof sheet === 'object' && sheet.page && !sheet.abs) sheet = { abs: ids.find(x=> qaAyahPage(x) >= sheet.page) || ids[0] };   /* opened by Mushaf page: land on its first ayah in this surah */
   if(qa.on && !tbSt.following && ids.length && !ids.includes(qa.abs)) tbAudioTo(sheet && sheet.abs ? sheet.abs : ids[0], page);   /* opening another surah by hand moves a playing recitation with it */
-  tbSt.surah = sn; tbSt.ui = ui; tbSt.lang = lang; tbSt.sheet = 0; tbSt.total = 1; state.tbSurah = sn; saveState();
+  tbSt.surah = sn; tbSt.ui = ui; tbSt.lang = lang; tbSt.sheet = 0; tbSt.total = 1; state.tbSurah = sn; qLastSet('tarjuma'); saveState();
   setNavCtx([0, 1, 2], 1, ()=>{}, null); __navCtx.rtl = false; __navCtx.turn = true;
   document.getElementById('detailTitle').textContent = L({rur:'Tarjuma', en:'Translation'});
   const para = quranParaOf(page), mz = quranManzilOf(page);
@@ -307,7 +307,7 @@ function renderTafseerIndex(){
 }
 function tfTintBg(){ const t = QURAN_TINTS.find(x=>x.k === (state.quranTint || '')); return t && t.c ? t.c : '#ffffff'; }
 function renderTafseerPage(n){
-  n = Math.max(1, Math.min(TF_PAGES, n | 0 || 1)); state.tfPage = n; saveState();
+  n = Math.max(1, Math.min(TF_PAGES, n | 0 || 1)); state.tfPage = n; qLastSet('tafseer'); saveState();
   setNavCtx(tfPageList, n - 1, (p)=> renderTafseerPage(p), null); __navCtx.rtl = true;   /* an Urdu book turns from the right, like the Mushaf */
   const s = tfSurahOf(n), night = quranNightOn();
   document.getElementById('detailTitle').textContent = `${L({rur:'Tafseer', en:'Tafseer'})} · ${n}/${TF_PAGES}`;

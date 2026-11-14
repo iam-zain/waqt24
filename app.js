@@ -2807,7 +2807,7 @@ function renderQuranReader(page){
   /* A page change inside the reader (or a pick from the index) moves the recitation too; merely reopening the reader does not */
   const qaFlip = !!document.getElementById('quranWrap') || qa.forceSync; qa.forceSync = false;
   if(qaFlip) qaSyncToPage(page);
-  const prevPage = state.quranPage; state.quranPage = page;
+  const prevPage = state.quranPage; state.quranPage = page; qLastSet('mushaf');
   clearTimeout(quranReadTimer); quranReadTimer = setTimeout(()=> markQuranPageRead(page), 8000);
   state.lastRead = { k:'quran', id:page, ed:quranEd(), label:`${quranEdLabel()} · Page ${page} · ${quranSurahOf(page).name}` };
   saveState();
@@ -3074,10 +3074,22 @@ function quranBookSvg(tajweed, size){
     <path d="M32 9 C24 4 12 4 4 7 V43 C12 40 24 40 32 45 C40 40 52 40 60 43 V7 C52 4 40 4 32 9 Z" fill="var(--card2)" stroke="var(--sub)" stroke-width="2" stroke-linejoin="round"/>
     <line x1="32" y1="9" x2="32" y2="45" stroke="var(--sub)" stroke-width="2"/>${lines}</svg>`;
 }
+/* "Continue reading": the book last opened (Mushaf, Tarjuma or Tafseer) and where, one tap to go back */
+function qLastSet(k){ state.qLast = { k, t:Date.now() }; }
+function qContinueHtml(){
+  const q = state.qLast; if(!q) return '';
+  let ic, name, where;
+  if(q.k === 'tarjuma' && state.tbSurah){ ic = '📘'; name = L({rur:'Tarjuma', en:'Translation'}); where = `${state.tbSurah}. ${QURAN_SURAHS[state.tbSurah - 1].name} · ${L({rur:'Page', en:'Page'})} ${state.tbPage || 2}`; }
+  else if(q.k === 'tafseer' && state.tfPage){ const sn = typeof tfSurahOf === 'function' ? tfSurahOf(state.tfPage) : 0; ic = '📕'; name = 'Tafseer'; where = `${sn ? sn + '. ' + QURAN_SURAHS[sn - 1].name : L({rur:'Muqaddima', en:'Introduction'})} · ${L({rur:'Page', en:'Page'})} ${state.tfPage}`; }
+  else if(q.k === 'mushaf' && state.quranPage){ const sn = quranSurahOf(state.quranPage); ic = '📖'; name = quranEdLabel(); where = `${sn.n}. ${sn.name} · ${L({rur:'Page', en:'Page'})} ${state.quranPage}`; }
+  else return '';
+  return `<button type="button" class="qcont" id="qhContinue"><span class="qc-ic">${ic}</span><span class="qc-t"><small>${L({rur:'Wahin se jaari rakhein', en:'Continue reading'})}</small><b>${name}</b><span>${where}</span></span><span class="qc-go">›</span></button>`;
+}
 function renderQuranHome(){
   document.getElementById('detailTitle').textContent = "Qur'an Majeed";
   const last = quranLastPage(), ed = quranEd();
   document.getElementById('detailBody').innerHTML = `
+    ${qContinueHtml()}
     <div class="section-title" style="margin:0 14px 8px;">${L({rur:"Qur'an padhein", en:'Read the Quran'})}</div>
     <div class="qbook-row">
       <button class="qbook ${ed==='normal'?'last':''}" id="qhNormal">${quranBookSvg(false)}<b>${L({rur:'Normal', en:'Normal'})}</b><span>${L({rur:'15 line Mushaf', en:'15-line Mushaf'})}</span></button>
@@ -3096,6 +3108,9 @@ function renderQuranHome(){
   document.getElementById('qhTajweed').onclick = ()=>{ state.quranEd = 'tajweed'; saveState(); renderQuranReader(); };
   document.getElementById('qhSigns').onclick = renderQuranSigns;
   document.getElementById('qhRules').onclick = renderTajweedRules;
+  { const c = document.getElementById('qhContinue'); if(c) c.onclick = ()=>{ const k = state.qLast && state.qLast.k;
+      if(k === 'tarjuma') renderTarjumaBook(state.tbPage || 2, state.tbAbs ? { abs:state.tbAbs } : 0, state.tbSurah);
+      else if(k === 'tafseer') renderTafseerPage(state.tfPage || 1); else renderQuranReader(state.quranPage); }; }
   if(typeof tbHomeWire === 'function') tbHomeWire();
   wireTilawatCards(renderQuranHome);
   rollNumbers(document.getElementById('detailBody'), '.tl-count');
@@ -8294,7 +8309,7 @@ function renderTarjumaBook(page, sheet, surah){
   const ui = tbUnitIdx(page, surah), sn = tbUnits()[ui].s, ids = tbUnitIds(page, sn);
   if(sheet && typeof sheet === 'object' && sheet.page && !sheet.abs) sheet = { abs: ids.find(x=> qaAyahPage(x) >= sheet.page) || ids[0] };   /* opened by Mushaf page: land on its first ayah in this surah */
   if(qa.on && !tbSt.following && ids.length && !ids.includes(qa.abs)) tbAudioTo(sheet && sheet.abs ? sheet.abs : ids[0], page);   /* opening another surah by hand moves a playing recitation with it */
-  tbSt.surah = sn; tbSt.ui = ui; tbSt.lang = lang; tbSt.sheet = 0; tbSt.total = 1; state.tbSurah = sn; saveState();
+  tbSt.surah = sn; tbSt.ui = ui; tbSt.lang = lang; tbSt.sheet = 0; tbSt.total = 1; state.tbSurah = sn; qLastSet('tarjuma'); saveState();
   setNavCtx([0, 1, 2], 1, ()=>{}, null); __navCtx.rtl = false; __navCtx.turn = true;
   document.getElementById('detailTitle').textContent = L({rur:'Tarjuma', en:'Translation'});
   const para = quranParaOf(page), mz = quranManzilOf(page);
@@ -8489,7 +8504,7 @@ function renderTafseerIndex(){
 }
 function tfTintBg(){ const t = QURAN_TINTS.find(x=>x.k === (state.quranTint || '')); return t && t.c ? t.c : '#ffffff'; }
 function renderTafseerPage(n){
-  n = Math.max(1, Math.min(TF_PAGES, n | 0 || 1)); state.tfPage = n; saveState();
+  n = Math.max(1, Math.min(TF_PAGES, n | 0 || 1)); state.tfPage = n; qLastSet('tafseer'); saveState();
   setNavCtx(tfPageList, n - 1, (p)=> renderTafseerPage(p), null); __navCtx.rtl = true;   /* an Urdu book turns from the right, like the Mushaf */
   const s = tfSurahOf(n), night = quranNightOn();
   document.getElementById('detailTitle').textContent = `${L({rur:'Tafseer', en:'Tafseer'})} · ${n}/${TF_PAGES}`;
