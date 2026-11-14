@@ -8105,21 +8105,33 @@ function renderDailyCard(){
   if(state.dailyOff || state.dailyHideDay === dayKey(new Date()) || !uiGateOpen(30)){ el.style.display = 'none'; el.innerHTML = ''; dailyDrawnKey = ''; return; }
   el.style.display = '';
   { const list = document.getElementById('timesList'); if(list && el.parentElement !== list) list.appendChild(el); }
-  const key = dayKey(new Date()) + dailyTab + dailyShift[dailyTab] + (isEn() ? 'e' : 'u');
+  const open = state.dailyOpenDay === dayKey(new Date());   // starts folded on every new day; the choice is kept for the rest of the day
+  const key = dayKey(new Date()) + dailyTab + dailyShift[dailyTab] + (isEn() ? 'e' : 'u') + (open ? 'o' : 'c');
   if(key === dailyDrawnKey && el.firstChild) return;
   dailyDrawnKey = key;
   const x = dailyPick(dailyTab), en = isEn(), isDua = dailyTab === 'dua';
   const wasHidden = !el.firstChild;
-  el.innerHTML = `<div class="dc-top"><div class="dc-tabs"><button type="button" class="${isDua ? 'on' : ''}" data-dt="dua">🤲 ${L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'})}</button><button type="button" class="${isDua ? '' : 'on'}" data-dt="hadees">📜 ${L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'})}</button></div><button type="button" class="dc-x" id="dcClose" aria-label="${L({rur:'Band karein', en:'Close'})}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button></div>
+  const closeIt = ()=>{ state.dailyHideDay = dayKey(new Date()); saveState(); el.classList.add('dc-out'); setTimeout(()=>{ el.classList.remove('dc-out', 'dc-in', 'dc-grow'); renderDailyCard(); }, document.body.classList.contains('calm') ? 0 : 280); };
+  el.classList.toggle('dc-collapsed', !open);
+  if(!open){
+    const ttl = isDua ? (en && x.ent ? x.ent : x.title) : L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'});
+    el.innerHTML = `<button type="button" class="dc-strip" id="dcStrip" aria-expanded="false"><span class="dc-sic">${isDua ? '🤲' : '📜'}</span><span class="dc-stl">${ttl}</span><span class="dc-chev" aria-hidden="true">▾</span></button><button type="button" class="dc-x" id="dcClose" aria-label="${L({rur:'Band karein', en:'Close'})}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>`;
+    if(wasHidden){ el.classList.remove('dc-in'); void el.offsetWidth; el.classList.add('dc-in'); }
+    document.getElementById('dcStrip').onclick = ()=>{ state.dailyOpenDay = dayKey(new Date()); saveState(); dailyDrawnKey = ''; renderDailyCard(); el.classList.remove('dc-grow'); void el.offsetWidth; el.classList.add('dc-grow'); setTimeout(()=>{ try{ el.scrollIntoView({ block:'nearest', behavior:'smooth' }); }catch(e){} }, 80); };
+    document.getElementById('dcClose').onclick = closeIt;
+    return;
+  }
+  el.innerHTML = `<div class="dc-top"><div class="dc-tabs"><button type="button" class="${isDua ? 'on' : ''}" data-dt="dua">🤲 ${L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'})}</button><button type="button" class="${isDua ? '' : 'on'}" data-dt="hadees">📜 ${L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'})}</button></div><button type="button" class="dc-fold" id="dcFold" aria-label="${L({rur:'Chhota karein', en:'Collapse'})}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 10l5-5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button><button type="button" class="dc-x" id="dcClose" aria-label="${L({rur:'Band karein', en:'Close'})}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button></div>
     <div class="dc-body">
       ${isDua ? `<div class="dc-title">${en && x.ent ? x.ent : x.title}</div><div class="dc-ar" dir="rtl">${x.arabic}</div><div class="dc-tr">${x.translit}</div><div class="dc-m">${en && x.enm ? x.enm : x.meaning}</div><div class="dc-ref">${x.ref || ''}</div>`
         : `<div class="dc-m dc-h">${en && x.en ? x.en : x.txt}</div><div class="dc-ref">${x.src}</div>`}
     </div>
     <div class="dc-dots" aria-hidden="true"><i class="${isDua ? 'on' : ''}"></i><i class="${isDua ? '' : 'on'}"></i></div>
     <div class="dc-btns"><button type="button" id="dcMore">🔄 ${L({rur:'Doosri', en:'Another'})}</button><button type="button" id="dcShare">📤 ${L({rur:'Share', en:'Share'})}</button></div>`;
-  if(wasHidden){ el.classList.remove('dc-in'); void el.offsetWidth; el.classList.add('dc-in'); } else { const bd = el.querySelector('.dc-body'); bd.classList.add('dc-swap'); }
+  if(wasHidden){ el.classList.remove('dc-in'); void el.offsetWidth; el.classList.add('dc-in'); } else if(!el.classList.contains('dc-grow')){ const bd = el.querySelector('.dc-body'); bd.classList.add('dc-swap'); }
   el.querySelectorAll('[data-dt]').forEach(b=>{ b.onclick = ()=>{ if(dailyTab === b.dataset.dt) return; dailyTab = b.dataset.dt; renderDailyCard(); }; });
-  document.getElementById('dcClose').onclick = ()=>{ state.dailyHideDay = dayKey(new Date()); saveState(); el.classList.add('dc-out'); setTimeout(()=>{ el.classList.remove('dc-out', 'dc-in'); renderDailyCard(); }, document.body.classList.contains('calm') ? 0 : 280); };
+  document.getElementById('dcClose').onclick = closeIt;
+  document.getElementById('dcFold').onclick = ()=>{ state.dailyOpenDay = ''; saveState(); dailyDrawnKey = ''; el.classList.remove('dc-grow'); renderDailyCard(); };
   document.getElementById('dcMore').onclick = ()=>{ dailyShift[dailyTab]++; renderDailyCard(); };
   document.getElementById('dcShare').onclick = ()=>{
     openCardShareChooser(isDua
@@ -8137,6 +8149,7 @@ setTimeout(()=>{ renderDailyCard(); }, 30100); // the card first appears 30 seco
   el.addEventListener('touchstart', e=>{ if(e.target.closest('button')){ x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive:true });
   el.addEventListener('touchend', e=>{
     if(x0 === null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+    if(el.classList.contains('dc-collapsed')) return;
     if(Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
     const want = dx < 0 ? 'hadees' : 'dua'; if(want !== dailyTab){ dailyTab = want; renderDailyCard(); }
   });

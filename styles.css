@@ -1879,7 +1879,6 @@ body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yello
 .daily-card{ position:relative; overflow:hidden; margin:14px 12px 22px; padding:14px 14px 12px; border-radius:20px;
   background:radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--accent) 20%, transparent) 0, transparent 60%), linear-gradient(160deg, color-mix(in srgb, var(--accent) 9%, var(--card)) 0, var(--card) 70%);
   border:1px solid color-mix(in srgb, var(--accent) 32%, var(--line)); box-shadow:0 6px 22px color-mix(in srgb, var(--accent) 14%, transparent); }
-.daily-card::before{ content:'✦'; position:absolute; right:14px; bottom:6px; font-size:70px; line-height:1; color:color-mix(in srgb, var(--accent) 9%, transparent); pointer-events:none; }
 .dc-top{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
 .dc-tabs{ flex:1; margin:0; display:flex; gap:6px; padding:4px; border-radius:14px; background:color-mix(in srgb, var(--accent) 10%, var(--card2)); }
 .dc-tabs button{ flex:1; min-height:38px; border:0; border-radius:10px; background:transparent; color:var(--sub); font:inherit; font-size:12.5px; transition:background .25s, color .25s, box-shadow .25s; }
@@ -2052,3 +2051,14 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .asma-rate{ flex:0 0 auto; padding:5px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12px; font-weight:700; cursor:pointer; }
 .asma-rate.on{ background:#c99a4a; color:#fff; border-color:#c99a4a; }
 .asma-ftop .asma-ftitle{ font-size:13px; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* Daily card: folded to one slim title row; tap to open */
+.daily-card.dc-collapsed{ flex-direction:row; align-items:center; gap:8px; padding:6px 8px 6px 6px; margin-bottom:14px; border-radius:16px; box-shadow:none; }
+.dc-strip{ flex:1; min-width:0; display:flex; align-items:center; gap:10px; min-height:44px; padding:0 8px; border:0; background:transparent; color:var(--text); font:inherit; text-align:left; cursor:pointer; }
+.dc-sic{ flex:0 0 auto; font-size:18px; }
+.dc-stl{ flex:1; min-width:0; font-size:14px; font-weight:700; color:var(--accentInk); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dc-chev{ flex:0 0 auto; color:var(--sub); font-size:14px; }
+.dc-collapsed .dc-x{ width:34px; height:34px; }
+.dc-fold{ flex:0 0 auto; width:38px; height:38px; border-radius:50%; border:1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); background:color-mix(in srgb, var(--accent) 8%, var(--card2)); color:var(--sub); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.daily-card.dc-grow{ animation:dcGrow .38s var(--fx-ease, ease) both; }
+@keyframes dcGrow{ from{ opacity:.4; transform:translateY(-8px) scale(.98); } to{ opacity:1; transform:none; } }
