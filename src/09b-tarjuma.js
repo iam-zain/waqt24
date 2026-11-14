@@ -67,10 +67,15 @@ const TR_NABI = {
 };
 /* "(ऐ रसूल)" in brackets always addresses the Prophet: name him, as the Urdu edition does ("اے محمد") */
 const trAddr = t => t ? t.replace(/\(\s*[एऐ]\s+रसूल\s*\)/g, '(ऐ मुहम्मद)').replace(/तुमको को(?![\u0900-\u097F])/g, 'तुमको') : t;
-function trNabi(t, lang){
+/* Salih is also the plain word "righteous", so his name is only marked in the surahs that tell his story (Al-A'raf, Hud, Ash-Shu'ara, An-Naml) */
+const TR_SALIH = { en:/\b(Salih|Saleh)\b/g, ur:/(?<![\u0600-\u06FF])(صالح)(?![\u0600-\u06FF])/g, hi:/(?<![\u0900-\u097F])(सालेह|सालिह|सालह|सॉलेह)(?![\u0900-\u097F])/g };
+function trNabi(t, lang, surah){
   if(!t) return t; const k = lang === 'rom' ? 'hi' : lang, re = TR_NABI[k]; if(!re) return t;
   const skip = new RegExp('^\\s*(?:\\(\\s*)?(?:alaihis|alayhi|عليه|علیہ|अलैहिस|अलैहि|\\(?(?:a\\.?s|peace)\\b)', 'i');
-  return t.replace(re, (m, g1, off, str)=> skip.test(str.slice(off + m.length)) ? m : m + TR_AS[lang]);
+  const mark = (m, g1, off, str)=> skip.test(str.slice(off + m.length)) ? m : m + TR_AS[lang];
+  t = t.replace(re, mark);
+  if([7, 11, 26, 27].includes(surah) && TR_SALIH[k]) t = t.replace(TR_SALIH[k], mark);
+  return t;
 }
 /* the Prophet's name always carries the salawat: Muhammad ﷺ (all four languages; skipped where it is already written) */
 function trSal(t, lang){
@@ -82,7 +87,7 @@ function trSal(t, lang){
 }
 async function trLoad(s, lang){
   const key = lang + s; if(TR_MEM[key]) return TR_MEM[key];
-  const def = TR_LANGS.find(l=>l.k === lang), conv = def.conv === 'roman' ? (x=> devaToRoman(trNabi(trAddr(x), 'rom')).replace(/\btumko ko\b/gi, m=> m.slice(0, 5))) : (x=> trNabi(lang === 'hi' ? trAddr(x) : x, lang));
+  const def = TR_LANGS.find(l=>l.k === lang), conv = def.conv === 'roman' ? (x=> devaToRoman(trNabi(trAddr(x), 'rom', s)).replace(/\btumko ko\b/gi, m=> m.slice(0, 5))) : (x=> trNabi(lang === 'hi' ? trAddr(x) : x, lang, s));
   const url = `https://api.alquran.cloud/v1/surah/${s}/${def.ed}`;
   let cache = null; try{ cache = await caches.open('waqt24-tr-v1'); const hit = await cache.match(url); if(hit){ const j = await hit.json(); return TR_MEM[key] = j.data.ayahs.map(a=>trSal(trOvr(s, a, lang) || conv(a.text), lang)); } }catch(e){}
   const res = await fetch(url); if(!res.ok) throw new Error('tr ' + res.status);
