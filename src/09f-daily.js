@@ -71,7 +71,8 @@ setTimeout(()=>{ renderDailyCard(); }, 30100); // the card first appears 30 seco
 function renderDailyCatchup(){
   const en = isEn();
   document.getElementById('detailTitle').textContent = L({rur:'Aaj ki Du\'a aur Hadees', en:'Today\'s Du\'a & Hadees'});
-  const d = dailyPick('dua'), h = dailyPick('hadees');
+  const d = dailyPick('dua'), h = dailyPick('hadees'), dk = d.title, hk = hadeesKey(h), ds = duaStatus(dk), hs = duaStatus(hk);
+  const stRow = (id, st)=>`<div class="aad-status-row"><button type="button" class="aad-status-btn soch ${st === 'soch' ? 'on' : ''}" id="${id}Soch">⏳ Yaad karna baaqi hai</button><button type="button" class="aad-status-btn amal ${st === 'amal' ? 'on' : ''}" id="${id}Amal">✅ Yaad ho chuka hai</button></div>`;
   document.getElementById('detailBody').innerHTML = `
     <div class="dcu-sec"><div class="dcu-h">🤲 ${L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'})}</div>
       <div class="dcu-t">${en && d.ent ? d.ent : d.title}</div>
@@ -79,15 +80,19 @@ function renderDailyCatchup(){
       <div class="translit">${d.translit}</div>
       <div class="meaning">${en && d.enm ? d.enm : d.meaning}</div>
       <div class="dc-ref">${d.ref || ''}</div>
+      ${stRow('dcuDua', ds)}
       <div class="dcu-btns"><button type="button" id="dcuMoreDua">🔄 ${L({rur:'Doosri', en:'Another'})}</button><button type="button" id="dcuShareDua">📤 ${L({rur:'Share', en:'Share'})}</button></div></div>
     <div class="dcu-sec"><div class="dcu-h">📜 ${L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'})}</div>
       <div class="meaning dcu-hd">${en && h.en ? h.en : h.txt}</div>
       <div class="dc-ref">${h.src}</div>
+      ${stRow('dcuHad', hs)}
       <div class="dcu-btns"><button type="button" id="dcuMoreHad">🔄 ${L({rur:'Doosri', en:'Another'})}</button><button type="button" id="dcuShareHad">📤 ${L({rur:'Share', en:'Share'})}</button></div></div>`;
   document.getElementById('dcuMoreDua').onclick = ()=>{ dailyShift.dua++; dailyDrawnKey = ''; renderDailyCard(); renderDailyCatchup(); };
   document.getElementById('dcuMoreHad').onclick = ()=>{ dailyShift.hadees++; dailyDrawnKey = ''; renderDailyCard(); renderDailyCatchup(); };
   document.getElementById('dcuShareDua').onclick = ()=> openCardShareChooser({ kind:L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'}), arabic:d.arabic, title:en && d.ent ? d.ent : d.title, sub:d.translit, body:en && d.enm ? d.enm : d.meaning, foot:(d.ref || '') + ' · Waqt24' });
   document.getElementById('dcuShareHad').onclick = ()=> openCardShareChooser({ kind:L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'}), body:en && h.en ? h.en : h.txt, foot:h.src + ' · Waqt24' });
+  const sc = document.getElementById('detailBody').scrollTop;
+  [['dcuDuaSoch', dk, 'soch'], ['dcuDuaAmal', dk, 'amal'], ['dcuHadSoch', hk, 'soch'], ['dcuHadAmal', hk, 'amal']].forEach(([id, key, v])=>{ document.getElementById(id).onclick = ()=>{ setDuaStatus(key, v); renderDailyCatchup(); document.getElementById('detailBody').scrollTop = sc; }; });
   if(typeof markReadDay === 'function') markReadDay();
 }
 navWrap('renderDailyCatchup', 0);

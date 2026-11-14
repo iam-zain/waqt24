@@ -2096,3 +2096,5 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .dcu-hd{ font-size:15.5px; line-height:1.75; }
 .dcu-btns{ display:flex; gap:10px; margin-top:12px; }
 .dcu-btns button{ flex:1; padding:11px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+
+.dcu-sec .aad-status-row{ margin:12px 0 0; padding:0; }
