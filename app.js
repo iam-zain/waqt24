@@ -8158,7 +8158,7 @@ function tbLh(){
   return Math.max(22, Math.min(64, base + 3 * (state.tbZ || 0)));
 }
 /* text size from the line height: Urdu (Nastaliq) and Devanagari need more air than Latin */
-function tbFs(lh){ const l = trLang(); return Math.round(lh / (l === 'ur' ? 2.1 : l === 'hi' ? 1.85 : 1.72) * 10) / 10; }
+function tbFs(lh){ const l = trLang(); return Math.round(lh / (l === 'ur' ? 2.2 : l === 'hi' ? 1.85 : 1.72) * 10) / 10; }
 function tbBookSvg(kind){
   const c = 'var(--accent)', lines = [0,1,2,3].map(i=>{ const y = 15 + i * 6; return `<line x1="9" y1="${y}" x2="27" y2="${y+1.5}" stroke="${c}" stroke-width="2.6" stroke-linecap="round"/><line x1="37" y1="${y+1.5}" x2="55" y2="${y}" stroke="${kind === 'tafseer' ? 'currentColor' : c}" stroke-width="2.6" stroke-linecap="round"/>`; }).join('');
   return `<svg viewBox="0 0 64 48" width="48" height="36" aria-hidden="true"><path d="M32 9 C24 4 12 4 4 7 V43 C12 40 24 40 32 45 C40 40 52 40 60 43 V7 C52 4 40 4 32 9 Z" fill="var(--card2)" stroke="var(--sub)" stroke-width="2" stroke-linejoin="round"/><line x1="32" y1="9" x2="32" y2="45" stroke="var(--sub)" stroke-width="2"/>${lines}</svg>`;
@@ -8183,7 +8183,7 @@ async function tbBuild(page, lang){
   const open = '<p class="tb-p"' + (ur ? ' dir="rtl" lang="ur"' : lang === 'hi' ? ' lang="hi"' : '') + '>';
   let html = open;
   ids.forEach(x=>{
-    const r = qaSurahAyah(x), t = (data[surahs.indexOf(r.s)][r.a-1] || '').replace(/</g, '&lt;');
+    const r = qaSurahAyah(x), t = (data[surahs.indexOf(r.s)][r.a-1] || '').replace(/</g, '&lt;').replace(/\uFDFA/g, '<span class="tb-sw">\uFDFA</span>');
     if(r.a === 1){
       if(html.endsWith(open)) html = html.slice(0, -open.length); else html += '</p>';
       html += `<div class="tb-surah"><span>${r.s}. ${(QURAN_SURAHS[r.s-1] || {}).name || ''}</span></div>${open}`;
@@ -8204,7 +8204,7 @@ function renderTarjumaBook(page, sheet){
     <div class="tb-top"><span>${L({rur:'Paara', en:'Para'})} ${para.n}</span><b>${(QURAN_SURAHS[sn-1] || {}).name || ''}</b><span>${L({rur:'Page', en:'Page'})} ${page}</span></div>
     <div class="tb-tools"><div class="tb-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div></div>
     <div class="tb-sheet${night ? ' night' : ''}" id="tbSheet" style="--lh:${lh}px;--fs:${tbFs(lh)}px;${pageCss}">
-      <div class="tb-view" id="tbView"><div class="tb-flow" id="tbFlow"><div class="tb-msg">${trpMsg()}</div></div></div>
+      <div class="tb-view${ur ? ' ur' : ''}" id="tbView"><div class="tb-rules">${Array.from({length:TB_ROWS},(_, k)=>`<i style="--k:${k+1}"></i>`).join('')}</div><div class="tb-flow" id="tbFlow"><div class="tb-msg">${trpMsg()}</div></div></div>
       <div class="tb-foot"><span id="tbPart"></span></div>
     </div>
     <div class="pn-bar tb-bar"><button class="pn-btn pn-prev" id="pnPrevBtn"><span class="pn-ic">⬅️</span>${isEn() ? 'Previous' : 'Pichla'}</button><span class="pn-pos" id="tbPos"></span><button class="pn-btn pn-next" id="pnNextBtn">${isEn() ? 'Next' : 'Agla'}<span class="pn-ic">➡️</span></button></div>
