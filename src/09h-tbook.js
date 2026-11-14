@@ -6,6 +6,14 @@
 var TB_ROWS = 15, tbSt = { tok:0, page:2, sheet:0, total:1, lang:'' };
 const tbLastPage = ()=> QA_PAGE_FIRST.length;
 const tbClamp = p => Math.max(2, Math.min(tbLastPage(), p | 0 || 2));
+const TB_HI = "अल-फ़ातिहा,अल-बक़रह,आल-ए-इमरान,अन-निसा,अल-माइदह,अल-अनआम,अल-आराफ़,अल-अनफ़ाल,अत-तौबह,यूनुस,हूद,यूसुफ़,अर-रअद,इब्राहीम,अल-हिज्र,अन-नहल,बनी इसराईल,अल-कहफ़,मरयम,ता-हा,अल-अंबिया,अल-हज,अल-मूमिनून,अन-नूर,अल-फ़ुरक़ान,अश-शुअरा,अन-नम्ल,अल-क़सस,अल-अनकबूत,अर-रूम,लुक़मान,अस-सज्दह,अल-अहज़ाब,सबा,फ़ातिर,या-सीन,अस-साफ़्फ़ात,सॉद,अज़-ज़ुमर,ग़ाफ़िर,हा-मीम अस-सज्दह,अश-शूरा,अज़-ज़ुख़रुफ़,अद-दुख़ान,अल-जासिया,अल-अहक़ाफ़,मुहम्मद,अल-फ़तह,अल-हुजुरात,क़ॉफ़,अज़-ज़ारियात,अत-तूर,अन-नज्म,अल-क़मर,अर-रहमान,अल-वाक़िअह,अल-हदीद,अल-मुजादलह,अल-हश्र,अल-मुमतहिनह,अस-सफ़,अल-जुमुअह,अल-मुनाफ़िक़ून,अत-तग़ाबुन,अत-तलाक़,अत-तहरीम,अल-मुल्क,अल-क़लम,अल-हाक़्क़ह,अल-मआरिज,नूह,अल-जिन्न,अल-मुज़म्मिल,अल-मुदस्सिर,अल-क़ियामह,अद-दहर,अल-मुरसलात,अन-नबा,अन-नाज़िआत,अबस,अत-तकवीर,अल-इंफ़ितार,अल-मुतफ़्फ़िफ़ीन,अल-इंशिक़ाक़,अल-बुरूज,अत-तारिक़,अल-अअला,अल-ग़ाशियह,अल-फ़ज्र,अल-बलद,अश-शम्स,अल-लैल,अज़-ज़ुहा,अल-इंशिराह,अत-तीन,अल-अलक़,अल-क़द्र,अल-बय्यिनह,अज़-ज़िलज़ाल,अल-आदियात,अल-क़ारिअह,अत-तकासुर,अल-अस्र,अल-हुमज़ह,अल-फ़ील,क़ुरैश,अल-माऊन,अल-कौसर,अल-काफ़िरून,अन-नस्र,अल-लहब,अल-इख़लास,अल-फ़लक़,अन-नास".split(',');
+/* surah name in the language of the page: Urdu in Urdu script (ة written ہ), Hindi in Devanagari, Hinglish/English as written in Latin */
+function tbSurahName(n, lang){
+  const x = QURAN_SURAHS[n-1] || {};
+  if(lang === 'ur') return String(x.ar || '').replace(/ة/g, 'ہ');
+  if(lang === 'hi') return TB_HI[n-1] || x.name || '';
+  return x.name || '';
+}
 const tbIsUr = ()=> trLang() === 'ur';
 /* line height: fills the screen under the controls; A−/A+ change it by 3px a step */
 function tbLh(){
@@ -41,7 +49,7 @@ async function tbBuild(page, lang){
     const r = qaSurahAyah(x), t = (data[surahs.indexOf(r.s)][r.a-1] || '').replace(/</g, '&lt;').replace(/\uFDFA/g, '<span class="tb-sw">\uFDFA</span>');
     if(r.a === 1){
       if(html.endsWith(open)) html = html.slice(0, -open.length); else html += '</p>';
-      html += `<div class="tb-surah"><span>${r.s}. ${(QURAN_SURAHS[r.s-1] || {}).name || ''}</span></div>${open}`;
+      html += `<div class="tb-surah"><span>${ur ? 'سورۃ ' + tbSurahName(r.s, lang) : r.s + '. ' + tbSurahName(r.s, lang)}</span></div>${open}`;
     }
     html += `${t} <i class="tb-n" dir="ltr">&#xFD3E;${trpDigits(r.a, ur)}&#xFD3F;</i> `;
   });
@@ -56,7 +64,7 @@ function renderTarjumaBook(page, sheet){
   const night = quranNightOn(), tint = QURAN_TINTS.find(x=>x.k === (state.quranTint || ''));
   const pageCss = night ? '' : tint && tint.c ? `--tbbg:${tint.c};--tbac:${tint.a};` : '';
   document.getElementById('detailBody').innerHTML = `
-    <div class="tb-top"><span>${L({rur:'Paara', en:'Para'})} ${para.n}</span><b>${(QURAN_SURAHS[sn-1] || {}).name || ''}</b><span>${L({rur:'Page', en:'Page'})} ${page}</span></div>
+    <div class="tb-top"><span>${L({rur:'Paara', en:'Para'})} ${para.n}</span><b${ur ? ' dir="rtl" lang="ur" class="tb-urname"' : ''}>${tbSurahName(sn, lang)}</b><span>${L({rur:'Page', en:'Page'})} ${page}</span></div>
     <div class="tb-tools"><div class="tb-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div></div>
     <div class="tb-sheet${night ? ' night' : ''}" id="tbSheet" style="--lh:${lh}px;--fs:${tbFs(lh)}px;${pageCss}">
       <div class="tb-view${ur ? ' ur' : ''}" id="tbView"><div class="tb-rules">${Array.from({length:TB_ROWS},(_, k)=>`<i style="--k:${k+1}"></i>`).join('')}</div><div class="tb-flow" id="tbFlow"><div class="tb-msg">${trpMsg()}</div></div></div>

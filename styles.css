@@ -1950,3 +1950,4 @@ body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yello
 
 .tb-sz{ display:flex; gap:8px; }
 .tb-surah{ background:var(--tbbg); position:relative; }
+.tb-top b.tb-urname{ font-family:'Noto Nastaliq Urdu','Scheherazade New',serif; font-size:16px; line-height:1.6; }
