@@ -3176,7 +3176,7 @@ function renderQuranIndex(kind){
   document.getElementById('qiSurahTab').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('qiManzilTab').onclick = ()=> renderQuranIndex('manzil');
   document.getElementById('qiMarksTab').onclick = ()=> renderQuranIndex('marks');
-  document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=>{ qa.forceSync = true; (qiOpener || renderQuranReader)(parseInt(el.dataset.page)); }; });
+  document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=>{ qa.forceSync = true; if(qiOpener) qiOpener(parseInt(el.dataset.page), el.dataset.n); else renderQuranReader(parseInt(el.dataset.page)); }; });
   const qiSearch = document.getElementById('qiSearch');
   if(qiSearch){
     const rows = [...document.querySelectorAll('#detailBody .quran-idx-item')];
@@ -8156,6 +8156,19 @@ function wireRamzanScreenTop(){
 var TB_ROWS = 15, tbSt = { tok:0, page:2, sheet:0, total:1, lang:'' };
 const tbLastPage = ()=> QA_PAGE_FIRST.length;
 const tbClamp = p => Math.max(2, Math.min(tbLastPage(), p | 0 || 2));
+/* Each surah starts on a fresh page: a Mushaf page that holds two surahs becomes two book pages, one per surah. */
+let TB_UNITS = null;
+function tbUnits(){
+  if(TB_UNITS) return TB_UNITS; TB_UNITS = [];
+  for(let p = 2; p <= tbLastPage(); p++){
+    const seen = []; trPageAyahs(p).forEach(x=>{ const sn = qaSurahAyah(x).s; if(!seen.includes(sn)) seen.push(sn); });
+    if(!seen.length) seen.push(quranSurahOf(p).n);
+    seen.forEach(sn=> TB_UNITS.push({ p, s:sn }));
+  }
+  return TB_UNITS;
+}
+function tbUnitIdx(p, sn){ const u = tbUnits(); let i = u.findIndex(x=> x.p === p && (sn == null || x.s === sn)); if(i < 0) i = u.findIndex(x=> x.p === p); return Math.max(0, i); }
+const tbUnitIds = (p, sn)=> trPageAyahs(p).filter(x=> qaSurahAyah(x).s === sn);
 const TB_HI = "अल-फ़ातिहा,अल-बक़रह,आल-ए-इमरान,अन-निसा,अल-माइदह,अल-अनआम,अल-आराफ़,अल-अनफ़ाल,अत-तौबह,यूनुस,हूद,यूसुफ़,अर-रअद,इब्राहीम,अल-हिज्र,अन-नहल,बनी इसराईल,अल-कहफ़,मरयम,ता-हा,अल-अंबिया,अल-हज,अल-मूमिनून,अन-नूर,अल-फ़ुरक़ान,अश-शुअरा,अन-नम्ल,अल-क़सस,अल-अनकबूत,अर-रूम,लुक़मान,अस-सज्दह,अल-अहज़ाब,सबा,फ़ातिर,या-सीन,अस-साफ़्फ़ात,सॉद,अज़-ज़ुमर,ग़ाफ़िर,हा-मीम अस-सज्दह,अश-शूरा,अज़-ज़ुख़रुफ़,अद-दुख़ान,अल-जासिया,अल-अहक़ाफ़,मुहम्मद,अल-फ़तह,अल-हुजुरात,क़ॉफ़,अज़-ज़ारियात,अत-तूर,अन-नज्म,अल-क़मर,अर-रहमान,अल-वाक़िअह,अल-हदीद,अल-मुजादलह,अल-हश्र,अल-मुमतहिनह,अस-सफ़,अल-जुमुअह,अल-मुनाफ़िक़ून,अत-तग़ाबुन,अत-तलाक़,अत-तहरीम,अल-मुल्क,अल-क़लम,अल-हाक़्क़ह,अल-मआरिज,नूह,अल-जिन्न,अल-मुज़म्मिल,अल-मुदस्सिर,अल-क़ियामह,अद-दहर,अल-मुरसलात,अन-नबा,अन-नाज़िआत,अबस,अत-तकवीर,अल-इंफ़ितार,अल-मुतफ़्फ़िफ़ीन,अल-इंशिक़ाक़,अल-बुरूज,अत-तारिक़,अल-अअला,अल-ग़ाशियह,अल-फ़ज्र,अल-बलद,अश-शम्स,अल-लैल,अज़-ज़ुहा,अल-इंशिराह,अत-तीन,अल-अलक़,अल-क़द्र,अल-बय्यिनह,अज़-ज़िलज़ाल,अल-आदियात,अल-क़ारिअह,अत-तकासुर,अल-अस्र,अल-हुमज़ह,अल-फ़ील,क़ुरैश,अल-माऊन,अल-कौसर,अल-काफ़िरून,अन-नस्र,अल-लहब,अल-इख़लास,अल-फ़लक़,अन-नास".split(',');
 /* surah name in the language of the page: Urdu in Urdu script (ة written ہ), Hindi in Devanagari, Hinglish/English as written in Latin */
 function tbSurahName(n, lang){
@@ -8205,7 +8218,7 @@ function bkToggle(sec, p){ const m = bkMarks(sec), i = m.indexOf(p); if(i >= 0) 
 async function tbShareText(){
   const flow = document.getElementById('tbFlow'); if(!flow) return;
   const ays = [...flow.querySelectorAll('.tb-ay')].map(e=>e.textContent.replace(/[\uFD3E\uFD3F]/g, '').replace(/\s+/g, ' ').trim());
-  const sn = quranSurahOf(tbSt.page), text = `${sn.n}. ${sn.name} · Page ${tbSt.page} (Waqt24)\n\n` + ays.join('\n');
+  const sn = QURAN_SURAHS[(tbSt.surah || quranSurahOf(tbSt.page).n) - 1], text = `${sn.n}. ${sn.name} · Page ${tbSt.page} (Waqt24)\n\n` + ays.join('\n');
   if(navigator.share){ try{ await navigator.share({ text, title:`${sn.name} · Page ${tbSt.page}` }); return; }catch(e){ if(e && e.name === 'AbortError') return; } }
   try{ await navigator.clipboard.writeText(text); showToast(L({rur:'Page ka matan copy ho gaya', en:'Page text copied'})); }catch(e){ showToast(L({rur:'Share nahi ho saka', en:'Could not share'})); }
 }
@@ -8232,12 +8245,12 @@ function tbHomeHtml(){
 function tbHomeWire(){
   document.querySelectorAll('.bk-chips [data-bk]').forEach(b=>{ b.onclick = ()=>{ const p = +b.dataset.p; if(b.dataset.bk === 'tf') renderTafseerPage(p); else renderTarjumaBook(p); }; });
   const a = document.getElementById('qhTbook'), b = document.getElementById('qhTafseer');
-  if(a) a.onclick = ()=> renderTarjumaBook(state.tbPage || 2);
+  if(a) a.onclick = ()=> renderTarjumaBook(state.tbPage || 2, 0, state.tbSurah);
   if(b) b.onclick = ()=> renderTafseerIndex();
 }
 /* HTML of one Mushaf page in one language: surah headings take two lines, the text runs on with the ayah numbers */
-async function tbBuild(page, lang){
-  const ur = lang === 'ur', ids = trPageAyahs(page), surahs = [...new Set(ids.map(x=>qaSurahAyah(x).s))];
+async function tbBuild(page, lang, surah){
+  const ur = lang === 'ur', ids = surah ? tbUnitIds(page, surah) : trPageAyahs(page), surahs = [...new Set(ids.map(x=>qaSurahAyah(x).s))];
   const data = await Promise.all(surahs.map(s=>trLoad(s, lang)));
   const open = '<p class="tb-p"' + (ur ? ' dir="rtl" lang="ur"' : lang === 'hi' ? ' lang="hi"' : '') + '>';
   let html = open;
@@ -8251,13 +8264,18 @@ async function tbBuild(page, lang){
   });
   return html + '</p>';
 }
-function renderTarjumaBook(page, sheet){
+function renderTarjumaBook(page, sheet, surah){
   page = tbClamp(page); const lang = tbLang(), lh = tbLh(), ur = lang === 'ur';
-  if(qa.on && !tbSt.following && qa.syncPage !== page && typeof qaSyncToPage === 'function') qaSyncToPage(page);   /* turning the page by hand moves a playing recitation with it */
-  state.tbPage = page; saveState(); tbSt.page = page; tbSt.lang = lang; tbSt.sheet = 0; tbSt.total = 1;
+  const ui = tbUnitIdx(page, surah), U = tbUnits()[ui]; page = U.p; const sn = U.s, ids = tbUnitIds(page, sn);
+  if(qa.on && !tbSt.following && ids.length && !ids.includes(qa.abs)){   /* turning the page by hand moves a playing recitation with it */
+    const was = qa.playing || qa.loading; qa.syncPage = page; qa.abs = ids[0]; qa.part = 'a'; qa.exact = true;
+    const r0 = qaSurahAyah(ids[0]); qa.bism = r0.a === 1 && qaHasBism(r0.s); qaEls(); qa.cur.pause();
+    if(was) qaPlayCurrent(); else { qa.playing = false; qa.loading = false; qa.err = false; qaUI(); }
+  }
+  state.tbPage = page; state.tbSurah = sn; saveState(); tbSt.page = page; tbSt.surah = sn; tbSt.ui = ui; tbSt.lang = lang; tbSt.sheet = 0; tbSt.total = 1;
   setNavCtx([0, 1, 2], 1, ()=>{}, null); __navCtx.rtl = false; __navCtx.turn = true;
   document.getElementById('detailTitle').textContent = L({rur:'Tarjuma', en:'Translation'});
-  const ids = trPageAyahs(page), para = quranParaOf(page), sn = ids.length ? qaSurahAyah(ids[0]).s : quranSurahOf(page).n;
+  const para = quranParaOf(page);
   const night = quranNightOn(), tint = QURAN_TINTS.find(x=>x.k === (state.quranTint || ''));
   const pageCss = night ? '' : tint && tint.c ? `--tbbg:${tint.c};--tbac:${tint.a};` : '';
   document.getElementById('detailBody').innerHTML = `
@@ -8284,32 +8302,32 @@ function renderTarjumaBook(page, sheet){
     </div>
     <div class="q-tints" id="tbTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>`;
   const $ = id => document.getElementById(id);
-  document.querySelector('.tb-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.tbLang = b.dataset.l; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
-  document.querySelector('.tb-sz').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.tbZ = Math.max(-3, Math.min(8, (state.tbZ || 0) + (+b.dataset.z))); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
+  document.querySelector('.tb-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.tbLang = b.dataset.l; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); };
+  document.querySelector('.tb-sz').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.tbZ = Math.max(-3, Math.min(8, (state.tbZ || 0) + (+b.dataset.z))); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); };
   $('tbTintBtn').onclick = ()=>{ $('tbTints').hidden = !$('tbTints').hidden; };
-  $('tbTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); $('tbTints').hidden = false; quranTintPlayer(); };
-  $('tbNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
+  $('tbTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); $('tbTints').hidden = false; quranTintPlayer(); };
+  $('tbNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); };
   $('tbListenBtn').onclick = ()=>{ if(qa.on) qaStop(); else tbPlayFrom(tbFirstAyah()); };
   quranTintPlayer();
-  [['tbParaBtn', 'para'], ['tbSurahBtn', 'surah'], ['tbManzilBtn', 'manzil']].forEach(([id, k])=>{ $(id).onclick = ()=>{ qiOpener = p=> renderTarjumaBook(p); renderQuranIndex(k); }; });
+  [['tbParaBtn', 'para'], ['tbSurahBtn', 'surah'], ['tbManzilBtn', 'manzil']].forEach(([id, k])=>{ $(id).onclick = ()=>{ qiOpener = (p, n)=> renderTarjumaBook(p, 0, n ? +n : undefined); renderQuranIndex(k); }; });
   $('tbMarkBtn').onclick = ()=>{ bkToggle('tb', page); const b = $('tbMarkBtn'); b.classList.toggle('on', bkHas('tb', page)); b.textContent = '🔖 ' + bkLabel('tb', page); };
   $('tbShareBtn').onclick = ()=> tbShareText();
   $('tbNoteBtn').onclick = ()=> openNoteBox({ page, sec:'tb' }, ()=>{ const b = document.getElementById('tbNoteBtn'); if(b){ const c = notesForPage(page, 'tb').length; b.classList.toggle('on', c > 0); b.textContent = '📝 ' + L({rur:'Note', en:'Note'}) + (c ? ' (' + c + ')' : ''); } });
   $('tbFlow').onclick = e=>{ const ay = e.target.closest('.tb-ay'); if(ay) tbPlayFrom(+ay.dataset.a); };
-  $('tbSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); if(state.quranTurnSound) playPageSound(); };
+  $('tbSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); if(state.quranTurnSound) playPageSound(); };
   $('tbMushafBtn').onclick = ()=> renderQuranReader(tbSt.page);
   pageJumpWire(2, tbLastPage(), page, v=> renderTarjumaBook(v));
   $('pnPrevBtn').onclick = tbPrev; $('pnNextBtn').onclick = tbNext;
-  tbLoad(page, sheet);
-  [page + 1].forEach(n=>{ if(n <= tbLastPage()) tbBuild(n, lang).catch(()=>{}); });   /* the next page's translation is fetched while this one is read */
+  tbLoad(page, sheet, sn);
+  { const nu = tbUnits()[ui + 1]; if(nu) tbBuild(nu.p, lang, nu.s).catch(()=>{}); }   /* the next page's translation is fetched while this one is read */
 }
-async function tbLoad(page, sheet){
+async function tbLoad(page, sheet, surah){
   const my = ++tbSt.tok, lang = tbLang(); let html;
-  try{ html = await tbBuild(page, lang); }
+  try{ html = await tbBuild(page, lang, surah); }
   catch(e){
     const f = document.getElementById('tbFlow'); if(my !== tbSt.tok || !f) return;
     f.innerHTML = `<div class="tb-msg">${L({rur:'Tarjuma load nahi hua. Internet check karein.', en:'Could not load the translation. Check your internet connection.'})}<br><button type="button" class="tp-retry" id="tbRetry">${L({rur:'Dobara koshish', en:'Retry'})}</button></div>`;
-    document.getElementById('tbRetry').onclick = ()=> renderTarjumaBook(page, sheet); return;
+    document.getElementById('tbRetry').onclick = ()=> renderTarjumaBook(page, sheet, surah); return;
   }
   const flow = document.getElementById('tbFlow'); if(my !== tbSt.tok || !flow) return;
   flow.innerHTML = html;
@@ -8325,7 +8343,7 @@ function tbMeasure(sheet){
   tbSt.total = total;
   tbSt.sheet = sheet === 'last' ? total - 1 : Math.max(0, Math.min(total - 1, sheet | 0));
   flow.style.transform = `translateY(${-tbSt.sheet * H}px)`;
-  const first = tbSt.page <= 2 && tbSt.sheet === 0, last = tbSt.page >= tbLastPage() && tbSt.sheet >= total - 1;
+  const first = tbSt.ui <= 0 && tbSt.sheet === 0, last = tbSt.ui >= tbUnits().length - 1 && tbSt.sheet >= total - 1;
   const p = document.getElementById('pnPrevBtn'), n = document.getElementById('pnNextBtn'); if(p) p.disabled = first; if(n) n.disabled = last;
   const part = document.getElementById('tbPart'); if(part) part.textContent = total > 1 ? `${L({rur:'Hissa', en:'Part'})} ${tbSt.sheet + 1}/${total}` : '';
   const pos = document.getElementById('tbPos'); if(pos) pos.textContent = `${L({rur:'Page', en:'Page'})} ${tbSt.page}${total > 1 ? ' · ' + (tbSt.sheet + 1) + '/' + total : ''}`;
@@ -8333,16 +8351,16 @@ function tbMeasure(sheet){
 }
 function tbNext(){
   if(tbSt.sheet + 1 < tbSt.total){ tbMeasure(tbSt.sheet + 1); }
-  else if(tbSt.page < tbLastPage()) renderTarjumaBook(tbSt.page + 1, 0);
+  else { const u = tbUnits()[tbSt.ui + 1]; if(u) renderTarjumaBook(u.p, 0, u.s); }
 }
 function tbPrev(){
   if(tbSt.sheet > 0){ tbMeasure(tbSt.sheet - 1); }
-  else if(tbSt.page > 2) renderTarjumaBook(tbSt.page - 1, 'last');
+  else { const u = tbUnits()[tbSt.ui - 1]; if(u) renderTarjumaBook(u.p, 'last', u.s); }
 }
 /* ---- Urdu tarjuma audio inside the book (no Arabic): plays the Shamshad Ali Khan recording ayah by ayah, highlights the ayah and turns the sheet/page with it ---- */
 function tbFirstAyah(){
   const flow = document.getElementById('tbFlow'), sh = document.getElementById('tbSheet');
-  const ids = trPageAyahs(tbSt.page); if(!flow || !sh) return ids[0];
+  const ids = tbUnitIds(tbSt.page, tbSt.surah); if(!flow || !sh) return ids[0];
   const H = parseFloat(getComputedStyle(sh).getPropertyValue('--lh')) * TB_ROWS, fr = flow.getBoundingClientRect().top;
   for(const el of flow.querySelectorAll('.tb-ay')){ const r = el.getClientRects(); const last = r[r.length - 1]; if(last && last.bottom - fr > tbSt.sheet * H + 4) return +el.dataset.a; }
   return ids[0];
@@ -8376,13 +8394,13 @@ function tbSync(){
   if(btn){ btn.classList.toggle('on', !!qa.on); btn.innerHTML = '🎧 ' + L({rur:'Tilawat sunein', en:'Listen'}); }
   const flow = document.getElementById('tbFlow'); flow.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl')); flow.querySelectorAll('.tb-hlb').forEach(e=>e.remove());
   if(!qa.on){ tbRestoreVoice(); return; }
-  const pg = qaAyahPage(qa.abs);
-  if(pg !== tbSt.page){
+  const pg = qaAyahPage(qa.abs), asn = qaSurahAyah(qa.abs).s;
+  if(pg !== tbSt.page || asn !== tbSt.surah){
     if(pg >= 2 && pg <= tbLastPage() && !tbSt.following && flow.querySelector('.tb-ay')){
       tbSt.following = true; qa.syncPage = pg; const fwd = pg > tbSt.page;
-      const go = ()=> renderTarjumaBook(pg, 0);
+      const go = ()=> renderTarjumaBook(pg, 0, asn);
       if(typeof slideDetail === 'function') slideDetail(fwd ? -1 : 1, go); else go();
-      setTimeout(()=>{ if(tbSt.following && tbSt.page !== pg) go(); }, 900);
+      setTimeout(()=>{ if(tbSt.following && (tbSt.page !== pg || tbSt.surah !== asn)) go(); }, 900);
     }
     return;
   }
@@ -8394,7 +8412,7 @@ function tbSync(){
   if(idx !== tbSt.sheet){ const dir = idx > tbSt.sheet ? -1 : 1, go = ()=>{ tbMeasure(idx); tbSync(); }; if(typeof slideDetail === 'function') slideDetail(dir, go); else go(); }
 }
 function tbRestoreVoice(){ if(tbSt.prevVoice){ const v = tbSt.prevVoice; tbSt.prevVoice = null; if(!qa.on) qaSetVoice(v); } }
-window.addEventListener('resize', ()=>{ if(document.getElementById('tbSheet')) renderTarjumaBook(tbSt.page, tbSt.sheet); });
+window.addEventListener('resize', ()=>{ if(document.getElementById('tbSheet')) renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); });
 
 /* ============================================================ TAFSEER ============================================================ */
 const TF_PAGES = 1976;   /* TF_SURAH (first page of each surah) are in 09i-tfdata.js */

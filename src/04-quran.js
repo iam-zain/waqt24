@@ -594,7 +594,7 @@ function renderQuranIndex(kind){
   document.getElementById('qiSurahTab').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('qiManzilTab').onclick = ()=> renderQuranIndex('manzil');
   document.getElementById('qiMarksTab').onclick = ()=> renderQuranIndex('marks');
-  document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=>{ qa.forceSync = true; (qiOpener || renderQuranReader)(parseInt(el.dataset.page)); }; });
+  document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=>{ qa.forceSync = true; if(qiOpener) qiOpener(parseInt(el.dataset.page), el.dataset.n); else renderQuranReader(parseInt(el.dataset.page)); }; });
   const qiSearch = document.getElementById('qiSearch');
   if(qiSearch){
     const rows = [...document.querySelectorAll('#detailBody .quran-idx-item')];
