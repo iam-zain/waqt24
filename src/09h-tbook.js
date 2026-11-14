@@ -65,6 +65,49 @@ async function tbShareText(){
   if(navigator.share){ try{ await navigator.share({ text, title:`${sn.name} · Page ${tbSt.page}` }); return; }catch(e){ if(e && e.name === 'AbortError') return; } }
   try{ await navigator.clipboard.writeText(text); showToast(L({rur:'Page ka matan copy ho gaya', en:'Page text copied'})); }catch(e){ showToast(L({rur:'Share nahi ho saka', en:'Could not share'})); }
 }
+/* Share as a picture: the open sheet is redrawn on a canvas from the real layout (every word where it sits on screen), in the chosen colours */
+async function tbShareImage(){
+  const view = document.getElementById('tbView'), sheet = document.getElementById('tbSheet'), flow = document.getElementById('tbFlow');
+  if(!view || !sheet || !flow || !flow.querySelector('.tb-ay')) return false;
+  try{ await document.fonts.ready; }catch(e){}
+  const S = Math.max(2, Math.min(3, window.devicePixelRatio || 2)), vr = view.getBoundingClientRect(), PAD = 18, BOT = 34;
+  const headSeen = [...document.querySelectorAll('#tbView .tb-surah')].some(h=>{ const r = h.getBoundingClientRect(); return r.top >= vr.top - 2 && r.bottom <= vr.bottom + 2; });
+  const TOP = headSeen ? 18 : 50;
+  const W = Math.round(vr.width) + PAD * 2, H = Math.round(vr.height) + TOP + BOT, c = document.createElement('canvas'); c.width = W * S; c.height = H * S;
+  const x = c.getContext('2d'); x.scale(S, S);
+  const cs = getComputedStyle(sheet), ac = getComputedStyle(flow.querySelector('.tb-n') || sheet).color, fg = cs.color;
+  x.fillStyle = cs.backgroundColor; x.fillRect(0, 0, W, H);
+  const sn = tbSt.surah, lang = tbLang(), ur = lang === 'ur';
+  x.textBaseline = 'alphabetic'; x.textAlign = 'center'; x.fillStyle = ac;
+  if(!headSeen){ x.font = ur ? "20px 'Noto Nastaliq Urdu', serif" : "800 16px Inter, sans-serif"; x.direction = ur ? 'rtl' : 'ltr';
+  x.fillText(ur ? 'سورۃ ' + tbSurahName(sn, lang) : sn + '. ' + tbSurahName(sn, lang), W / 2, 32); }
+  x.direction = 'ltr'; x.textAlign = 'center'; x.font = '600 11px Inter, sans-serif'; x.fillStyle = fg; x.globalAlpha = .6;
+  x.fillText(`Waqt24 · ${L({rur:'Tarjuma', en:'Translation'})} · ${L({rur:'Page', en:'Page'})} ${tbSt.page}${tbSt.total > 1 ? ' · ' + (tbSt.sheet + 1) + '/' + tbSt.total : ''}`, W / 2, H - 12); x.globalAlpha = 1;
+  const ox = PAD - vr.left, oy = TOP - vr.top;
+  document.querySelectorAll('#tbView .tb-rules i').forEach(i=>{ const r = i.getBoundingClientRect(); x.fillStyle = getComputedStyle(i).backgroundColor; x.fillRect(r.left + ox, r.top + oy, r.width, 1); });
+  document.querySelectorAll('#tbView .tb-surah').forEach(h=>{ const r = h.getBoundingClientRect(); x.fillStyle = cs.backgroundColor; x.fillRect(r.left + ox, Math.max(r.top, vr.top) + oy, r.width, Math.min(r.bottom, vr.bottom) - Math.max(r.top, vr.top)); });
+  document.querySelectorAll('#tbView .tb-surah span').forEach(sp=>{ const r = sp.getBoundingClientRect(); if(r.bottom < vr.top || r.top > vr.bottom) return; const b = getComputedStyle(sp); x.fillStyle = b.borderTopColor; x.fillRect(r.left + ox, r.top + oy, r.width, 1.5); x.fillRect(r.left + ox, r.bottom + oy - 1.5, r.width, 1.5); });
+  const tw = document.createTreeWalker(flow, NodeFilter.SHOW_TEXT);
+  for(let n = tw.nextNode(); n; n = tw.nextNode()){
+    const par = n.parentElement, st = getComputedStyle(par); if(!n.nodeValue.trim()) continue;
+    x.font = `${st.fontStyle} ${st.fontWeight} ${st.fontSize} ${st.fontFamily}`; x.fillStyle = st.color; x.direction = st.direction === 'rtl' ? 'rtl' : 'ltr'; x.textAlign = 'left';
+    const re = /\S+/g; let m;
+    while((m = re.exec(n.nodeValue))){
+      const rg = document.createRange(); rg.setStart(n, m.index); rg.setEnd(n, m.index + m[0].length);
+      const rs = rg.getClientRects(); if(!rs.length) continue;
+      const r = rs[0], cy = r.top + r.height / 2; if(cy < vr.top || cy > vr.bottom) continue;
+      const tm = x.measureText(m[0]), asc = tm.fontBoundingBoxAscent != null ? tm.fontBoundingBoxAscent : r.height * .8;
+      x.fillText(m[0], r.left + ox, r.top + oy + asc);
+    }
+  }
+  const blob = await new Promise(r=> c.toBlob(r, 'image/jpeg', 0.92)); if(!blob) return false;
+  const name = `tarjuma-${sn}-page-${tbSt.page}.jpg`, file = new File([blob], name, { type:'image/jpeg' });
+  const sr = QURAN_SURAHS[sn - 1], title = `${sr.n}. ${sr.name} · Page ${tbSt.page} (Waqt24)`;
+  if(navigator.canShare && navigator.canShare({ files:[file] })){ try{ await navigator.share({ files:[file], title, text:title }); }catch(e){ if(!(e && e.name === 'AbortError')) return false; } return true; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=> URL.revokeObjectURL(a.href), 2000); showToast(L({rur:'Page ki tasveer download ho gayi', en:'Page image downloaded'}));
+  return true;
+}
 async function tfShareImage(n){
   try{
     const img = new Image(); img.src = tfImg(n); await img.decode();
@@ -152,7 +195,7 @@ function renderTarjumaBook(page, sheet, surah){
   quranTintPlayer();
   [['tbParaBtn', 'para'], ['tbSurahBtn', 'surah'], ['tbManzilBtn', 'manzil']].forEach(([id, k])=>{ $(id).onclick = ()=>{ qiOpener = (p, n)=> renderTarjumaBook(p, { page:p }, n ? +n : undefined); renderQuranIndex(k); }; });
   $('tbMarkBtn').onclick = ()=>{ bkToggle('tb', tbSt.page); tbHdrSync(); };
-  $('tbShareBtn').onclick = ()=> tbShareText();
+  $('tbShareBtn').onclick = async ()=>{ let ok = false; try{ ok = await tbShareImage(); }catch(e){} if(!ok) tbShareText(); };
   $('tbNoteBtn').onclick = ()=> openNoteBox({ page:tbSt.page, sec:'tb' }, tbHdrSync);
   $('tbFlow').onclick = e=>{ if(tbSt.lp){ tbSt.lp = false; return; } const ay = e.target.closest('.tb-ay'); if(ay) tbPlayFrom(+ay.dataset.a); };
   { /* press and hold an ayah to write a note on that ayah */
