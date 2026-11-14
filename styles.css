@@ -1931,7 +1931,7 @@ body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yello
 .tb-sheet.night{ --tbbg:#14181d; --tbfg:#e8e2d4; --tbac:#8fd9ae; --tbrule:rgba(255,255,255,.13); }
 .tb-view{ position:relative; height:calc(var(--lh) * 15); overflow:hidden; }
 .tb-rules i{ position:absolute; left:0; right:0; top:calc(var(--lh) * var(--k) - 1px); height:1px; background:var(--tbrule); }
-.tb-view.ur .tb-rules i{ top:calc(var(--lh) * (var(--k) + .14) - 1px); }
+.tb-view.ur .tb-rules i{ top:calc(var(--lh) * (var(--k) + .0) - 1px); }
 .tb-flow{ position:relative; }
 .tb-sw{ display:inline-block; line-height:1; height:1em; vertical-align:baseline; }
 .tb-view.flip{ animation:tbFade .26s ease both; }
