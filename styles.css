@@ -2046,3 +2046,4 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .aad-card.asma-now{ outline:2px solid #c99a4a; background:color-mix(in srgb, #c99a4a 16%, var(--card)); }
 .asma-listen{ display:flex; align-items:center; justify-content:center; gap:8px; width:calc(100% - 28px); margin:0 14px 12px; padding:12px; border:none; border-radius:12px; background:#c99a4a; color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
 .asma-listen.on{ background:var(--red); }
+.asma-full{ position:sticky; top:-20px; z-index:5; margin-top:0; box-shadow:0 6px 14px -8px rgba(0,0,0,.55); background:var(--card); }
