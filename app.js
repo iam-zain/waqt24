@@ -2825,6 +2825,7 @@ function renderQuranReader(page){
     <div class="quran-page-wrap${quranNightOn() ? (quranEd()==='tajweed' ? ' night-color' : ' night') : ''}" id="quranWrap">
       <img class="quran-page-img" src="${quranImg(page)}" alt="Quran page ${page}" draggable="false">
     </div>
+    ${pnBarHtml()}
     <div class="quran-tools">
       <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
       <button class="quran-tool qt-ed" id="quranEdBtn">${quranEd()==='tajweed' ? quranBookSvg(false, 22) + ' Normal' : quranBookSvg(true, 22) + ' Tajweed'}</button>
@@ -2847,7 +2848,6 @@ function renderQuranReader(page){
       <input type="number" id="quranJumpInput" min="1" max="${QURAN_PAGE_COUNT}" value="${page}">
       <button id="quranJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button>
     </div>
-    ${pnBarHtml()}
   `;
   const jumpBtn = document.getElementById('quranJumpBtn');
   const jumpInput = document.getElementById('quranJumpInput');
@@ -8303,6 +8303,7 @@ function renderTafseerPage(n){
       <button class="quran-index-btn" id="tfIndexBtn"><span>📜</span> ${s ? s + '. ' + QURAN_SURAHS[s-1].name : L({rur:'Muqaddima', en:'Introduction'})}</button>
     </div>
     <div class="quran-page-wrap tf-wrap${night ? ' night' : ''}" id="tfWrap"><img class="quran-page-img tf-img" src="${tfImg(n)}" alt="Tafseer page ${n}" draggable="false" style="background-color:${night ? '#fff' : tfTintBg()}"></div>
+    ${pnBarHtml()}
     <div class="quran-tools">
       <button class="quran-tool" id="tfTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${night ? 'on' : ''}" id="tfNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
@@ -8310,8 +8311,7 @@ function renderTafseerPage(n){
       <button class="quran-tool" id="tfZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
     </div>
     <div class="q-tints" id="tfTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
-    <div class="quran-jump"><span>${L({rur:'Page par jaayein', en:'Go to page'})}</span><input type="number" id="tfJump" min="1" max="${TF_PAGES}" value="${n}"><button id="tfJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button></div>
-    ${pnBarHtml()}`;
+    <div class="quran-jump"><span>${L({rur:'Page par jaayein', en:'Go to page'})}</span><input type="number" id="tfJump" min="1" max="${TF_PAGES}" value="${n}"><button id="tfJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button></div>`;
   const $ = id => document.getElementById(id);
   $('tfIndexBtn').onclick = ()=> renderTafseerIndex();
   $('tfTintBtn').onclick = ()=>{ $('tfTints').hidden = !$('tfTints').hidden; };

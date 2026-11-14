@@ -243,6 +243,7 @@ function renderQuranReader(page){
     <div class="quran-page-wrap${quranNightOn() ? (quranEd()==='tajweed' ? ' night-color' : ' night') : ''}" id="quranWrap">
       <img class="quran-page-img" src="${quranImg(page)}" alt="Quran page ${page}" draggable="false">
     </div>
+    ${pnBarHtml()}
     <div class="quran-tools">
       <button class="quran-tool ${quranMarked(page)?'on':''}" id="quranMarkBtn">🔖 ${quranMarked(page) ? L({rur:'Nishaan laga hai', en:'Bookmarked'}) : L({rur:'Nishaan lagayein', en:'Bookmark'})}</button>
       <button class="quran-tool qt-ed" id="quranEdBtn">${quranEd()==='tajweed' ? quranBookSvg(false, 22) + ' Normal' : quranBookSvg(true, 22) + ' Tajweed'}</button>
@@ -265,7 +266,6 @@ function renderQuranReader(page){
       <input type="number" id="quranJumpInput" min="1" max="${QURAN_PAGE_COUNT}" value="${page}">
       <button id="quranJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button>
     </div>
-    ${pnBarHtml()}
   `;
   const jumpBtn = document.getElementById('quranJumpBtn');
   const jumpInput = document.getElementById('quranJumpInput');
