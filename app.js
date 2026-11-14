@@ -7660,6 +7660,19 @@ const TR_OVR = { '68:10': { hi:'और किसी ऐसे शख़्स �
 const trOvr = (s, a, lang)=>{ const o = TR_OVR[s + ':' + a.numberInSurah]; return o && o[lang] || null; };
 const TR_MEM = {};
 const trLang = ()=> (TR_LANGS.find(l=>l.k === state.quranTr) || TR_LANGS.find(l=>l.k === (state.lang === 'en' ? 'en' : 'rom'))).k;
+/* the prophets' names carry "alaihis salam" (not the angels, not Maryam). Salih is left out on purpose: it is also the ordinary word "righteous". */
+const TR_AS = { rom:' alaihis salam', en:' alaihis salam', ur:' علیہ السلام', hi:' अलैहिस्सलाम' };
+const trDv = w => w.replace(/([क-ह])/g, '$1़?');
+const TR_NABI = {
+  en: /\b(Adam|Idrees|Idris|Noah|Hud|Abraham|Lot|Ishmael|Isaac|Jacob|Joseph|Job|Shuaib|Shu'?aib|Moses|Aaron|Dhul-?Kifl|David|Solomon|Elias|Elijah|Elisha|Jonah|Zechariah|John|Jesus)\b/g,
+  ur: /(آدم|ادریس|نوح|ہود|ابرا[ہھ]یم|لوط|اسماعیل|اسحاق|اسحٰق|یعقوب|یوسف|ایوب|شعیب|موس[یى]ٰ?|ہارون|ذوالکفل|داؤد|داود|سلیمان|الیاس|الیسع|یونس|زکریا|یحی[یى]?ٰ?|عیس[یى]ٰ?)(?![؀-ۿ])/g,
+  hi: new RegExp('(' + ['आदम','इदरीस','नूह','हूद','इब्राही[मम]','इब्राहिम','लूत','इस्माई?ल','इसमाई?ल','इस्माइल','इस्हाक','इसहाक','याकू?ब','यूसुफ','अय्यूब','शुऐब','शुएब','शुऎब','मूसा','हारून','ज़ुलकिफ्ल','जुलकिफ्ल','ज़ुल्किफ्ल','दाऊद','दाउद','सुलैमान','सुलेमान','इल्यास','इलियास','अल्यसअ','अलयसअ','यूनुस','ज़करिया','जकरिया','ज़कारिया','यह्या','यहया','ईसा'].map(trDv).join('|') + ')(?![ऀ-ॿ])', 'g')
+};
+function trNabi(t, lang){
+  if(!t) return t; const k = lang === 'rom' ? 'hi' : lang, re = TR_NABI[k]; if(!re) return t;
+  const skip = new RegExp('^\\s*(?:\\(\\s*)?(?:alaihis|alayhi|عليه|علیہ|अलैहिस|अलैहि|\\(?(?:a\\.?s|peace)\\b)', 'i');
+  return t.replace(re, (m, g1, off, str)=> skip.test(str.slice(off + m.length)) ? m : m + TR_AS[lang]);
+}
 /* the Prophet's name always carries the salawat: Muhammad ﷺ (all four languages; skipped where it is already written) */
 function trSal(t, lang){
   if(!t) return t; const SAL = '\uFDFA', after = '(?!\\s*(?:' + SAL + '|\\(\\s*(?:صلی|ﷺ|sallallahu|salallahu)))';
@@ -7670,7 +7683,7 @@ function trSal(t, lang){
 }
 async function trLoad(s, lang){
   const key = lang + s; if(TR_MEM[key]) return TR_MEM[key];
-  const def = TR_LANGS.find(l=>l.k === lang), conv = def.conv === 'roman' ? (x=> devaToRoman(x).replace(/\btumko ko\b/gi, m=> m.slice(0, 5))) : (x=>x);
+  const def = TR_LANGS.find(l=>l.k === lang), conv = def.conv === 'roman' ? (x=> devaToRoman(trNabi(x, 'rom')).replace(/\btumko ko\b/gi, m=> m.slice(0, 5))) : (x=> trNabi(x, lang));
   const url = `https://api.alquran.cloud/v1/surah/${s}/${def.ed}`;
   let cache = null; try{ cache = await caches.open('waqt24-tr-v1'); const hit = await cache.match(url); if(hit){ const j = await hit.json(); return TR_MEM[key] = j.data.ayahs.map(a=>trSal(trOvr(s, a, lang) || conv(a.text), lang)); } }catch(e){}
   const res = await fetch(url); if(!res.ok) throw new Error('tr ' + res.status);
