@@ -146,7 +146,7 @@ function qaPrevStep(abs, bism, part){
   return { abs: Math.max(1, abs-1), bism:false, part: abs > 1 ? pu : 'a' };
 }
 function qaApplyRate(){ [qa.A, qa.B].forEach(el=>{ if(!el) return; el.defaultPlaybackRate = qa.rate; el.playbackRate = qa.rate; try{ el.preservesPitch = true; }catch(e){} }); }
-const QA_RATES = [1, 1.25, 1.5, 0.75], QA_REPS = [0, 1, 3], QA_SLEEPS = [0, 15, 30, 60];
+const QA_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2], QA_REPS = [0, 1, 3], QA_SLEEPS = [0, 15, 30, 60];
 function qaCycle(kind){
   if(kind === 'rate'){ qa.rate = QA_RATES[(QA_RATES.indexOf(qa.rate) + 1) % QA_RATES.length]; qaApplyRate(); state.qaRate = qa.rate; saveState(); }
   else if(kind === 'rep'){ qa.rep = QA_REPS[(QA_REPS.indexOf(qa.rep) + 1) % QA_REPS.length]; qa.repCount = 0; }

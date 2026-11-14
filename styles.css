@@ -2047,3 +2047,8 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .asma-listen{ display:flex; align-items:center; justify-content:center; gap:8px; width:calc(100% - 28px); margin:0 14px 12px; padding:12px; border:none; border-radius:12px; background:#c99a4a; color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
 .asma-listen.on{ background:var(--red); }
 .asma-full{ position:sticky; top:-20px; z-index:5; margin-top:0; box-shadow:0 6px 14px -8px rgba(0,0,0,.55); background:var(--card); }
+
+.asma-ftop{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.asma-rate{ flex:0 0 auto; padding:5px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12px; font-weight:700; cursor:pointer; }
+.asma-rate.on{ background:#c99a4a; color:#fff; border-color:#c99a4a; }
+.asma-ftop .asma-ftitle{ font-size:13px; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }

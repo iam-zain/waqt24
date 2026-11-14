@@ -7337,7 +7337,7 @@ function qaPrevStep(abs, bism, part){
   return { abs: Math.max(1, abs-1), bism:false, part: abs > 1 ? pu : 'a' };
 }
 function qaApplyRate(){ [qa.A, qa.B].forEach(el=>{ if(!el) return; el.defaultPlaybackRate = qa.rate; el.playbackRate = qa.rate; try{ el.preservesPitch = true; }catch(e){} }); }
-const QA_RATES = [1, 1.25, 1.5, 0.75], QA_REPS = [0, 1, 3], QA_SLEEPS = [0, 15, 30, 60];
+const QA_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2], QA_REPS = [0, 1, 3], QA_SLEEPS = [0, 15, 30, 60];
 function qaCycle(kind){
   if(kind === 'rate'){ qa.rate = QA_RATES[(QA_RATES.indexOf(qa.rate) + 1) % QA_RATES.length]; qaApplyRate(); state.qaRate = qa.rate; saveState(); }
   else if(kind === 'rep'){ qa.rep = QA_REPS[(QA_REPS.indexOf(qa.rep) + 1) % QA_REPS.length]; qa.repCount = 0; }
@@ -8689,6 +8689,10 @@ const ASMA_CLIPS = 99;
 const ASMA_T = [0.68, 1.52, 2.49, 3.31, 4.56, 5.6, 6.39, 7.46, 8.31, 9.37, 10.39, 11.45, 12.26, 13.31, 14.26, 15.21, 16.27, 17.23, 18.33, 19.17, 20.19, 21.07, 22.07, 22.93, 23.93, 24.9, 25.85, 26.87, 27.74, 28.53, 29.66, 30.46, 31.42, 32.39, 33.35, 34.37, 35.15, 36.09, 37.03, 38.0, 38.96, 39.83, 40.74, 41.68, 42.58, 43.5, 44.47, 45.39, 46.35, 47.31, 48.26, 49.04, 49.96, 50.83, 51.8, 52.67, 53.59, 54.49, 55.4, 56.31, 57.16, 58.1, 58.85, 59.86, 60.78, 61.67, 62.6, 63.41, 64.22, 65.17, 66.17, 67.13, 68.08, 68.91, 69.74, 70.65, 71.54, 72.4, 73.48, 74.23, 75.25, 76.24, 77.18, 78.15, 79.33, 80.9, 81.92, 82.82, 83.69, 84.53, 85.39, 86.19, 87.07, 87.87, 88.74, 89.55, 90.41, 91.37, 92.5];
 const asmaSt = { mode:null, idx:-1 };   // mode: 'full' | 'one' | null
 let asmaAu = null;
+const ASMA_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
+function asmaRate(){ return ASMA_RATES.indexOf(state.asmaRate) >= 0 ? state.asmaRate : 1; }
+function asmaApplyRate(){ if(!asmaAu) return; asmaAu.defaultPlaybackRate = asmaRate(); asmaAu.playbackRate = asmaRate(); try{ asmaAu.preservesPitch = true; }catch(e){} }
+function asmaCycleRate(){ state.asmaRate = ASMA_RATES[(ASMA_RATES.indexOf(asmaRate()) + 1) % ASMA_RATES.length]; saveState(); asmaApplyRate(); asmaUI(); }
 function asmaEl(){
   if(asmaAu) return asmaAu;
   asmaAu = new Audio(); asmaAu.preload = 'auto';
@@ -8707,7 +8711,7 @@ function asmaStop(){
 function asmaBegin(src, mode){
   if(typeof qa !== 'undefined' && qa.on && typeof qaStop === 'function') qaStop();
   if(typeof stopAzaan === 'function') stopAzaan();
-  const a = asmaEl(); a.pause(); a.src = src; asmaSt.mode = mode; asmaSt.idx = -1;
+  const a = asmaEl(); a.pause(); a.src = src; asmaApplyRate(); asmaSt.mode = mode; asmaSt.idx = -1;
   const p = a.play(); if(p && p.catch) p.catch(()=>{ asmaSt.mode = null; asmaUI(); showToast(L({rur:'Audio chalane ke liye ek baar aur tap karein', en:'Tap once more to play the audio'})); });
   try{ if(navigator.mediaSession){ navigator.mediaSession.metadata = new MediaMetadata({ title:'Asma-ul-Husna', artist:'Waqt24' }); } }catch(e){}
   asmaUI();
@@ -8739,6 +8743,7 @@ function asmaUI(scroll){
   const fb = document.getElementById('asmaFullBtn');
   if(fb){ fb.textContent = full && playing ? '❚❚' : '▶'; fb.classList.toggle('on', full && playing); }
   const now = full ? asmaFullIdx(asmaAu ? asmaAu.currentTime : 0) : (asmaSt.mode === 'one' ? asmaSt.idx : -1);
+  const rb = document.getElementById('asmaRateBtn'); if(rb){ rb.textContent = '⚡ ' + asmaRate() + '×'; rb.classList.toggle('on', asmaRate() !== 1); }
   const lbl = document.getElementById('asmaNowLbl');
   if(lbl) lbl.textContent = full && now >= 0 ? (now + 1) + '. ' + asmaName(now) : L({rur:'Poori recitation, 99 naam', en:'Full recitation, 99 names'});
   document.querySelectorAll('.asma-pl').forEach(b=>{ const i = +b.dataset.i, on = asmaSt.mode === 'one' && asmaSt.idx === i && playing; b.classList.toggle('on', on); b.textContent = on ? '■' : '▶'; });
@@ -8749,13 +8754,13 @@ function asmaUI(scroll){
 function asmaFullBarHtml(){
   return `<div class="asma-full" id="asmaFull">
     <button class="asma-fbtn" id="asmaFullBtn" aria-label="${L({rur:'Poori recitation chalayein', en:'Play the full recitation'})}">▶</button>
-    <div class="asma-fmid"><div class="asma-ftitle">${L({rur:'Asma-ul-Husna: poora audio', en:'Asma-ul-Husna: full audio'})}</div><div class="asma-fnow" id="asmaNowLbl"></div>
+    <div class="asma-fmid"><div class="asma-ftop"><div class="asma-ftitle">${L({rur:'Asma-ul-Husna: poora audio', en:'Asma-ul-Husna: full audio'})}</div><button class="asma-rate" id="asmaRateBtn" aria-label="${L({rur:'Raftaar', en:'Speed'})}">⚡ 1×</button></div><div class="asma-fnow" id="asmaNowLbl"></div>
       <div class="asma-fseek"><span id="asmaCur">0:00</span><input type="range" id="asmaRange" min="0" max="93.8" step="0.1" value="0" aria-label="${L({rur:'Audio ki timeline', en:'Audio timeline'})}"><span>1:34</span></div></div>
   </div>`;
 }
 function asmaWireFull(){
   const fb = document.getElementById('asmaFullBtn'); if(!fb) return;
-  fb.onclick = asmaToggleFull;
+  fb.onclick = asmaToggleFull; document.getElementById('asmaRateBtn').onclick = asmaCycleRate;
   const r = document.getElementById('asmaRange');
   r.oninput = ()=>{ r.dataset.drag = '1'; const c = document.getElementById('asmaCur'); if(c) c.textContent = fmtSecs(Math.floor(+r.value)); };
   r.onchange = ()=>{ delete r.dataset.drag; if(asmaSt.mode !== 'full') asmaBegin('asma/full.m4a', 'full'); const a = asmaEl(); const go = ()=>{ try{ a.currentTime = +r.value; }catch(e){} }; if(a.readyState >= 1) go(); else a.addEventListener('loadedmetadata', go, { once:true }); asmaUI(true); };
