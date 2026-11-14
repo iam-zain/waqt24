@@ -224,7 +224,7 @@ function bmResolve(k){
   if(t==='dua'){ const d = DUAS.find(x=>x.title===id); return d && { type:"Du'a", ar:'', title:d.title, sub:d.cat, open:()=>{ __navCtx=null; openDuaDetail(d); } }; }
   if(t==='hadees'){ const h = HADEES.find(x=>x.txt.slice(0,40)===id); return h && { type:'Hadees', ar:'', title:h.txt.length>70?h.txt.slice(0,70)+'…':h.txt, sub:h.src, open:()=>{ __navCtx=null; openHadeesDetail(h); } }; }
   if(t==='asma'){ const x = ASMA_UL_HUSNA.findIndex(n=>n.tr===id); return x>=0 && { type:'Asma-ul-Husna', ar:ASMA_UL_HUSNA[x].ar, title:id, sub:ASMA_UL_HUSNA[x].m, open:()=>renderNameDetail('asma', x) }; }
-  if(t==='prophet'){ const x = PROPHET_NAMES.findIndex(n=>n.tr===id); return x>=0 && { type:'Muhammad ﷺ ke Naam', ar:PROPHET_NAMES[x].ar, title:id, sub:PROPHET_NAMES[x].m, open:()=>renderNameDetail('prophet', x) }; }
+  if(t==='prophet'){ const x = PROPHET_NAMES.findIndex(n=>n.tr===id); return x>=0 && { type:'Asma-ul-Nabi', ar:PROPHET_NAMES[x].ar, title:id, sub:PROPHET_NAMES[x].m, open:()=>renderNameDetail('prophet', x) }; }
   if(t==='word'){ const x = KHAAS_SHABD.findIndex(n=>n.tr===id); return x>=0 && { type:'Khaas Shabd', ar:KHAAS_SHABD[x].ar, title:id, sub:KHAAS_SHABD[x].m, open:()=>{ __navCtx=null; renderShabdDetail(x, renderBookmarks); } }; }
   if(t==='qword'){ const w = QURAN_WORDS.find(n=>n.tr===id); return w && { type:'Qur’ani Alfaaz', ar:w.ar, title:id, sub:w.m, open:()=>{ __navCtx=null; openQuranWordDetail(w); } }; }
   if(t==='aadaab'){ const a = AADAAB_TOPICS.find(n=>n.id===id); return a && { type:'Aadaab-e-Zindagi', ar:'', title:a.title, sub:aadaabCatInfo(a.cat).label, open:()=>{ __navCtx=null; openAadaabDetail(a); } }; }
@@ -550,7 +550,7 @@ function drawGlobalSearch(){
     { k:'qword', t:L({rur:"Qur'ani Alfaaz", en:'Quranic Words'}), ic:'📗', items:QURAN_WORDS.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'shabd', t:L({rur:'Khaas Shabd', en:'Special Words'}), ic:'📚', items:KHAAS_SHABD.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'asma', t:'Asma-ul-Husna', ic:'💚', items:ASMA_UL_HUSNA.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
-    { k:'prophet', t:L({rur:'Muhammad ﷺ ke Naam', en:'Names of Muhammad ﷺ'}), ic:'🌙', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
+    { k:'prophet', t:'Asma-ul-Nabi', ic:'🌙', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
   ].filter(g=>g.items.length);
   if(!groups.length){ out.innerHTML = `<div class="empty-state">${L({rur:'Kuch nahi mila', en:'Nothing found'})}</div>`; return; }
   out.innerHTML = groups.map(g=>`<div class="section-title" style="margin:6px 14px 8px;">${g.ic} ${g.t} <span class="gs-count">${g.items.length}</span></div>

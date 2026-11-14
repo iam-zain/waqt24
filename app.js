@@ -1830,7 +1830,7 @@ function bmResolve(k){
   if(t==='dua'){ const d = DUAS.find(x=>x.title===id); return d && { type:"Du'a", ar:'', title:d.title, sub:d.cat, open:()=>{ __navCtx=null; openDuaDetail(d); } }; }
   if(t==='hadees'){ const h = HADEES.find(x=>x.txt.slice(0,40)===id); return h && { type:'Hadees', ar:'', title:h.txt.length>70?h.txt.slice(0,70)+'…':h.txt, sub:h.src, open:()=>{ __navCtx=null; openHadeesDetail(h); } }; }
   if(t==='asma'){ const x = ASMA_UL_HUSNA.findIndex(n=>n.tr===id); return x>=0 && { type:'Asma-ul-Husna', ar:ASMA_UL_HUSNA[x].ar, title:id, sub:ASMA_UL_HUSNA[x].m, open:()=>renderNameDetail('asma', x) }; }
-  if(t==='prophet'){ const x = PROPHET_NAMES.findIndex(n=>n.tr===id); return x>=0 && { type:'Muhammad ﷺ ke Naam', ar:PROPHET_NAMES[x].ar, title:id, sub:PROPHET_NAMES[x].m, open:()=>renderNameDetail('prophet', x) }; }
+  if(t==='prophet'){ const x = PROPHET_NAMES.findIndex(n=>n.tr===id); return x>=0 && { type:'Asma-ul-Nabi', ar:PROPHET_NAMES[x].ar, title:id, sub:PROPHET_NAMES[x].m, open:()=>renderNameDetail('prophet', x) }; }
   if(t==='word'){ const x = KHAAS_SHABD.findIndex(n=>n.tr===id); return x>=0 && { type:'Khaas Shabd', ar:KHAAS_SHABD[x].ar, title:id, sub:KHAAS_SHABD[x].m, open:()=>{ __navCtx=null; renderShabdDetail(x, renderBookmarks); } }; }
   if(t==='qword'){ const w = QURAN_WORDS.find(n=>n.tr===id); return w && { type:'Qur’ani Alfaaz', ar:w.ar, title:id, sub:w.m, open:()=>{ __navCtx=null; openQuranWordDetail(w); } }; }
   if(t==='aadaab'){ const a = AADAAB_TOPICS.find(n=>n.id===id); return a && { type:'Aadaab-e-Zindagi', ar:'', title:a.title, sub:aadaabCatInfo(a.cat).label, open:()=>{ __navCtx=null; openAadaabDetail(a); } }; }
@@ -2156,7 +2156,7 @@ function drawGlobalSearch(){
     { k:'qword', t:L({rur:"Qur'ani Alfaaz", en:'Quranic Words'}), ic:'📗', items:QURAN_WORDS.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'shabd', t:L({rur:'Khaas Shabd', en:'Special Words'}), ic:'📚', items:KHAAS_SHABD.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'asma', t:'Asma-ul-Husna', ic:'💚', items:ASMA_UL_HUSNA.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
-    { k:'prophet', t:L({rur:'Muhammad ﷺ ke Naam', en:'Names of Muhammad ﷺ'}), ic:'🌙', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
+    { k:'prophet', t:'Asma-ul-Nabi', ic:'🌙', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
   ].filter(g=>g.items.length);
   if(!groups.length){ out.innerHTML = `<div class="empty-state">${L({rur:'Kuch nahi mila', en:'Nothing found'})}</div>`; return; }
   out.innerHTML = groups.map(g=>`<div class="section-title" style="margin:6px 14px 8px;">${g.ic} ${g.t} <span class="gs-count">${g.items.length}</span></div>
@@ -3681,7 +3681,7 @@ function nameKey(which, w){ return 'name:' + which + ':' + w.tr; }
 function nameAccent(which){ return which==='asma' ? 'var(--accent)' : '#3fa8a0'; }
 function renderNamesList(which){
   const dataset = which==='asma' ? ASMA_UL_HUSNA : PROPHET_NAMES;
-  const title = which==='asma' ? 'Asma-ul-Husna' : "Muhammad ﷺ ke 99 Naam";
+  const title = which==='asma' ? 'Asma-ul-Husna' : 'Asma-ul-Nabi';
   document.getElementById('detailTitle').textContent = title;
   const body = document.getElementById('detailBody');
   const note = which==='prophet'
@@ -3693,7 +3693,7 @@ function renderNamesList(which){
       <button id="namesListBtn" class="${namesView==='list'?'active':''}">List</button>
     </div>
     ${note}
-    ${which==='asma' ? asmaFullBarHtml() : ''}
+    ${asmaFullBarHtml()}
     <div class="dua-grid names-cards ${namesView==='list'?'list':''}" id="namesGrid"></div>
   `;
   document.getElementById('namesGridBtn').onclick = ()=>{ namesView='grid'; renderNamesList(which); };
@@ -3709,16 +3709,16 @@ function renderNamesList(which){
         ${namesView==='list' ? `<div class="m-preview">${isEn() && w.en ? w.en : w.m}</div>` : ''}
       </div>
       ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
-      ${which==='asma' && i < ASMA_CLIPS ? `<button class="asma-pl" data-i="${i}" aria-label="${L({rur:'Yeh naam sunein', en:'Listen to this name'})}">▶</button>` : ''}
+      ${i < ASMA_CLIPS ? `<button class="asma-pl" data-i="${i}" aria-label="${L({rur:'Yeh naam sunein', en:'Listen to this name'})}">▶</button>` : ''}
       <div class="chev">›</div>
     </div>`;
   }).join('');
-  grid.querySelectorAll('.asma-pl').forEach(b=>{ b.onclick = e=>{ e.stopPropagation(); asmaPlayOne(+b.dataset.i); }; });
-  if(which==='asma') asmaWireFull();
+  grid.querySelectorAll('.asma-pl').forEach(b=>{ b.onclick = e=>{ e.stopPropagation(); asmaPlayOne(+b.dataset.i, which); }; });
+  asmaWireFull();
   grid.querySelectorAll('[data-idx]').forEach(el=>{
     el.onclick = ()=>{
       const i = parseInt(el.dataset.idx);
-      if(which==='asma' && typeof asmaOpenName === 'function') asmaOpenName();   // opening a name pauses the full audio (resumable) or stops a single name
+      if(typeof asmaOpenName === 'function') asmaOpenName();   // opening a name pauses the full audio (resumable) or stops a single name
       setNavCtx(dataset, i, (w,j)=>renderNameDetail(which, j), null);
       renderNameDetail(which, i);
     };
@@ -3743,7 +3743,7 @@ function renderNameDetail(which, idx){
       <div class="aad-head-title ar-font">${w.ar}</div>
       <div class="aad-cat-pill">${w.tr}</div>
     </div>
-    ${which==='asma' && idx < ASMA_CLIPS ? `<button class="asma-listen" data-i="${idx}"><span class="asma-li">▶</span> <span class="asma-lt">${L({rur:'Yeh naam sunein', en:'Listen to this name'})}</span></button>${asmaOptsHtml()}` : ''}
+    ${idx < ASMA_CLIPS ? `<button class="asma-listen" data-i="${idx}"><span class="asma-li">▶</span> <span class="asma-lt">${L({rur:'Yeh naam sunein', en:'Listen to this name'})}</span></button>${asmaOptsHtml()}` : ''}
     <div class="dua-detail">
       <div class="aad-guide-sec dua-sec-ar">
         <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Name (Arabic)' : 'Naam (Arabic)'}</span></div>
@@ -3766,8 +3766,8 @@ function renderNameDetail(which, idx){
   `;
   document.getElementById('nameSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); renderNameDetail(which, idx); };
   document.getElementById('nameAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); renderNameDetail(which, idx); };
-  document.getElementById('nameImgBtn').onclick = ()=> openCardShareChooser({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Muhammad ﷺ ke Naam', arabic:w.ar, title:w.tr, body:isEn() && w.en ? w.en : w.m });
-  { const lb = document.querySelector('.asma-listen'); if(lb){ lb.onclick = ()=> asmaPlayOne(idx); asmaWireOpts(); asmaUI(); } }
+  document.getElementById('nameImgBtn').onclick = ()=> openCardShareChooser({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Asma-ul-Nabi', arabic:w.ar, title:w.tr, body:isEn() && w.en ? w.en : w.m });
+  { const lb = document.querySelector('.asma-listen'); if(lb){ lb.onclick = ()=> asmaPlayOne(idx, which); asmaWireOpts(); asmaUI(); } }
   wirePnBar();
 }
 
@@ -8740,9 +8740,18 @@ const TF_SURAH = [36,40,180,244,320,380,442,518,556,629,665,705,751,777,797,815,
 const ASMA_CLIPS = 99;
 /* second at which each name starts in asma/full.m4a (used to highlight the name being recited) */
 const ASMA_T = [0.66, 1.67, 2.47, 3.25, 4.55, 5.57, 6.36, 7.42, 8.27, 9.28, 10.36, 11.41, 12.17, 13.26, 14.22, 15.17, 16.22, 16.94, 18.28, 19.12, 20.14, 21.01, 22.0, 22.86, 23.87, 24.85, 25.77, 26.53, 27.66, 28.46, 29.42, 30.39, 31.34, 32.16, 33.27, 34.27, 35.05, 35.79, 36.93, 37.88, 38.85, 39.96, 40.48, 41.58, 42.27, 43.4, 44.25, 45.29, 46.15, 47.19, 48.14, 48.84, 49.85, 50.58, 51.42, 52.53, 53.35, 54.36, 55.26, 56.17, 57.02, 57.96, 58.72, 59.59, 60.54, 61.47, 62.44, 63.26, 63.9, 65.01, 65.85, 66.98, 67.92, 68.67, 69.57, 70.48, 71.37, 72.23, 73.26, 74.06, 75.07, 76.05, 76.99, 77.77, 79.15, 80.71, 81.72, 82.43, 83.49, 84.34, 85.19, 85.91, 86.85, 87.66, 88.53, 89.34, 90.23, 91.18, 92.3];
+/* Asma-ul-Nabi: asma-nabi/r1/full.m4a plus one clip per name; second at which each name starts in the full track */
+const NABI_T = [14.95, 16.78, 18.34, 20.17, 21.85, 23.5, 25.05, 26.86, 28.9, 30.7, 32.8, 34.61, 36.26, 37.19, 38.39, 39.56, 40.84, 42.02, 43.6, 45.13, 46.64, 48.43, 50.05, 52.21, 53.9, 55.66, 57.69, 59.66, 61.71, 63.9, 65.94, 67.9, 69.66, 71.37, 72.92, 74.67, 76.44, 77.93, 79.63, 81.1, 82.58, 84.0, 85.37, 86.84, 88.28, 89.84, 91.38, 93.01, 94.82, 96.28, 97.89, 99.73, 101.44, 103.15, 105.16, 106.81, 109.05, 110.83, 112.93, 115.3, 117.42, 119.72, 121.97, 124.4, 126.71, 128.89, 131.14, 132.99, 135.04, 136.78, 138.68, 140.64, 142.04, 143.9, 145.56, 146.89, 148.59, 150.06, 151.51, 153.34, 154.97, 156.58, 158.28, 159.89, 161.78, 163.47, 165.42, 167.05, 168.65, 170.47, 171.94, 173.75, 175.52, 177.01, 178.9, 180.75, 182.34, 184.44, 186.2];
+const ASMA_SETS = {
+  asma:   { data:()=>ASMA_UL_HUSNA, T:ASMA_T,  dir:'asma/r2/',       dur:93.6,  durLbl:'1:34', title:'Asma-ul-Husna', ttl:{rur:'Asma-ul-Husna: poora audio', en:'Asma-ul-Husna: full audio'}, all:{rur:'Poori recitation, 99 naam', en:'Full recitation, 99 names'} },
+  prophet:{ data:()=>PROPHET_NAMES, T:NABI_T, dir:'asma-nabi/r1/', dur:202.5, durLbl:'3:23', title:'Asma-ul-Nabi',  ttl:{rur:'Asma-ul-Nabi: poora audio', en:'Asma-ul-Nabi: full audio'},  all:{rur:'Poori recitation, 99 naam', en:'Full recitation, 99 names'} }
+};
+function asmaScreenWhich(){ const s = typeof curScreen !== 'undefined' ? curScreen : null; return s && s.args && s.args[0] === 'prophet' ? 'prophet' : 'asma'; }
+function asmaW(){ return asmaSt.mode ? asmaSt.which : asmaScreenWhich(); }
+function asmaSet(){ return ASMA_SETS[asmaW()]; }
 const ASMA_GAP_MS = 1500;   // pause between the repeats of a name
 let asmaGapT = 0;
-const asmaSt = { mode:null, idx:-1, n:1, gap:false };   // n: which repeat of a single name is playing   // mode: 'full' | 'one' | null
+const asmaSt = { mode:null, idx:-1, n:1, gap:false, which:'asma' };   // n: which repeat of a single name is playing   // mode: 'full' | 'one' | null
 let asmaAu = null;
 const ASMA_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 function asmaRate(){ return ASMA_RATES.indexOf(state.asmaRate) >= 0 ? state.asmaRate : 1; }
@@ -8767,7 +8776,7 @@ function asmaEl(){
   asmaAu.addEventListener('error', ()=>{ if(!asmaSt.mode) return; asmaSt.mode = null; asmaSt.idx = -1; asmaUI(); showToast(L({rur:'Audio nahin chal saka. Internet check karke dobara koshish karein', en:'Could not play the audio. Check your connection and try again'})); });
   return asmaAu;
 }
-function asmaName(i){ return ASMA_UL_HUSNA[i] ? ASMA_UL_HUSNA[i].tr : ''; }
+function asmaName(i){ const d = asmaSet().data(); return d[i] ? d[i].tr : ''; }
 /* Opening a name card: the full recitation is paused where it is (the bar resumes from there); a single name just stops */
 function asmaOpenName(){
   if(asmaSt.mode === 'full' && asmaAu){ if(!asmaAu.paused) asmaAu.pause(); asmaUI(); }
@@ -8778,57 +8787,60 @@ function asmaStop(){
   if(asmaAu){ asmaAu.pause(); asmaAu.removeAttribute('src'); try{ asmaAu.load(); }catch(e){} }
   asmaSt.mode = null; asmaSt.idx = -1; asmaUI();
 }
-function asmaBegin(src, mode){
+function asmaBegin(src, mode, which){
+  if(which) asmaSt.which = which;
   if(typeof qa !== 'undefined' && qa.on && typeof qaStop === 'function') qaStop();
   if(typeof stopAzaan === 'function') stopAzaan();
   clearTimeout(asmaGapT); asmaSt.gap = false;
   const a = asmaEl(); a.pause(); a.src = src; asmaApplyRate(); asmaSt.mode = mode; asmaSt.idx = -1; asmaSt.n = 1;
   const p = a.play(); if(p && p.catch) p.catch(()=>{ asmaSt.mode = null; asmaUI(); showToast(L({rur:'Audio chalane ke liye ek baar aur tap karein', en:'Tap once more to play the audio'})); });
-  try{ if(navigator.mediaSession){ navigator.mediaSession.metadata = new MediaMetadata({ title:'Asma-ul-Husna', artist:'Waqt24' }); } }catch(e){}
+  try{ if(navigator.mediaSession){ navigator.mediaSession.metadata = new MediaMetadata({ title:asmaSet().title, artist:'Waqt24' }); } }catch(e){}
   asmaUI();
 }
-function asmaPlayOne(i){
+function asmaPlayOne(i, which){
+  which = which || asmaScreenWhich();
   if(i < 0 || i >= ASMA_CLIPS) return;
-  if(asmaSt.mode === 'one' && asmaSt.idx === i && asmaAu && !asmaAu.paused){ asmaStop(); return; }
-  asmaBegin('asma/r2/' + String(i + 1).padStart(2, '0') + '.m4a', 'one'); asmaSt.idx = i; asmaUI();
+  if(asmaSt.mode === 'one' && asmaSt.which === which && asmaSt.idx === i && asmaAu && !asmaAu.paused){ asmaStop(); return; }
+  asmaBegin(ASMA_SETS[which].dir + String(i + 1).padStart(2, '0') + '.m4a', 'one', which); asmaSt.idx = i; asmaUI();
 }
 function asmaToggleFull(){
-  if(asmaSt.mode === 'full' && asmaAu){
+  const w = asmaScreenWhich();
+  if(asmaSt.mode === 'full' && asmaSt.which === w && asmaAu){
     if(asmaAu.paused){ const p = asmaAu.play(); if(p && p.catch) p.catch(()=>{}); } else asmaAu.pause();
     asmaUI(); return;
   }
-  asmaBegin('asma/r2/full.m4a', 'full');
+  asmaBegin(ASMA_SETS[w].dir + 'full.m4a', 'full', w);
 }
-function asmaFullIdx(t){ let k = -1; for(let i = 0; i < ASMA_T.length; i++){ if(ASMA_T[i] <= t + 0.05) k = i; else break; } return k; }
+function asmaFullIdx(t){ const T = asmaSet().T; let k = -1; for(let i = 0; i < T.length; i++){ if(T[i] <= t + 0.05) k = i; else break; } return k; }
 let asmaLastNow = -2;
 function asmaTick(){
   if(asmaSt.mode !== 'full' || !asmaAu) return;
   const t = asmaAu.currentTime, r = document.getElementById('asmaRange'), c = document.getElementById('asmaCur');
-  if(r && !r.dataset.drag){ r.max = isFinite(asmaAu.duration) ? asmaAu.duration : 93.6; r.value = t; }
+  if(r && !r.dataset.drag){ r.max = isFinite(asmaAu.duration) ? asmaAu.duration : asmaSet().dur; r.value = t; }
   if(c) c.textContent = fmtSecs(Math.floor(t));
   const k = asmaFullIdx(t);
   if(k !== asmaLastNow){ asmaLastNow = k; asmaUI(true); }
 }
 function asmaUI(scroll){
-  const full = asmaSt.mode === 'full', playing = !!(asmaSt.mode && asmaAu && (!asmaAu.paused || asmaSt.gap));
+  const full = asmaSt.mode === 'full' && asmaSt.which === asmaScreenWhich(), playing = !!(asmaSt.mode && asmaAu && (!asmaAu.paused || asmaSt.gap));
   const fb = document.getElementById('asmaFullBtn');
   if(fb){ fb.textContent = full && playing ? '❚❚' : '▶'; fb.classList.toggle('on', full && playing); }
-  const now = full ? asmaFullIdx(asmaAu ? asmaAu.currentTime : 0) : (asmaSt.mode === 'one' ? asmaSt.idx : -1);
+  const now = full ? asmaFullIdx(asmaAu ? asmaAu.currentTime : 0) : (asmaSt.mode === 'one' && asmaSt.which === asmaScreenWhich() ? asmaSt.idx : -1);
   document.querySelectorAll('.asma-rate').forEach(rb=>{ rb.textContent = '⚡ ' + asmaRate() + '×'; rb.classList.toggle('on', asmaRate() !== 1); });
   document.querySelectorAll('.asma-rep').forEach(rb=>{ const r = asmaRep(); rb.textContent = '🔁 ' + (r ? (asmaSt.mode === 'one' && playing ? L({rur:'Baar ', en:'Time '}) + asmaSt.n + '/' + r : L({rur:r + ' baar', en:r + ' times'})) : L({rur:'Dohrana band', en:'Repeat off'})); rb.classList.toggle('on', !!r); });
-  if(full && asmaAu){ const r = document.getElementById('asmaRange'), c = document.getElementById('asmaCur'); if(r && !r.dataset.drag){ r.max = isFinite(asmaAu.duration) ? asmaAu.duration : 93.6; r.value = asmaAu.currentTime; } if(c) c.textContent = fmtSecs(Math.floor(asmaAu.currentTime)); }
+  if(full && asmaAu){ const r = document.getElementById('asmaRange'), c = document.getElementById('asmaCur'); if(r && !r.dataset.drag){ r.max = isFinite(asmaAu.duration) ? asmaAu.duration : asmaSet().dur; r.value = asmaAu.currentTime; } if(c) c.textContent = fmtSecs(Math.floor(asmaAu.currentTime)); }
   const lbl = document.getElementById('asmaNowLbl');
-  if(lbl) lbl.textContent = full && now >= 0 ? (now + 1) + '. ' + asmaName(now) : L({rur:'Poori recitation, 99 naam', en:'Full recitation, 99 names'});
-  document.querySelectorAll('.asma-pl').forEach(b=>{ const i = +b.dataset.i, on = asmaSt.mode === 'one' && asmaSt.idx === i && playing; b.classList.toggle('on', on); b.textContent = on ? '■' : '▶'; });
-  document.querySelectorAll('.asma-listen').forEach(b=>{ const i = +b.dataset.i, on = asmaSt.mode === 'one' && asmaSt.idx === i && playing; b.classList.toggle('on', on); b.querySelector('.asma-lt').textContent = on ? L({rur:'Rokein', en:'Stop'}) : L({rur:'Yeh naam sunein', en:'Listen to this name'}); b.querySelector('.asma-li').textContent = on ? '■' : '▶'; });
+  if(lbl) lbl.textContent = full && now >= 0 ? (now + 1) + '. ' + asmaName(now) : L(asmaSet().all);
+  document.querySelectorAll('.asma-pl').forEach(b=>{ const i = +b.dataset.i, on = asmaSt.mode === 'one' && asmaSt.which === asmaW() && asmaSt.idx === i && playing; b.classList.toggle('on', on); b.textContent = on ? '■' : '▶'; });
+  document.querySelectorAll('.asma-listen').forEach(b=>{ const i = +b.dataset.i, on = asmaSt.mode === 'one' && asmaSt.which === asmaW() && asmaSt.idx === i && playing; b.classList.toggle('on', on); b.querySelector('.asma-lt').textContent = on ? L({rur:'Rokein', en:'Stop'}) : L({rur:'Yeh naam sunein', en:'Listen to this name'}); b.querySelector('.asma-li').textContent = on ? '■' : '▶'; });
   document.querySelectorAll('#namesGrid .aad-card').forEach(c=>{ const cur = full && +c.dataset.idx === now; if(c.classList.contains('asma-now') !== cur) c.classList.toggle('asma-now', cur); if(cur && scroll === true){ try{ c.scrollIntoView({ block:'center', behavior:'smooth' }); }catch(e){} } });
   if(!full){ const r = document.getElementById('asmaRange'); if(r && !r.dataset.drag) r.value = 0; const c = document.getElementById('asmaCur'); if(c) c.textContent = '0:00'; asmaLastNow = -2; }
 }
 function asmaFullBarHtml(){
   return `<div class="asma-full" id="asmaFull">
     <button class="asma-fbtn" id="asmaFullBtn" aria-label="${L({rur:'Poori recitation chalayein', en:'Play the full recitation'})}">▶</button>
-    <div class="asma-fmid"><div class="asma-ftop"><div class="asma-ftitle">${L({rur:'Asma-ul-Husna: poora audio', en:'Asma-ul-Husna: full audio'})}</div><button class="asma-rate" id="asmaRateBtn" data-act="rate" aria-label="${L({rur:'Raftaar', en:'Speed'})}">⚡ 1×</button></div><div class="asma-fnow" id="asmaNowLbl"></div>
-      <div class="asma-fseek"><span id="asmaCur">0:00</span><input type="range" id="asmaRange" min="0" max="93.6" step="0.1" value="0" aria-label="${L({rur:'Audio ki timeline', en:'Audio timeline'})}"><span>1:34</span></div></div>
+    <div class="asma-fmid"><div class="asma-ftop"><div class="asma-ftitle">${L(asmaSet().ttl)}</div><button class="asma-rate" id="asmaRateBtn" data-act="rate" aria-label="${L({rur:'Raftaar', en:'Speed'})}">⚡ 1×</button></div><div class="asma-fnow" id="asmaNowLbl"></div>
+      <div class="asma-fseek"><span id="asmaCur">0:00</span><input type="range" id="asmaRange" min="0" max="${asmaSet().dur}" step="0.1" value="0" aria-label="${L({rur:'Audio ki timeline', en:'Audio timeline'})}"><span>${asmaSet().durLbl}</span></div></div>
   </div>`;
 }
 function asmaWireOpts(){ document.querySelectorAll('.asma-rate').forEach(b=>{ b.onclick = asmaCycleRate; }); document.querySelectorAll('.asma-rep').forEach(b=>{ b.onclick = asmaToggleRep; }); }
@@ -8838,16 +8850,16 @@ function asmaWireFull(){
   fb.onclick = asmaToggleFull; asmaWireOpts();
   const r = document.getElementById('asmaRange');
   r.oninput = ()=>{ r.dataset.drag = '1'; const c = document.getElementById('asmaCur'); if(c) c.textContent = fmtSecs(Math.floor(+r.value)); };
-  r.onchange = ()=>{ delete r.dataset.drag; if(asmaSt.mode !== 'full') asmaBegin('asma/r2/full.m4a', 'full'); const a = asmaEl(); const go = ()=>{ try{ a.currentTime = +r.value; }catch(e){} }; if(a.readyState >= 1) go(); else a.addEventListener('loadedmetadata', go, { once:true }); asmaUI(true); };
+  r.onchange = ()=>{ delete r.dataset.drag; if(asmaSt.mode !== 'full' || asmaSt.which !== asmaScreenWhich()) asmaBegin(asmaSet().dir + 'full.m4a', 'full', asmaScreenWhich()); const a = asmaEl(); const go = ()=>{ try{ a.currentTime = +r.value; }catch(e){} }; if(a.readyState >= 1) go(); else a.addEventListener('loadedmetadata', go, { once:true }); asmaUI(true); };
   asmaUI();
 }
 /* Leaving the Asma-ul-Husna screens (back, home, another section) stops the audio */
 function asmaScreenOpen(){
   const ov = document.getElementById('detailOverlay'); if(!ov || !ov.classList.contains('active') || ov.classList.contains('closing')) return false;
   const s = typeof curScreen !== 'undefined' ? curScreen : null;
-  return !!(s && (s.fn === 'renderNamesList' || s.fn === 'renderNameDetail') && s.args && s.args[0] === 'asma');
+  return !!(s && (s.fn === 'renderNamesList' || s.fn === 'renderNameDetail') && s.args && (s.args[0] === 'asma' || s.args[0] === 'prophet'));
 }
-function asmaGuard(){ if(asmaSt.mode && !asmaScreenOpen()) asmaStop(); }
+function asmaGuard(){ if(asmaSt.mode && (!asmaScreenOpen() || asmaSt.which !== asmaScreenWhich())) asmaStop(); }
 (function(){ const ov = document.getElementById('detailOverlay'); if(ov) new MutationObserver(asmaGuard).observe(ov, { attributes:true, attributeFilter:['class'] }); })();
 /* ============================================================
    RANG for the reading sections (Du'a, Hadees, Qur'ani Alfaaz, Aadaab, Names, Khaas Shabd, Myth Busters):

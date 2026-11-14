@@ -323,7 +323,7 @@ function nameKey(which, w){ return 'name:' + which + ':' + w.tr; }
 function nameAccent(which){ return which==='asma' ? 'var(--accent)' : '#3fa8a0'; }
 function renderNamesList(which){
   const dataset = which==='asma' ? ASMA_UL_HUSNA : PROPHET_NAMES;
-  const title = which==='asma' ? 'Asma-ul-Husna' : "Muhammad ﷺ ke 99 Naam";
+  const title = which==='asma' ? 'Asma-ul-Husna' : 'Asma-ul-Nabi';
   document.getElementById('detailTitle').textContent = title;
   const body = document.getElementById('detailBody');
   const note = which==='prophet'
@@ -335,7 +335,7 @@ function renderNamesList(which){
       <button id="namesListBtn" class="${namesView==='list'?'active':''}">List</button>
     </div>
     ${note}
-    ${which==='asma' ? asmaFullBarHtml() : ''}
+    ${asmaFullBarHtml()}
     <div class="dua-grid names-cards ${namesView==='list'?'list':''}" id="namesGrid"></div>
   `;
   document.getElementById('namesGridBtn').onclick = ()=>{ namesView='grid'; renderNamesList(which); };
@@ -351,16 +351,16 @@ function renderNamesList(which){
         ${namesView==='list' ? `<div class="m-preview">${isEn() && w.en ? w.en : w.m}</div>` : ''}
       </div>
       ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
-      ${which==='asma' && i < ASMA_CLIPS ? `<button class="asma-pl" data-i="${i}" aria-label="${L({rur:'Yeh naam sunein', en:'Listen to this name'})}">▶</button>` : ''}
+      ${i < ASMA_CLIPS ? `<button class="asma-pl" data-i="${i}" aria-label="${L({rur:'Yeh naam sunein', en:'Listen to this name'})}">▶</button>` : ''}
       <div class="chev">›</div>
     </div>`;
   }).join('');
-  grid.querySelectorAll('.asma-pl').forEach(b=>{ b.onclick = e=>{ e.stopPropagation(); asmaPlayOne(+b.dataset.i); }; });
-  if(which==='asma') asmaWireFull();
+  grid.querySelectorAll('.asma-pl').forEach(b=>{ b.onclick = e=>{ e.stopPropagation(); asmaPlayOne(+b.dataset.i, which); }; });
+  asmaWireFull();
   grid.querySelectorAll('[data-idx]').forEach(el=>{
     el.onclick = ()=>{
       const i = parseInt(el.dataset.idx);
-      if(which==='asma' && typeof asmaOpenName === 'function') asmaOpenName();   // opening a name pauses the full audio (resumable) or stops a single name
+      if(typeof asmaOpenName === 'function') asmaOpenName();   // opening a name pauses the full audio (resumable) or stops a single name
       setNavCtx(dataset, i, (w,j)=>renderNameDetail(which, j), null);
       renderNameDetail(which, i);
     };
@@ -385,7 +385,7 @@ function renderNameDetail(which, idx){
       <div class="aad-head-title ar-font">${w.ar}</div>
       <div class="aad-cat-pill">${w.tr}</div>
     </div>
-    ${which==='asma' && idx < ASMA_CLIPS ? `<button class="asma-listen" data-i="${idx}"><span class="asma-li">▶</span> <span class="asma-lt">${L({rur:'Yeh naam sunein', en:'Listen to this name'})}</span></button>${asmaOptsHtml()}` : ''}
+    ${idx < ASMA_CLIPS ? `<button class="asma-listen" data-i="${idx}"><span class="asma-li">▶</span> <span class="asma-lt">${L({rur:'Yeh naam sunein', en:'Listen to this name'})}</span></button>${asmaOptsHtml()}` : ''}
     <div class="dua-detail">
       <div class="aad-guide-sec dua-sec-ar">
         <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Name (Arabic)' : 'Naam (Arabic)'}</span></div>
@@ -408,8 +408,8 @@ function renderNameDetail(which, idx){
   `;
   document.getElementById('nameSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); renderNameDetail(which, idx); };
   document.getElementById('nameAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); renderNameDetail(which, idx); };
-  document.getElementById('nameImgBtn').onclick = ()=> openCardShareChooser({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Muhammad ﷺ ke Naam', arabic:w.ar, title:w.tr, body:isEn() && w.en ? w.en : w.m });
-  { const lb = document.querySelector('.asma-listen'); if(lb){ lb.onclick = ()=> asmaPlayOne(idx); asmaWireOpts(); asmaUI(); } }
+  document.getElementById('nameImgBtn').onclick = ()=> openCardShareChooser({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Asma-ul-Nabi', arabic:w.ar, title:w.tr, body:isEn() && w.en ? w.en : w.m });
+  { const lb = document.querySelector('.asma-listen'); if(lb){ lb.onclick = ()=> asmaPlayOne(idx, which); asmaWireOpts(); asmaUI(); } }
   wirePnBar();
 }
 
