@@ -384,7 +384,7 @@ function renderNameDetail(which, idx){
       <div class="aad-head-title ar-font">${w.ar}</div>
       <div class="aad-cat-pill">${w.tr}</div>
     </div>
-    ${which==='asma' && idx < ASMA_CLIPS ? `<button class="asma-listen" data-i="${idx}"><span class="asma-li">▶</span> <span class="asma-lt">${L({rur:'Yeh naam sunein', en:'Listen to this name'})}</span></button>` : ''}
+    ${which==='asma' && idx < ASMA_CLIPS ? `<button class="asma-listen" data-i="${idx}"><span class="asma-li">▶</span> <span class="asma-lt">${L({rur:'Yeh naam sunein', en:'Listen to this name'})}</span></button>${asmaOptsHtml()}` : ''}
     <div class="dua-detail">
       <div class="aad-guide-sec dua-sec-ar">
         <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Name (Arabic)' : 'Naam (Arabic)'}</span></div>
@@ -408,7 +408,7 @@ function renderNameDetail(which, idx){
   document.getElementById('nameSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); renderNameDetail(which, idx); };
   document.getElementById('nameAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); renderNameDetail(which, idx); };
   document.getElementById('nameImgBtn').onclick = ()=> openCardShareChooser({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Muhammad ﷺ ke Naam', arabic:w.ar, title:w.tr, body:isEn() && w.en ? w.en : w.m });
-  { const lb = document.querySelector('.asma-listen'); if(lb){ lb.onclick = ()=> asmaPlayOne(idx); asmaUI(); } }
+  { const lb = document.querySelector('.asma-listen'); if(lb){ lb.onclick = ()=> asmaPlayOne(idx); asmaWireOpts(); asmaUI(); } }
   wirePnBar();
 }
 

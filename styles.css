@@ -2069,3 +2069,7 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .q-tint.q-theme{ background:conic-gradient(var(--accent) 0 50%, var(--card2) 0 100%); }
 #detailOverlay[data-tint]{ --bg:color-mix(in srgb, var(--qtc) 58%, #ffffff); --bg2:color-mix(in srgb, var(--qtc) 40%, #ffffff); --card:#ffffff; --card2:color-mix(in srgb, var(--qtc) 38%, #ffffff);
   --text:#1c2530; --sub:#5a6477; --line:color-mix(in srgb, var(--qta) 24%, transparent); --accent:var(--qta); --accentInk:var(--qta); --fardText:#ffffff; --onAccent:#ffffff; color:#1c2530; }
+
+.asma-opts{ display:flex; gap:8px; justify-content:center; margin:-4px 14px 12px; }
+.asma-opts button{ flex:1; padding:9px 12px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:13px; font-weight:700; cursor:pointer; }
+.asma-opts button.on{ background:#c99a4a; border-color:#c99a4a; color:#fff; }
