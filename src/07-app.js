@@ -144,7 +144,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
 });
 document.getElementById('detailBack').onclick = closeModal;
 /* Home: from any depth, leave the whole overlay in one tap and land on the tab it was opened from (Maarifat, Deegar...) */
-function homeBtnSync(){ const b = document.getElementById('detailHome'); if(b) b.hidden = !(overlayActive() && navStack.length > 0); if(typeof rangSync === 'function') rangSync(); }
+function homeBtnSync(){ const b = document.getElementById('detailHome'); if(b) b.hidden = !(overlayActive() && navStack.length > 0); if(typeof rangSync === 'function') rangSync(); if(typeof asmaGuard === 'function') asmaGuard(); }
 document.getElementById('detailHome').onclick = ()=>{
   const k = navStack.length + (history.state && history.state.waqtModal ? 1 : 0);
   navStack.length = 0; curScreen = null;

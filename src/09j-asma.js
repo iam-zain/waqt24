@@ -92,3 +92,11 @@ function asmaWireFull(){
   r.onchange = ()=>{ delete r.dataset.drag; if(asmaSt.mode !== 'full') asmaBegin('asma/full.m4a', 'full'); const a = asmaEl(); const go = ()=>{ try{ a.currentTime = +r.value; }catch(e){} }; if(a.readyState >= 1) go(); else a.addEventListener('loadedmetadata', go, { once:true }); asmaUI(true); };
   asmaUI();
 }
+/* Leaving the Asma-ul-Husna screens (back, home, another section) stops the audio */
+function asmaScreenOpen(){
+  const ov = document.getElementById('detailOverlay'); if(!ov || !ov.classList.contains('active') || ov.classList.contains('closing')) return false;
+  const s = typeof curScreen !== 'undefined' ? curScreen : null;
+  return !!(s && (s.fn === 'renderNamesList' || s.fn === 'renderNameDetail') && s.args && s.args[0] === 'asma');
+}
+function asmaGuard(){ if(asmaSt.mode && !asmaScreenOpen()) asmaStop(); }
+(function(){ const ov = document.getElementById('detailOverlay'); if(ov) new MutationObserver(asmaGuard).observe(ov, { attributes:true, attributeFilter:['class'] }); })();

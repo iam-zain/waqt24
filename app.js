@@ -6141,7 +6141,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
 });
 document.getElementById('detailBack').onclick = closeModal;
 /* Home: from any depth, leave the whole overlay in one tap and land on the tab it was opened from (Maarifat, Deegar...) */
-function homeBtnSync(){ const b = document.getElementById('detailHome'); if(b) b.hidden = !(overlayActive() && navStack.length > 0); if(typeof rangSync === 'function') rangSync(); }
+function homeBtnSync(){ const b = document.getElementById('detailHome'); if(b) b.hidden = !(overlayActive() && navStack.length > 0); if(typeof rangSync === 'function') rangSync(); if(typeof asmaGuard === 'function') asmaGuard(); }
 document.getElementById('detailHome').onclick = ()=>{
   const k = navStack.length + (history.state && history.state.waqtModal ? 1 : 0);
   navStack.length = 0; curScreen = null;
@@ -8790,6 +8790,14 @@ function asmaWireFull(){
   r.onchange = ()=>{ delete r.dataset.drag; if(asmaSt.mode !== 'full') asmaBegin('asma/full.m4a', 'full'); const a = asmaEl(); const go = ()=>{ try{ a.currentTime = +r.value; }catch(e){} }; if(a.readyState >= 1) go(); else a.addEventListener('loadedmetadata', go, { once:true }); asmaUI(true); };
   asmaUI();
 }
+/* Leaving the Asma-ul-Husna screens (back, home, another section) stops the audio */
+function asmaScreenOpen(){
+  const ov = document.getElementById('detailOverlay'); if(!ov || !ov.classList.contains('active') || ov.classList.contains('closing')) return false;
+  const s = typeof curScreen !== 'undefined' ? curScreen : null;
+  return !!(s && (s.fn === 'renderNamesList' || s.fn === 'renderNameDetail') && s.args && s.args[0] === 'asma');
+}
+function asmaGuard(){ if(asmaSt.mode && !asmaScreenOpen()) asmaStop(); }
+(function(){ const ov = document.getElementById('detailOverlay'); if(ov) new MutationObserver(asmaGuard).observe(ov, { attributes:true, attributeFilter:['class'] }); })();
 /* ============================================================
    RANG for the reading sections (Du'a, Hadees, Qur'ani Alfaaz, Aadaab, Names, Khaas Shabd, Myth Busters):
    one colour for all of them. "Theme" (the first swatch, the default) leaves the app's own colours; the others
