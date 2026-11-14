@@ -2062,3 +2062,10 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .dc-fold{ flex:0 0 auto; width:38px; height:38px; border-radius:50%; border:1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); background:color-mix(in srgb, var(--accent) 8%, var(--card2)); color:var(--sub); display:flex; align-items:center; justify-content:center; cursor:pointer; }
 .daily-card.dc-grow{ animation:dcGrow .38s var(--fx-ease, ease) both; }
 @keyframes dcGrow{ from{ opacity:.4; transform:translateY(-8px) scale(.98); } to{ opacity:1; transform:none; } }
+
+/* Rang for the reading sections */
+.detail-header .detail-rang.on{ background:var(--accent); border-color:var(--accent); }
+.rang-strip{ padding:10px 14px 8px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+.q-tint.q-theme{ background:conic-gradient(var(--accent) 0 50%, var(--card2) 0 100%); }
+#detailOverlay[data-tint]{ --bg:color-mix(in srgb, var(--qtc) 58%, #ffffff); --bg2:color-mix(in srgb, var(--qtc) 40%, #ffffff); --card:#ffffff; --card2:color-mix(in srgb, var(--qtc) 38%, #ffffff);
+  --text:#1c2530; --sub:#5a6477; --line:color-mix(in srgb, var(--qta) 24%, transparent); --accent:var(--qta); --accentInk:var(--qta); --fardText:#ffffff; --onAccent:#ffffff; color:#1c2530; }

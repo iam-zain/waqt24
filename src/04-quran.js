@@ -24,7 +24,9 @@ const TAJWEED_GUIDE_LIST = Array.from({ length: TAJWEED_GUIDE_COUNT }, (_, i) =>
 function quranMarked(p){ return (state.quranMarks||[]).includes(p); }
 /* Night page: white text on black. Follows the app's dark theme unless the reader switched it */
 /* Reading tints: a light colour laid over the page picture with multiply, so black text stays black. */
-const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'cream',n:'Cream',c:'#f3e6c4',a:'#a8801a'},{k:'sand',n:'Sand',c:'#e6d2a8',a:'#8a6a2a'},{k:'mint',n:'Mint',c:'#d6ecd9',a:'#2f8f57'},{k:'sky',n:'Sky',c:'#d3e6f6',a:'#2b7fc0'},{k:'rose',n:'Rose',c:'#f6d9e1',a:'#c2456b'},{k:'lilac',n:'Lilac',c:'#e3daf3',a:'#7a5fc8'}];
+function themeAccentRgb(){ const v = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(); let m = /^#?([0-9a-f]{6})$/i.exec(v); if(!m && (m = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/i.exec(v))) m = [0, m[1]+m[1]+m[2]+m[2]+m[3]+m[3]]; if(!m) return [58, 155, 217]; const n = parseInt(m[1], 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function themeHex(w){ return '#' + themeAccentRgb().map(c=>Math.round(c * w + 255 * (1 - w)).toString(16).padStart(2, '0')).join(''); }
+const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'theme',n:'Theme',get c(){ return themeHex(.2); },get a(){ return themeHex(.9); }},{k:'cream',n:'Cream',c:'#f3e6c4',a:'#a8801a'},{k:'sand',n:'Sand',c:'#e6d2a8',a:'#8a6a2a'},{k:'mint',n:'Mint',c:'#d6ecd9',a:'#2f8f57'},{k:'sky',n:'Sky',c:'#d3e6f6',a:'#2b7fc0'},{k:'rose',n:'Rose',c:'#f6d9e1',a:'#c2456b'},{k:'lilac',n:'Lilac',c:'#e3daf3',a:'#7a5fc8'}];
 /* the recitation player wears the same colour as the page */
 function quranTintPlayer(){
   const t = QURAN_TINTS.find(x=>x.k === (state.quranTint||'')), on = t && t.c && (document.getElementById('quranWrap') || document.getElementById('tbSheet') || document.getElementById('tfWrap')) && !quranNightOn();

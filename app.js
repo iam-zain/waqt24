@@ -2607,7 +2607,9 @@ const TAJWEED_GUIDE_LIST = Array.from({ length: TAJWEED_GUIDE_COUNT }, (_, i) =>
 function quranMarked(p){ return (state.quranMarks||[]).includes(p); }
 /* Night page: white text on black. Follows the app's dark theme unless the reader switched it */
 /* Reading tints: a light colour laid over the page picture with multiply, so black text stays black. */
-const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'cream',n:'Cream',c:'#f3e6c4',a:'#a8801a'},{k:'sand',n:'Sand',c:'#e6d2a8',a:'#8a6a2a'},{k:'mint',n:'Mint',c:'#d6ecd9',a:'#2f8f57'},{k:'sky',n:'Sky',c:'#d3e6f6',a:'#2b7fc0'},{k:'rose',n:'Rose',c:'#f6d9e1',a:'#c2456b'},{k:'lilac',n:'Lilac',c:'#e3daf3',a:'#7a5fc8'}];
+function themeAccentRgb(){ const v = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(); let m = /^#?([0-9a-f]{6})$/i.exec(v); if(!m && (m = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/i.exec(v))) m = [0, m[1]+m[1]+m[2]+m[2]+m[3]+m[3]]; if(!m) return [58, 155, 217]; const n = parseInt(m[1], 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function themeHex(w){ return '#' + themeAccentRgb().map(c=>Math.round(c * w + 255 * (1 - w)).toString(16).padStart(2, '0')).join(''); }
+const QURAN_TINTS = [{k:'',n:'Original',c:''},{k:'theme',n:'Theme',get c(){ return themeHex(.2); },get a(){ return themeHex(.9); }},{k:'cream',n:'Cream',c:'#f3e6c4',a:'#a8801a'},{k:'sand',n:'Sand',c:'#e6d2a8',a:'#8a6a2a'},{k:'mint',n:'Mint',c:'#d6ecd9',a:'#2f8f57'},{k:'sky',n:'Sky',c:'#d3e6f6',a:'#2b7fc0'},{k:'rose',n:'Rose',c:'#f6d9e1',a:'#c2456b'},{k:'lilac',n:'Lilac',c:'#e3daf3',a:'#7a5fc8'}];
 /* the recitation player wears the same colour as the page */
 function quranTintPlayer(){
   const t = QURAN_TINTS.find(x=>x.k === (state.quranTint||'')), on = t && t.c && (document.getElementById('quranWrap') || document.getElementById('tbSheet') || document.getElementById('tfWrap')) && !quranNightOn();
@@ -6138,7 +6140,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
 });
 document.getElementById('detailBack').onclick = closeModal;
 /* Home: from any depth, leave the whole overlay in one tap and land on the tab it was opened from (Maarifat, Deegar...) */
-function homeBtnSync(){ const b = document.getElementById('detailHome'); if(b) b.hidden = !(overlayActive() && navStack.length > 0); }
+function homeBtnSync(){ const b = document.getElementById('detailHome'); if(b) b.hidden = !(overlayActive() && navStack.length > 0); if(typeof rangSync === 'function') rangSync(); }
 document.getElementById('detailHome').onclick = ()=>{
   const k = navStack.length + (history.state && history.state.waqtModal ? 1 : 0);
   navStack.length = 0; curScreen = null;
@@ -8779,6 +8781,37 @@ function asmaWireFull(){
   r.onchange = ()=>{ delete r.dataset.drag; if(asmaSt.mode !== 'full') asmaBegin('asma/full.m4a', 'full'); const a = asmaEl(); const go = ()=>{ try{ a.currentTime = +r.value; }catch(e){} }; if(a.readyState >= 1) go(); else a.addEventListener('loadedmetadata', go, { once:true }); asmaUI(true); };
   asmaUI();
 }
+/* ============================================================
+   RANG for the reading sections (Du'a, Hadees, Qur'ani Alfaaz, Aadaab, Names, Khaas Shabd, Myth Busters):
+   one colour for all of them. "Theme" (the first swatch, the default) leaves the app's own colours; the others
+   tint the page the same way the Quran, Tarjuma and Tafseer do.
+   ============================================================ */
+const RANG_FNS = new Set(['renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters',
+  'openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythReadList']);
+function rangList(){ return [{ k:'', n:L({rur:'Theme jaisa', en:'Match theme'}) }].concat(QURAN_TINTS.filter(t=>t.k && t.k !== 'theme')); }
+function rangStripDraw(){
+  const strip = document.getElementById('rangStrip'); if(!strip) return;
+  strip.innerHTML = rangList().map(t=>`<button type="button" class="q-tint${(state.pageTint || '') === t.k ? ' active' : ''}${t.k ? '' : ' q-theme'}" data-t="${t.k}" style="--tc:${t.c || 'var(--accent)'}" aria-label="${t.n}" title="${t.n}"></button>`).join('');
+}
+function rangApply(){
+  const ov = document.getElementById('detailOverlay'), b = document.getElementById('detailRang'); if(!ov || !b) return;
+  const x = state.pageTint && QURAN_TINTS.find(t=>t.k === state.pageTint);
+  if(x && x.c){ ov.dataset.tint = x.k; ov.style.setProperty('--qtc', x.c); ov.style.setProperty('--qta', x.a); }
+  else { ov.removeAttribute('data-tint'); ov.style.removeProperty('--qtc'); ov.style.removeProperty('--qta'); }
+  b.classList.toggle('on', !!(state.pageTint)); rangStripDraw();
+}
+function rangSync(){
+  const ov = document.getElementById('detailOverlay'), b = document.getElementById('detailRang'), strip = document.getElementById('rangStrip'); if(!ov || !b) return;
+  const on = !!(curScreen && RANG_FNS.has(curScreen.fn));
+  b.hidden = !on;
+  if(!on){ strip.hidden = true; ov.removeAttribute('data-tint'); ov.style.removeProperty('--qtc'); ov.style.removeProperty('--qta'); return; }
+  rangApply();
+}
+(function(){
+  const b = document.getElementById('detailRang'), strip = document.getElementById('rangStrip'); if(!b) return;
+  b.onclick = ()=>{ strip.hidden = !strip.hidden; };
+  strip.onclick = e=>{ const t = e.target.closest('.q-tint'); if(!t) return; state.pageTint = t.dataset.t; saveState(); rangApply(); };
+})();
 /* ===== Salutation after the name of Allah: "Allah ﷻ" everywhere =====
    Every text on screen is covered: the names, the Qur'an translations (Hinglish / English, Hindi अल्लाह, Urdu اللہ), the quiz and
    all other screens. It is applied to the text of the page as it appears or changes, so nothing needs editing one by one.
