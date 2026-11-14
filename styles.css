@@ -1985,3 +1985,9 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .pj-row .note-save{ flex:0 0 auto; }
 .pj-row .note-save{ background:var(--accent); border:1px solid var(--accent); color:var(--fardText,#fff); font:inherit; font-weight:800; border-radius:11px; padding:11px 18px; }
 .tb-top #tbSurahBtn.tb-urname{ font-family:'Noto Nastaliq Urdu','Scheherazade New',serif; font-weight:400; }
+
+/* the Tarjuma header now uses the Mushaf's index buttons */
+.quran-index-row.tb-top{ display:flex; background:none; padding:0 14px 10px; margin:0; color:inherit; }
+.quran-index-row.tb-top .quran-index-btn{ background:var(--card); color:var(--text); font-size:12px; font-weight:700; padding:8px 10px; text-align:center; }
+.quran-index-row.tb-top #tbSurahBtn{ flex:1; font-size:12px; font-weight:700; line-height:1.4; }
+.quran-index-row.tb-top #tbSurahBtn.tb-urname{ font-family:'Noto Nastaliq Urdu','Scheherazade New',serif; font-weight:400; font-size:14px; line-height:1.9; padding-top:4px; padding-bottom:4px; }

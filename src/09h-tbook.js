@@ -111,7 +111,11 @@ function renderTarjumaBook(page, sheet){
   const night = quranNightOn(), tint = QURAN_TINTS.find(x=>x.k === (state.quranTint || ''));
   const pageCss = night ? '' : tint && tint.c ? `--tbbg:${tint.c};--tbac:${tint.a};` : '';
   document.getElementById('detailBody').innerHTML = `
-    <div class="tb-top"><button type="button" id="tbParaBtn">${L({rur:'Paara', en:'Para'})} ${para.n}</button><button type="button" id="tbSurahBtn"${ur ? ' dir="rtl" lang="ur" class="tb-urname"' : ''}>${ur ? '<bdi dir="ltr">' + trpDigits(sn, true) + '</bdi> ' + tbSurahName(sn, lang) : sn + '. ' + tbSurahName(sn, lang)}</button><button type="button" id="tbManzilBtn">${L({rur:'Manzil', en:'Manzil'})} ${quranManzilOf(page).n}</button></div>
+    <div class="quran-index-row tb-top">
+      <button type="button" class="quran-index-btn qi-short" id="tbParaBtn"><span>📚</span> ${L({rur:'Paara', en:'Para'})} ${para.n}</button>
+      <button type="button" class="quran-index-btn${ur ? ' tb-urname' : ''}" id="tbSurahBtn"${ur ? ' dir="rtl" lang="ur"' : ''}><span>📜</span> ${ur ? '<bdi dir="ltr">' + trpDigits(sn, true) + '</bdi> ' + tbSurahName(sn, lang) : sn + '. ' + tbSurahName(sn, lang)}</button>
+      <button type="button" class="quran-index-btn qi-short" id="tbManzilBtn"><span>🏷️</span> ${L({rur:'Manzil', en:'Manzil'})} ${quranManzilOf(page).n}</button>
+    </div>
     <div class="tb-sheet${night ? ' night' : ''}" id="tbSheet" style="--lh:${lh}px;--fs:${tbFs(lh)}px;${pageCss}">
       <div class="tb-view${ur ? ' ur' : ''}" id="tbView"><div class="tb-rules">${Array.from({length:TB_ROWS},(_, k)=>`<i style="--k:${k+1}"></i>`).join('')}</div><div class="tb-flow" id="tbFlow"><div class="tb-msg">${trpMsg()}</div></div></div>
       <div class="tb-foot"><span id="tbPart"></span></div>
