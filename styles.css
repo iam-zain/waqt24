@@ -2078,3 +2078,8 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 #detailOverlay[data-tint] .aad-card, #detailOverlay[data-tint] .aad-head, #detailOverlay[data-tint] .aad-status-row{ --aad-c:var(--accent) !important; }
 #detailOverlay[data-tint] .aad-ic, #detailOverlay[data-tint] .aad-cat-lbl{ color:var(--accent); }
 .asma-fbtn, .asma-pl, .asma-listen, .asma-rate.on, .asma-opts button.on{ color:#fff; }
+
+/* names lists (Asma-ul-Husna, Muhammad's names): no arrow at the end of a row */
+.names-cards .chev{ display:none; }
+.dua-grid.list .asma-pl{ right:12px; }
+.dua-grid.list.names-cards .aad-card{ padding-right:56px; }
