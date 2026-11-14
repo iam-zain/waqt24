@@ -13,7 +13,7 @@ const QURAN_MANZILS = [1, 5, 10, 17, 26, 37, 50].map((s, i, arr)=>{
 });
 function quranParaOf(page){ let r = QURAN_PARAS[0]; for(const x of QURAN_PARAS) if(x.page<=page) r = x; return r; }
 function quranManzilOf(page){ let r = QURAN_MANZILS[0]; for(const x of QURAN_MANZILS) if(x.page<=page) r = x; return r; }
-function quranSurahOf(page){ let r = QURAN_SURAHS[0]; for(const x of QURAN_SURAHS) if(x.page<=page) r = x; return r; }
+function quranSurahOf(page){ let r = QURAN_SURAHS[0]; for(const x of QURAN_SURAHS) if(x.page<=page && (x.page>r.page || r===QURAN_SURAHS[0])) r = x; return r; }
 /* Two Mushaf editions with identical page numbering, so Para / Surah / Manzil lists, bookmarks and the
    last page are shared. Tajweed page n is PDF page n+8 of the source (its first 8 pages are the rules guide). */
 function quranEd(){ return state.quranEd==='tajweed' ? 'tajweed' : 'normal'; }
