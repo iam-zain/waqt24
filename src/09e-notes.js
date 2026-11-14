@@ -5,7 +5,7 @@
 function notesList(){ if(!Array.isArray(state.notes)) state.notes = []; return state.notes; }
 function notesForPage(p, sec){ return notesList().filter(n=>n.page === p && (n.sec || '') === (sec || '')); }
 /* where a page note belongs: the Mushaf reader (no sec), the Tarjuma book ('tb') or Tafseer ('tf') */
-function noteSecName(n){ const pg = n.page; if(n.sec === 'tf'){ const s = typeof tfSurahOf === 'function' ? tfSurahOf(pg) : 0; return `📕 Tafseer · Page ${pg} · ${s ? QURAN_SURAHS[s - 1].name : 'Muqaddima'}`; } return `${n.sec === 'tb' ? '📘 Tarjuma' : '📖'} ${n.sec === 'tb' ? '· ' : ''}Page ${pg} · ${quranSurahOf(pg).name}`; }
+function noteSecName(n){ const pg = n.page; const sa = n.ayah ? QURAN_SURAHS[qaSurahAyah(n.ayah).s - 1].name : ''; if(n.sec === 'tf'){ const s = typeof tfSurahOf === 'function' ? tfSurahOf(pg) : 0; return `📕 Tafseer · Page ${pg} · ${s ? QURAN_SURAHS[s - 1].name : 'Muqaddima'}`; } return `${n.sec === 'tb' ? '📘 Tarjuma' : '📖'} ${n.sec === 'tb' ? '· ' : ''}Page ${pg} · ${sa || quranSurahOf(pg).name}`; }
 function notesForBm(k){ return notesList().filter(n=>n.bm === k); }
 function noteEsc(t){ return String(t).replace(/[&<>"]/g, c=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c])); }
 function noteWhen(ts){ const d = new Date(ts); return d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear(); }
@@ -13,8 +13,8 @@ function noteWhen(ts){ const d = new Date(ts); return d.getDate() + ' ' + MON[d.
 function openNoteBox(ctx, onClose){
   ctx = ctx || {};
   const old = document.getElementById('noteBox'); if(old) old.remove();
-  const matches = ()=> notesList().filter(n=> ctx.page ? (n.page === ctx.page && (n.sec || '') === (ctx.sec || '')) : ctx.bm ? n.bm === ctx.bm : (!n.page && !n.bm));
-  const title = ctx.page ? '📝 ' + noteSecName({ page:ctx.page, sec:ctx.sec }).replace(/^\S+\s/, '') : ctx.bm ? `📝 ${noteEsc(ctx.title || '')}` : `📝 ${L({rur:'Mere Notes', en:'My notes'})}`;
+  const matches = ()=> notesList().filter(n=> ctx.page ? (n.page === ctx.page && (n.sec || '') === (ctx.sec || '') && (!ctx.ayah || n.ayah === ctx.ayah)) : ctx.bm ? n.bm === ctx.bm : (!n.page && !n.bm));
+  const title = ctx.page ? '📝 ' + noteSecName({ page:ctx.page, sec:ctx.sec, ayah:ctx.ayah }).replace(/^\S+\s/, '') + (ctx.ayah ? ` · ${L({rur:'Ayat', en:'Ayah'})} ${qaSurahAyah(ctx.ayah).s}:${qaSurahAyah(ctx.ayah).a}` : '') : ctx.bm ? `📝 ${noteEsc(ctx.title || '')}` : `📝 ${L({rur:'Mere Notes', en:'My notes'})}`;
   const w = document.createElement('div'); w.id = 'noteBox'; w.className = 'note-ov';
   const close = ()=>{ w.remove(); if(onClose) onClose(); };
   let editId = null;
@@ -22,7 +22,7 @@ function openNoteBox(ctx, onClose){
     const list = matches();
     w.innerHTML = `<div class="note-sheet" role="dialog" aria-label="Note">
       <div class="note-head"><b>${title}</b><button type="button" class="note-x" aria-label="Band karein">✕</button></div>
-      <div class="note-list">${list.length ? list.map(n=>`<div class="note-item" data-id="${n.id}"><div class="note-text">${noteEsc(n.text).replace(/\n/g, '<br>')}</div><div class="note-meta"><span>${noteWhen(n.ts)}</span><span><button type="button" data-edit="${n.id}">✎ ${L({rur:'Badlein', en:'Edit'})}</button><button type="button" data-del="${n.id}">🗑</button></span></div></div>`).join('') : `<div class="note-empty">${L({rur:'Abhi koi note nahi. Neeche kuch bhi likhein.', en:'No notes yet. Write anything below.'})}</div>`}</div>
+      <div class="note-list">${list.length ? list.map(n=>`<div class="note-item" data-id="${n.id}"><div class="note-text">${n.ayah ? `<span class="note-ay">📌 ${L({rur:'Ayat', en:'Ayah'})} ${qaSurahAyah(n.ayah).s}:${qaSurahAyah(n.ayah).a}</span> ` : ''}${noteEsc(n.text).replace(/\n/g, '<br>')}</div><div class="note-meta"><span>${noteWhen(n.ts)}</span><span><button type="button" data-edit="${n.id}">✎ ${L({rur:'Badlein', en:'Edit'})}</button><button type="button" data-del="${n.id}">🗑</button></span></div></div>`).join('') : `<div class="note-empty">${L({rur:'Abhi koi note nahi. Neeche kuch bhi likhein.', en:'No notes yet. Write anything below.'})}</div>`}</div>
       <textarea id="noteTa" rows="4" placeholder="${L({rur:'Yahan likhein…', en:'Write here…'})}"></textarea>
       <div class="note-btns"><button type="button" class="note-save" id="noteSave">${editId ? L({rur:'Note update karein', en:'Update note'}) : L({rur:'Note save karein', en:'Save note'})}</button>${editId ? `<button type="button" id="noteCancel">${L({rur:'Rehne dein', en:'Cancel'})}</button>` : ''}</div>
     </div>`;
@@ -32,7 +32,7 @@ function openNoteBox(ctx, onClose){
     w.querySelector('#noteSave').onclick = ()=>{
       const t = ta.value.trim(); if(!t){ ta.focus(); return; }
       if(editId){ const n = notesList().find(x=>x.id === editId); if(n){ n.text = t; n.ts = Date.now(); } editId = null; }
-      else{ const n = { id:'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text:t, ts:Date.now() }; if(ctx.page){ n.page = ctx.page; if(ctx.sec) n.sec = ctx.sec; } if(ctx.bm) n.bm = ctx.bm; notesList().unshift(n); }
+      else{ const n = { id:'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text:t, ts:Date.now() }; if(ctx.page){ n.page = ctx.page; if(ctx.sec) n.sec = ctx.sec; if(ctx.ayah) n.ayah = ctx.ayah; } if(ctx.bm) n.bm = ctx.bm; notesList().unshift(n); }
       saveState(); showToast(L({rur:'Note save ho gaya', en:'Note saved'})); draw();
     };
     w.querySelectorAll('[data-edit]').forEach(b=>{ b.onclick = ()=>{ editId = b.dataset.edit; draw(); w.querySelector('#noteTa').focus(); }; });

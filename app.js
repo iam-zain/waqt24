@@ -3085,11 +3085,16 @@ function qContinueHtml(){
   else return '';
   return `<button type="button" class="qcont" id="qhContinue"><span class="qc-ic">${ic}</span><span class="qc-t"><small>${L({rur:'Wahin se jaari rakhein', en:'Continue reading'})}</small><b>${name}</b><span>${where}</span></span><span class="qc-go">›</span></button>`;
 }
+function qMarksRowHtml(){
+  const n = (state.quranMarks || []).length + (state.tbMarks || []).length + (state.tfMarks || []).length + (state.notes || []).filter(x=>x.page).length;
+  return n ? `<button type="button" class="qcont qcont-s" id="qhMarks"><span class="qc-ic">🔖</span><span class="qc-t"><b>${L({rur:'Nishaan aur Notes', en:'Bookmarks and Notes'})}</b><span>${L({rur:'Mushaf, Tarjuma aur Tafseer ke', en:'From Mushaf, Tarjuma and Tafseer'})} · ${n}</span></span><span class="qc-go">›</span></button>` : '';
+}
 function renderQuranHome(){
   document.getElementById('detailTitle').textContent = "Qur'an Majeed";
   const last = quranLastPage(), ed = quranEd();
   document.getElementById('detailBody').innerHTML = `
     ${qContinueHtml()}
+    ${qMarksRowHtml()}
     <div class="section-title" style="margin:0 14px 8px;">${L({rur:"Qur'an padhein", en:'Read the Quran'})}</div>
     <div class="qbook-row">
       <button class="qbook ${ed==='normal'?'last':''}" id="qhNormal">${quranBookSvg(false)}<b>${L({rur:'Normal', en:'Normal'})}</b><span>${L({rur:'15 line Mushaf', en:'15-line Mushaf'})}</span></button>
@@ -3111,6 +3116,7 @@ function renderQuranHome(){
   { const c = document.getElementById('qhContinue'); if(c) c.onclick = ()=>{ const k = state.qLast && state.qLast.k;
       if(k === 'tarjuma') renderTarjumaBook(state.tbPage || 2, state.tbAbs ? { abs:state.tbAbs } : 0, state.tbSurah);
       else if(k === 'tafseer') renderTafseerPage(state.tfPage || 1); else renderQuranReader(state.quranPage); }; }
+  { const m = document.getElementById('qhMarks'); if(m) m.onclick = renderQuranMarks; }
   if(typeof tbHomeWire === 'function') tbHomeWire();
   wireTilawatCards(renderQuranHome);
   rollNumbers(document.getElementById('detailBody'), '.tl-count');
@@ -8025,7 +8031,7 @@ if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>trpRule
 function notesList(){ if(!Array.isArray(state.notes)) state.notes = []; return state.notes; }
 function notesForPage(p, sec){ return notesList().filter(n=>n.page === p && (n.sec || '') === (sec || '')); }
 /* where a page note belongs: the Mushaf reader (no sec), the Tarjuma book ('tb') or Tafseer ('tf') */
-function noteSecName(n){ const pg = n.page; if(n.sec === 'tf'){ const s = typeof tfSurahOf === 'function' ? tfSurahOf(pg) : 0; return `📕 Tafseer · Page ${pg} · ${s ? QURAN_SURAHS[s - 1].name : 'Muqaddima'}`; } return `${n.sec === 'tb' ? '📘 Tarjuma' : '📖'} ${n.sec === 'tb' ? '· ' : ''}Page ${pg} · ${quranSurahOf(pg).name}`; }
+function noteSecName(n){ const pg = n.page; const sa = n.ayah ? QURAN_SURAHS[qaSurahAyah(n.ayah).s - 1].name : ''; if(n.sec === 'tf'){ const s = typeof tfSurahOf === 'function' ? tfSurahOf(pg) : 0; return `📕 Tafseer · Page ${pg} · ${s ? QURAN_SURAHS[s - 1].name : 'Muqaddima'}`; } return `${n.sec === 'tb' ? '📘 Tarjuma' : '📖'} ${n.sec === 'tb' ? '· ' : ''}Page ${pg} · ${sa || quranSurahOf(pg).name}`; }
 function notesForBm(k){ return notesList().filter(n=>n.bm === k); }
 function noteEsc(t){ return String(t).replace(/[&<>"]/g, c=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c])); }
 function noteWhen(ts){ const d = new Date(ts); return d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear(); }
@@ -8033,8 +8039,8 @@ function noteWhen(ts){ const d = new Date(ts); return d.getDate() + ' ' + MON[d.
 function openNoteBox(ctx, onClose){
   ctx = ctx || {};
   const old = document.getElementById('noteBox'); if(old) old.remove();
-  const matches = ()=> notesList().filter(n=> ctx.page ? (n.page === ctx.page && (n.sec || '') === (ctx.sec || '')) : ctx.bm ? n.bm === ctx.bm : (!n.page && !n.bm));
-  const title = ctx.page ? '📝 ' + noteSecName({ page:ctx.page, sec:ctx.sec }).replace(/^\S+\s/, '') : ctx.bm ? `📝 ${noteEsc(ctx.title || '')}` : `📝 ${L({rur:'Mere Notes', en:'My notes'})}`;
+  const matches = ()=> notesList().filter(n=> ctx.page ? (n.page === ctx.page && (n.sec || '') === (ctx.sec || '') && (!ctx.ayah || n.ayah === ctx.ayah)) : ctx.bm ? n.bm === ctx.bm : (!n.page && !n.bm));
+  const title = ctx.page ? '📝 ' + noteSecName({ page:ctx.page, sec:ctx.sec, ayah:ctx.ayah }).replace(/^\S+\s/, '') + (ctx.ayah ? ` · ${L({rur:'Ayat', en:'Ayah'})} ${qaSurahAyah(ctx.ayah).s}:${qaSurahAyah(ctx.ayah).a}` : '') : ctx.bm ? `📝 ${noteEsc(ctx.title || '')}` : `📝 ${L({rur:'Mere Notes', en:'My notes'})}`;
   const w = document.createElement('div'); w.id = 'noteBox'; w.className = 'note-ov';
   const close = ()=>{ w.remove(); if(onClose) onClose(); };
   let editId = null;
@@ -8042,7 +8048,7 @@ function openNoteBox(ctx, onClose){
     const list = matches();
     w.innerHTML = `<div class="note-sheet" role="dialog" aria-label="Note">
       <div class="note-head"><b>${title}</b><button type="button" class="note-x" aria-label="Band karein">✕</button></div>
-      <div class="note-list">${list.length ? list.map(n=>`<div class="note-item" data-id="${n.id}"><div class="note-text">${noteEsc(n.text).replace(/\n/g, '<br>')}</div><div class="note-meta"><span>${noteWhen(n.ts)}</span><span><button type="button" data-edit="${n.id}">✎ ${L({rur:'Badlein', en:'Edit'})}</button><button type="button" data-del="${n.id}">🗑</button></span></div></div>`).join('') : `<div class="note-empty">${L({rur:'Abhi koi note nahi. Neeche kuch bhi likhein.', en:'No notes yet. Write anything below.'})}</div>`}</div>
+      <div class="note-list">${list.length ? list.map(n=>`<div class="note-item" data-id="${n.id}"><div class="note-text">${n.ayah ? `<span class="note-ay">📌 ${L({rur:'Ayat', en:'Ayah'})} ${qaSurahAyah(n.ayah).s}:${qaSurahAyah(n.ayah).a}</span> ` : ''}${noteEsc(n.text).replace(/\n/g, '<br>')}</div><div class="note-meta"><span>${noteWhen(n.ts)}</span><span><button type="button" data-edit="${n.id}">✎ ${L({rur:'Badlein', en:'Edit'})}</button><button type="button" data-del="${n.id}">🗑</button></span></div></div>`).join('') : `<div class="note-empty">${L({rur:'Abhi koi note nahi. Neeche kuch bhi likhein.', en:'No notes yet. Write anything below.'})}</div>`}</div>
       <textarea id="noteTa" rows="4" placeholder="${L({rur:'Yahan likhein…', en:'Write here…'})}"></textarea>
       <div class="note-btns"><button type="button" class="note-save" id="noteSave">${editId ? L({rur:'Note update karein', en:'Update note'}) : L({rur:'Note save karein', en:'Save note'})}</button>${editId ? `<button type="button" id="noteCancel">${L({rur:'Rehne dein', en:'Cancel'})}</button>` : ''}</div>
     </div>`;
@@ -8052,7 +8058,7 @@ function openNoteBox(ctx, onClose){
     w.querySelector('#noteSave').onclick = ()=>{
       const t = ta.value.trim(); if(!t){ ta.focus(); return; }
       if(editId){ const n = notesList().find(x=>x.id === editId); if(n){ n.text = t; n.ts = Date.now(); } editId = null; }
-      else{ const n = { id:'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text:t, ts:Date.now() }; if(ctx.page){ n.page = ctx.page; if(ctx.sec) n.sec = ctx.sec; } if(ctx.bm) n.bm = ctx.bm; notesList().unshift(n); }
+      else{ const n = { id:'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text:t, ts:Date.now() }; if(ctx.page){ n.page = ctx.page; if(ctx.sec) n.sec = ctx.sec; if(ctx.ayah) n.ayah = ctx.ayah; } if(ctx.bm) n.bm = ctx.bm; notesList().unshift(n); }
       saveState(); showToast(L({rur:'Note save ho gaya', en:'Note saved'})); draw();
     };
     w.querySelectorAll('[data-edit]').forEach(b=>{ b.onclick = ()=>{ editId = b.dataset.edit; draw(); w.querySelector('#noteTa').focus(); }; });
@@ -8350,7 +8356,16 @@ function renderTarjumaBook(page, sheet, surah){
   $('tbMarkBtn').onclick = ()=>{ bkToggle('tb', tbSt.page); tbHdrSync(); };
   $('tbShareBtn').onclick = ()=> tbShareText();
   $('tbNoteBtn').onclick = ()=> openNoteBox({ page:tbSt.page, sec:'tb' }, tbHdrSync);
-  $('tbFlow').onclick = e=>{ const ay = e.target.closest('.tb-ay'); if(ay) tbPlayFrom(+ay.dataset.a); };
+  $('tbFlow').onclick = e=>{ if(tbSt.lp){ tbSt.lp = false; return; } const ay = e.target.closest('.tb-ay'); if(ay) tbPlayFrom(+ay.dataset.a); };
+  { /* press and hold an ayah to write a note on that ayah */
+    const fl = $('tbFlow'); let tm = 0, x0 = 0, y0 = 0;
+    const stop = ()=>{ clearTimeout(tm); tm = 0; };
+    fl.addEventListener('pointerdown', e=>{ const ay = e.target.closest('.tb-ay'); if(!ay) return; x0 = e.clientX; y0 = e.clientY; stop();
+      tm = setTimeout(()=>{ tm = 0; tbSt.lp = true; const abs = +ay.dataset.a; openNoteBox({ page:qaAyahPage(abs), sec:'tb', ayah:abs }, tbHdrSync); }, 550); });
+    fl.addEventListener('pointermove', e=>{ if(tm && Math.hypot(e.clientX - x0, e.clientY - y0) > 8) stop(); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(t=> fl.addEventListener(t, stop));
+    fl.addEventListener('contextmenu', e=>{ if(e.target.closest('.tb-ay')) e.preventDefault(); });
+  }
   $('tbSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); if(state.quranTurnSound) playPageSound(); };
   $('tbMushafBtn').onclick = ()=> renderQuranReader(tbSt.page);
   pageJumpWire(2, tbLastPage(), page, v=> renderTarjumaBook(v, { page:v }), ()=> tbSt.page);
@@ -8479,6 +8494,26 @@ function tbSync(){
 function tbRestoreVoice(){ if(tbSt.prevVoice){ const v = tbSt.prevVoice; tbSt.prevVoice = null; if(!qa.on) qaSetVoice(v); } }
 window.addEventListener('resize', ()=>{ if(document.getElementById('tbSheet')) renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); });
 
+/* ---- one list for every bookmark and note across the Mushaf, Tarjuma and Tafseer ---- */
+function qmItems(){
+  const out = [];
+  (state.quranMarks || []).forEach(p=> out.push({ kind:'mark', sec:'', ic:'🔖📖', page:p, title:`${quranSurahOf(p).n}. ${quranSurahOf(p).name}`, sub:`${quranEdLabel()} · ${L({rur:'Page', en:'Page'})} ${p}`, open:()=> renderQuranReader(p) }));
+  (state.tbMarks || []).forEach(p=>{ const sn = quranSurahOf(p); out.push({ kind:'mark', sec:'tb', ic:'🔖📘', page:p, title:`${sn.n}. ${sn.name}`, sub:`Tarjuma · ${L({rur:'Page', en:'Page'})} ${p}`, open:()=> renderTarjumaBook(p, { page:p }) }); });
+  (state.tfMarks || []).forEach(p=>{ const s = tfSurahOf(p); out.push({ kind:'mark', sec:'tf', ic:'🔖📕', page:p, title:s ? `${s}. ${QURAN_SURAHS[s - 1].name}` : L({rur:'Muqaddima', en:'Introduction'}), sub:`Tafseer · ${L({rur:'Page', en:'Page'})} ${p}`, open:()=> renderTafseerPage(p) }); });
+  notesList().filter(n=>n.page).forEach(n=>{ out.push({ kind:'note', sec:n.sec || '', id:n.id, ic:'📝', page:n.page, title:noteSecName(n).replace(/^\S+\s(?:·\s)?/, ''), sub:noteEsc(n.text).slice(0, 110), tag:n.ayah ? `${L({rur:'Ayat', en:'Ayah'})} ${qaSurahAyah(n.ayah).s}:${qaSurahAyah(n.ayah).a}` : '', open:()=> n.sec === 'tb' ? renderTarjumaBook(n.page, n.ayah ? { abs:n.ayah } : { page:n.page }, n.ayah ? qaSurahAyah(n.ayah).s : undefined) : n.sec === 'tf' ? renderTafseerPage(n.page) : renderQuranReader(n.page) }); });
+  return out;
+}
+function renderQuranMarks(){
+  document.getElementById('detailTitle').textContent = L({rur:'Nishaan aur Notes', en:'Bookmarks and Notes'});
+  const all = qmItems(), marks = all.filter(x=>x.kind === 'mark'), notes = all.filter(x=>x.kind === 'note');
+  const row = (x, i)=> `<div class="dw-row qm-row" data-i="${i}"><div class="info"><div class="tr">${x.ic} ${x.title}</div><div class="m">${x.tag ? '📌 ' + x.tag + ' · ' : ''}${x.sub}</div></div>${x.kind === 'mark' ? `<button type="button" class="bm-btn qm-del" data-i="${i}" aria-label="Remove">✕</button>` : ''}</div>`;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="dw-section"><div class="dw-section-title"><span>🔖 ${L({rur:'Nishaan', en:'Bookmarks'})}</span><span class="dw-count">${marks.length}</span></div>${marks.length ? marks.map(x=> row(x, all.indexOf(x))).join('') : `<div class="empty-state">${L({rur:'Abhi koi nishaan nahi. Kisi page par 🔖 dabayein.', en:'No bookmarks yet. Tap 🔖 on any page.'})}</div>`}</div>
+    <div class="dw-section"><div class="dw-section-title"><span>📝 Notes</span><span class="dw-count">${notes.length}</span></div>${notes.length ? notes.map(x=> row(x, all.indexOf(x))).join('') : `<div class="empty-state">${L({rur:'Abhi koi note nahi. Page par 📝 dabayein, ya Tarjuma mein kisi ayat ko dabaye rakhein.', en:'No notes yet. Tap 📝 on a page, or press and hold an ayah in Tarjuma.'})}</div>`}</div>`;
+  document.querySelectorAll('.qm-row').forEach(r=>{ r.onclick = e=>{ if(e.target.closest('.qm-del')) return; all[+r.dataset.i].open(); }; });
+  document.querySelectorAll('.qm-del').forEach(b=>{ b.onclick = ()=>{ const x = all[+b.dataset.i], key = x.sec === 'tb' ? 'tbMarks' : x.sec === 'tf' ? 'tfMarks' : 'quranMarks'; state[key] = (state[key] || []).filter(p=> p !== x.page); saveState(); renderQuranMarks(); }; });
+}
+navWrap('renderQuranMarks', 1);
 /* ============================================================ TAFSEER ============================================================ */
 const TF_PAGES = 1976;   /* TF_SURAH (first page of each surah) are in 09i-tfdata.js */
 const tfImg = n => 'tafseer/p' + String(n).padStart(4, '0') + '.png';

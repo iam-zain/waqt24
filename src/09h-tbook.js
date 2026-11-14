@@ -153,7 +153,16 @@ function renderTarjumaBook(page, sheet, surah){
   $('tbMarkBtn').onclick = ()=>{ bkToggle('tb', tbSt.page); tbHdrSync(); };
   $('tbShareBtn').onclick = ()=> tbShareText();
   $('tbNoteBtn').onclick = ()=> openNoteBox({ page:tbSt.page, sec:'tb' }, tbHdrSync);
-  $('tbFlow').onclick = e=>{ const ay = e.target.closest('.tb-ay'); if(ay) tbPlayFrom(+ay.dataset.a); };
+  $('tbFlow').onclick = e=>{ if(tbSt.lp){ tbSt.lp = false; return; } const ay = e.target.closest('.tb-ay'); if(ay) tbPlayFrom(+ay.dataset.a); };
+  { /* press and hold an ayah to write a note on that ayah */
+    const fl = $('tbFlow'); let tm = 0, x0 = 0, y0 = 0;
+    const stop = ()=>{ clearTimeout(tm); tm = 0; };
+    fl.addEventListener('pointerdown', e=>{ const ay = e.target.closest('.tb-ay'); if(!ay) return; x0 = e.clientX; y0 = e.clientY; stop();
+      tm = setTimeout(()=>{ tm = 0; tbSt.lp = true; const abs = +ay.dataset.a; openNoteBox({ page:qaAyahPage(abs), sec:'tb', ayah:abs }, tbHdrSync); }, 550); });
+    fl.addEventListener('pointermove', e=>{ if(tm && Math.hypot(e.clientX - x0, e.clientY - y0) > 8) stop(); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(t=> fl.addEventListener(t, stop));
+    fl.addEventListener('contextmenu', e=>{ if(e.target.closest('.tb-ay')) e.preventDefault(); });
+  }
   $('tbSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); if(state.quranTurnSound) playPageSound(); };
   $('tbMushafBtn').onclick = ()=> renderQuranReader(tbSt.page);
   pageJumpWire(2, tbLastPage(), page, v=> renderTarjumaBook(v, { page:v }), ()=> tbSt.page);
@@ -282,6 +291,26 @@ function tbSync(){
 function tbRestoreVoice(){ if(tbSt.prevVoice){ const v = tbSt.prevVoice; tbSt.prevVoice = null; if(!qa.on) qaSetVoice(v); } }
 window.addEventListener('resize', ()=>{ if(document.getElementById('tbSheet')) renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); });
 
+/* ---- one list for every bookmark and note across the Mushaf, Tarjuma and Tafseer ---- */
+function qmItems(){
+  const out = [];
+  (state.quranMarks || []).forEach(p=> out.push({ kind:'mark', sec:'', ic:'🔖📖', page:p, title:`${quranSurahOf(p).n}. ${quranSurahOf(p).name}`, sub:`${quranEdLabel()} · ${L({rur:'Page', en:'Page'})} ${p}`, open:()=> renderQuranReader(p) }));
+  (state.tbMarks || []).forEach(p=>{ const sn = quranSurahOf(p); out.push({ kind:'mark', sec:'tb', ic:'🔖📘', page:p, title:`${sn.n}. ${sn.name}`, sub:`Tarjuma · ${L({rur:'Page', en:'Page'})} ${p}`, open:()=> renderTarjumaBook(p, { page:p }) }); });
+  (state.tfMarks || []).forEach(p=>{ const s = tfSurahOf(p); out.push({ kind:'mark', sec:'tf', ic:'🔖📕', page:p, title:s ? `${s}. ${QURAN_SURAHS[s - 1].name}` : L({rur:'Muqaddima', en:'Introduction'}), sub:`Tafseer · ${L({rur:'Page', en:'Page'})} ${p}`, open:()=> renderTafseerPage(p) }); });
+  notesList().filter(n=>n.page).forEach(n=>{ out.push({ kind:'note', sec:n.sec || '', id:n.id, ic:'📝', page:n.page, title:noteSecName(n).replace(/^\S+\s(?:·\s)?/, ''), sub:noteEsc(n.text).slice(0, 110), tag:n.ayah ? `${L({rur:'Ayat', en:'Ayah'})} ${qaSurahAyah(n.ayah).s}:${qaSurahAyah(n.ayah).a}` : '', open:()=> n.sec === 'tb' ? renderTarjumaBook(n.page, n.ayah ? { abs:n.ayah } : { page:n.page }, n.ayah ? qaSurahAyah(n.ayah).s : undefined) : n.sec === 'tf' ? renderTafseerPage(n.page) : renderQuranReader(n.page) }); });
+  return out;
+}
+function renderQuranMarks(){
+  document.getElementById('detailTitle').textContent = L({rur:'Nishaan aur Notes', en:'Bookmarks and Notes'});
+  const all = qmItems(), marks = all.filter(x=>x.kind === 'mark'), notes = all.filter(x=>x.kind === 'note');
+  const row = (x, i)=> `<div class="dw-row qm-row" data-i="${i}"><div class="info"><div class="tr">${x.ic} ${x.title}</div><div class="m">${x.tag ? '📌 ' + x.tag + ' · ' : ''}${x.sub}</div></div>${x.kind === 'mark' ? `<button type="button" class="bm-btn qm-del" data-i="${i}" aria-label="Remove">✕</button>` : ''}</div>`;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="dw-section"><div class="dw-section-title"><span>🔖 ${L({rur:'Nishaan', en:'Bookmarks'})}</span><span class="dw-count">${marks.length}</span></div>${marks.length ? marks.map(x=> row(x, all.indexOf(x))).join('') : `<div class="empty-state">${L({rur:'Abhi koi nishaan nahi. Kisi page par 🔖 dabayein.', en:'No bookmarks yet. Tap 🔖 on any page.'})}</div>`}</div>
+    <div class="dw-section"><div class="dw-section-title"><span>📝 Notes</span><span class="dw-count">${notes.length}</span></div>${notes.length ? notes.map(x=> row(x, all.indexOf(x))).join('') : `<div class="empty-state">${L({rur:'Abhi koi note nahi. Page par 📝 dabayein, ya Tarjuma mein kisi ayat ko dabaye rakhein.', en:'No notes yet. Tap 📝 on a page, or press and hold an ayah in Tarjuma.'})}</div>`}</div>`;
+  document.querySelectorAll('.qm-row').forEach(r=>{ r.onclick = e=>{ if(e.target.closest('.qm-del')) return; all[+r.dataset.i].open(); }; });
+  document.querySelectorAll('.qm-del').forEach(b=>{ b.onclick = ()=>{ const x = all[+b.dataset.i], key = x.sec === 'tb' ? 'tbMarks' : x.sec === 'tf' ? 'tfMarks' : 'quranMarks'; state[key] = (state[key] || []).filter(p=> p !== x.page); saveState(); renderQuranMarks(); }; });
+}
+navWrap('renderQuranMarks', 1);
 /* ============================================================ TAFSEER ============================================================ */
 const TF_PAGES = 1976;   /* TF_SURAH (first page of each surah) are in 09i-tfdata.js */
 const tfImg = n => 'tafseer/p' + String(n).padStart(4, '0') + '.png';

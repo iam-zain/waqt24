@@ -503,11 +503,16 @@ function qContinueHtml(){
   else return '';
   return `<button type="button" class="qcont" id="qhContinue"><span class="qc-ic">${ic}</span><span class="qc-t"><small>${L({rur:'Wahin se jaari rakhein', en:'Continue reading'})}</small><b>${name}</b><span>${where}</span></span><span class="qc-go">›</span></button>`;
 }
+function qMarksRowHtml(){
+  const n = (state.quranMarks || []).length + (state.tbMarks || []).length + (state.tfMarks || []).length + (state.notes || []).filter(x=>x.page).length;
+  return n ? `<button type="button" class="qcont qcont-s" id="qhMarks"><span class="qc-ic">🔖</span><span class="qc-t"><b>${L({rur:'Nishaan aur Notes', en:'Bookmarks and Notes'})}</b><span>${L({rur:'Mushaf, Tarjuma aur Tafseer ke', en:'From Mushaf, Tarjuma and Tafseer'})} · ${n}</span></span><span class="qc-go">›</span></button>` : '';
+}
 function renderQuranHome(){
   document.getElementById('detailTitle').textContent = "Qur'an Majeed";
   const last = quranLastPage(), ed = quranEd();
   document.getElementById('detailBody').innerHTML = `
     ${qContinueHtml()}
+    ${qMarksRowHtml()}
     <div class="section-title" style="margin:0 14px 8px;">${L({rur:"Qur'an padhein", en:'Read the Quran'})}</div>
     <div class="qbook-row">
       <button class="qbook ${ed==='normal'?'last':''}" id="qhNormal">${quranBookSvg(false)}<b>${L({rur:'Normal', en:'Normal'})}</b><span>${L({rur:'15 line Mushaf', en:'15-line Mushaf'})}</span></button>
@@ -529,6 +534,7 @@ function renderQuranHome(){
   { const c = document.getElementById('qhContinue'); if(c) c.onclick = ()=>{ const k = state.qLast && state.qLast.k;
       if(k === 'tarjuma') renderTarjumaBook(state.tbPage || 2, state.tbAbs ? { abs:state.tbAbs } : 0, state.tbSurah);
       else if(k === 'tafseer') renderTafseerPage(state.tfPage || 1); else renderQuranReader(state.quranPage); }; }
+  { const m = document.getElementById('qhMarks'); if(m) m.onclick = renderQuranMarks; }
   if(typeof tbHomeWire === 'function') tbHomeWire();
   wireTilawatCards(renderQuranHome);
   rollNumbers(document.getElementById('detailBody'), '.tl-count');
