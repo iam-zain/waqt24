@@ -8702,7 +8702,7 @@ const TF_SURAH = [36,40,180,244,320,380,442,518,556,629,665,705,751,777,797,815,
    ============================================================ */
 const ASMA_CLIPS = 99;
 /* second at which each name starts in asma/full.m4a (used to highlight the name being recited) */
-const ASMA_T = [0.68, 1.52, 2.49, 3.31, 4.56, 5.6, 6.39, 7.46, 8.31, 9.37, 10.39, 11.45, 12.26, 13.31, 14.26, 15.21, 16.27, 17.23, 18.33, 19.17, 20.19, 21.07, 22.07, 22.93, 23.93, 24.9, 25.85, 26.87, 27.74, 28.53, 29.66, 30.46, 31.42, 32.39, 33.35, 34.37, 35.15, 36.09, 37.03, 38.0, 38.96, 39.83, 40.74, 41.68, 42.58, 43.5, 44.47, 45.39, 46.35, 47.31, 48.26, 49.04, 49.96, 50.83, 51.8, 52.67, 53.59, 54.49, 55.4, 56.31, 57.16, 58.1, 58.85, 59.86, 60.78, 61.67, 62.6, 63.41, 64.22, 65.17, 66.17, 67.13, 68.08, 68.91, 69.74, 70.65, 71.54, 72.4, 73.48, 74.23, 75.25, 76.24, 77.18, 78.15, 79.33, 80.9, 81.92, 82.82, 83.69, 84.53, 85.39, 86.19, 87.07, 87.87, 88.74, 89.55, 90.41, 91.37, 92.5];
+const ASMA_T = [0.66, 1.67, 2.47, 3.25, 4.55, 5.57, 6.36, 7.42, 8.27, 9.28, 10.36, 11.41, 12.17, 13.26, 14.22, 15.17, 16.22, 16.94, 18.28, 19.12, 20.14, 21.01, 22.0, 22.86, 23.87, 24.85, 25.77, 26.53, 27.66, 28.46, 29.42, 30.39, 31.34, 32.16, 33.27, 34.27, 35.05, 35.79, 36.93, 37.88, 38.85, 39.96, 40.48, 41.58, 42.27, 43.4, 44.25, 45.29, 46.15, 47.19, 48.14, 48.84, 49.85, 50.58, 51.42, 52.53, 53.35, 54.36, 55.26, 56.17, 57.02, 57.96, 58.72, 59.59, 60.54, 61.47, 62.44, 63.26, 63.9, 65.01, 65.85, 66.98, 67.92, 68.67, 69.57, 70.48, 71.37, 72.23, 73.26, 74.06, 75.07, 76.05, 76.99, 77.77, 79.15, 80.71, 81.72, 82.43, 83.49, 84.34, 85.19, 85.91, 86.85, 87.66, 88.53, 89.34, 90.23, 91.18, 92.3];
 const ASMA_GAP_MS = 1500;   // pause between the repeats of a name
 let asmaGapT = 0;
 const asmaSt = { mode:null, idx:-1, n:1, gap:false };   // n: which repeat of a single name is playing   // mode: 'full' | 'one' | null
@@ -8748,21 +8748,21 @@ function asmaBegin(src, mode){
 function asmaPlayOne(i){
   if(i < 0 || i >= ASMA_CLIPS) return;
   if(asmaSt.mode === 'one' && asmaSt.idx === i && asmaAu && !asmaAu.paused){ asmaStop(); return; }
-  asmaBegin('asma/' + String(i + 1).padStart(2, '0') + '.m4a', 'one'); asmaSt.idx = i; asmaUI();
+  asmaBegin('asma/r2/' + String(i + 1).padStart(2, '0') + '.m4a', 'one'); asmaSt.idx = i; asmaUI();
 }
 function asmaToggleFull(){
   if(asmaSt.mode === 'full' && asmaAu){
     if(asmaAu.paused){ const p = asmaAu.play(); if(p && p.catch) p.catch(()=>{}); } else asmaAu.pause();
     asmaUI(); return;
   }
-  asmaBegin('asma/full.m4a', 'full');
+  asmaBegin('asma/r2/full.m4a', 'full');
 }
 function asmaFullIdx(t){ let k = -1; for(let i = 0; i < ASMA_T.length; i++){ if(ASMA_T[i] <= t + 0.05) k = i; else break; } return k; }
 let asmaLastNow = -2;
 function asmaTick(){
   if(asmaSt.mode !== 'full' || !asmaAu) return;
   const t = asmaAu.currentTime, r = document.getElementById('asmaRange'), c = document.getElementById('asmaCur');
-  if(r && !r.dataset.drag){ r.max = isFinite(asmaAu.duration) ? asmaAu.duration : 93.8; r.value = t; }
+  if(r && !r.dataset.drag){ r.max = isFinite(asmaAu.duration) ? asmaAu.duration : 93.6; r.value = t; }
   if(c) c.textContent = fmtSecs(Math.floor(t));
   const k = asmaFullIdx(t);
   if(k !== asmaLastNow){ asmaLastNow = k; asmaUI(true); }
@@ -8785,7 +8785,7 @@ function asmaFullBarHtml(){
   return `<div class="asma-full" id="asmaFull">
     <button class="asma-fbtn" id="asmaFullBtn" aria-label="${L({rur:'Poori recitation chalayein', en:'Play the full recitation'})}">▶</button>
     <div class="asma-fmid"><div class="asma-ftop"><div class="asma-ftitle">${L({rur:'Asma-ul-Husna: poora audio', en:'Asma-ul-Husna: full audio'})}</div><button class="asma-rate" id="asmaRateBtn" data-act="rate" aria-label="${L({rur:'Raftaar', en:'Speed'})}">⚡ 1×</button></div><div class="asma-fnow" id="asmaNowLbl"></div>
-      <div class="asma-fseek"><span id="asmaCur">0:00</span><input type="range" id="asmaRange" min="0" max="93.8" step="0.1" value="0" aria-label="${L({rur:'Audio ki timeline', en:'Audio timeline'})}"><span>1:34</span></div></div>
+      <div class="asma-fseek"><span id="asmaCur">0:00</span><input type="range" id="asmaRange" min="0" max="93.6" step="0.1" value="0" aria-label="${L({rur:'Audio ki timeline', en:'Audio timeline'})}"><span>1:34</span></div></div>
   </div>`;
 }
 function asmaWireOpts(){ document.querySelectorAll('.asma-rate').forEach(b=>{ b.onclick = asmaCycleRate; }); document.querySelectorAll('.asma-rep').forEach(b=>{ b.onclick = asmaToggleRep; }); }
@@ -8795,7 +8795,7 @@ function asmaWireFull(){
   fb.onclick = asmaToggleFull; asmaWireOpts();
   const r = document.getElementById('asmaRange');
   r.oninput = ()=>{ r.dataset.drag = '1'; const c = document.getElementById('asmaCur'); if(c) c.textContent = fmtSecs(Math.floor(+r.value)); };
-  r.onchange = ()=>{ delete r.dataset.drag; if(asmaSt.mode !== 'full') asmaBegin('asma/full.m4a', 'full'); const a = asmaEl(); const go = ()=>{ try{ a.currentTime = +r.value; }catch(e){} }; if(a.readyState >= 1) go(); else a.addEventListener('loadedmetadata', go, { once:true }); asmaUI(true); };
+  r.onchange = ()=>{ delete r.dataset.drag; if(asmaSt.mode !== 'full') asmaBegin('asma/r2/full.m4a', 'full'); const a = asmaEl(); const go = ()=>{ try{ a.currentTime = +r.value; }catch(e){} }; if(a.readyState >= 1) go(); else a.addEventListener('loadedmetadata', go, { once:true }); asmaUI(true); };
   asmaUI();
 }
 /* Leaving the Asma-ul-Husna screens (back, home, another section) stops the audio */
