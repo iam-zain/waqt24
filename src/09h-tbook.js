@@ -108,7 +108,7 @@ async function tbBuild(page, lang, surah){
     const r = qaSurahAyah(x), t = (data[surahs.indexOf(r.s)][r.a-1] || '').replace(/</g, '&lt;').replace(/\uFDFA/g, '<span class="tb-sw">\uFDFA</span>');
     if(r.a === 1){
       if(html.endsWith(open)) html = html.slice(0, -open.length); else html += '</p>';
-      html += `<div class="tb-surah" data-a="${x}"><span>${ur ? 'سورۃ ' + tbSurahName(r.s, lang) : r.s + '. ' + tbSurahName(r.s, lang)}</span></div>${open}`;
+      html += `<div class="tb-surah" data-a="${x}"><span${ur ? ' dir="rtl"' : ''}>${ur ? 'سورۃ ' + tbSurahName(r.s, lang) + ' <bdi dir="ltr">(' + trpDigits(r.s, true) + ')</bdi>' : r.s + '. ' + tbSurahName(r.s, lang)}</span></div>${open}`;
     }
     html += `<span class="tb-ay" data-a="${x}">${t} <i class="tb-n" dir="ltr">&#xFD3E;${trpDigits(r.a, ur)}&#xFD3F;</i></span> `;
   });
