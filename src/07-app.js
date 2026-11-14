@@ -422,6 +422,7 @@ function renderGoalCard(){
     <div class="goal-info">
       <div class="goal-title">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</div>
       ${tasks.map((t,i)=>`<button class="goal-item ${t.done?'done':''}" data-go="${i}"><span class="gi-check">${t.done?'✓':''}</span><span class="gi-txt">${L(t.label)}</span><b class="goal-arrow">›</b></button>`).join('')}
+      <button class="goal-item goal-daily" id="goalDailyBtn"><span class="gi-check gi-ic">📖</span><span class="gi-txt">${L({rur:'Aaj ki Du\'a aur Hadees', en:'Today\'s Du\'a & Hadees'})}</span><b class="goal-arrow">›</b></button>
       <div class="goal-week">${week.map(w=>`<div class="goal-day ${w.ok?'ok':''} ${w.today?'today':''}" title="${dayKey(w.d)}"><i></i><small>${['S','M','T','W','T','F','S'][w.d.getDay()]}</small></div>`).join('')}</div>
       ${(()=>{ const left = GOAL_MAX_CHANGES - goalRound(new Date()); return left > 0
         ? `<button class="goal-reroll" id="goalRerollBtn">🔄 ${L({rur:'Nayi hadaf', en:'New goal'})} (${left} ${L({rur:'baaqi', en:'left'})})</button>`
@@ -432,6 +433,7 @@ function renderGoalCard(){
   el.querySelectorAll('[data-go]').forEach(btn=>{ btn.onclick = ()=> goTask(tasks[+btn.dataset.go].go); });
   const rr = document.getElementById('goalRerollBtn');
   if(rr) rr.onclick = changeTodayGoal;
+  const gd = document.getElementById('goalDailyBtn'); if(gd) gd.onclick = ()=> openOverlay(()=>renderDailyCatchup());
   if(n===tasks.length) celebrate(el);
   renderGoalMini();
 }

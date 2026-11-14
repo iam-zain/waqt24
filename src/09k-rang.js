@@ -3,7 +3,7 @@
    one colour for all of them. "Theme" (the first swatch, the default) leaves the app's own colours; the others
    tint the page the same way the Quran, Tarjuma and Tafseer do.
    ============================================================ */
-const RANG_FNS = new Set(['renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters',
+const RANG_FNS = new Set(['renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderDailyCatchup',
   'openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythReadList']);
 function rangList(){ return [{ k:'', n:L({rur:'Theme jaisa', en:'Match theme'}) }].concat(QURAN_TINTS.filter(t=>t.k && t.k !== 'theme')); }
 function rangStripDraw(){
