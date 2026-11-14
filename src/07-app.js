@@ -59,7 +59,8 @@ let curScreen = null;
 let suppressPops = 0;
 const navOrig = {};
 function overlayActive(){ return document.getElementById('detailOverlay').classList.contains('active'); }
-function onNavigate(s){
+function onNavigate(s){ onNavigate0(s); homeBtnSync(); }
+function onNavigate0(s){
   if(s && s.fn !== 'renderQuranReader' && quranReaderOpen) quranWake(false);
   if(!overlayActive()){ navStack.length = 0; curScreen = s; return; }
   if(!curScreen){ curScreen = s; return; }
@@ -91,7 +92,7 @@ window.addEventListener('popstate', ()=>{
   const info = document.getElementById('infoModal');
   if(overlayActive() && navStack.length && !share.classList.contains('active') && !info.classList.contains('active')){
     const prev = navStack.pop();
-    curScreen = prev;
+    curScreen = prev; homeBtnSync();
     navOrig[prev.fn](...prev.args);
     const sc = prev.scroll || 0;
     setTimeout(()=>{ document.getElementById('detailBody').scrollTop = sc; }, 0);
@@ -142,6 +143,15 @@ document.querySelectorAll('.more-item').forEach(item=>{
   };
 });
 document.getElementById('detailBack').onclick = closeModal;
+/* Home: from any depth, leave the whole overlay in one tap and land on the tab it was opened from (Maarifat, Deegar...) */
+function homeBtnSync(){ const b = document.getElementById('detailHome'); if(b) b.hidden = !(overlayActive() && navStack.length > 0); }
+document.getElementById('detailHome').onclick = ()=>{
+  const k = navStack.length + (history.state && history.state.waqtModal ? 1 : 0);
+  navStack.length = 0; curScreen = null;
+  for(let i = 0; i < 3 && overlayActive(); i++) closeTopModalUI();
+  if(k){ suppressPops++; history.go(-k); }
+  homeBtnSync();
+};
 ['renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
 ['openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla',].forEach(n=>navWrap(n,1));
 navWrap('renderQuranHome',0);
