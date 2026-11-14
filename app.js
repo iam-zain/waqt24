@@ -3718,7 +3718,7 @@ function renderNamesList(which){
   grid.querySelectorAll('[data-idx]').forEach(el=>{
     el.onclick = ()=>{
       const i = parseInt(el.dataset.idx);
-      if(which==='asma' && typeof asmaStop === 'function') asmaStop();   // opening a name stops whatever was playing
+      if(which==='asma' && typeof asmaOpenName === 'function') asmaOpenName();   // opening a name pauses the full audio (resumable) or stops a single name
       setNavCtx(dataset, i, (w,j)=>renderNameDetail(which, j), null);
       renderNameDetail(which, i);
     };
@@ -8763,6 +8763,11 @@ function asmaEl(){
   return asmaAu;
 }
 function asmaName(i){ return ASMA_UL_HUSNA[i] ? ASMA_UL_HUSNA[i].tr : ''; }
+/* Opening a name card: the full recitation is paused where it is (the bar resumes from there); a single name just stops */
+function asmaOpenName(){
+  if(asmaSt.mode === 'full' && asmaAu){ if(!asmaAu.paused) asmaAu.pause(); asmaUI(); }
+  else asmaStop();
+}
 function asmaStop(){
   clearTimeout(asmaGapT); asmaSt.gap = false;
   if(asmaAu){ asmaAu.pause(); asmaAu.removeAttribute('src'); try{ asmaAu.load(); }catch(e){} }
@@ -8806,11 +8811,12 @@ function asmaUI(scroll){
   const now = full ? asmaFullIdx(asmaAu ? asmaAu.currentTime : 0) : (asmaSt.mode === 'one' ? asmaSt.idx : -1);
   document.querySelectorAll('.asma-rate').forEach(rb=>{ rb.textContent = '⚡ ' + asmaRate() + '×'; rb.classList.toggle('on', asmaRate() !== 1); });
   document.querySelectorAll('.asma-rep').forEach(rb=>{ const r = asmaRep(); rb.textContent = '🔁 ' + (r ? (asmaSt.mode === 'one' && playing ? L({rur:'Baar ', en:'Time '}) + asmaSt.n + '/' + r : L({rur:r + ' baar', en:r + ' times'})) : L({rur:'Dohrana band', en:'Repeat off'})); rb.classList.toggle('on', !!r); });
+  if(full && asmaAu){ const r = document.getElementById('asmaRange'), c = document.getElementById('asmaCur'); if(r && !r.dataset.drag){ r.max = isFinite(asmaAu.duration) ? asmaAu.duration : 93.6; r.value = asmaAu.currentTime; } if(c) c.textContent = fmtSecs(Math.floor(asmaAu.currentTime)); }
   const lbl = document.getElementById('asmaNowLbl');
   if(lbl) lbl.textContent = full && now >= 0 ? (now + 1) + '. ' + asmaName(now) : L({rur:'Poori recitation, 99 naam', en:'Full recitation, 99 names'});
   document.querySelectorAll('.asma-pl').forEach(b=>{ const i = +b.dataset.i, on = asmaSt.mode === 'one' && asmaSt.idx === i && playing; b.classList.toggle('on', on); b.textContent = on ? '■' : '▶'; });
   document.querySelectorAll('.asma-listen').forEach(b=>{ const i = +b.dataset.i, on = asmaSt.mode === 'one' && asmaSt.idx === i && playing; b.classList.toggle('on', on); b.querySelector('.asma-lt').textContent = on ? L({rur:'Rokein', en:'Stop'}) : L({rur:'Yeh naam sunein', en:'Listen to this name'}); b.querySelector('.asma-li').textContent = on ? '■' : '▶'; });
-  document.querySelectorAll('#namesGrid .aad-card').forEach(c=>{ const cur = full && playing && +c.dataset.idx === now; if(c.classList.contains('asma-now') !== cur) c.classList.toggle('asma-now', cur); if(cur && scroll === true){ try{ c.scrollIntoView({ block:'center', behavior:'smooth' }); }catch(e){} } });
+  document.querySelectorAll('#namesGrid .aad-card').forEach(c=>{ const cur = full && +c.dataset.idx === now; if(c.classList.contains('asma-now') !== cur) c.classList.toggle('asma-now', cur); if(cur && scroll === true){ try{ c.scrollIntoView({ block:'center', behavior:'smooth' }); }catch(e){} } });
   if(!full){ const r = document.getElementById('asmaRange'); if(r && !r.dataset.drag) r.value = 0; const c = document.getElementById('asmaCur'); if(c) c.textContent = '0:00'; asmaLastNow = -2; }
 }
 function asmaFullBarHtml(){
