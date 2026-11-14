@@ -8228,11 +8228,10 @@ function renderTarjumaBook(page, sheet){
       <div class="tb-foot"><span id="tbPart"></span></div>
     </div>
     <div class="pn-bar tb-bar"><button class="pn-btn pn-prev" id="pnPrevBtn"><span class="pn-ic">⬅️</span>${isEn() ? 'Previous' : 'Pichla'}</button><span class="pn-pos" id="tbPos"></span><button class="pn-btn pn-next" id="pnNextBtn">${isEn() ? 'Next' : 'Agla'}<span class="pn-ic">➡️</span></button></div>
-    <div class="tb-tools"><div class="tb-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div></div>
+    <div class="tb-tools"><div class="tb-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div><span class="tb-sz"><button class="quran-tool" type="button" data-z="-1" aria-label="Smaller text">A−</button><button class="quran-tool" type="button" data-z="1" aria-label="Bigger text">A+</button></span></div>
     <div class="quran-tools tb-acts">
       <button class="quran-tool" id="tbTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${night ? 'on' : ''}" id="tbNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
-      <span class="tb-sz"><button class="quran-tool" type="button" data-z="-1" aria-label="Smaller text">A−</button><button class="quran-tool" type="button" data-z="1" aria-label="Bigger text">A+</button></span>
       <button class="quran-tool tb-listen" id="tbListenBtn"></button>
       <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tbSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool" id="tbMushafBtn">${tbBookSvg('tarjuma').replace('width="48" height="36"', 'width="22" height="17"')} ${L({rur:'Mushaf', en:'Mushaf'})}</button>

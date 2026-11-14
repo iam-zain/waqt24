@@ -1962,3 +1962,8 @@ body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yello
 body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .detail-header .detail-home{ margin-left:auto; font-size:17px; }
 .detail-header .detail-home[hidden]{ display:none; }
+
+.tb-tools{ flex-wrap:nowrap; gap:4px; margin-left:8px; margin-right:8px; }
+.tb-tools .tb-langs, .tb-tools .tb-sz{ gap:4px; }
+.tb-tools button{ padding:6px 9px; font-size:12px; white-space:nowrap; }
+.tb-tools .tb-sz button{ padding:6px 8px; }
