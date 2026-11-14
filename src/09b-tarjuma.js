@@ -57,14 +57,22 @@ const TR_OVR = { '68:10': { hi:'और किसी ऐसे शख़्स �
 const trOvr = (s, a, lang)=>{ const o = TR_OVR[s + ':' + a.numberInSurah]; return o && o[lang] || null; };
 const TR_MEM = {};
 const trLang = ()=> (TR_LANGS.find(l=>l.k === state.quranTr) || TR_LANGS.find(l=>l.k === (state.lang === 'en' ? 'en' : 'rom'))).k;
+/* the Prophet's name always carries the salawat: Muhammad ﷺ (all four languages; skipped where it is already written) */
+function trSal(t, lang){
+  if(!t) return t; const SAL = '\uFDFA', after = '(?!\\s*(?:' + SAL + '|\\(\\s*(?:صلی|ﷺ|sallallahu|salallahu)))';
+  if(lang === 'en' || lang === 'rom') return t.replace(new RegExp('\\b(M[uo]h+a?mm?[ae]d)\\b' + after, 'gi'), (m)=> (lang === 'rom' ? 'Muhammad' : m) + ' ' + SAL);
+  if(lang === 'ur') return t.replace(new RegExp('(محمد)(?![\\u0600-\\u06FF])' + after, 'g'), '$1 ' + SAL);
+  if(lang === 'hi') return t.replace(new RegExp('(म[ुो]हम्मद)(?![\\u0900-\\u097F])' + after, 'g'), '$1 ' + SAL);
+  return t;
+}
 async function trLoad(s, lang){
   const key = lang + s; if(TR_MEM[key]) return TR_MEM[key];
   const def = TR_LANGS.find(l=>l.k === lang), conv = def.conv === 'roman' ? (x=> devaToRoman(x).replace(/\btumko ko\b/gi, m=> m.slice(0, 5))) : (x=>x);
   const url = `https://api.alquran.cloud/v1/surah/${s}/${def.ed}`;
-  let cache = null; try{ cache = await caches.open('waqt24-tr-v1'); const hit = await cache.match(url); if(hit){ const j = await hit.json(); return TR_MEM[key] = j.data.ayahs.map(a=>trOvr(s, a, lang) || conv(a.text)); } }catch(e){}
+  let cache = null; try{ cache = await caches.open('waqt24-tr-v1'); const hit = await cache.match(url); if(hit){ const j = await hit.json(); return TR_MEM[key] = j.data.ayahs.map(a=>trSal(trOvr(s, a, lang) || conv(a.text), lang)); } }catch(e){}
   const res = await fetch(url); if(!res.ok) throw new Error('tr ' + res.status);
   try{ if(cache) cache.put(url, res.clone()); }catch(e){}
-  const j = await res.json(); return TR_MEM[key] = j.data.ayahs.map(a=>trOvr(s, a, lang) || conv(a.text));
+  const j = await res.json(); return TR_MEM[key] = j.data.ayahs.map(a=>trSal(trOvr(s, a, lang) || conv(a.text), lang));
 }
 function trPageAyahs(page){ const f = QA_PAGE_FIRST[page-1], nx = QA_PAGE_FIRST[page] || (QA_TOTAL + 1), out = []; for(let x = f; x < nx; x++) out.push(x); return out; }
 /* tap on a line of the page -> the ayah on that line */
