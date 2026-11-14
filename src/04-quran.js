@@ -261,17 +261,8 @@ function renderQuranReader(page){
       </span>
     </div>
     <div class="q-tints" id="qTints" ${quranTintOpen ? '' : 'hidden'}>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint||'')===t.k?' active':''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
-    <div class="quran-jump">
-      <span>${L({rur:'Page par jaayein', en:'Go to page'})}</span>
-      <input type="number" id="quranJumpInput" min="1" max="${QURAN_PAGE_COUNT}" value="${page}">
-      <button id="quranJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button>
-    </div>
   `;
-  const jumpBtn = document.getElementById('quranJumpBtn');
-  const jumpInput = document.getElementById('quranJumpInput');
-  const jump = ()=>{ const v = parseInt(jumpInput.value); if(v>=1 && v<=QURAN_PAGE_COUNT) renderQuranReader(v); };
-  jumpBtn.onclick = jump;
-  jumpInput.onkeydown = (e)=>{ if(e.key==='Enter') jump(); };
+  pageJumpWire(1, QURAN_PAGE_COUNT, page, v=> renderQuranReader(v));
   document.getElementById('quranMarkBtn').onclick = ()=>{
     const m = state.quranMarks || (state.quranMarks = []);
     const i = m.indexOf(page);

@@ -2843,17 +2843,8 @@ function renderQuranReader(page){
       </span>
     </div>
     <div class="q-tints" id="qTints" ${quranTintOpen ? '' : 'hidden'}>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint||'')===t.k?' active':''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
-    <div class="quran-jump">
-      <span>${L({rur:'Page par jaayein', en:'Go to page'})}</span>
-      <input type="number" id="quranJumpInput" min="1" max="${QURAN_PAGE_COUNT}" value="${page}">
-      <button id="quranJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button>
-    </div>
   `;
-  const jumpBtn = document.getElementById('quranJumpBtn');
-  const jumpInput = document.getElementById('quranJumpInput');
-  const jump = ()=>{ const v = parseInt(jumpInput.value); if(v>=1 && v<=QURAN_PAGE_COUNT) renderQuranReader(v); };
-  jumpBtn.onclick = jump;
-  jumpInput.onkeydown = (e)=>{ if(e.key==='Enter') jump(); };
+  pageJumpWire(1, QURAN_PAGE_COUNT, page, v=> renderQuranReader(v));
   document.getElementById('quranMarkBtn').onclick = ()=>{
     const m = state.quranMarks || (state.quranMarks = []);
     const i = m.indexOf(page);
@@ -8188,6 +8179,24 @@ function tbBookSvg(kind){
   return `<svg viewBox="0 0 64 48" width="48" height="36" aria-hidden="true"><path d="M32 9 C24 4 12 4 4 7 V43 C12 40 24 40 32 45 C40 40 52 40 60 43 V7 C52 4 40 4 32 9 Z" fill="var(--card2)" stroke="var(--sub)" stroke-width="2" stroke-linejoin="round"/><line x1="32" y1="9" x2="32" y2="45" stroke="var(--sub)" stroke-width="2"/>${lines}</svg>`;
 }
 /* the section on the Qur'an home screen */
+/* the page number in the Agla/Pichla bar is a button: tap it, type a page, Go */
+function pageJumpWire(min, max, cur, go){
+  const pos = document.querySelector('.pn-bar .pn-pos'); if(!pos) return;
+  pos.classList.add('pn-pos-btn'); pos.setAttribute('role', 'button'); pos.setAttribute('tabindex', '0'); pos.title = L({rur:'Page par jaayein', en:'Go to page'});
+  const open = ()=>{
+    const old = document.getElementById('pageJump'); if(old) old.remove();
+    const w = document.createElement('div'); w.id = 'pageJump'; w.className = 'note-ov';
+    w.innerHTML = `<div class="note-sheet pj-sheet" role="dialog"><div class="note-head"><b>${L({rur:'Page par jaayein', en:'Go to page'})}</b><button type="button" class="note-x" aria-label="Close">✕</button></div>
+      <div class="pj-row"><input type="number" inputmode="numeric" id="pjIn" min="${min}" max="${max}" value="${cur}"><span>/ ${max}</span><button type="button" class="note-save" id="pjGo">${L({rur:'Jaayein', en:'Go'})}</button></div></div>`;
+    document.body.appendChild(w);
+    const close = ()=> w.remove(), inp = w.querySelector('#pjIn');
+    const doGo = ()=>{ const v = parseInt(inp.value); if(v >= min && v <= max){ close(); go(v); } else { inp.focus(); inp.select(); } };
+    w.querySelector('.note-x').onclick = close; w.onclick = e=>{ if(e.target === w) close(); };
+    w.querySelector('#pjGo').onclick = doGo; inp.onkeydown = e=>{ if(e.key === 'Enter') doGo(); };
+    inp.focus(); inp.select();
+  };
+  pos.onclick = open; pos.onkeydown = e=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); } };
+}
 /* bookmarks (state.tbMarks: Mushaf page numbers; state.tfMarks: Tafseer pages) and sharing */
 function bkMarks(sec){ const k = sec === 'tf' ? 'tfMarks' : 'tbMarks'; return state[k] || (state[k] = []); }
 function bkHas(sec, p){ return bkMarks(sec).includes(p); }
@@ -8269,8 +8278,7 @@ function renderTarjumaBook(page, sheet){
       <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tbSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool" id="tbMushafBtn">${tbBookSvg('tarjuma').replace('width="48" height="36"', 'width="22" height="17"')} ${L({rur:'Mushaf', en:'Mushaf'})}</button>
     </div>
-    <div class="q-tints" id="tbTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
-    <div class="quran-jump"><span>${L({rur:'Page par jaayein', en:'Go to page'})}</span><input type="number" id="tbJump" min="2" max="${tbLastPage()}" value="${page}"><button id="tbJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button></div>`;
+    <div class="q-tints" id="tbTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>`;
   const $ = id => document.getElementById(id);
   document.querySelector('.tb-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.tbLang = b.dataset.l; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
   document.querySelector('.tb-sz').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.tbZ = Math.max(-3, Math.min(8, (state.tbZ || 0) + (+b.dataset.z))); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
@@ -8286,8 +8294,7 @@ function renderTarjumaBook(page, sheet){
   $('tbFlow').onclick = e=>{ const ay = e.target.closest('.tb-ay'); if(ay) tbPlayFrom(+ay.dataset.a); };
   $('tbSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); if(state.quranTurnSound) playPageSound(); };
   $('tbMushafBtn').onclick = ()=> renderQuranReader(tbSt.page);
-  const jump = ()=>{ const v = parseInt($('tbJump').value); if(v >= 2 && v <= tbLastPage()) renderTarjumaBook(v); };
-  $('tbJumpBtn').onclick = jump; $('tbJump').onkeydown = e=>{ if(e.key === 'Enter') jump(); };
+  pageJumpWire(2, tbLastPage(), page, v=> renderTarjumaBook(v));
   $('pnPrevBtn').onclick = tbPrev; $('pnNextBtn').onclick = tbNext;
   tbLoad(page, sheet);
   [page + 1].forEach(n=>{ if(n <= tbLastPage()) tbBuild(n, lang).catch(()=>{}); });   /* the next page's translation is fetched while this one is read */
@@ -8412,8 +8419,7 @@ function renderTafseerPage(n){
       <button class="quran-tool" id="tfShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tfSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
     </div>
-    <div class="q-tints" id="tfTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
-    <div class="quran-jump"><span>${L({rur:'Page par jaayein', en:'Go to page'})}</span><input type="number" id="tfJump" min="1" max="${TF_PAGES}" value="${n}"><button id="tfJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button></div>`;
+    <div class="q-tints" id="tfTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>`;
   const $ = id => document.getElementById(id);
   $('tfIndexBtn').onclick = ()=> renderTafseerIndex();
   $('tfTintBtn').onclick = ()=>{ $('tfTints').hidden = !$('tfTints').hidden; };
@@ -8427,8 +8433,7 @@ function renderTafseerPage(n){
   $('tfNoteBtn').onclick = ()=> openNoteBox({ page:n, sec:'tf' }, ()=>{ const b = document.getElementById('tfNoteBtn'); if(b){ const c = notesForPage(n, 'tf').length; b.classList.toggle('on', c > 0); b.textContent = '📝 ' + L({rur:'Note', en:'Note'}) + (c ? ' (' + c + ')' : ''); } });
   $('tfSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTafseerPage(n); if(state.quranTurnSound) playPageSound(); };
   let lastTap = 0; wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) zoom(); lastTap = t; });
-  const go = ()=>{ const v = parseInt($('tfJump').value); if(v >= 1 && v <= TF_PAGES) renderTafseerPage(v); };
-  $('tfJumpBtn').onclick = go; $('tfJump').onkeydown = e=>{ if(e.key === 'Enter') go(); };
+  pageJumpWire(1, TF_PAGES, n, v=> renderTafseerPage(v));
   { const im = wrap.querySelector('img'), ready = ()=> wrap.classList.add('ready'); if(im.complete) ready(); else { im.addEventListener('load', ready); im.addEventListener('error', ready); } }
   wirePnBar();
   [n + 1, n - 1, n + 2].forEach(k=>{ if(k >= 1 && k <= TF_PAGES){ const im = new Image(); im.src = tfImg(k); } });

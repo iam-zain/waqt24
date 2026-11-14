@@ -1976,3 +1976,11 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .tb-top > button:first-child, .tb-top > button:last-child{ white-space:nowrap; }
 .tb-top #tbSurahBtn{ flex:1; text-align:center; font-size:15px; font-weight:800; }
 .tb-top #tbSurahBtn.tb-urname{ font-size:16px; line-height:1.6; }
+
+.pn-pos-btn{ cursor:pointer; padding:8px 12px; border-radius:9px; border:1px dashed color-mix(in srgb, var(--accent) 45%, transparent); color:var(--accent); font-weight:800; }
+.pn-pos-btn:active{ background:color-mix(in srgb, var(--accent) 14%, transparent); }
+.pj-row{ display:flex; align-items:center; gap:10px; padding:6px 2px 4px; }
+.pj-row input{ flex:1; min-width:0; font:inherit; font-size:18px; font-weight:800; text-align:center; padding:10px; border-radius:11px; border:1px solid var(--line); background:var(--card2,var(--card)); color:var(--text); }
+.pj-row span{ color:var(--sub); font-weight:700; }
+.pj-row .note-save{ flex:0 0 auto; }
+.pj-row .note-save{ background:var(--accent); border:1px solid var(--accent); color:var(--fardText,#fff); font:inherit; font-weight:800; border-radius:11px; padding:11px 18px; }
