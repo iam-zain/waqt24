@@ -3,7 +3,9 @@
    state.notes = [{ id, page?, bm?, text, ts }]
    ============================================================ */
 function notesList(){ if(!Array.isArray(state.notes)) state.notes = []; return state.notes; }
-function notesForPage(p){ return notesList().filter(n=>n.page === p); }
+function notesForPage(p, sec){ return notesList().filter(n=>n.page === p && (n.sec || '') === (sec || '')); }
+/* where a page note belongs: the Mushaf reader (no sec), the Tarjuma book ('tb') or Tafseer ('tf') */
+function noteSecName(n){ const pg = n.page; if(n.sec === 'tf'){ const s = typeof tfSurahOf === 'function' ? tfSurahOf(pg) : 0; return `📕 Tafseer · Page ${pg} · ${s ? QURAN_SURAHS[s - 1].name : 'Muqaddima'}`; } return `${n.sec === 'tb' ? '📘 Tarjuma' : '📖'} ${n.sec === 'tb' ? '· ' : ''}Page ${pg} · ${quranSurahOf(pg).name}`; }
 function notesForBm(k){ return notesList().filter(n=>n.bm === k); }
 function noteEsc(t){ return String(t).replace(/[&<>"]/g, c=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c])); }
 function noteWhen(ts){ const d = new Date(ts); return d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear(); }
@@ -11,8 +13,8 @@ function noteWhen(ts){ const d = new Date(ts); return d.getDate() + ' ' + MON[d.
 function openNoteBox(ctx, onClose){
   ctx = ctx || {};
   const old = document.getElementById('noteBox'); if(old) old.remove();
-  const matches = ()=> notesList().filter(n=> ctx.page ? n.page === ctx.page : ctx.bm ? n.bm === ctx.bm : (!n.page && !n.bm));
-  const title = ctx.page ? `📝 ${L({rur:'Page', en:'Page'})} ${ctx.page} · ${quranSurahOf(ctx.page).name}` : ctx.bm ? `📝 ${noteEsc(ctx.title || '')}` : `📝 ${L({rur:'Mere Notes', en:'My notes'})}`;
+  const matches = ()=> notesList().filter(n=> ctx.page ? (n.page === ctx.page && (n.sec || '') === (ctx.sec || '')) : ctx.bm ? n.bm === ctx.bm : (!n.page && !n.bm));
+  const title = ctx.page ? '📝 ' + noteSecName({ page:ctx.page, sec:ctx.sec }).replace(/^\S+\s/, '') : ctx.bm ? `📝 ${noteEsc(ctx.title || '')}` : `📝 ${L({rur:'Mere Notes', en:'My notes'})}`;
   const w = document.createElement('div'); w.id = 'noteBox'; w.className = 'note-ov';
   const close = ()=>{ w.remove(); if(onClose) onClose(); };
   let editId = null;
@@ -30,7 +32,7 @@ function openNoteBox(ctx, onClose){
     w.querySelector('#noteSave').onclick = ()=>{
       const t = ta.value.trim(); if(!t){ ta.focus(); return; }
       if(editId){ const n = notesList().find(x=>x.id === editId); if(n){ n.text = t; n.ts = Date.now(); } editId = null; }
-      else{ const n = { id:'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text:t, ts:Date.now() }; if(ctx.page) n.page = ctx.page; if(ctx.bm) n.bm = ctx.bm; notesList().unshift(n); }
+      else{ const n = { id:'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text:t, ts:Date.now() }; if(ctx.page){ n.page = ctx.page; if(ctx.sec) n.sec = ctx.sec; } if(ctx.bm) n.bm = ctx.bm; notesList().unshift(n); }
       saveState(); showToast(L({rur:'Note save ho gaya', en:'Note saved'})); draw();
     };
     w.querySelectorAll('[data-edit]').forEach(b=>{ b.onclick = ()=>{ editId = b.dataset.edit; draw(); w.querySelector('#noteTa').focus(); }; });
@@ -44,14 +46,14 @@ function notesSectionHtml(){
   const list = notesList();
   return `<div class="dw-section"><div class="dw-section-title"><span>📝 ${L({rur:'Mere Notes', en:'My notes'})}</span><span class="dw-count">${list.length}</span></div>
     <button type="button" class="note-add" id="noteAddBtn">＋ ${L({rur:'Naya note likhein', en:'Write a new note'})}</button>
-    ${list.map(n=>`<div class="dw-row note-row" data-nid="${n.id}" ${n.page ? `data-page="${n.page}"` : ''}><div class="info"><div class="tr">${n.page ? `📖 Page ${n.page} · ${quranSurahOf(n.page).name}` : n.bm ? '⭐ ' + noteEsc((typeof bmResolve === 'function' && bmResolve(n.bm) || {}).title || '') : L({rur:'Note', en:'Note'})}</div><div class="m">${noteEsc(n.text).slice(0, 140)}${n.text.length > 140 ? '…' : ''}</div></div><span class="note-when">${noteWhen(n.ts)}</span></div>`).join('')}</div>`;
+    ${list.map(n=>`<div class="dw-row note-row" data-nid="${n.id}" ${n.page ? `data-page="${n.page}"` : ''}><div class="info"><div class="tr">${n.page ? noteSecName(n) : n.bm ? '⭐ ' + noteEsc((typeof bmResolve === 'function' && bmResolve(n.bm) || {}).title || '') : L({rur:'Note', en:'Note'})}</div><div class="m">${noteEsc(n.text).slice(0, 140)}${n.text.length > 140 ? '…' : ''}</div></div><span class="note-when">${noteWhen(n.ts)}</span></div>`).join('')}</div>`;
 }
 function wireNotesSection(rerender){
   const add = document.getElementById('noteAddBtn'); if(add) add.onclick = ()=> openNoteBox({}, rerender);
   document.querySelectorAll('.note-row').forEach(r=>{
     r.onclick = ()=>{
       const n = notesList().find(x=>x.id === r.dataset.nid); if(!n) return;
-      if(n.page) renderQuranReader(n.page); else openNoteBox(n.bm ? { bm:n.bm, title:(bmResolve(n.bm) || {}).title } : {}, rerender);
+      if(n.page){ if(n.sec === 'tb') renderTarjumaBook(n.page); else if(n.sec === 'tf') renderTafseerPage(n.page); else renderQuranReader(n.page); } else openNoteBox(n.bm ? { bm:n.bm, title:(bmResolve(n.bm) || {}).title } : {}, rerender);
     };
   });
 }

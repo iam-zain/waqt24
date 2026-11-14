@@ -75,9 +75,10 @@ function renderTarjumaBook(page, sheet){
     <div class="pn-bar tb-bar"><button class="pn-btn pn-prev" id="pnPrevBtn"><span class="pn-ic">⬅️</span>${isEn() ? 'Previous' : 'Pichla'}</button><span class="pn-pos" id="tbPos"></span><button class="pn-btn pn-next" id="pnNextBtn">${isEn() ? 'Next' : 'Agla'}<span class="pn-ic">➡️</span></button></div>
     <div class="tb-tools"><div class="tb-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div><span class="tb-sz"><button class="quran-tool" type="button" data-z="-1" aria-label="Smaller text">A−</button><button class="quran-tool" type="button" data-z="1" aria-label="Bigger text">A+</button></span></div>
     <div class="quran-tools tb-acts">
+      <button class="quran-tool tb-listen" id="tbListenBtn">🎧 ${L({rur:'Tilawat sunein', en:'Listen'})}</button>
+      <button class="quran-tool ${notesForPage(page, 'tb').length ? 'on' : ''}" id="tbNoteBtn">📝 ${L({rur:'Note', en:'Note'})}${notesForPage(page, 'tb').length ? ' (' + notesForPage(page, 'tb').length + ')' : ''}</button>
       <button class="quran-tool" id="tbTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${night ? 'on' : ''}" id="tbNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
-      <button class="quran-tool tb-listen" id="tbListenBtn"></button>
       <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tbSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool" id="tbMushafBtn">${tbBookSvg('tarjuma').replace('width="48" height="36"', 'width="22" height="17"')} ${L({rur:'Mushaf', en:'Mushaf'})}</button>
     </div>
@@ -90,6 +91,7 @@ function renderTarjumaBook(page, sheet){
   $('tbTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); $('tbTints').hidden = false; };
   $('tbNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
   $('tbListenBtn').onclick = ()=>{ if(qa.on) qaStop(); else tbPlayFrom(tbFirstAyah()); };
+  $('tbNoteBtn').onclick = ()=> openNoteBox({ page, sec:'tb' }, ()=>{ const b = document.getElementById('tbNoteBtn'); if(b){ const c = notesForPage(page, 'tb').length; b.classList.toggle('on', c > 0); b.textContent = '📝 ' + L({rur:'Note', en:'Note'}) + (c ? ' (' + c + ')' : ''); } });
   $('tbFlow').onclick = e=>{ const ay = e.target.closest('.tb-ay'); if(ay) tbPlayFrom(+ay.dataset.a); };
   $('tbSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); if(state.quranTurnSound) playPageSound(); };
   $('tbMushafBtn').onclick = ()=> renderQuranReader(tbSt.page);
@@ -152,7 +154,7 @@ function tbPlayFrom(abs){
 function tbSync(){
   const sh = document.getElementById('tbSheet'); if(!sh) { if(!qa.on) tbRestoreVoice(); return; }
   const btn = document.getElementById('tbListenBtn');
-  if(btn){ btn.classList.toggle('on', !!qa.on); btn.innerHTML = qa.on ? '⏹ ' + L({rur:'Band karein', en:'Stop'}) : '🔊 ' + L({rur:'Suniye', en:'Listen'}); }
+  if(btn){ btn.classList.toggle('on', !!qa.on); btn.innerHTML = '🎧 ' + L({rur:'Tilawat sunein', en:'Listen'}); }
   const flow = document.getElementById('tbFlow'); flow.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl'));
   if(!qa.on){ tbRestoreVoice(); return; }
   const pg = qaAyahPage(qa.abs);
@@ -211,10 +213,11 @@ function renderTafseerPage(n){
     <div class="quran-page-wrap tf-wrap${night ? ' night' : ''}" id="tfWrap"><img class="quran-page-img tf-img" src="${tfImg(n)}" alt="Tafseer page ${n}" draggable="false" style="background-color:${night ? '#fff' : tfTintBg()}"></div>
     ${pnBarHtml()}
     <div class="quran-tools">
+      <button class="quran-tool ${notesForPage(n, 'tf').length ? 'on' : ''}" id="tfNoteBtn">📝 ${L({rur:'Note', en:'Note'})}${notesForPage(n, 'tf').length ? ' (' + notesForPage(n, 'tf').length + ')' : ''}</button>
       <button class="quran-tool" id="tfTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
       <button class="quran-tool ${night ? 'on' : ''}" id="tfNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
-      <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tfSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
       <button class="quran-tool" id="tfZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
+      <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tfSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
     </div>
     <div class="q-tints" id="tfTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
     <div class="quran-jump"><span>${L({rur:'Page par jaayein', en:'Go to page'})}</span><input type="number" id="tfJump" min="1" max="${TF_PAGES}" value="${n}"><button id="tfJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button></div>`;
@@ -225,6 +228,7 @@ function renderTafseerPage(n){
   $('tfNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderTafseerPage(n); };
   const wrap = $('tfWrap'), zoom = ()=>{ wrap.classList.toggle('zoomed'); $('tfZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); };
   $('tfZoomBtn').onclick = zoom;
+  $('tfNoteBtn').onclick = ()=> openNoteBox({ page:n, sec:'tf' }, ()=>{ const b = document.getElementById('tfNoteBtn'); if(b){ const c = notesForPage(n, 'tf').length; b.classList.toggle('on', c > 0); b.textContent = '📝 ' + L({rur:'Note', en:'Note'}) + (c ? ' (' + c + ')' : ''); } });
   $('tfSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTafseerPage(n); if(state.quranTurnSound) playPageSound(); };
   let lastTap = 0; wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) zoom(); lastTap = t; });
   const go = ()=>{ const v = parseInt($('tfJump').value); if(v >= 1 && v <= TF_PAGES) renderTafseerPage(v); };
