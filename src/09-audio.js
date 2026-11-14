@@ -167,7 +167,7 @@ function qaOptsUI(){
   va.textContent = '🎙 ' + L({rur:'Arabi tilawat', en:'Arabic recitation'}); vu.textContent = '🗣 ' + L({rur:'Sirf Urdu tarjuma', en:'Urdu translation only'}); vb.textContent = '🎧 ' + L({rur:'Arabi + Urdu, ek ek ayat', en:'Arabic + Urdu, ayah by ayah'});
   va.classList.toggle('on', qa.voice === 'ar'); vu.classList.toggle('on', qa.voice === 'ur'); vb.classList.toggle('on', qa.voice === 'both');
   e.querySelector('#qpRate').textContent = '⚡ ' + qa.rate + '×';
-  e.querySelector('#qpRep').textContent = '🔁 ' + (qa.rep === 0 ? L({rur:'Dohraana', en:'Repeat'}) : qa.rep === 1 ? L({rur:'Ayat dohraayein', en:'Repeat ayah'}) : '3× ' + L({rur:'har ayat', en:'each ayah'}));
+  e.querySelector('#qpRep').textContent = '🔁 ' + (qa.rep === 0 ? L({rur:'Dohraana', en:'Repeat'}) : qa.rep === 1 ? L({rur:'Ayat dohraayein', en:'Repeat ayah'}) : L({rur:'3 baar har ayat', en:'3 times each ayah'}));
   e.querySelector('#qpSleep').textContent = '😴 ' + (qa.sleepMin ? qa.sleepMin + ' min' : L({rur:'Sleep timer', en:'Sleep timer'}));
   ['qpRate','qpRep','qpSleep'].forEach(id=>{ const b = e.querySelector('#'+id), on = id==='qpRate' ? qa.rate !== 1 : id==='qpRep' ? qa.rep : qa.sleepMin; b.classList.toggle('on', !!on); });
 }

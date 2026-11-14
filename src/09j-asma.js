@@ -75,7 +75,7 @@ function asmaUI(scroll){
   if(fb){ fb.textContent = full && playing ? '❚❚' : '▶'; fb.classList.toggle('on', full && playing); }
   const now = full ? asmaFullIdx(asmaAu ? asmaAu.currentTime : 0) : (asmaSt.mode === 'one' ? asmaSt.idx : -1);
   document.querySelectorAll('.asma-rate').forEach(rb=>{ rb.textContent = '⚡ ' + asmaRate() + '×'; rb.classList.toggle('on', asmaRate() !== 1); });
-  document.querySelectorAll('.asma-rep').forEach(rb=>{ const r = asmaRep(); rb.textContent = '🔁 ' + (r ? (asmaSt.mode === 'one' && playing ? asmaSt.n + '/' + r : r + '×') : L({rur:'Dohrana band', en:'Repeat off'})); rb.classList.toggle('on', !!r); });
+  document.querySelectorAll('.asma-rep').forEach(rb=>{ const r = asmaRep(); rb.textContent = '🔁 ' + (r ? (asmaSt.mode === 'one' && playing ? L({rur:'Baar ', en:'Time '}) + asmaSt.n + '/' + r : L({rur:r + ' baar', en:r + ' times'})) : L({rur:'Dohrana band', en:'Repeat off'})); rb.classList.toggle('on', !!r); });
   const lbl = document.getElementById('asmaNowLbl');
   if(lbl) lbl.textContent = full && now >= 0 ? (now + 1) + '. ' + asmaName(now) : L({rur:'Poori recitation, 99 naam', en:'Full recitation, 99 names'});
   document.querySelectorAll('.asma-pl').forEach(b=>{ const i = +b.dataset.i, on = asmaSt.mode === 'one' && asmaSt.idx === i && playing; b.classList.toggle('on', on); b.textContent = on ? '■' : '▶'; });
