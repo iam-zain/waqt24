@@ -335,6 +335,7 @@ function renderNamesList(which){
       <button id="namesListBtn" class="${namesView==='list'?'active':''}">List</button>
     </div>
     ${note}
+    ${which==='asma' ? asmaFullBarHtml() : ''}
     <div class="dua-grid names-cards ${namesView==='list'?'list':''}" id="namesGrid"></div>
   `;
   document.getElementById('namesGridBtn').onclick = ()=>{ namesView='grid'; renderNamesList(which); };
@@ -350,9 +351,12 @@ function renderNamesList(which){
         ${namesView==='list' ? `<div class="m-preview">${isEn() && w.en ? w.en : w.m}</div>` : ''}
       </div>
       ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
+      ${which==='asma' && i < ASMA_CLIPS ? `<button class="asma-pl" data-i="${i}" aria-label="${L({rur:'Yeh naam sunein', en:'Listen to this name'})}">▶</button>` : ''}
       <div class="chev">›</div>
     </div>`;
   }).join('');
+  grid.querySelectorAll('.asma-pl').forEach(b=>{ b.onclick = e=>{ e.stopPropagation(); asmaPlayOne(+b.dataset.i); }; });
+  if(which==='asma') asmaWireFull();
   grid.querySelectorAll('[data-idx]').forEach(el=>{
     el.onclick = ()=>{
       const i = parseInt(el.dataset.idx);
@@ -380,6 +384,7 @@ function renderNameDetail(which, idx){
       <div class="aad-head-title ar-font">${w.ar}</div>
       <div class="aad-cat-pill">${w.tr}</div>
     </div>
+    ${which==='asma' && idx < ASMA_CLIPS ? `<button class="asma-listen" data-i="${idx}"><span class="asma-li">▶</span> <span class="asma-lt">${L({rur:'Yeh naam sunein', en:'Listen to this name'})}</span></button>` : ''}
     <div class="dua-detail">
       <div class="aad-guide-sec dua-sec-ar">
         <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Name (Arabic)' : 'Naam (Arabic)'}</span></div>
@@ -403,6 +408,7 @@ function renderNameDetail(which, idx){
   document.getElementById('nameSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); renderNameDetail(which, idx); };
   document.getElementById('nameAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); renderNameDetail(which, idx); };
   document.getElementById('nameImgBtn').onclick = ()=> openCardShareChooser({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Muhammad ﷺ ke Naam', arabic:w.ar, title:w.tr, body:isEn() && w.en ? w.en : w.m });
+  { const lb = document.querySelector('.asma-listen'); if(lb){ lb.onclick = ()=> asmaPlayOne(idx); asmaUI(); } }
   wirePnBar();
 }
 

@@ -2025,3 +2025,24 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .ts-ref{ font-size:12px !important; font-weight:800; color:var(--accent); }
 .ts-t{ font-size:14px; line-height:1.7; white-space:normal; color:var(--text); }
 .ts-t mark{ background:color-mix(in srgb, var(--accent) 28%, transparent); color:inherit; border-radius:3px; padding:0 1px; }
+
+/* Asma-ul-Husna audio */
+.asma-full{ display:flex; align-items:center; gap:12px; margin:0 14px 12px; padding:12px; background:var(--card); border:1px solid var(--line); border-left:4px solid #c99a4a; border-radius:14px; }
+.asma-fbtn{ flex:0 0 46px; width:46px; height:46px; border-radius:50%; border:none; background:#c99a4a; color:#fff; font-size:17px; font-weight:800; cursor:pointer; }
+.asma-fbtn:active{ transform:scale(.92); }
+.asma-fbtn.on{ background:var(--red); }
+.asma-fmid{ flex:1; min-width:0; }
+.asma-ftitle{ font-weight:700; font-size:14px; }
+.asma-fnow{ font-size:12px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.asma-fseek{ display:flex; align-items:center; gap:8px; margin-top:6px; font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
+.asma-fseek input{ flex:1; min-width:0; accent-color:#c99a4a; }
+.names-cards .aad-card{ position:relative; }
+.asma-pl{ position:absolute; z-index:2; width:32px; height:32px; border-radius:50%; border:none; background:#c99a4a; color:#fff; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; }
+.asma-pl.on{ background:var(--red); color:#fff; }
+.asma-pl:active{ transform:scale(.9); }
+.dua-grid:not(.list) .asma-pl{ top:6px; right:6px; }
+.dua-grid.list .asma-pl{ top:50%; right:34px; margin-top:-16px; }
+.dua-grid.list .aad-card{ padding-right:74px; }
+.aad-card.asma-now{ outline:2px solid #c99a4a; background:color-mix(in srgb, #c99a4a 16%, var(--card)); }
+.asma-listen{ display:flex; align-items:center; justify-content:center; gap:8px; width:calc(100% - 28px); margin:0 14px 12px; padding:12px; border:none; border-radius:12px; background:#c99a4a; color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
+.asma-listen.on{ background:var(--red); }

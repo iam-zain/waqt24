@@ -279,6 +279,7 @@ function qaPreloadNext(){
   if(other.src !== url){ other._k = qaKey(n.abs, n.bism); other._v = qaVoiceOf(n.part); other.src = url; other.preload = 'auto'; try{ other.load(); }catch(e){} }
 }
 function qaPlayCurrent(){
+  if(typeof asmaStop === 'function' && asmaSt.mode) asmaStop();
   qaEls();
   const url = qaFile(qa.abs, qa.bism);
   if(qa.cur.src !== url){ qa.cur._k = qaKey(qa.abs, qa.bism); qa.cur._v = qaVoiceOf(qa.part); qa.cur.src = url; }

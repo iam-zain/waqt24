@@ -722,6 +722,7 @@ function stopAzaan(){
 }
 function playAzaan(id, label){
   stopAzaan();
+  if(typeof asmaStop === 'function') asmaStop();
   const rec = azaanRec(id);
   azaanAudio = new Audio(`azan/${rec.id}.mp3`);
   azaanPlayingId = rec.id;
