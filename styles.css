@@ -1991,3 +1991,9 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .quran-index-row.tb-top .quran-index-btn{ background:var(--card); color:var(--text); font-size:12px; font-weight:700; padding:8px 10px; text-align:center; }
 .quran-index-row.tb-top #tbSurahBtn{ flex:1; font-size:12px; font-weight:700; line-height:1.4; }
 .quran-index-row.tb-top #tbSurahBtn.tb-urname{ font-family:'Noto Nastaliq Urdu','Scheherazade New',serif; font-weight:400; font-size:14px; line-height:1.9; padding-top:4px; padding-bottom:4px; }
+
+/* highlight bands (one per ruled row) replace the inline background */
+.tb-ay.hl, .tb-view.ur .tb-ay.hl{ background:none; box-shadow:none; }
+.tb-flow{ --hl:color-mix(in srgb, var(--tbac) 26%, transparent); }
+.tb-hlb{ position:absolute; z-index:0; border-radius:5px; background:var(--hl); pointer-events:none; }
+.tb-p{ position:relative; z-index:1; }

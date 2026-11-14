@@ -165,7 +165,7 @@ async function tbLoad(page, sheet){
   flow.innerHTML = html;
   if(lang === 'ur' && document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} if(my !== tbSt.tok || !document.getElementById('tbFlow')) return; }
   tbMeasure(sheet); tbSt.following = false; tbSync();
-  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(my === tbSt.tok) tbMeasure(tbSt.sheet); });
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(my === tbSt.tok){ tbMeasure(tbSt.sheet); tbSync(); } });
 }
 /* how many 15-line sheets the page needs, and show sheet n of them */
 function tbMeasure(sheet){
@@ -203,11 +203,28 @@ function tbPlayFrom(abs){
   const r = qaSurahAyah(abs); qa.bism = r.a === 1 && qaHasBism(r.s);
   qa.cur.pause(); qaPlayCurrent();
 }
+/* the highlight is painted as one band per ruled row (measured from the text), so it never spills across the lines, whatever the font's own box height */
+function tbPaintHl(el){
+  const flow = document.getElementById('tbFlow'), sh = document.getElementById('tbSheet'); if(!flow || !sh || !el) return;
+  const lh = parseFloat(getComputedStyle(sh).getPropertyValue('--lh')), ur = tbLang() === 'ur', fr = flow.getBoundingClientRect();
+  const rg = document.createRange(); rg.selectNodeContents(el);
+  const rows = new Map();   /* one band per row: the ayah's pieces (text, number marker) are merged */
+  [...rg.getClientRects()].forEach(r=>{
+    if(r.width < 3 || r.height < 3) return;
+    const row = Math.round((r.top + r.height / 2 - fr.top) / lh - .5); if(row < 0) return;
+    const o = rows.get(row); if(o){ o.l = Math.min(o.l, r.left); o.r = Math.max(o.r, r.right); } else rows.set(row, { l:r.left, r:r.right });
+  });
+  rows.forEach((o, row)=>{
+    const b = document.createElement('i'); b.className = 'tb-hlb';
+    b.style.cssText = `left:${o.l - fr.left - 2}px;width:${o.r - o.l + 4}px;top:${row * lh + (ur ? .14 * lh : 0) + 1.5}px;height:${lh - 3}px;`;
+    flow.appendChild(b);
+  });
+}
 function tbSync(){
   const sh = document.getElementById('tbSheet'); if(!sh) { if(!qa.on) tbRestoreVoice(); return; }
   const btn = document.getElementById('tbListenBtn');
   if(btn){ btn.classList.toggle('on', !!qa.on); btn.innerHTML = '🎧 ' + L({rur:'Tilawat sunein', en:'Listen'}); }
-  const flow = document.getElementById('tbFlow'); flow.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl'));
+  const flow = document.getElementById('tbFlow'); flow.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl')); flow.querySelectorAll('.tb-hlb').forEach(e=>e.remove());
   if(!qa.on){ tbRestoreVoice(); return; }
   const pg = qaAyahPage(qa.abs);
   if(pg !== tbSt.page){
@@ -221,7 +238,7 @@ function tbSync(){
   }
   const el = qa.bism ? flow.querySelector(`.tb-surah[data-a="${qa.abs}"]`) : flow.querySelector(`.tb-ay[data-a="${qa.abs}"]`);
   if(!el) return;
-  el.classList.add('hl');
+  el.classList.add('hl'); if(el.classList.contains('tb-ay')) tbPaintHl(el);
   const H = parseFloat(getComputedStyle(sh).getPropertyValue('--lh')) * TB_ROWS, rs = el.getClientRects();
   const idx = Math.max(0, Math.min(tbSt.total - 1, Math.floor((rs[0].top - flow.getBoundingClientRect().top + 2) / H)));
   if(idx !== tbSt.sheet){ const dir = idx > tbSt.sheet ? -1 : 1, go = ()=>{ tbMeasure(idx); tbSync(); }; if(typeof slideDetail === 'function') slideDetail(dir, go); else go(); }
