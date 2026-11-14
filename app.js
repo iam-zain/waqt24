@@ -7688,9 +7688,13 @@ function trSal(t, lang){
   if(lang === 'hi') return t.replace(new RegExp('(म[ुो]हम्मद)(?![\\u0900-\\u097F])' + after, 'g'), '$1 ' + SAL);
   return t;
 }
+/* the translations ship inside the app (qtr/ur|hi|en.json, the same editions as the online ones), so they work without internet; Hinglish is made from the Hindi one */
+const TR_LOCAL = {};
+function trLocal(f){ return TR_LOCAL[f] || (TR_LOCAL[f] = fetch('qtr/' + f + '.json').then(r=>{ if(!r.ok) throw new Error('qtr ' + r.status); return r.json(); }).catch(e=>{ delete TR_LOCAL[f]; throw e; })); }
 async function trLoad(s, lang){
   const key = lang + s; if(TR_MEM[key]) return TR_MEM[key];
   const def = TR_LANGS.find(l=>l.k === lang), conv = def.conv === 'roman' ? (x=> devaToRoman(trNabi(trAddr(x), 'rom', s)).replace(/\btumko ko\b/gi, m=> m.slice(0, 5))) : (x=> trNabi(lang === 'hi' ? trAddr(x) : x, lang, s));
+  try{ const all = await trLocal(lang === 'rom' ? 'hi' : lang); const arr = all[s - 1]; if(arr && arr.length) return TR_MEM[key] = arr.map((t, i)=> trSal(trOvr(s, { numberInSurah:i + 1 }, lang) || conv(t), lang)); }catch(e){}
   const url = `https://api.alquran.cloud/v1/surah/${s}/${def.ed}`;
   let cache = null; try{ cache = await caches.open('waqt24-tr-v1'); const hit = await cache.match(url); if(hit){ const j = await hit.json(); return TR_MEM[key] = j.data.ayahs.map(a=>trSal(trOvr(s, a, lang) || conv(a.text), lang)); } }catch(e){}
   const res = await fetch(url); if(!res.ok) throw new Error('tr ' + res.status);
