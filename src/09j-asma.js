@@ -67,7 +67,7 @@ function asmaUI(scroll){
   document.querySelectorAll('.asma-pl').forEach(b=>{ const i = +b.dataset.i, on = asmaSt.mode === 'one' && asmaSt.idx === i && playing; b.classList.toggle('on', on); b.textContent = on ? '■' : '▶'; });
   document.querySelectorAll('.asma-listen').forEach(b=>{ const i = +b.dataset.i, on = asmaSt.mode === 'one' && asmaSt.idx === i && playing; b.classList.toggle('on', on); b.querySelector('.asma-lt').textContent = on ? L({rur:'Rokein', en:'Stop'}) : L({rur:'Yeh naam sunein', en:'Listen to this name'}); b.querySelector('.asma-li').textContent = on ? '■' : '▶'; });
   document.querySelectorAll('#namesGrid .aad-card').forEach(c=>{ const cur = full && playing && +c.dataset.idx === now; if(c.classList.contains('asma-now') !== cur) c.classList.toggle('asma-now', cur); if(cur && scroll === true){ try{ c.scrollIntoView({ block:'center', behavior:'smooth' }); }catch(e){} } });
-  if(!asmaSt.mode){ const r = document.getElementById('asmaRange'); if(r) r.value = 0; const c = document.getElementById('asmaCur'); if(c) c.textContent = '0:00'; asmaLastNow = -2; }
+  if(!full){ const r = document.getElementById('asmaRange'); if(r && !r.dataset.drag) r.value = 0; const c = document.getElementById('asmaCur'); if(c) c.textContent = '0:00'; asmaLastNow = -2; }
 }
 function asmaFullBarHtml(){
   return `<div class="asma-full" id="asmaFull">
