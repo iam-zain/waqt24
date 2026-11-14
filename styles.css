@@ -2003,3 +2003,7 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .tb-view.ur .tb-surah span{ line-height:1.55; }
 .tb-surah span{ padding-top:0; padding-bottom:0; }
 .tb-view.ur .tb-surah span{ line-height:1.35; padding-bottom:4px; }
+/* surah heading: the two rules sit a fixed 1.6 rows apart and the name is centred between them, whatever the font's own box height */
+.tb-surah span, .tb-view.ur .tb-surah span{ display:block; padding:0 20px; line-height:calc(var(--lh) * 1.6); height:calc(var(--lh) * 1.6); overflow:visible; }
+.tb-view.ur .tb-surah, .tb-view.ur .tb-surah span{ font-size:calc(var(--lh) * .5); }
+.tb-view.ur .tb-surah span{ padding-top:calc(var(--lh) * .12); box-sizing:border-box; }

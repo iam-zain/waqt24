@@ -5,7 +5,7 @@ const TR_LANGS = [{ k:'rom', n:'Hinglish', ed:'hi.hindi', conv:'roman' }, { k:'u
 /* Hinglish = the Hindi translation written in Roman letters, converted on the device (no Roman-Urdu translation exists as free data).
    Spelling follows everyday Roman Urdu / Hinglish: aa->a, ee, oo, schwa dropped at word ends and between syllables. */
 const DV_C = { 'क':'k','ख':'kh','ग':'g','घ':'gh','ङ':'n','च':'ch','छ':'chh','ज':'j','झ':'jh','ञ':'n','ट':'t','ठ':'th','ड':'d','ढ':'dh','ण':'n','त':'t','थ':'th','द':'d','ध':'dh','न':'n','प':'p','फ':'f','ब':'b','भ':'bh','म':'m','य':'y','र':'r','ल':'l','व':'v','श':'sh','ष':'sh','स':'s','ह':'h','ळ':'l',
-  'क़':'q','ख़':'kh','ग़':'gh','ज़':'z','ड़':'r','ढ़':'rh','फ़':'f','य़':'y' };
+  'क़':'q','ख़':'kh','ग़':'gh','ज़':'z','ड़':'r','ढ़':'dh','फ़':'f','य़':'y' };
 const DV_NUKTA = { 'क':'क़','ख':'ख़','ग':'ग़','ज':'ज़','ड':'ड़','ढ':'ढ़','फ':'फ़','य':'य़' };
 const DV_V = { 'अ':'a','आ':'a','इ':'i','ई':'ee','उ':'u','ऊ':'oo','ऋ':'ri','ए':'e','ऐ':'ai','ओ':'o','औ':'au','ऑ':'o' };
 const DV_M = { 'ा':'a','ि':'i','ी':'ee','ु':'u','ू':'oo','ृ':'ri','े':'e','ै':'ai','ो':'o','ौ':'au','ॉ':'o','ॅ':'e' };
@@ -59,7 +59,7 @@ const TR_MEM = {};
 const trLang = ()=> (TR_LANGS.find(l=>l.k === state.quranTr) || TR_LANGS.find(l=>l.k === (state.lang === 'en' ? 'en' : 'rom'))).k;
 async function trLoad(s, lang){
   const key = lang + s; if(TR_MEM[key]) return TR_MEM[key];
-  const def = TR_LANGS.find(l=>l.k === lang), conv = def.conv === 'roman' ? devaToRoman : (x=>x);
+  const def = TR_LANGS.find(l=>l.k === lang), conv = def.conv === 'roman' ? (x=> devaToRoman(x).replace(/\btumko ko\b/gi, m=> m.slice(0, 5))) : (x=>x);
   const url = `https://api.alquran.cloud/v1/surah/${s}/${def.ed}`;
   let cache = null; try{ cache = await caches.open('waqt24-tr-v1'); const hit = await cache.match(url); if(hit){ const j = await hit.json(); return TR_MEM[key] = j.data.ayahs.map(a=>trOvr(s, a, lang) || conv(a.text)); } }catch(e){}
   const res = await fetch(url); if(!res.ok) throw new Error('tr ' + res.status);
