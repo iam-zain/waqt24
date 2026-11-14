@@ -8341,6 +8341,7 @@ function renderTarjumaBook(page, sheet, surah){
       <button class="quran-tool ${night ? 'on' : ''}" id="tbNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
       <button class="quran-tool" id="tbShareBtn">📤 ${L({rur:'Share', en:'Share'})}</button>
       <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tbSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
+      <button class="quran-tool" id="tbSearchBtn">🔍 ${L({rur:'Khojein', en:'Search'})}</button>
       <button class="quran-tool" id="tbMushafBtn">${tbBookSvg('tarjuma').replace('width="48" height="36"', 'width="22" height="17"')} ${L({rur:'Mushaf', en:'Mushaf'})}</button>
     </div>
     <div class="q-tints" id="tbTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>`;
@@ -8367,6 +8368,7 @@ function renderTarjumaBook(page, sheet, surah){
     fl.addEventListener('contextmenu', e=>{ if(e.target.closest('.tb-ay')) e.preventDefault(); });
   }
   $('tbSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); if(state.quranTurnSound) playPageSound(); };
+  $('tbSearchBtn').onclick = ()=> renderTarjumaSearch();
   $('tbMushafBtn').onclick = ()=> renderQuranReader(tbSt.page);
   pageJumpWire(2, tbLastPage(), page, v=> renderTarjumaBook(v, { page:v }), ()=> tbSt.page);
   $('pnPrevBtn').onclick = tbPrev; $('pnNextBtn').onclick = tbNext;
@@ -8494,6 +8496,48 @@ function tbSync(){
 function tbRestoreVoice(){ if(tbSt.prevVoice){ const v = tbSt.prevVoice; tbSt.prevVoice = null; if(!qa.on) qaSetVoice(v); } }
 window.addEventListener('resize', ()=>{ if(document.getElementById('tbSheet')) renderTarjumaBook(tbSt.page, tbSt.sheet, tbSt.surah); });
 
+/* ---- search the translation (in the language chosen in the book) ---- */
+const trNorm = (t, lang)=> {
+  t = String(t).toLowerCase();
+  if(lang === 'ur') return t.replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\uFDFA]/g, '').replace(/[يى]/g, 'ی').replace(/ك/g, 'ک').replace(/ة/g, 'ہ').replace(/ھ/g, 'ہ').replace(/[^\u0600-\u06FF0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  if(lang === 'hi') return t.normalize('NFC').replace(/[\u093C\u0901\u0902]/g, '').replace(/[^\u0900-\u097F0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  return t.replace(/\uFDFA/g, '').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+};
+const TR_NORM = {};
+async function trSearchIndex(lang){
+  if(TR_NORM[lang]) return TR_NORM[lang];
+  const rows = [];
+  for(let sn = 1; sn <= 114; sn++){ const arr = await trLoad(sn, lang); arr.forEach((t, i)=> rows.push({ s:sn, a:i + 1, abs:QA_CUM[sn - 1] + i + 1, t, n:trNorm(t, lang) })); }
+  return TR_NORM[lang] = rows;
+}
+function renderTarjumaSearch(q0){
+  const lang = tbLang(), ur = lang === 'ur';
+  document.getElementById('detailTitle').textContent = L({rur:'Tarjuma mein khojein', en:'Search the translation'});
+  document.getElementById('detailBody').innerHTML = `
+    <div class="qi-sticky"><div class="search-bar-wrap" style="margin:0 14px 6px;"><input id="tsQ" type="search" inputmode="search" autocomplete="off" ${ur ? 'dir="rtl"' : ''} placeholder="${L({rur:'Koi lafz likhein, ya 2:255 jaisa ayat number', en:'Type a word, or a reference like 2:255'})}" value="${noteEsc(q0 || '')}"></div>
+    <div class="ts-sub" id="tsSub"></div></div>
+    <div class="ts-list" id="tsList"></div>`;
+  const inp = document.getElementById('tsQ'), list = document.getElementById('tsList'), sub = document.getElementById('tsSub');
+  let tm = 0, tok = 0;
+  const hl = (t, toks)=> { let h = noteEsc(t); toks.forEach(w=>{ if(w.length > 1) try{ h = h.replace(new RegExp('(' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>'); }catch(e){} }); return h; };
+  const run = async ()=>{
+    const q = inp.value.trim(), my = ++tok; if(!q){ list.innerHTML = ''; sub.textContent = L({rur:`${TR_LANGS.find(l=>l.k === lang).n} tarjuma mein`, en:`In the ${TR_LANGS.find(l=>l.k === lang).n} translation`}); return; }
+    const ref = q.match(/^(\d{1,3})\s*[:.\-]\s*(\d{1,3})$/);
+    if(ref){ const sn = +ref[1], an = +ref[2]; if(sn >= 1 && sn <= 114 && an >= 1 && an <= QA_COUNTS[sn - 1]){ const abs = QA_CUM[sn - 1] + an; list.innerHTML = ''; sub.textContent = ''; renderTarjumaBook(qaAyahPage(abs), { abs }, sn); return; } }
+    sub.textContent = L({rur:'Khoj rahe hain…', en:'Searching…'});
+    let rows; try{ rows = await trSearchIndex(lang); }catch(e){ sub.textContent = L({rur:'Tarjuma load nahi hua', en:'Could not load the translation'}); return; }
+    if(my !== tok) return;
+    const toks = trNorm(q, lang).split(' ').filter(Boolean); if(!toks.length){ list.innerHTML = ''; return; }
+    const hits = []; for(const r of rows){ if(toks.every(w=> r.n.includes(w))){ hits.push(r); if(hits.length >= 200) break; } }
+    sub.textContent = hits.length ? L({rur:`${hits.length >= 200 ? '200+' : hits.length} nateeje`, en:`${hits.length >= 200 ? '200+' : hits.length} results`}) : L({rur:'Koi nateeja nahi mila.', en:'No match found.'});
+    list.innerHTML = hits.slice(0, 60).map(r=> `<div class="dw-row ts-row" data-abs="${r.abs}" data-s="${r.s}"><div class="info"><div class="tr ts-ref">${r.s}. ${tbSurahName(r.s, lang === 'rom' ? 'rom' : lang)} · ${r.s}:${r.a}</div><div class="m ts-t"${ur ? ' dir="rtl" lang="ur"' : ''}>${hl(r.t, toks)}</div></div></div>`).join('') + (hits.length > 60 ? `<div class="backup-note" style="margin:8px 14px;">${L({rur:'Pehle 60 dikhaye gaye. Khoj mazeed tang karein.', en:'Showing the first 60. Narrow your search.'})}</div>` : '');
+    list.querySelectorAll('.ts-row').forEach(el=>{ el.onclick = ()=>{ const abs = +el.dataset.abs; renderTarjumaBook(qaAyahPage(abs), { abs }, +el.dataset.s); }; });
+  };
+  inp.oninput = ()=>{ clearTimeout(tm); tm = setTimeout(run, 260); };
+  inp.onkeydown = e=>{ if(e.key === 'Enter'){ clearTimeout(tm); run(); } };
+  run(); setTimeout(()=> inp.focus(), 50);
+}
+navWrap('renderTarjumaSearch', 3);
 /* ---- one list for every bookmark and note across the Mushaf, Tarjuma and Tafseer ---- */
 function qmItems(){
   const out = [];
@@ -8519,11 +8563,13 @@ const TF_PAGES = 1976;   /* TF_SURAH (first page of each surah) are in 09i-tfdat
 const tfImg = n => 'tafseer/p' + String(n).padStart(4, '0') + '.png';
 const tfPageList = Array.from({ length: TF_PAGES }, (_, i)=> i + 1);
 function tfSurahOf(n){ let r = 0; for(let i = 0; i < TF_SURAH.length; i++) if(TF_SURAH[i] <= n) r = i + 1; return r; }   /* 0 = introduction */
+/* matches surah names in Latin, Urdu/Arabic and Hindi letters alike */
+const tfNorm = t => String(t).toLowerCase().normalize('NFC').replace(/[أإآٱ]/g, 'ا').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '').replace(/[يى]/g, 'ی').replace(/ك/g, 'ک').replace(/ة/g, 'ہ').replace(/[\u093C]/g, '');
 function renderTafseerIndex(){
   document.getElementById('detailTitle').textContent = L({rur:'Tafseer', en:'Tafseer'});
   const cur = state.tfPage || 0, curS = tfSurahOf(cur);
   const intro = `<div class="more-item quran-idx-item ${cur && !curS ? 'on' : ''}" data-pg="1"><div class="ic">📖</div><div class="lbl">${L({rur:'Muqaddima', en:'Introduction'})}<span class="lblSub">${L({rur:"Qur'an ke baare mein", en:'About the Quran'})}</span></div><div class="qi-page">${L({rur:'Page', en:'Page'})} 1</div></div>`;
-  const items = QURAN_SURAHS.map((x, i)=>`<div class="more-item quran-idx-item ${curS === x.n ? 'on' : ''}" data-pg="${TF_SURAH[i]}" data-f="${(x.n + ' ' + x.name + ' ' + String(x.name).replace(/^(al|an|ar|as|at|ad|az|ash|adh|ath)-/i, '')).toLowerCase()}"><div class="ic">${x.n}</div><div class="lbl">${x.name}<span class="lblSub ar-font">${x.ar}</span></div><div class="qi-page">${L({rur:'Page', en:'Page'})} ${TF_SURAH[i]}</div></div>`).join('');
+  const items = QURAN_SURAHS.map((x, i)=>`<div class="more-item quran-idx-item ${curS === x.n ? 'on' : ''}" data-pg="${TF_SURAH[i]}" data-f="${tfNorm(x.n + ' ' + x.name + ' ' + String(x.name).replace(/^(al|an|ar|as|at|ad|az|ash|adh|ath)-/i, '') + ' ' + (x.ar || '') + ' ' + (TB_HI[i] || ''))}"><div class="ic">${x.n}</div><div class="lbl">${x.name}<span class="lblSub ar-font">${x.ar}</span></div><div class="qi-page">${L({rur:'Page', en:'Page'})} ${TF_SURAH[i]}</div></div>`).join('');
   document.getElementById('detailBody').innerHTML = `
     <div class="backup-note">${L({rur:"Aasan Tarjuma Qur'an, Mufti Muhammad Taqi Usmani. Abhi sirf Urdu mein hai. Page tasveer ki shakal mein hain, pehli baar kholne par internet chahiye; jo page ek baar khul gaya woh offline bhi chalta hai.", en:'Aasan Tarjuma Quran by Mufti Muhammad Taqi Usmani, Urdu only for now. Pages are pictures, so they need internet the first time; a page you have opened works offline afterwards.'})}</div>
     <div class="qi-sticky"><div class="search-bar-wrap" style="margin:0 14px 10px;"><input id="tfSearch" type="search" inputmode="search" autocomplete="off" placeholder="${L({rur:'Surah ka naam ya number', en:'Surah name or number'})}"></div></div>
@@ -8532,7 +8578,7 @@ function renderTafseerIndex(){
   const body = document.getElementById('detailBody');
   body.querySelectorAll('[data-pg]').forEach(el=> el.onclick = ()=> renderTafseerPage(+el.dataset.pg));
   const s = document.getElementById('tfSearch');
-  s.oninput = ()=>{ const q = s.value.trim().toLowerCase(); body.querySelectorAll('[data-f]').forEach(el=>{ el.style.display = !q || el.dataset.f.includes(q) ? '' : 'none'; }); };
+  s.oninput = ()=>{ const q = tfNorm(s.value.trim()); body.querySelectorAll('[data-f]').forEach(el=>{ el.style.display = !q || el.dataset.f.includes(q) ? '' : 'none'; }); };
   const go = ()=>{ const v = parseInt(document.getElementById('tfJump').value); if(v >= 1 && v <= TF_PAGES) renderTafseerPage(v); };
   document.getElementById('tfJumpBtn').onclick = go; document.getElementById('tfJump').onkeydown = e=>{ if(e.key === 'Enter') go(); };
   const on = body.querySelector('.quran-idx-item.on'); if(on) on.scrollIntoView({ block:'center' });
