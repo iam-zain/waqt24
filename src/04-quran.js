@@ -298,9 +298,9 @@ function renderQuranReader(page){
   document.getElementById('quranEdBtn').onclick = ()=>{ state.quranEd = quranEd()==='tajweed' ? 'normal' : 'tajweed'; saveState(); renderQuranReader(page); };
   let lastTap = 0;
   wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) toggleZoom(); lastTap = t; });
-  document.getElementById('quranParaBtn').onclick = ()=> renderQuranIndex('para');
-  document.getElementById('quranSurahBtn').onclick = ()=> renderQuranIndex('surah');
-  document.getElementById('quranManzilBtn').onclick = ()=> renderQuranIndex('manzil');
+  document.getElementById('quranParaBtn').onclick = ()=>{ qiOpener = null; renderQuranIndex('para'); };
+  document.getElementById('quranSurahBtn').onclick = ()=>{ qiOpener = null; renderQuranIndex('surah'); };
+  document.getElementById('quranManzilBtn').onclick = ()=>{ qiOpener = null; renderQuranIndex('manzil'); };
   if(qaFlip && prevPage && prevPage !== page){ const im = document.querySelector('.quran-page-img'); if(im){ im.classList.add(page > prevPage ? 'turn-l' : 'turn-r'); setTimeout(()=>im.classList.remove('turn-l', 'turn-r'), 360); } }
   { const im = document.querySelector('.quran-page-img'), w = im && im.parentElement; if(im && w){ const ready = ()=> w.classList.add('ready'); if(im.complete) ready(); else { im.addEventListener('load', ready); im.addEventListener('error', ready); } } }
   wirePnBar();
@@ -549,6 +549,8 @@ function renderTajweedGuide(i){
   wirePnBar();
   [i - 1, i + 1].forEach(n=>{ if(n>=1 && n<=TAJWEED_GUIDE_COUNT){ const im = new Image(); im.src = `quran/tajweed/g${n}.webp`; } });
 }
+/* where a tapped row goes: the Mushaf reader by default, or the Tarjuma book when the index was opened from it */
+let qiOpener = null;
 function renderQuranIndex(kind){
   const cur = quranLastPage();
   const isPara = kind==='para', isManzil = kind==='manzil', isMarks = kind==='marks';
@@ -601,7 +603,7 @@ function renderQuranIndex(kind){
   document.getElementById('qiSurahTab').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('qiManzilTab').onclick = ()=> renderQuranIndex('manzil');
   document.getElementById('qiMarksTab').onclick = ()=> renderQuranIndex('marks');
-  document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=>{ qa.forceSync = true; renderQuranReader(parseInt(el.dataset.page)); }; });
+  document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=>{ qa.forceSync = true; (qiOpener || renderQuranReader)(parseInt(el.dataset.page)); }; });
   const qiSearch = document.getElementById('qiSearch');
   if(qiSearch){
     const rows = [...document.querySelectorAll('#detailBody .quran-idx-item')];

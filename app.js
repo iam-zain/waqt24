@@ -2880,9 +2880,9 @@ function renderQuranReader(page){
   document.getElementById('quranEdBtn').onclick = ()=>{ state.quranEd = quranEd()==='tajweed' ? 'normal' : 'tajweed'; saveState(); renderQuranReader(page); };
   let lastTap = 0;
   wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) toggleZoom(); lastTap = t; });
-  document.getElementById('quranParaBtn').onclick = ()=> renderQuranIndex('para');
-  document.getElementById('quranSurahBtn').onclick = ()=> renderQuranIndex('surah');
-  document.getElementById('quranManzilBtn').onclick = ()=> renderQuranIndex('manzil');
+  document.getElementById('quranParaBtn').onclick = ()=>{ qiOpener = null; renderQuranIndex('para'); };
+  document.getElementById('quranSurahBtn').onclick = ()=>{ qiOpener = null; renderQuranIndex('surah'); };
+  document.getElementById('quranManzilBtn').onclick = ()=>{ qiOpener = null; renderQuranIndex('manzil'); };
   if(qaFlip && prevPage && prevPage !== page){ const im = document.querySelector('.quran-page-img'); if(im){ im.classList.add(page > prevPage ? 'turn-l' : 'turn-r'); setTimeout(()=>im.classList.remove('turn-l', 'turn-r'), 360); } }
   { const im = document.querySelector('.quran-page-img'), w = im && im.parentElement; if(im && w){ const ready = ()=> w.classList.add('ready'); if(im.complete) ready(); else { im.addEventListener('load', ready); im.addEventListener('error', ready); } } }
   wirePnBar();
@@ -3131,6 +3131,8 @@ function renderTajweedGuide(i){
   wirePnBar();
   [i - 1, i + 1].forEach(n=>{ if(n>=1 && n<=TAJWEED_GUIDE_COUNT){ const im = new Image(); im.src = `quran/tajweed/g${n}.webp`; } });
 }
+/* where a tapped row goes: the Mushaf reader by default, or the Tarjuma book when the index was opened from it */
+let qiOpener = null;
 function renderQuranIndex(kind){
   const cur = quranLastPage();
   const isPara = kind==='para', isManzil = kind==='manzil', isMarks = kind==='marks';
@@ -3183,7 +3185,7 @@ function renderQuranIndex(kind){
   document.getElementById('qiSurahTab').onclick = ()=> renderQuranIndex('surah');
   document.getElementById('qiManzilTab').onclick = ()=> renderQuranIndex('manzil');
   document.getElementById('qiMarksTab').onclick = ()=> renderQuranIndex('marks');
-  document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=>{ qa.forceSync = true; renderQuranReader(parseInt(el.dataset.page)); }; });
+  document.querySelectorAll('#detailBody .quran-idx-item').forEach(el=>{ el.onclick = ()=>{ qa.forceSync = true; (qiOpener || renderQuranReader)(parseInt(el.dataset.page)); }; });
   const qiSearch = document.getElementById('qiSearch');
   if(qiSearch){
     const rows = [...document.querySelectorAll('#detailBody .quran-idx-item')];
@@ -8250,7 +8252,7 @@ function renderTarjumaBook(page, sheet){
   const night = quranNightOn(), tint = QURAN_TINTS.find(x=>x.k === (state.quranTint || ''));
   const pageCss = night ? '' : tint && tint.c ? `--tbbg:${tint.c};--tbac:${tint.a};` : '';
   document.getElementById('detailBody').innerHTML = `
-    <div class="tb-top"><span>${L({rur:'Paara', en:'Para'})} ${para.n}</span><b${ur ? ' dir="rtl" lang="ur" class="tb-urname"' : ''}>${ur ? '<bdi dir="ltr">' + trpDigits(sn, true) + '</bdi> ' + tbSurahName(sn, lang) : sn + '. ' + tbSurahName(sn, lang)}</b><span>${L({rur:'Page', en:'Page'})} ${page}</span></div>
+    <div class="tb-top"><button type="button" id="tbParaBtn">${L({rur:'Paara', en:'Para'})} ${para.n}</button><button type="button" id="tbSurahBtn"${ur ? ' dir="rtl" lang="ur" class="tb-urname"' : ''}>${ur ? '<bdi dir="ltr">' + trpDigits(sn, true) + '</bdi> ' + tbSurahName(sn, lang) : sn + '. ' + tbSurahName(sn, lang)}</button><button type="button" id="tbManzilBtn">${L({rur:'Manzil', en:'Manzil'})} ${quranManzilOf(page).n}</button></div>
     <div class="tb-sheet${night ? ' night' : ''}" id="tbSheet" style="--lh:${lh}px;--fs:${tbFs(lh)}px;${pageCss}">
       <div class="tb-view${ur ? ' ur' : ''}" id="tbView"><div class="tb-rules">${Array.from({length:TB_ROWS},(_, k)=>`<i style="--k:${k+1}"></i>`).join('')}</div><div class="tb-flow" id="tbFlow"><div class="tb-msg">${trpMsg()}</div></div></div>
       <div class="tb-foot"><span id="tbPart"></span></div>
@@ -8277,6 +8279,7 @@ function renderTarjumaBook(page, sheet){
   $('tbNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
   $('tbListenBtn').onclick = ()=>{ if(qa.on) qaStop(); else tbPlayFrom(tbFirstAyah()); };
   quranTintPlayer();
+  [['tbParaBtn', 'para'], ['tbSurahBtn', 'surah'], ['tbManzilBtn', 'manzil']].forEach(([id, k])=>{ $(id).onclick = ()=>{ qiOpener = p=> renderTarjumaBook(p); renderQuranIndex(k); }; });
   $('tbMarkBtn').onclick = ()=>{ bkToggle('tb', page); const b = $('tbMarkBtn'); b.classList.toggle('on', bkHas('tb', page)); b.textContent = '🔖 ' + bkLabel('tb', page); };
   $('tbShareBtn').onclick = ()=> tbShareText();
   $('tbNoteBtn').onclick = ()=> openNoteBox({ page, sec:'tb' }, ()=>{ const b = document.getElementById('tbNoteBtn'); if(b){ const c = notesForPage(page, 'tb').length; b.classList.toggle('on', c > 0); b.textContent = '📝 ' + L({rur:'Note', en:'Note'}) + (c ? ' (' + c + ')' : ''); } });

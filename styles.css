@@ -1970,3 +1970,9 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 
 .bk-chips{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:2px 14px 12px; }
 .bk-chips button{ border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; padding:5px 11px; font:inherit; font-size:12.5px; font-weight:700; }
+
+.tb-top button{ background:none; border:0; color:inherit; font:inherit; padding:2px 4px; cursor:pointer; border-radius:7px; }
+.tb-top button:active{ background:rgba(255,255,255,.2); }
+.tb-top > button:first-child, .tb-top > button:last-child{ white-space:nowrap; }
+.tb-top #tbSurahBtn{ flex:1; text-align:center; font-size:15px; font-weight:800; }
+.tb-top #tbSurahBtn.tb-urname{ font-size:16px; line-height:1.6; }
