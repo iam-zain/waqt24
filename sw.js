@@ -1,5 +1,5 @@
 // BUILD and the ?v= hashes below are rewritten by tools/build.py; do not edit them by hand.
-const BUILD = 'a54ad663';
+const BUILD = '9dcadab8';
 const CACHE_NAME = 'waqt24-' + BUILD;         // the page shell; replaced on every build
 // Quran page images and Azaan recordings live in their own cache that survives every build, so a reader
 // who already downloaded a page never re-downloads it because something else in the app changed.
@@ -9,8 +9,8 @@ const QURAN_CACHE = 'waqt24-quran-v1';
 const STATIC_CACHE = 'waqt24-static-v1';
 const SHELL = ['./', './index.html'];
 const VERSIONED = [
-  './styles.css?v=5a1932ba',
-  './app.js?v=7966d6d0',
+  './styles.css?v=1c510407',
+  './app.js?v=e269a0e6',
   './data.js?v=1ae03d30',
   './i18n.js?v=d17dbf5f',
 ];
@@ -73,12 +73,12 @@ self.addEventListener('fetch', (event) => {
 
   // Azaan recordings: <audio> asks with Range headers and gets 206 replies, which the Cache API refuses
   // to store. Fetch the whole file once, keep it, and answer every Range request from that copy.
-  if (url.pathname.includes('/azan/')) {
+  if (url.pathname.includes('/azan/') || url.pathname.includes('/qaudio/')) {
     event.respondWith(serveMedia(event.request));
     return;
   }
 
-  if (url.pathname.includes('/quran/')) {
+  if (url.pathname.includes('/quran/') || url.pathname.includes('/tafseer/')) {
     event.respondWith(
       caches.match(event.request).then((cached) => {
         if (cached) return cached;

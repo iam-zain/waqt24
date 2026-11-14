@@ -1029,6 +1029,7 @@ body.roza-filling .cal-detail.roza-on{ animation:rozaFill .55s ease; }
 
 /* Page-turn leaf: a copy of the page that curls away over the next one */
 .page-leaf{ position:fixed; z-index:400; pointer-events:none; border-radius:10px; overflow:hidden; backface-visibility:hidden; will-change:transform; box-shadow:0 6px 22px rgba(0,0,0,.22); }
+.page-leaf .tb-sheet{ border-radius:0; }
 .page-leaf img{ width:100%; height:100%; display:block; background:#fff; }
 .page-leaf-shade{ position:absolute; inset:0; background:linear-gradient(to var(--shade-from, left), rgba(0,0,0,0), rgba(0,0,0,.35)); opacity:0; }
 .page-leaf.turning{ transition:transform .54s cubic-bezier(.35,.08,.25,1), box-shadow .54s ease, opacity .2s ease .38s; opacity:0; box-shadow:0 18px 40px rgba(0,0,0,.35); }
@@ -1918,3 +1919,29 @@ body.pop-pending .time-row.status-green, body.pop-pending .time-row.status-yello
 /* banners and the daily card live inside the scrolling list now */
 .times-list > .missed-bar, .times-list > .rz-bar{ margin:2px 0 2px 0; flex:0 0 auto; }
 .times-list > .daily-card{ margin:10px 0 18px 0; flex:0 0 auto; }
+
+/* ===== Tarjuma book (15 ruled lines a page) and Tafseer pages ===== */
+.tb-top{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin:0 14px 8px; padding:7px 12px; border-radius:10px; background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 88%, #fff), var(--accent)); color:var(--fardText,#fff); font-size:12.5px; font-weight:700; }
+.tb-top b{ flex:1; text-align:center; font-size:15px; }
+.tb-tools{ display:flex; justify-content:center; align-items:center; gap:6px; margin:0 14px 10px; flex-wrap:wrap; }
+.tb-langs, .tb-sz{ display:flex; gap:5px; }
+.tb-tools button{ border:1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); background:var(--card); color:var(--text); border-radius:999px; padding:6px 11px; font:inherit; font-size:12.5px; font-weight:700; min-height:34px; }
+.tb-tools button.on{ border-color:var(--accent); background:var(--accent); color:var(--fardText,#fff); }
+.tb-sheet{ --tbbg:#fbf6e9; --tbfg:#1c2530; --tbac:var(--accent); --tbrule:rgba(70,52,20,.17); margin:0 14px; padding:8px 14px 4px 18px; border-radius:4px 14px 14px 4px; background:var(--tbbg); color:var(--tbfg); box-shadow:inset 9px 0 12px -9px rgba(0,0,0,.4), 0 2px 12px rgba(0,0,0,.14); border-left:2px solid color-mix(in srgb, var(--tbac) 55%, transparent); }
+.tb-sheet.night{ --tbbg:#14181d; --tbfg:#e8e2d4; --tbac:#8fd9ae; --tbrule:rgba(255,255,255,.13); }
+.tb-view{ height:calc(var(--lh) * 15); overflow:hidden; background:linear-gradient(to bottom, transparent calc(var(--lh) - 1px), var(--tbrule) 0) 0 0 / 100% var(--lh); }
+.tb-view.flip{ animation:tbFade .26s ease both; }
+@keyframes tbFade{ from{ opacity:.15; } to{ opacity:1; } }
+.tb-p{ margin:0; font-size:var(--fs); line-height:var(--lh); text-align:justify; overflow-wrap:anywhere; }
+.tb-p[dir=rtl]{ text-align:justify; font-family:'Noto Nastaliq Urdu','Scheherazade New','Noto Naskh Arabic',serif; }
+.tb-n{ unicode-bidi:isolate; direction:ltr; font-style:normal; font-size:.74em; font-weight:800; color:var(--tbac); white-space:nowrap; margin:0 2px; line-height:0; }
+.tb-surah{ height:calc(var(--lh) * 2); display:flex; align-items:center; justify-content:center; overflow:hidden; font-weight:800; font-size:calc(var(--fs) * 1.12); color:var(--tbac); }
+.tb-surah span{ padding:2px 18px; border-top:1.5px solid color-mix(in srgb, var(--tbac) 50%, transparent); border-bottom:1.5px solid color-mix(in srgb, var(--tbac) 50%, transparent); line-height:1.5; }
+.tb-msg{ text-align:center; color:var(--tbfg); opacity:.7; font-size:13px; padding:40px 8px; line-height:1.5; }
+.tb-foot{ display:flex; justify-content:center; min-height:24px; padding-top:5px; font-size:11.5px; font-weight:700; color:var(--tbfg); opacity:.6; }
+.tb-acts{ margin:12px 0 4px; justify-content:center; }
+.tb-bar{ margin:12px 14px 4px; }
+.tf-wrap{ height:68vh; }
+.tf-img{ background:#fff; }
+
+.tb-sz{ display:flex; gap:8px; }

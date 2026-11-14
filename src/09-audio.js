@@ -90,10 +90,13 @@ function qaFollowPage(){
 }
 
 /* Player state. `bism` = currently on the Bismillah that opens a Surah (Al-Fatihah has it as ayah 1; At-Tawbah has none). */
-const qa = { voice:'ar', part:'a', store:{ ar:{ dur:{}, head:{} }, ur:{ dur:{}, head:{} } }, rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
-const qaHasBism = s => qa.voice !== 'ur' && s !== 1 && s !== 9;
+const qa = { voice:'ar', part:'a', store:{ ar:{ dur:{}, head:{} }, ur:{ dur:{ b:5.784 }, head:{} } }, rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
+/* Surahs 2-114 except At-Tawbah open with a Bismillah step. Arabic: Alafasy's Bismillah. Urdu: the recorded Urdu translation of it (the Shamshad Ali Khan set has none). Arabic + Urdu: the Arabic, then the Urdu. */
+const qaHasBism = s => s !== 1 && s !== 9;
+const QA_UR_BISM = 'qaudio/bismillah-ur.mp3';
+const qaBismDflt = ()=> qa.voice === 'both' ? 11 : 5.8;
 /* Urdu translation voice: Shamshad Ali Khan reading the Jalandhry translation, ayah by ayah (EveryAyah, 46 kbps).
-   That set has no separate Bismillah, so in this voice the Bismillah step is skipped. */
+   That set has no separate Bismillah, so the Urdu Bismillah comes from QA_UR_BISM. */
 const QA_UR_BASE = 'https://everyayah.com/data/translations/urdu_shamshad_ali_khan_46kbps/';
 /* voice: 'ar' Arabic only, 'ur' Urdu only, 'both' = every ayah in Arabic, then in Urdu. In 'both' each ayah has two parts: qa.part 'a' then 'u'. */
 const qaVoiceOf = part=> qa.voice === 'both' ? (part === 'u' ? 'ur' : 'ar') : qa.voice;
@@ -104,7 +107,7 @@ const qaVoiceName = ()=> qa.voice === 'ur' ? 'Urdu tarjuma · Shamshad Ali Khan'
 function qaDurGet(k){
   const st = qa.store;
   if(qa.voice !== 'both') return st[qa.voice].dur[k];
-  if(k === 'b') return st.ar.dur.b;
+  if(k === 'b') return st.ar.dur.b ? st.ar.dur.b + (st.ur.dur.b || 5.784) : undefined;
   const x = st.ar.dur[k], y = st.ur.dur[k]; return (x && y) ? x + y : undefined;
 }
 function qaSetVoice(v, restart){
@@ -113,7 +116,6 @@ function qaSetVoice(v, restart){
   qa.voice = v; qa.part = 'a';
   state.qaVoice = v; saveState();
   if(qa.on){
-    if(v === 'ur') qa.bism = false;
     const was = qa.playing || qa.loading; qa.repCount = 0;
     if(qa.A){ qa.cur.pause(); [qa.A, qa.B].forEach(el=>{ el.removeAttribute('src'); try{ el.load(); }catch(e){} }); }
     qa.playing = false; qa.loading = false; qa.err = false;
@@ -122,12 +124,12 @@ function qaSetVoice(v, restart){
 }
 function qaFile(abs, bism, part){
   const v = qaVoiceOf(part === undefined ? qa.part : part);
-  if(bism && v !== 'ur') return QA_BASE + '001001.mp3';
+  if(bism) return v === 'ur' ? QA_UR_BISM : QA_BASE + '001001.mp3';
   const r = qaSurahAyah(abs); return qaBaseOf(v) + qaPad(r.s) + qaPad(r.a) + '.mp3';
 }
 function qaNextStep(abs, bism, part){
   if(part === undefined) part = qa.part;
-  if(bism) return { abs, bism:false, part:'a' };
+  if(bism) return (qa.voice === 'both' && part !== 'u') ? { abs, bism:true, part:'u' } : { abs, bism:false, part:'a' };
   if(qa.voice === 'both' && part !== 'u') return { abs, bism:false, part:'u' };
   if(abs >= QA_TOTAL) return null;
   const n = abs + 1, r = qaSurahAyah(n);
@@ -137,9 +139,10 @@ function qaPrevStep(abs, bism, part){
   if(part === undefined) part = qa.part;
   const both = qa.voice === 'both', pu = both ? 'u' : 'a';
   if(both && !bism && part === 'u') return { abs, bism:false, part:'a' };
+  if(bism && both && part === 'u') return { abs, bism:true, part:'a' };
   if(bism) return abs > 1 ? { abs:abs-1, bism:false, part:pu } : { abs, bism:false, part:'a' };
   const r = qaSurahAyah(abs);
-  if(r.a === 1 && qaHasBism(r.s)) return { abs, bism:true, part:'a' };
+  if(r.a === 1 && qaHasBism(r.s)) return { abs, bism:true, part:pu };
   return { abs: Math.max(1, abs-1), bism:false, part: abs > 1 ? pu : 'a' };
 }
 function qaApplyRate(){ [qa.A, qa.B].forEach(el=>{ if(!el) return; el.defaultPlaybackRate = qa.rate; el.playbackRate = qa.rate; try{ el.preservesPitch = true; }catch(e){} }); }
@@ -198,14 +201,14 @@ function qaTimes(){
   const known = []; for(let a = 1; a <= n; a++){ const x = qaDurGet(base+a); if(x) known.push(x); }
   const avg = known.length ? known.reduce((x,y)=>x+y,0) / known.length : (qa.voice === 'both' ? 14 : 8);
   const d = a => qaDurGet(base+a) || avg;
-  const hasB = qaHasBism(r.s), bd = qaDurGet('b') || 5;
+  const hasB = qaHasBism(r.s), bd = qaDurGet('b') || qaBismDflt();
   let total = hasB ? bd : 0, done = 0;
   for(let a = 1; a <= n; a++) total += d(a);
   if(hasB && !qa.bism) done += bd;
   for(let a = 1; a < r.a && !qa.bism; a++) done += d(a);
   if(qa.bism && qa.abs !== base+1) done = 0;
   let t = (qa.cur && qa.cur.currentTime) || 0;
-  if(qa.voice === 'both' && qa.part === 'u' && !qa.bism) t += qa.store.ar.dur[qa.abs] || 0;
+  if(qa.voice === 'both' && qa.part === 'u') t += (qa.bism ? qa.store.ar.dur.b : qa.store.ar.dur[qa.abs]) || (qa.bism ? 5 : 0);
   done += t;
   done = Math.min(done, total);
   return { total, done, approx: known.length < n || (hasB && !qaDurGet('b')) };
@@ -216,7 +219,7 @@ function qaLocate(f){
   const known = []; for(let a = 1; a <= n; a++){ const x = qaDurGet(base+a); if(x) known.push(x); }
   const avg = known.length ? known.reduce((x,y)=>x+y,0) / known.length : (qa.voice === 'both' ? 14 : 8);
   let t = Math.max(0, Math.min(.9999, f)) * T.total;
-  if(qaHasBism(r.s)){ const bd = qaDurGet('b') || 5; if(t < bd) return { abs: base + 1, bism:true, off:t, part:'a' }; t -= bd; }
+  if(qaHasBism(r.s)){ const bd = qaDurGet('b') || qaBismDflt(); if(t < bd){ let off = t, part = 'a'; if(qa.voice === 'both'){ const ab = qa.store.ar.dur.b || 5; if(off >= ab){ part = 'u'; off -= ab; } } return { abs: base + 1, bism:true, off, part }; } t -= bd; }
   for(let a = 1; a <= n; a++){
     const d = qaDurGet(base+a) || avg;
     if(t < d || a === n){
@@ -289,10 +292,10 @@ function qaFail(){
   showToast(L({rur:'Awaaz nahi chal saki. Internet check karein.', en:'Could not play. Check your internet connection.'}), '!');
 }
 function qaAdvance(){
-  const midAyah = qa.voice === 'both' && qa.part === 'a' && !qa.bism;   /* Arabic done, the Urdu of this ayah comes next: nothing to repeat yet */
+  const midAyah = qa.voice === 'both' && qa.part === 'a';   /* Arabic done, the Urdu of this ayah comes next: nothing to repeat yet */
   if(!midAyah && qa.rep && (qa.rep === 1 || qa.repCount < qa.rep - 1)){
     qa.repCount++;
-    if(qa.voice === 'both' && !qa.bism){ qa.part = 'a'; qa.cur.pause(); qaPlayCurrent(); return; }
+    if(qa.voice === 'both'){ qa.part = 'a'; qa.cur.pause(); qaPlayCurrent(); return; }
     qa.cur.currentTime = 0; const p = qa.cur.play(); if(p && p.catch) p.catch(()=>qaFail()); return;
   }
   if(!midAyah) qa.repCount = 0;

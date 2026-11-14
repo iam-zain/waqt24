@@ -20,7 +20,7 @@ jobs:
           npm install
           rm -rf www && mkdir www
           cp ../index.html ../app.js ../data.js ../i18n.js ../styles.css ../sw.js ../manifest.json www/
-          cp -r ../fonts ../icons ../azan ../quran www/
+          cp -r ../fonts ../icons ../azan ../quran ../tafseer ../qaudio www/
           npx cap add android
           # notification small icon + Azan sounds as raw resources (Android names: lowercase, digits, underscore)
           mkdir -p android/app/src/main/res/raw android/app/src/main/res/drawable

@@ -511,6 +511,7 @@ function renderQuranHome(){
       <button class="qbook ${ed==='tajweed'?'last':''}" id="qhTajweed">${quranBookSvg(true)}<b>Tajweed</b><span>${L({rur:'Rangon ke saath', en:'Colour-coded'})}</span></button>
     </div>
     <div class="qbook-note">${L({rur:`Dono mein page number ek jaise hain: aakhri page ${last}, aur nishaan dono mein kaam karte hain.`, en:`Both share page numbers: last page ${last}, and bookmarks work in both.`})}</div>
+    ${typeof tbHomeHtml === 'function' ? tbHomeHtml() : ''}
     ${tilawatCardsHtml()}
     <div class="section-title" style="margin:6px 14px 8px;">${L({rur:'Samajhne ke liye', en:'Learn'})}</div>
     <div class="more-list" style="padding-top:0;">
@@ -522,6 +523,7 @@ function renderQuranHome(){
   document.getElementById('qhTajweed').onclick = ()=>{ state.quranEd = 'tajweed'; saveState(); renderQuranReader(); };
   document.getElementById('qhSigns').onclick = renderQuranSigns;
   document.getElementById('qhRules').onclick = renderTajweedRules;
+  if(typeof tbHomeWire === 'function') tbHomeWire();
   wireTilawatCards(renderQuranHome);
   rollNumbers(document.getElementById('detailBody'), '.tl-count');
   document.getElementById('qhSoundSw').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranHome(); if(state.quranTurnSound) playPageSound(); };

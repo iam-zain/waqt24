@@ -114,7 +114,7 @@ function wirePnBar(){
   // dir -1: moving to the next item (card leaves to the left); 1: previous item
   window.slideDetail = (dir, change, yFrac)=>{
     if(busy) return; busy = true;
-    if(__navCtx && __navCtx.rtl) return pageTurn(dir, change, yFrac);
+    if(__navCtx && (__navCtx.rtl || __navCtx.turn)) return pageTurn(dir, change, yFrac);
     body.style.transition = ease;
     body.style.transform = `translateX(${dir * 60}px)`;
     body.style.opacity = '0';
@@ -134,8 +134,20 @@ function wirePnBar(){
   // while the next page (already preloaded) is rendered underneath, so buttons and text never jump.
   // yFrac is where the finger started on the page: top half curls from the top corner, bottom half from the bottom.
   const pageTurn = (dir, change, yFrac)=>{
-    const img = body.querySelector('.quran-page-img');
-    if(!img){ change(); busy = false; return; }
+    const img = body.querySelector('.quran-page-img'), sheet = !img && body.querySelector('.tb-sheet');
+    if(!img && !sheet){ change(); busy = false; return; }
+    if(sheet){   /* Tarjuma book: a copy of the sheet is the leaf */
+      const r = sheet.getBoundingClientRect(), leaf = document.createElement('div');
+      leaf.className = 'page-leaf'; leaf.style.cssText = `left:${r.left}px; top:${r.top}px; width:${r.width}px; height:${r.height}px;`;
+      const cp = sheet.cloneNode(true); cp.removeAttribute('id'); cp.style.margin = '0'; cp.style.width = '100%'; cp.style.boxSizing = 'border-box'; cp.style.boxShadow = 'none';
+      leaf.appendChild(cp); leaf.insertAdjacentHTML('beforeend', '<i class="page-leaf-shade"></i>'); document.body.appendChild(leaf);
+      setTimeout(change, 0); playPageSound();
+      const y = (typeof yFrac === 'number') ? yFrac : 0.5, corner = y < 0.4 ? 'top' : y > 0.6 ? 'bottom' : 'center', tilt = corner === 'top' ? 12 : corner === 'bottom' ? -12 : 0;
+      leaf.style.transformOrigin = `${dir > 0 ? 'right' : 'left'} ${corner}`; void leaf.offsetWidth; leaf.classList.add('turning');
+      leaf.style.transform = `perspective(1600px) rotateY(${dir * -108}deg) rotateZ(${dir * tilt}deg) translateY(${tilt * -1.2}px)`;
+      leaf.style.setProperty('--shade-from', dir > 0 ? 'left' : 'right');
+      setTimeout(()=>{ leaf.remove(); busy = false; }, 560); return;
+    }
     const box = img.getBoundingClientRect();
     const nw = img.naturalWidth || box.width, nh = img.naturalHeight || box.height;
     const sc = Math.min(box.width / nw, box.height / nh);
@@ -143,7 +155,7 @@ function wirePnBar(){
     const leaf = document.createElement('div');
     leaf.className = 'page-leaf';
     leaf.style.cssText = `left:${r.left}px; top:${r.top}px; width:${r.width}px; height:${r.height}px;`;
-    leaf.innerHTML = `<img src="${img.currentSrc || img.src}" alt="" style="filter:${getComputedStyle(img).filter}">${(tn=>tn?`<i class="page-leaf-tint" style="background:${tn.style.background}"></i>`:'')(body.querySelector('.qtint'))}<i class="page-leaf-shade"></i>`;
+    leaf.innerHTML = `<img src="${img.currentSrc || img.src}" alt="" style="filter:${getComputedStyle(img).filter};background:${getComputedStyle(img).backgroundColor}">${(tn=>tn?`<i class="page-leaf-tint" style="background:${tn.style.background}"></i>`:'')(body.querySelector('.qtint'))}<i class="page-leaf-shade"></i>`;
     document.body.appendChild(leaf);
     // the next page renders underneath the leaf. Deferred by a tick: when this runs inside a button's click,
     // the browser ignores a second click() on that same button until the first one has finished.

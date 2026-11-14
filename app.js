@@ -1720,7 +1720,7 @@ function wirePnBar(){
   // dir -1: moving to the next item (card leaves to the left); 1: previous item
   window.slideDetail = (dir, change, yFrac)=>{
     if(busy) return; busy = true;
-    if(__navCtx && __navCtx.rtl) return pageTurn(dir, change, yFrac);
+    if(__navCtx && (__navCtx.rtl || __navCtx.turn)) return pageTurn(dir, change, yFrac);
     body.style.transition = ease;
     body.style.transform = `translateX(${dir * 60}px)`;
     body.style.opacity = '0';
@@ -1740,8 +1740,20 @@ function wirePnBar(){
   // while the next page (already preloaded) is rendered underneath, so buttons and text never jump.
   // yFrac is where the finger started on the page: top half curls from the top corner, bottom half from the bottom.
   const pageTurn = (dir, change, yFrac)=>{
-    const img = body.querySelector('.quran-page-img');
-    if(!img){ change(); busy = false; return; }
+    const img = body.querySelector('.quran-page-img'), sheet = !img && body.querySelector('.tb-sheet');
+    if(!img && !sheet){ change(); busy = false; return; }
+    if(sheet){   /* Tarjuma book: a copy of the sheet is the leaf */
+      const r = sheet.getBoundingClientRect(), leaf = document.createElement('div');
+      leaf.className = 'page-leaf'; leaf.style.cssText = `left:${r.left}px; top:${r.top}px; width:${r.width}px; height:${r.height}px;`;
+      const cp = sheet.cloneNode(true); cp.removeAttribute('id'); cp.style.margin = '0'; cp.style.width = '100%'; cp.style.boxSizing = 'border-box'; cp.style.boxShadow = 'none';
+      leaf.appendChild(cp); leaf.insertAdjacentHTML('beforeend', '<i class="page-leaf-shade"></i>'); document.body.appendChild(leaf);
+      setTimeout(change, 0); playPageSound();
+      const y = (typeof yFrac === 'number') ? yFrac : 0.5, corner = y < 0.4 ? 'top' : y > 0.6 ? 'bottom' : 'center', tilt = corner === 'top' ? 12 : corner === 'bottom' ? -12 : 0;
+      leaf.style.transformOrigin = `${dir > 0 ? 'right' : 'left'} ${corner}`; void leaf.offsetWidth; leaf.classList.add('turning');
+      leaf.style.transform = `perspective(1600px) rotateY(${dir * -108}deg) rotateZ(${dir * tilt}deg) translateY(${tilt * -1.2}px)`;
+      leaf.style.setProperty('--shade-from', dir > 0 ? 'left' : 'right');
+      setTimeout(()=>{ leaf.remove(); busy = false; }, 560); return;
+    }
     const box = img.getBoundingClientRect();
     const nw = img.naturalWidth || box.width, nh = img.naturalHeight || box.height;
     const sc = Math.min(box.width / nw, box.height / nh);
@@ -1749,7 +1761,7 @@ function wirePnBar(){
     const leaf = document.createElement('div');
     leaf.className = 'page-leaf';
     leaf.style.cssText = `left:${r.left}px; top:${r.top}px; width:${r.width}px; height:${r.height}px;`;
-    leaf.innerHTML = `<img src="${img.currentSrc || img.src}" alt="" style="filter:${getComputedStyle(img).filter}">${(tn=>tn?`<i class="page-leaf-tint" style="background:${tn.style.background}"></i>`:'')(body.querySelector('.qtint'))}<i class="page-leaf-shade"></i>`;
+    leaf.innerHTML = `<img src="${img.currentSrc || img.src}" alt="" style="filter:${getComputedStyle(img).filter};background:${getComputedStyle(img).backgroundColor}">${(tn=>tn?`<i class="page-leaf-tint" style="background:${tn.style.background}"></i>`:'')(body.querySelector('.qtint'))}<i class="page-leaf-shade"></i>`;
     document.body.appendChild(leaf);
     // the next page renders underneath the leaf. Deferred by a tick: when this runs inside a button's click,
     // the browser ignores a second click() on that same button until the first one has finished.
@@ -3081,6 +3093,7 @@ function renderQuranHome(){
       <button class="qbook ${ed==='tajweed'?'last':''}" id="qhTajweed">${quranBookSvg(true)}<b>Tajweed</b><span>${L({rur:'Rangon ke saath', en:'Colour-coded'})}</span></button>
     </div>
     <div class="qbook-note">${L({rur:`Dono mein page number ek jaise hain: aakhri page ${last}, aur nishaan dono mein kaam karte hain.`, en:`Both share page numbers: last page ${last}, and bookmarks work in both.`})}</div>
+    ${typeof tbHomeHtml === 'function' ? tbHomeHtml() : ''}
     ${tilawatCardsHtml()}
     <div class="section-title" style="margin:6px 14px 8px;">${L({rur:'Samajhne ke liye', en:'Learn'})}</div>
     <div class="more-list" style="padding-top:0;">
@@ -3092,6 +3105,7 @@ function renderQuranHome(){
   document.getElementById('qhTajweed').onclick = ()=>{ state.quranEd = 'tajweed'; saveState(); renderQuranReader(); };
   document.getElementById('qhSigns').onclick = renderQuranSigns;
   document.getElementById('qhRules').onclick = renderTajweedRules;
+  if(typeof tbHomeWire === 'function') tbHomeWire();
   wireTilawatCards(renderQuranHome);
   rollNumbers(document.getElementById('detailBody'), '.tl-count');
   document.getElementById('qhSoundSw').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderQuranHome(); if(state.quranTurnSound) playPageSound(); };
@@ -7236,10 +7250,13 @@ function qaFollowPage(){
 }
 
 /* Player state. `bism` = currently on the Bismillah that opens a Surah (Al-Fatihah has it as ayah 1; At-Tawbah has none). */
-const qa = { voice:'ar', part:'a', store:{ ar:{ dur:{}, head:{} }, ur:{ dur:{}, head:{} } }, rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
-const qaHasBism = s => qa.voice !== 'ur' && s !== 1 && s !== 9;
+const qa = { voice:'ar', part:'a', store:{ ar:{ dur:{}, head:{} }, ur:{ dur:{ b:5.784 }, head:{} } }, rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
+/* Surahs 2-114 except At-Tawbah open with a Bismillah step. Arabic: Alafasy's Bismillah. Urdu: the recorded Urdu translation of it (the Shamshad Ali Khan set has none). Arabic + Urdu: the Arabic, then the Urdu. */
+const qaHasBism = s => s !== 1 && s !== 9;
+const QA_UR_BISM = 'qaudio/bismillah-ur.mp3';
+const qaBismDflt = ()=> qa.voice === 'both' ? 11 : 5.8;
 /* Urdu translation voice: Shamshad Ali Khan reading the Jalandhry translation, ayah by ayah (EveryAyah, 46 kbps).
-   That set has no separate Bismillah, so in this voice the Bismillah step is skipped. */
+   That set has no separate Bismillah, so the Urdu Bismillah comes from QA_UR_BISM. */
 const QA_UR_BASE = 'https://everyayah.com/data/translations/urdu_shamshad_ali_khan_46kbps/';
 /* voice: 'ar' Arabic only, 'ur' Urdu only, 'both' = every ayah in Arabic, then in Urdu. In 'both' each ayah has two parts: qa.part 'a' then 'u'. */
 const qaVoiceOf = part=> qa.voice === 'both' ? (part === 'u' ? 'ur' : 'ar') : qa.voice;
@@ -7250,7 +7267,7 @@ const qaVoiceName = ()=> qa.voice === 'ur' ? 'Urdu tarjuma · Shamshad Ali Khan'
 function qaDurGet(k){
   const st = qa.store;
   if(qa.voice !== 'both') return st[qa.voice].dur[k];
-  if(k === 'b') return st.ar.dur.b;
+  if(k === 'b') return st.ar.dur.b ? st.ar.dur.b + (st.ur.dur.b || 5.784) : undefined;
   const x = st.ar.dur[k], y = st.ur.dur[k]; return (x && y) ? x + y : undefined;
 }
 function qaSetVoice(v, restart){
@@ -7259,7 +7276,6 @@ function qaSetVoice(v, restart){
   qa.voice = v; qa.part = 'a';
   state.qaVoice = v; saveState();
   if(qa.on){
-    if(v === 'ur') qa.bism = false;
     const was = qa.playing || qa.loading; qa.repCount = 0;
     if(qa.A){ qa.cur.pause(); [qa.A, qa.B].forEach(el=>{ el.removeAttribute('src'); try{ el.load(); }catch(e){} }); }
     qa.playing = false; qa.loading = false; qa.err = false;
@@ -7268,12 +7284,12 @@ function qaSetVoice(v, restart){
 }
 function qaFile(abs, bism, part){
   const v = qaVoiceOf(part === undefined ? qa.part : part);
-  if(bism && v !== 'ur') return QA_BASE + '001001.mp3';
+  if(bism) return v === 'ur' ? QA_UR_BISM : QA_BASE + '001001.mp3';
   const r = qaSurahAyah(abs); return qaBaseOf(v) + qaPad(r.s) + qaPad(r.a) + '.mp3';
 }
 function qaNextStep(abs, bism, part){
   if(part === undefined) part = qa.part;
-  if(bism) return { abs, bism:false, part:'a' };
+  if(bism) return (qa.voice === 'both' && part !== 'u') ? { abs, bism:true, part:'u' } : { abs, bism:false, part:'a' };
   if(qa.voice === 'both' && part !== 'u') return { abs, bism:false, part:'u' };
   if(abs >= QA_TOTAL) return null;
   const n = abs + 1, r = qaSurahAyah(n);
@@ -7283,9 +7299,10 @@ function qaPrevStep(abs, bism, part){
   if(part === undefined) part = qa.part;
   const both = qa.voice === 'both', pu = both ? 'u' : 'a';
   if(both && !bism && part === 'u') return { abs, bism:false, part:'a' };
+  if(bism && both && part === 'u') return { abs, bism:true, part:'a' };
   if(bism) return abs > 1 ? { abs:abs-1, bism:false, part:pu } : { abs, bism:false, part:'a' };
   const r = qaSurahAyah(abs);
-  if(r.a === 1 && qaHasBism(r.s)) return { abs, bism:true, part:'a' };
+  if(r.a === 1 && qaHasBism(r.s)) return { abs, bism:true, part:pu };
   return { abs: Math.max(1, abs-1), bism:false, part: abs > 1 ? pu : 'a' };
 }
 function qaApplyRate(){ [qa.A, qa.B].forEach(el=>{ if(!el) return; el.defaultPlaybackRate = qa.rate; el.playbackRate = qa.rate; try{ el.preservesPitch = true; }catch(e){} }); }
@@ -7344,14 +7361,14 @@ function qaTimes(){
   const known = []; for(let a = 1; a <= n; a++){ const x = qaDurGet(base+a); if(x) known.push(x); }
   const avg = known.length ? known.reduce((x,y)=>x+y,0) / known.length : (qa.voice === 'both' ? 14 : 8);
   const d = a => qaDurGet(base+a) || avg;
-  const hasB = qaHasBism(r.s), bd = qaDurGet('b') || 5;
+  const hasB = qaHasBism(r.s), bd = qaDurGet('b') || qaBismDflt();
   let total = hasB ? bd : 0, done = 0;
   for(let a = 1; a <= n; a++) total += d(a);
   if(hasB && !qa.bism) done += bd;
   for(let a = 1; a < r.a && !qa.bism; a++) done += d(a);
   if(qa.bism && qa.abs !== base+1) done = 0;
   let t = (qa.cur && qa.cur.currentTime) || 0;
-  if(qa.voice === 'both' && qa.part === 'u' && !qa.bism) t += qa.store.ar.dur[qa.abs] || 0;
+  if(qa.voice === 'both' && qa.part === 'u') t += (qa.bism ? qa.store.ar.dur.b : qa.store.ar.dur[qa.abs]) || (qa.bism ? 5 : 0);
   done += t;
   done = Math.min(done, total);
   return { total, done, approx: known.length < n || (hasB && !qaDurGet('b')) };
@@ -7362,7 +7379,7 @@ function qaLocate(f){
   const known = []; for(let a = 1; a <= n; a++){ const x = qaDurGet(base+a); if(x) known.push(x); }
   const avg = known.length ? known.reduce((x,y)=>x+y,0) / known.length : (qa.voice === 'both' ? 14 : 8);
   let t = Math.max(0, Math.min(.9999, f)) * T.total;
-  if(qaHasBism(r.s)){ const bd = qaDurGet('b') || 5; if(t < bd) return { abs: base + 1, bism:true, off:t, part:'a' }; t -= bd; }
+  if(qaHasBism(r.s)){ const bd = qaDurGet('b') || qaBismDflt(); if(t < bd){ let off = t, part = 'a'; if(qa.voice === 'both'){ const ab = qa.store.ar.dur.b || 5; if(off >= ab){ part = 'u'; off -= ab; } } return { abs: base + 1, bism:true, off, part }; } t -= bd; }
   for(let a = 1; a <= n; a++){
     const d = qaDurGet(base+a) || avg;
     if(t < d || a === n){
@@ -7435,10 +7452,10 @@ function qaFail(){
   showToast(L({rur:'Awaaz nahi chal saki. Internet check karein.', en:'Could not play. Check your internet connection.'}), '!');
 }
 function qaAdvance(){
-  const midAyah = qa.voice === 'both' && qa.part === 'a' && !qa.bism;   /* Arabic done, the Urdu of this ayah comes next: nothing to repeat yet */
+  const midAyah = qa.voice === 'both' && qa.part === 'a';   /* Arabic done, the Urdu of this ayah comes next: nothing to repeat yet */
   if(!midAyah && qa.rep && (qa.rep === 1 || qa.repCount < qa.rep - 1)){
     qa.repCount++;
-    if(qa.voice === 'both' && !qa.bism){ qa.part = 'a'; qa.cur.pause(); qaPlayCurrent(); return; }
+    if(qa.voice === 'both'){ qa.part = 'a'; qa.cur.pause(); qaPlayCurrent(); return; }
     qa.cur.currentTime = 0; const p = qa.cur.play(); if(p && p.catch) p.catch(()=>qaFail()); return;
   }
   if(!midAyah) qa.repCount = 0;
@@ -8126,6 +8143,196 @@ function wireRamzanScreenTop(){
     };
   });
 }
+/* ===== TARJUMA BOOK and TAFSEER (both open from "Qur'an Majeed") =====
+   TARJUMA BOOK: the translation of each Mushaf page as a book page of exactly 15 ruled lines, in Hinglish, اردو, हिन्दी or English.
+   A Mushaf page whose translation is longer than 15 lines runs on to the next sheet ("Part 2/3"); Next/Back (and a swipe) turn
+   sheet by sheet and then page by page. Page numbers are the Mushaf's own. The tint colours and the night page are the reader's.
+   TAFSEER: "Aasan Tarjuma Quran" by Mufti Taqi Usmani (Urdu), 1976 scanned pages in /tafseer/, opened by surah or para. */
+var TB_ROWS = 15, tbSt = { tok:0, page:2, sheet:0, total:1, lang:'' };
+const tbLastPage = ()=> QA_PAGE_FIRST.length;
+const tbClamp = p => Math.max(2, Math.min(tbLastPage(), p | 0 || 2));
+const tbIsUr = ()=> trLang() === 'ur';
+/* line height: fills the screen under the controls; A−/A+ change it by 3px a step */
+function tbLh(){
+  const base = Math.max(26, Math.min(42, Math.floor((innerHeight - 330) / TB_ROWS)));
+  return Math.max(22, Math.min(64, base + 3 * (state.tbZ || 0)));
+}
+/* text size from the line height: Urdu (Nastaliq) and Devanagari need more air than Latin */
+function tbFs(lh){ const l = trLang(); return Math.round(lh / (l === 'ur' ? 2.1 : l === 'hi' ? 1.85 : 1.72) * 10) / 10; }
+function tbBookSvg(kind){
+  const c = 'var(--accent)', lines = [0,1,2,3].map(i=>{ const y = 15 + i * 6; return `<line x1="9" y1="${y}" x2="27" y2="${y+1.5}" stroke="${c}" stroke-width="2.6" stroke-linecap="round"/><line x1="37" y1="${y+1.5}" x2="55" y2="${y}" stroke="${kind === 'tafseer' ? 'currentColor' : c}" stroke-width="2.6" stroke-linecap="round"/>`; }).join('');
+  return `<svg viewBox="0 0 64 48" width="48" height="36" aria-hidden="true"><path d="M32 9 C24 4 12 4 4 7 V43 C12 40 24 40 32 45 C40 40 52 40 60 43 V7 C52 4 40 4 32 9 Z" fill="var(--card2)" stroke="var(--sub)" stroke-width="2" stroke-linejoin="round"/><line x1="32" y1="9" x2="32" y2="45" stroke="var(--sub)" stroke-width="2"/>${lines}</svg>`;
+}
+/* the section on the Qur'an home screen */
+function tbHomeHtml(){
+  return `<div class="section-title" style="margin:6px 14px 8px;">${L({rur:'Tarjuma aur Tafseer', en:'Translation and Tafseer'})}</div>
+    <div class="qbook-row">
+      <button class="qbook" id="qhTbook">${tbBookSvg('tarjuma')}<b>${L({rur:'Tarjuma', en:'Translation'})}</b><span>${L({rur:'15 line ka safha, 4 zubaan', en:'15-line pages, 4 languages'})}</span></button>
+      <button class="qbook" id="qhTafseer">${tbBookSvg('tafseer')}<b>${L({rur:'Tafseer', en:'Tafseer'})}</b><span>${L({rur:'Aasan Tarjuma · Urdu', en:'Aasan Tarjuma · Urdu'})}</span></button>
+    </div>`;
+}
+function tbHomeWire(){
+  const a = document.getElementById('qhTbook'), b = document.getElementById('qhTafseer');
+  if(a) a.onclick = ()=> renderTarjumaBook(state.tbPage || 2);
+  if(b) b.onclick = ()=> renderTafseerIndex();
+}
+/* HTML of one Mushaf page in one language: surah headings take two lines, the text runs on with the ayah numbers */
+async function tbBuild(page, lang){
+  const ur = lang === 'ur', ids = trPageAyahs(page), surahs = [...new Set(ids.map(x=>qaSurahAyah(x).s))];
+  const data = await Promise.all(surahs.map(s=>trLoad(s, lang)));
+  const open = '<p class="tb-p"' + (ur ? ' dir="rtl" lang="ur"' : lang === 'hi' ? ' lang="hi"' : '') + '>';
+  let html = open;
+  ids.forEach(x=>{
+    const r = qaSurahAyah(x), t = (data[surahs.indexOf(r.s)][r.a-1] || '').replace(/</g, '&lt;');
+    if(r.a === 1){
+      if(html.endsWith(open)) html = html.slice(0, -open.length); else html += '</p>';
+      html += `<div class="tb-surah"><span>${r.s}. ${(QURAN_SURAHS[r.s-1] || {}).name || ''}</span></div>${open}`;
+    }
+    html += `${t} <i class="tb-n" dir="ltr">&#xFD3E;${trpDigits(r.a, ur)}&#xFD3F;</i> `;
+  });
+  return html + '</p>';
+}
+function renderTarjumaBook(page, sheet){
+  page = tbClamp(page); const lang = trLang(), lh = tbLh(), ur = lang === 'ur';
+  state.tbPage = page; saveState(); tbSt.page = page; tbSt.lang = lang; tbSt.sheet = 0; tbSt.total = 1;
+  setNavCtx([0, 1, 2], 1, ()=>{}, null); __navCtx.rtl = false; __navCtx.turn = true;
+  document.getElementById('detailTitle').textContent = L({rur:'Tarjuma', en:'Translation'});
+  const ids = trPageAyahs(page), para = quranParaOf(page), sn = ids.length ? qaSurahAyah(ids[0]).s : quranSurahOf(page).n;
+  const night = quranNightOn(), tint = QURAN_TINTS.find(x=>x.k === (state.quranTint || ''));
+  const pageCss = night ? '' : tint && tint.c ? `--tbbg:${tint.c};--tbac:${tint.a};` : '';
+  document.getElementById('detailBody').innerHTML = `
+    <div class="tb-top"><span>${L({rur:'Paara', en:'Para'})} ${para.n}</span><b>${(QURAN_SURAHS[sn-1] || {}).name || ''}</b><span>${L({rur:'Page', en:'Page'})} ${page}</span></div>
+    <div class="tb-tools"><div class="tb-langs">${TR_LANGS.map(l=>`<button type="button" data-l="${l.k}" class="${l.k === lang ? 'on' : ''}">${l.n}</button>`).join('')}</div></div>
+    <div class="tb-sheet${night ? ' night' : ''}" id="tbSheet" style="--lh:${lh}px;--fs:${tbFs(lh)}px;${pageCss}">
+      <div class="tb-view" id="tbView"><div class="tb-flow" id="tbFlow"><div class="tb-msg">${trpMsg()}</div></div></div>
+      <div class="tb-foot"><span id="tbPart"></span></div>
+    </div>
+    <div class="pn-bar tb-bar"><button class="pn-btn pn-prev" id="pnPrevBtn"><span class="pn-ic">⬅️</span>${isEn() ? 'Previous' : 'Pichla'}</button><span class="pn-pos" id="tbPos"></span><button class="pn-btn pn-next" id="pnNextBtn">${isEn() ? 'Next' : 'Agla'}<span class="pn-ic">➡️</span></button></div>
+    <div class="quran-tools tb-acts">
+      <button class="quran-tool" id="tbTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
+      <button class="quran-tool ${night ? 'on' : ''}" id="tbNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
+      <span class="tb-sz"><button class="quran-tool" type="button" data-z="-1" aria-label="Smaller text">A−</button><button class="quran-tool" type="button" data-z="1" aria-label="Bigger text">A+</button></span>
+      <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tbSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
+      <button class="quran-tool" id="tbMushafBtn">${tbBookSvg('tarjuma').replace('width="48" height="36"', 'width="22" height="17"')} ${L({rur:'Mushaf', en:'Mushaf'})}</button>
+    </div>
+    <div class="q-tints" id="tbTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
+    <div class="quran-jump"><span>${L({rur:'Page par jaayein', en:'Go to page'})}</span><input type="number" id="tbJump" min="2" max="${tbLastPage()}" value="${page}"><button id="tbJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button></div>`;
+  const $ = id => document.getElementById(id);
+  document.querySelector('.tb-langs').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.quranTr = b.dataset.l; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
+  document.querySelector('.tb-sz').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; state.tbZ = Math.max(-3, Math.min(8, (state.tbZ || 0) + (+b.dataset.z))); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
+  $('tbTintBtn').onclick = ()=>{ $('tbTints').hidden = !$('tbTints').hidden; };
+  $('tbTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); $('tbTints').hidden = false; };
+  $('tbNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); };
+  $('tbSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTarjumaBook(tbSt.page, tbSt.sheet); if(state.quranTurnSound) playPageSound(); };
+  $('tbMushafBtn').onclick = ()=> renderQuranReader(tbSt.page);
+  const jump = ()=>{ const v = parseInt($('tbJump').value); if(v >= 2 && v <= tbLastPage()) renderTarjumaBook(v); };
+  $('tbJumpBtn').onclick = jump; $('tbJump').onkeydown = e=>{ if(e.key === 'Enter') jump(); };
+  $('pnPrevBtn').onclick = tbPrev; $('pnNextBtn').onclick = tbNext;
+  tbLoad(page, sheet);
+  [page + 1].forEach(n=>{ if(n <= tbLastPage()) tbBuild(n, lang).catch(()=>{}); });   /* the next page's translation is fetched while this one is read */
+}
+async function tbLoad(page, sheet){
+  const my = ++tbSt.tok, lang = trLang(); let html;
+  try{ html = await tbBuild(page, lang); }
+  catch(e){
+    const f = document.getElementById('tbFlow'); if(my !== tbSt.tok || !f) return;
+    f.innerHTML = `<div class="tb-msg">${L({rur:'Tarjuma load nahi hua. Internet check karein.', en:'Could not load the translation. Check your internet connection.'})}<br><button type="button" class="tp-retry" id="tbRetry">${L({rur:'Dobara koshish', en:'Retry'})}</button></div>`;
+    document.getElementById('tbRetry').onclick = ()=> renderTarjumaBook(page, sheet); return;
+  }
+  const flow = document.getElementById('tbFlow'); if(my !== tbSt.tok || !flow) return;
+  flow.innerHTML = html;
+  if(lang === 'ur' && document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} if(my !== tbSt.tok || !document.getElementById('tbFlow')) return; }
+  tbMeasure(sheet);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(my === tbSt.tok) tbMeasure(tbSt.sheet); });
+}
+/* how many 15-line sheets the page needs, and show sheet n of them */
+function tbMeasure(sheet){
+  const flow = document.getElementById('tbFlow'), sh = document.getElementById('tbSheet'); if(!flow || !sh) return;
+  const lh = parseFloat(getComputedStyle(sh).getPropertyValue('--lh')), H = lh * TB_ROWS;
+  const total = Math.max(1, Math.ceil((flow.scrollHeight - 3) / H));
+  tbSt.total = total;
+  tbSt.sheet = sheet === 'last' ? total - 1 : Math.max(0, Math.min(total - 1, sheet | 0));
+  flow.style.transform = `translateY(${-tbSt.sheet * H}px)`;
+  const first = tbSt.page <= 2 && tbSt.sheet === 0, last = tbSt.page >= tbLastPage() && tbSt.sheet >= total - 1;
+  const p = document.getElementById('pnPrevBtn'), n = document.getElementById('pnNextBtn'); if(p) p.disabled = first; if(n) n.disabled = last;
+  const part = document.getElementById('tbPart'); if(part) part.textContent = total > 1 ? `${L({rur:'Hissa', en:'Part'})} ${tbSt.sheet + 1}/${total}` : '';
+  const pos = document.getElementById('tbPos'); if(pos) pos.textContent = `${L({rur:'Page', en:'Page'})} ${tbSt.page}${total > 1 ? ' · ' + (tbSt.sheet + 1) + '/' + total : ''}`;
+  state.tbSheet = tbSt.sheet;
+}
+function tbNext(){
+  if(tbSt.sheet + 1 < tbSt.total){ tbMeasure(tbSt.sheet + 1); }
+  else if(tbSt.page < tbLastPage()) renderTarjumaBook(tbSt.page + 1, 0);
+}
+function tbPrev(){
+  if(tbSt.sheet > 0){ tbMeasure(tbSt.sheet - 1); }
+  else if(tbSt.page > 2) renderTarjumaBook(tbSt.page - 1, 'last');
+}
+window.addEventListener('resize', ()=>{ if(document.getElementById('tbSheet')) renderTarjumaBook(tbSt.page, tbSt.sheet); });
+
+/* ============================================================ TAFSEER ============================================================ */
+const TF_PAGES = 1976;   /* TF_SURAH (first page of each surah) are in 09i-tfdata.js */
+const tfImg = n => 'tafseer/p' + String(n).padStart(4, '0') + '.png';
+const tfPageList = Array.from({ length: TF_PAGES }, (_, i)=> i + 1);
+function tfSurahOf(n){ let r = 0; for(let i = 0; i < TF_SURAH.length; i++) if(TF_SURAH[i] <= n) r = i + 1; return r; }   /* 0 = introduction */
+function renderTafseerIndex(){
+  document.getElementById('detailTitle').textContent = L({rur:'Tafseer', en:'Tafseer'});
+  const cur = state.tfPage || 0, curS = tfSurahOf(cur);
+  const intro = `<div class="more-item quran-idx-item ${cur && !curS ? 'on' : ''}" data-pg="1"><div class="ic">📖</div><div class="lbl">${L({rur:'Muqaddima', en:'Introduction'})}<span class="lblSub">${L({rur:"Qur'an ke baare mein", en:'About the Quran'})}</span></div><div class="qi-page">${L({rur:'Page', en:'Page'})} 1</div></div>`;
+  const items = QURAN_SURAHS.map((x, i)=>`<div class="more-item quran-idx-item ${curS === x.n ? 'on' : ''}" data-pg="${TF_SURAH[i]}" data-f="${(x.n + ' ' + x.name + ' ' + String(x.name).replace(/^(al|an|ar|as|at|ad|az|ash|adh|ath)-/i, '')).toLowerCase()}"><div class="ic">${x.n}</div><div class="lbl">${x.name}<span class="lblSub ar-font">${x.ar}</span></div><div class="qi-page">${L({rur:'Page', en:'Page'})} ${TF_SURAH[i]}</div></div>`).join('');
+  document.getElementById('detailBody').innerHTML = `
+    <div class="backup-note">${L({rur:"Aasan Tarjuma Qur'an, Mufti Muhammad Taqi Usmani. Abhi sirf Urdu mein hai. Page tasveer ki shakal mein hain, pehli baar kholne par internet chahiye; jo page ek baar khul gaya woh offline bhi chalta hai.", en:'Aasan Tarjuma Quran by Mufti Muhammad Taqi Usmani, Urdu only for now. Pages are pictures, so they need internet the first time; a page you have opened works offline afterwards.'})}</div>
+    <div class="qi-sticky"><div class="search-bar-wrap" style="margin:0 14px 10px;"><input id="tfSearch" type="search" inputmode="search" autocomplete="off" placeholder="${L({rur:'Surah ka naam ya number', en:'Surah name or number'})}"></div></div>
+    <div class="more-list" style="padding-top:0;">${intro}${items}</div>
+    <div class="quran-jump"><span>${L({rur:'Page par jaayein', en:'Go to page'})}</span><input type="number" id="tfJump" min="1" max="${TF_PAGES}" value="${cur || 1}"><button id="tfJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button></div>`;
+  const body = document.getElementById('detailBody');
+  body.querySelectorAll('[data-pg]').forEach(el=> el.onclick = ()=> renderTafseerPage(+el.dataset.pg));
+  const s = document.getElementById('tfSearch');
+  s.oninput = ()=>{ const q = s.value.trim().toLowerCase(); body.querySelectorAll('[data-f]').forEach(el=>{ el.style.display = !q || el.dataset.f.includes(q) ? '' : 'none'; }); };
+  const go = ()=>{ const v = parseInt(document.getElementById('tfJump').value); if(v >= 1 && v <= TF_PAGES) renderTafseerPage(v); };
+  document.getElementById('tfJumpBtn').onclick = go; document.getElementById('tfJump').onkeydown = e=>{ if(e.key === 'Enter') go(); };
+  const on = body.querySelector('.quran-idx-item.on'); if(on) on.scrollIntoView({ block:'center' });
+}
+function tfTintBg(){ const t = QURAN_TINTS.find(x=>x.k === (state.quranTint || '')); return t && t.c ? t.c : '#ffffff'; }
+function renderTafseerPage(n){
+  n = Math.max(1, Math.min(TF_PAGES, n | 0 || 1)); state.tfPage = n; saveState();
+  setNavCtx(tfPageList, n - 1, (p)=> renderTafseerPage(p), null); __navCtx.rtl = true;   /* an Urdu book turns from the right, like the Mushaf */
+  const s = tfSurahOf(n), night = quranNightOn();
+  document.getElementById('detailTitle').textContent = `${L({rur:'Tafseer', en:'Tafseer'})} · ${n}/${TF_PAGES}`;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="quran-index-row">
+      <button class="quran-index-btn" id="tfIndexBtn"><span>📜</span> ${s ? s + '. ' + QURAN_SURAHS[s-1].name : L({rur:'Muqaddima', en:'Introduction'})}</button>
+    </div>
+    <div class="quran-page-wrap tf-wrap${night ? ' night' : ''}" id="tfWrap"><img class="quran-page-img tf-img" src="${tfImg(n)}" alt="Tafseer page ${n}" draggable="false" style="background-color:${night ? '#fff' : tfTintBg()}"></div>
+    <div class="quran-tools">
+      <button class="quran-tool" id="tfTintBtn">🎨 ${L({rur:'Rang', en:'Tint'})}</button>
+      <button class="quran-tool ${night ? 'on' : ''}" id="tfNightBtn">🌙 ${L({rur:'Andhera', en:'Night'})}</button>
+      <button class="quran-tool ${state.quranTurnSound ? 'on' : ''}" id="tfSoundBtn">${state.quranTurnSound ? '🔈' : '🔇'} ${L({rur:'Awaaz', en:'Sound'})}</button>
+      <button class="quran-tool" id="tfZoomBtn">🔍 ${L({rur:'Bara karein', en:'Zoom'})}</button>
+    </div>
+    <div class="q-tints" id="tfTints" hidden>${QURAN_TINTS.map(t=>`<button type="button" class="q-tint${(state.quranTint || '') === t.k ? ' active' : ''}" data-t="${t.k}" style="--tc:${t.c || '#ffffff'}" aria-label="${t.n}" title="${t.n}"></button>`).join('')}</div>
+    <div class="quran-jump"><span>${L({rur:'Page par jaayein', en:'Go to page'})}</span><input type="number" id="tfJump" min="1" max="${TF_PAGES}" value="${n}"><button id="tfJumpBtn">${L({rur:'Jaayein', en:'Go'})}</button></div>
+    ${pnBarHtml()}`;
+  const $ = id => document.getElementById(id);
+  $('tfIndexBtn').onclick = ()=> renderTafseerIndex();
+  $('tfTintBtn').onclick = ()=>{ $('tfTints').hidden = !$('tfTints').hidden; };
+  $('tfTints').onclick = e=>{ const b = e.target.closest('.q-tint'); if(!b) return; state.quranTint = b.dataset.t; if(b.dataset.t) state.quranNight = false; saveState(); renderTafseerPage(n); $('tfTints').hidden = false; };
+  $('tfNightBtn').onclick = ()=>{ state.quranNight = !quranNightOn(); saveState(); renderTafseerPage(n); };
+  const wrap = $('tfWrap'), zoom = ()=>{ wrap.classList.toggle('zoomed'); $('tfZoomBtn').classList.toggle('on', wrap.classList.contains('zoomed')); };
+  $('tfZoomBtn').onclick = zoom;
+  $('tfSoundBtn').onclick = ()=>{ state.quranTurnSound = !state.quranTurnSound; saveState(); renderTafseerPage(n); if(state.quranTurnSound) playPageSound(); };
+  let lastTap = 0; wrap.addEventListener('click', ()=>{ const t = Date.now(); if(t - lastTap < 320) zoom(); lastTap = t; });
+  const go = ()=>{ const v = parseInt($('tfJump').value); if(v >= 1 && v <= TF_PAGES) renderTafseerPage(v); };
+  $('tfJumpBtn').onclick = go; $('tfJump').onkeydown = e=>{ if(e.key === 'Enter') go(); };
+  { const im = wrap.querySelector('img'), ready = ()=> wrap.classList.add('ready'); if(im.complete) ready(); else { im.addEventListener('load', ready); im.addEventListener('error', ready); } }
+  wirePnBar();
+  [n + 1, n - 1, n + 2].forEach(k=>{ if(k >= 1 && k <= TF_PAGES){ const im = new Image(); im.src = tfImg(k); } });
+}
+navWrap('renderTarjumaBook', 2);
+navWrap('renderTafseerIndex', 1);
+navWrap('renderTafseerPage', 2);
+/* Aasan Tarjuma Quran (Mufti Taqi Usmani): the first page of each surah in the 1976-page scan (the surah's title page where it has one,
+   otherwise the page where its text begins). Index n-1 = surah n. Page 1 is the introduction (Muqaddima). */
+const TF_SURAH = [36,40,180,244,320,380,442,518,556,629,665,705,751,777,797,815,853,889,929,951,983,1011,1039,1061,1093,1113,1143,1167,1199,1233,1253,1267,1277,1313,1333,1349,1367,1389,1409,1431,1453,1469,1485,1507,1517,1529,1545,1559,1577,1589,1601,1613,1625,1637,1647,1659,1671,1687,1699,1711,1723,1731,1737,1745,1753,1763,1771,1780,1790,1798,1806,1813,1823,1831,1842,1849,1857,1865,1873,1881,1888,1894,1898,1904,1909,1915,1917,1919,1922,1926,1930,1933,1936,1938,1940,1942,1945,1946,1948,1950,1952,1953,1954,1955,1957,1959,1961,1963,1964,1966,1968,1970,1972,1973];
 /* ===== Salutation after the name of Allah: "Allah ﷻ" everywhere =====
    Every text on screen is covered: the names, the Qur'an translations (Hinglish / English, Hindi अल्लाह, Urdu اللہ), the quiz and
    all other screens. It is applied to the text of the page as it appears or changes, so nothing needs editing one by one.
