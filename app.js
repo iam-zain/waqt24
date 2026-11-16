@@ -6376,7 +6376,7 @@ function changeTodayGoal(){
   state.goalRound[k] = used + 1;
   saveState();
   renderGoalCard();
-  showToast(L({rur:'Nayi hadaf aa gayi', en:'New goal set'}));
+  showToast(L({rur:'Hadaf badal gayi', en:'Goal changed'}));
 }
 /* Last seven days: a dot is filled when that day's goal was completed */
 function goalWeek(){
@@ -6426,7 +6426,7 @@ function renderGoalCard(){
       <button class="goal-item goal-daily" id="goalDailyBtn"><span class="gi-check gi-ic">${uiIcon('quran')}</span><span class="gi-txt">${L({rur:'Aaj ki Du\'a aur Hadees', en:'Today\'s Du\'a & Hadees'})}</span><b class="goal-arrow">›</b></button>
       <div class="goal-week">${week.map(w=>`<div class="goal-day ${w.ok?'ok':''} ${w.today?'today':''}" title="${dayKey(w.d)}"><i></i><small>${['S','M','T','W','T','F','S'][w.d.getDay()]}</small></div>`).join('')}</div>
       ${(()=>{ const left = GOAL_MAX_CHANGES - goalRound(new Date()); return left > 0
-        ? `<button class="goal-reroll" id="goalRerollBtn">${uiIcon('refresh')} ${L({rur:'Nayi hadaf', en:'New goal'})} (${left} ${L({rur:'baaqi', en:'left'})})</button>`
+        ? `<button class="goal-reroll" id="goalRerollBtn">${uiIcon('refresh')} ${L({rur:'Hadaf badlein', en:'Change goal'})} (${left} ${L({rur:'baaqi', en:'left'})})</button>`
         : `<div class="goal-reroll-note">${L({rur:'Aaj ki hadaf teen dafa badal chuki hai', en:'Today’s goal has been changed 3 times'})}</div>`; })()}
       ${n===tasks.length ? `<div class="goal-win">${L({rur:'Mashallah! Aaj ka hadaf mukammal 🎉', en:'Mashallah! Today’s goal is complete 🎉'})}</div>` : ''}
     </div>
