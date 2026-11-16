@@ -10,15 +10,15 @@ function applyDisplayPrefs(){
   const anchor = document.getElementById('palRow'); if(!anchor) return;
   const box = document.createElement('div'); box.className = 'disp-opts'; box.id = 'dispOpts';
   const rows = [
-    ['hc',  '◐', {rur:'Zyada contrast', en:'High contrast'}, ()=>!!state.hc],
-    ['calm','🍃', {rur:'Kam animation', en:'Calmer motion'}, ()=>!!state.calm],
-    ['daily','🤲', {rur:'Home par Aaj ki Du\'a / Hadees', en:'Daily Du\'a / Hadees on Home'}, ()=>!state.dailyOff],
+    ['hc',  uiIcon('auto'), {rur:'Zyada contrast', en:'High contrast'}, ()=>!!state.hc],
+    ['calm',uiIcon('leaf'), {rur:'Kam animation', en:'Calmer motion'}, ()=>!!state.calm],
+    ['daily',uiIcon('dua'), {rur:'Home par Aaj ki Du\'a / Hadees', en:'Daily Du\'a / Hadees on Home'}, ()=>!state.dailyOff],
   ];
   const draw = ()=>{
-    const tabs = [['home','🕌','Maskan'], ['calendar','🗓️','Taareekh'], ['explore','🎓',"Ma'rifat"], ['more','☰','Deegar']], cur = state.startTab || 'home';
+    const tabs = [['home',uiIcon('home'),'Maskan'], ['calendar',uiIcon('calendar'),'Taareekh'], ['explore',uiIcon('explore'),"Ma'rifat"], ['more',uiIcon('more'),'Deegar']], cur = state.startTab || 'home';
     box.innerHTML = `<div class="disp-start"><div class="disp-start-t">${L({rur:'App kholne par pehle yeh tab dikhe', en:'Open this tab when the app starts'})}</div><div class="disp-start-row" role="radiogroup">${tabs.map(t=>`<button type="button" role="radio" aria-checked="${cur === t[0]}" class="${cur === t[0] ? 'on' : ''}" data-start="${t[0]}"><span>${t[1]}</span>${t[2]}</button>`).join('')}</div></div>`
       + rows.map(r=>`<div class="tasbeeh-sound-toggle"><span>${r[1]} ${L(r[2])}</span><div class="roza-mini ${r[3]() ? 'on' : ''}" role="switch" aria-checked="${r[3]()}" tabindex="0" data-disp="${r[0]}"><div class="roza-mini-knob"></div></div></div>`).join('')
-      + `<button type="button" class="disp-tour" id="dispTour">🧭 ${L({rur:'Tour dobara dekhein', en:'Show the tour again'})}</button>`;
+      + `<button type="button" class="disp-tour" id="dispTour">${uiIcon('compass')} ${L({rur:'Tour dobara dekhein', en:'Show the tour again'})}</button>`;
     box.querySelectorAll('[data-disp]').forEach(b=>{
       const flip = ()=>{ const k = b.dataset.disp; if(k === 'hc') state.hc = !state.hc; else if(k === 'calm') state.calm = !state.calm; else state.dailyOff = !state.dailyOff; saveState(); applyDisplayPrefs(); draw(); };
       b.onclick = flip; b.onkeydown = e=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); flip(); } };

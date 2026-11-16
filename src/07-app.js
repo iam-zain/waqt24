@@ -422,10 +422,10 @@ function renderGoalCard(){
     <div class="goal-info">
       <div class="goal-title">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</div>
       ${tasks.map((t,i)=>`<button class="goal-item ${t.done?'done':''}" data-go="${i}"><span class="gi-check">${t.done?'✓':''}</span><span class="gi-txt">${L(t.label)}</span><b class="goal-arrow">›</b></button>`).join('')}
-      <button class="goal-item goal-daily" id="goalDailyBtn"><span class="gi-check gi-ic">📖</span><span class="gi-txt">${L({rur:'Aaj ki Du\'a aur Hadees', en:'Today\'s Du\'a & Hadees'})}</span><b class="goal-arrow">›</b></button>
+      <button class="goal-item goal-daily" id="goalDailyBtn"><span class="gi-check gi-ic">${uiIcon('quran')}</span><span class="gi-txt">${L({rur:'Aaj ki Du\'a aur Hadees', en:'Today\'s Du\'a & Hadees'})}</span><b class="goal-arrow">›</b></button>
       <div class="goal-week">${week.map(w=>`<div class="goal-day ${w.ok?'ok':''} ${w.today?'today':''}" title="${dayKey(w.d)}"><i></i><small>${['S','M','T','W','T','F','S'][w.d.getDay()]}</small></div>`).join('')}</div>
       ${(()=>{ const left = GOAL_MAX_CHANGES - goalRound(new Date()); return left > 0
-        ? `<button class="goal-reroll" id="goalRerollBtn">🔄 ${L({rur:'Nayi hadaf', en:'New goal'})} (${left} ${L({rur:'baaqi', en:'left'})})</button>`
+        ? `<button class="goal-reroll" id="goalRerollBtn">${uiIcon('refresh')} ${L({rur:'Nayi hadaf', en:'New goal'})} (${left} ${L({rur:'baaqi', en:'left'})})</button>`
         : `<div class="goal-reroll-note">${L({rur:'Aaj ki hadaf teen dafa badal chuki hai', en:'Today’s goal has been changed 3 times'})}</div>`; })()}
       ${n===tasks.length ? `<div class="goal-win">${L({rur:'Mashallah! Aaj ka hadaf mukammal 🎉', en:'Mashallah! Today’s goal is complete 🎉'})}</div>` : ''}
     </div>
@@ -932,9 +932,41 @@ function reloadSmooth(backToSettings){
     bookmarks: 'M7 3h10v18l-5-4-5 4z',
     settings:  '<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
     install:   'M12 4v11M7 11l5 5 5-5M5 20h14',
-    raabta:    '<rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M4 7l8 6 8-6"/>'
+    raabta:    '<rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M4 7l8 6 8-6"/>',
+    masjid:    'M3 20h18M5 20v-7h14v7M12 13c-2.6 0-4.2-2-4.2-4 0-1.6 2-3.2 4.2-5.5 2.2 2.3 4.2 3.9 4.2 5.5 0 2-1.6 4-4.2 4zM10 20v-3a2 2 0 0 1 4 0v3',
+    monthTable:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3v4M16 3v4M8.5 14h.01M12 14h.01M15.5 14h.01M8.5 17h.01M12 17h.01"/>',
+    location:  '<path d="M12 21s-6-5.4-6-10.5a6 6 0 0 1 12 0C18 15.6 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.2"/>',
+    qibla:     '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z"/>',
+    timefmt:   '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    textsize:  'M3 19l5.5-14L14 19M5 14.5h7M15.5 19l3-7.5 3 7.5M16.6 16.8h4.8',
+    homecard:  '<rect x="4" y="4" width="16" height="7" rx="2"/><path d="M4 15h16M4 19h10"/>',
+    feedback:  '<rect x="8" y="3.5" width="8" height="17" rx="2"/><path d="M4.5 8v8M19.5 8v8M2 10.5v3M22 10.5v3"/>',
+    lang:      '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.7 2.6 4 5.6 4 9s-1.3 6.4-4 9c-2.7-2.6-4-5.6-4-9s1.3-6.4 4-9z"/>',
+    notif:     'M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15zM10 21h4',
+    nafil:     'M3 18h18M7 18a5 5 0 0 1 10 0M12 5v3M5 10l1.8 1.8M19 10l-1.8 1.8',
+    calc:      '<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7.5h7M9 12h.01M12 12h.01M15 12h.01M9 16h.01M12 16h.01M15 16h.01"/>',
+    iqamah:    'M3 20h18M5 20v-7h14v7M12 13c-2.6 0-4.2-2-4.2-4 0-1.6 2-3.2 4.2-5.5 2.2 2.3 4.2 3.9 4.2 5.5 0 2-1.6 4-4.2 4zM10 20v-3a2 2 0 0 1 4 0v3',
+    howto:     'M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h11',
+    backup:    '<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>',
+    about:     '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.8h.01"/>',
+    check:     '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',
+    target:    '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',
+    palette:   'M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-1-.8-1.4-.8-2.4 0-.9.7-1.6 1.7-1.6H17a4 4 0 0 0 4-4c0-4.4-4-8.2-9-8.2zM7.5 12h.01M9.5 8h.01M14.5 8h.01',
+    stop:      '<circle cx="12" cy="12" r="9"/><path d="M8.5 8.5l7 7"/>',
+    edit:      'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+    bug:       '<path d="M9 9a3 3 0 0 1 6 0v6a3 3 0 0 1-6 0zM12 12v6M5 8l3 2M19 8l-3 2M4 14h4M16 14h4M6 20l3-2M18 20l-3-2"/>',
+    help:      '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>',
+    refresh:   'M20 11a8 8 0 0 0-14-4.5L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4.5L20 15M20 20v-5h-5',
+    sun:       '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
+    moon:      'M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z',
+    auto:      '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z"/>',
+    leaf:      'M5 19c0-9 5-14 15-14 0 10-5 15-14 15M5 19c2-4 5-7 9-9',
+    compass:   '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z"/>'
   };
   const body = d => S(d.startsWith('<') ? d : `<path d="${d}"/>`);
+  window.__uiIcon = k => ICON[k] ? body(ICON[k]) : '';
+  try{ if(typeof renderGoalCard === 'function' && document.getElementById('goalCard')) renderGoalCard(); }catch(e){}
+  [['themeLight','sun','Light'],['themeDark','moon','Dark'],['themeAuto','auto','Auto'],['themeWaqti','masjid','Waqti']].forEach(([id,k,t])=>{ const b = document.getElementById(id); if(b) b.innerHTML = body(ICON[k]) + ' ' + t; });
   document.querySelectorAll('.tab-btn[data-tab]').forEach(b=>{ const ic = b.querySelector('.ic'), d = ICON[b.dataset.tab]; if(ic && d) ic.innerHTML = body(d); });
   document.querySelectorAll('.more-item[data-open]').forEach(it=>{ const ic = it.querySelector('.ic'), d = ICON[it.dataset.open]; if(ic && d) ic.innerHTML = body(d); });
 

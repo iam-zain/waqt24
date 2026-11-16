@@ -2098,3 +2098,11 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .dcu-btns button{ flex:1; padding:11px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
 
 .dcu-sec .aad-status-row{ margin:12px 0 0; padding:0; }
+
+/* ---- Line icons in Settings, how-to, theme buttons, display options, daily goal ---- */
+.howto-ic svg{ width:21px; height:21px; color:var(--accentInk, var(--accent)); }
+.howto-ic{ background:color-mix(in srgb, var(--accent) 14%, var(--card2)); }
+.theme-row button svg, .tasbeeh-sound-toggle span svg, .disp-tour svg, .goal-reroll svg{ width:16px; height:16px; vertical-align:-3px; margin-right:3px; }
+.tasbeeh-sound-toggle span svg{ color:var(--accentInk, var(--accent)); }
+.disp-start-row button span svg{ width:21px; height:21px; display:block; }
+.goal-daily .gi-ic svg{ width:16px; height:16px; color:var(--accentInk, var(--accent)); }

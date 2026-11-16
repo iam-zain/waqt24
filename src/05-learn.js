@@ -1049,21 +1049,21 @@ let settingsTab = 'location'; // location | notif | lang
 function renderSettingsMenu(){
   document.getElementById('detailTitle').textContent = 'Settings';
   const items = [
-    ['location','🏙️','Apna Shahar Chunein', state.location.name],
-    ['qibla','🧭','Qibla ka Rukh', ''],
-    ['timefmt','🕒','Waqt ka Andaaz', state.timeFormat==='12' ? '12 Ghante (AM/PM)' : '24 Ghante'],
-    ['textsize','🔠','Text ka Size', ({s:'Chhota',m:'Normal',l:'Bara',xl:'Bohot Bara',xxl:'Sabse Bara'}[state.textScale]||'Normal') + ((state.arScale||'m')!=='m' ? ' · Arabic ' + ({l:'Bara',xl:'Bohot Bara',xxl:'Sabse Bara'}[state.arScale]||'') : '')],
-    ['homecard','🃏','Home Card', {full:'Poora',strip:'Patli patti',off:'Band'}[state.heroMode||'full']],
-    ['feedback','📳','Vibration aur Awaaz', (state.haptics===false?'Vib off':'Vib on')+' · '+(state.sounds===false?'Sound off':'Sound on')],
-    ['lang','🌐','Zubaan', state.lang==='en' ? 'English' : 'Hinglish / Roman Urdu'],
-    ['notif','🔔','Yaad-dahaniyan', ''],
-    ['azaan','🔊','Azaan', azaanState().on ? 'On' : 'Off'],
-    ['nafil','🌙','Nafil Namaz Mark Karein', nafilOn() ? 'On' : 'Off'],
-    ['calc','🧮','Namaz ka Hisaab', (calcMethod().name.split(' (')[0]) + ' · ' + (state.asrMethod==='shafi' ? "Asr: Shafi'i" : 'Asr: Hanafi') + (hijriOffset() ? ` · Hijri ${hijriOffset()>0?'+':''}${hijriOffset()}` : '')],
-    ['iqamah','🕌','Jamaat ka Waqt (Iqamah)', iqamahState().on ? 'On' : 'Off'],
-    ['howto','📘','Istemal ka Tareeqa', ''],
-    ['backup','💾','Data Backup', ''],
-    ['about','ℹ️','Iske Baare Mein', ''],
+    ['location',uiIcon('location'),'Apna Shahar Chunein', state.location.name],
+    ['qibla',uiIcon('qibla'),'Qibla ka Rukh', ''],
+    ['timefmt',uiIcon('timefmt'),'Waqt ka Andaaz', state.timeFormat==='12' ? '12 Ghante (AM/PM)' : '24 Ghante'],
+    ['textsize',uiIcon('textsize'),'Text ka Size', ({s:'Chhota',m:'Normal',l:'Bara',xl:'Bohot Bara',xxl:'Sabse Bara'}[state.textScale]||'Normal') + ((state.arScale||'m')!=='m' ? ' · Arabic ' + ({l:'Bara',xl:'Bohot Bara',xxl:'Sabse Bara'}[state.arScale]||'') : '')],
+    ['homecard',uiIcon('homecard'),'Home Card', {full:'Poora',strip:'Patli patti',off:'Band'}[state.heroMode||'full']],
+    ['feedback',uiIcon('feedback'),'Vibration aur Awaaz', (state.haptics===false?'Vib off':'Vib on')+' · '+(state.sounds===false?'Sound off':'Sound on')],
+    ['lang',uiIcon('lang'),'Zubaan', state.lang==='en' ? 'English' : 'Hinglish / Roman Urdu'],
+    ['notif',uiIcon('notif'),'Yaad-dahaniyan', ''],
+    ['azaan',uiIcon('azaan'),'Azaan', azaanState().on ? 'On' : 'Off'],
+    ['nafil',uiIcon('nafil'),'Nafil Namaz Mark Karein', nafilOn() ? 'On' : 'Off'],
+    ['calc',uiIcon('calc'),'Namaz ka Hisaab', (calcMethod().name.split(' (')[0]) + ' · ' + (state.asrMethod==='shafi' ? "Asr: Shafi'i" : 'Asr: Hanafi') + (hijriOffset() ? ` · Hijri ${hijriOffset()>0?'+':''}${hijriOffset()}` : '')],
+    ['iqamah',uiIcon('iqamah'),'Jamaat ka Waqt (Iqamah)', iqamahState().on ? 'On' : 'Off'],
+    ['howto',uiIcon('howto'),'Istemal ka Tareeqa', ''],
+    ['backup',uiIcon('backup'),'Data Backup', ''],
+    ['about',uiIcon('about'),'Iske Baare Mein', ''],
   ];
   document.getElementById('detailBody').innerHTML = `<div class="more-list set-list">${items.map(([k,ic,l,sub])=>`
     <div class="more-item" data-sec="${k}" role="button" tabindex="0"><div class="ic">${ic}</div><div class="lbl">${l}${sub?`<span class="lblSub">${sub}</span>`:''}</div><div class="chev">›</div></div>`).join('')}</div>`;

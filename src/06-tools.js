@@ -1053,7 +1053,7 @@ function renderRaabta(){
       </div>
     </div>
     ${cards.map(c=>`<a class="howto-card raabta-card" href="${mailtoLink(c.subj)}">
-      <div class="howto-ic">${c.ic}</div>
+      <div class="howto-ic">${howIc(c.ic)}</div>
       <div class="howto-body"><div class="howto-t">${L(c.t)}</div><div class="howto-d">${L(c.d)}</div></div>
       <div class="hChev">›</div>
     </a>`).join('')}
@@ -1076,6 +1076,8 @@ function renderRaabta(){
 /* ============================================================
    ISTEMAL KA TAREEQA (How to Use)
    ============================================================ */
+const HOWTO_ICO = {'🏡':'home','✅':'check','🌜':'ramzan','🎛️':'settings','📅':'calendar','🪔':'explore','🎯':'target','💚':'asma','🌙':'prophetNames','🤲':'dua','📖':'quran','📗':'quranWords','🧠':'quiz','🧭':'qibla','📿':'tasbeeh','📚':'khaasShabd','🔤':'dailyWord','💡':'mythBusters','⭐':'bookmarks','📊':'stats','🕰️':'islamicMonths','☪️':'ramzan','🔁':'hijriConv','🔭':'islamicMonths','🎉':'islamicEvents','🧎':'qaza','📍':'location','⚙️':'settings','🎨':'palette','💾':'backup','📲':'install','📮':'raabta','🌐':'lang','🛑':'stop','🔊':'azaan','🕌':'masjid','📝':'edit','🆘':'help','🐞':'bug','🔔':'notif','🖼️':'about'};
+const howIc = e => (HOWTO_ICO[e] && typeof uiIcon === 'function' && uiIcon(HOWTO_ICO[e])) || e;
 function renderHowTo(){
   document.getElementById('detailTitle').textContent = 'Istemal ka Tareeqa';
   document.getElementById('detailBody').innerHTML = `
@@ -1083,7 +1085,7 @@ function renderHowTo(){
     ${HOWTO_GROUPS.map(g=>`
       <div class="section-title">${L(g)}</div>
       ${HOWTO_CARDS.filter(c=>c.g===g.key).map(c=>`<div class="howto-card">
-        <div class="howto-ic">${c.ic}</div>
+        <div class="howto-ic">${howIc(c.ic)}</div>
         <div class="howto-body"><div class="howto-t">${L(c.t)}</div><div class="howto-d">${L(c.d)}</div></div>
       </div>`).join('')}
     `).join('')}

@@ -29,6 +29,8 @@ function appBuildId(){ try{ const m = (document.querySelector('script[src*="app.
    PRAYER TIME ASTRONOMICAL CALCULATION (PrayTimes.org method, MWL params)
    ============================================================ */
 function L(o){ return (state.lang==='en' && o.en!==undefined) ? o.en : o.rur; }
+/* line-icon lookup; filled in by the UI pass in 07-app.js */
+function uiIcon(k){ return window.__uiIcon ? window.__uiIcon(k) : ''; }
 const SHARE_SVG = '<svg class="ic-share" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"></line></svg>';
 const TZ = 5.5; // India Standard Time
 const PRIORITY_CITIES = [
