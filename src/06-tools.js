@@ -1084,7 +1084,7 @@ function renderHowTo(){
     <div class="backup-note">${L({rur:"Waqt24 ke har hisse ka mukhtasar tareeqa. Har card mein us hisse ki wazahat hai.", en:"A quick guide to every part of Waqt24. Each card explains one feature."})}</div>
     ${HOWTO_GROUPS.map(g=>`
       <div class="section-title">${L(g)}</div>
-      ${HOWTO_CARDS.filter(c=>c.g===g.key).map(c=>`<div class="howto-card">
+      ${HOWTO_CARDS.filter(c=>c.g===g.key).map(c=>`<div class="howto-card${c.s ? ' sub' : ''}">
         <div class="howto-ic">${howIc(c.ic)}</div>
         <div class="howto-body"><div class="howto-t">${L(c.t)}</div><div class="howto-d">${L(c.d)}</div></div>
       </div>`).join('')}

@@ -2106,3 +2106,10 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .tasbeeh-sound-toggle span svg{ color:var(--accentInk, var(--accent)); }
 .disp-start-row button span svg{ width:21px; height:21px; display:block; }
 .goal-daily .gi-ic svg{ width:16px; height:16px; color:var(--accentInk, var(--accent)); }
+
+/* How-to: cards for things you see directly in a tab are full-size; things inside another screen are nested, smaller, with an accent line */
+.howto-card.sub{ margin-left:18px; padding:9px 12px; border-radius:12px; background:color-mix(in srgb, var(--card) 55%, transparent); border:1px solid var(--line); border-left:3px solid color-mix(in srgb, var(--accent) 70%, transparent); gap:10px; }
+.howto-card.sub .howto-ic{ width:30px; height:30px; border-radius:9px; background:none; }
+.howto-card.sub .howto-ic svg{ width:18px; height:18px; }
+.howto-card.sub .howto-t{ font-size:13.5px; }
+.howto-card.sub .howto-d{ font-size:12.5px; }
