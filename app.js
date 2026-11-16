@@ -5850,7 +5850,7 @@ function renderRaabta(){
 /* ============================================================
    ISTEMAL KA TAREEQA (How to Use)
    ============================================================ */
-const HOWTO_ICO = {'🏡':'home','✅':'check','🌜':'ramzan','🎛️':'settings','📅':'calendar','🪔':'explore','🎯':'target','💚':'asma','🌙':'prophetNames','🤲':'dua','📖':'quran','📗':'quranWords','🎧':'azaan','🧠':'quiz','🧭':'qibla','📿':'tasbeeh','📚':'khaasShabd','🔤':'dailyWord','💡':'mythBusters','⭐':'bookmarks','📊':'stats','🕰️':'islamicMonths','☪️':'ramzan','🔁':'hijriConv','🔭':'islamicMonths','🎉':'islamicEvents','🧎':'qaza','📍':'location','⚙️':'settings','🎨':'palette','💾':'backup','📲':'install','📮':'raabta','🌐':'lang','🛑':'stop','🔊':'azaan','🕌':'masjid','📝':'edit','🆘':'help','🐞':'bug','🔔':'notif','🖼️':'about'};
+const HOWTO_ICO = {'🏡':'home','✅':'check','🌜':'ramzan','🎛️':'settings','📅':'calendar','🪔':'explore','🎯':'target','💚':'asma','🌙':'prophetNames','🤲':'dua','📖':'quran','📗':'quranWords','🎧':'azaan','🧠':'quiz','🧭':'qibla','📿':'tasbeeh','📚':'khaasShabd','🔤':'dailyWord','💡':'mythBusters','⭐':'bookmarks','📊':'stats','🕰️':'islamicMonths','☪️':'ramzan','🔁':'hijriConv','🔭':'islamicMonths','🎉':'islamicEvents','🧎':'qaza','📍':'location','⚙️':'settings','🎨':'palette','💾':'backup','📲':'install','📮':'raabta','📳':'feedback','🔠':'textsize','🃏':'homecard','🕒':'timefmt','🧮':'calc','🎧':'azaan','🌐':'lang','🛑':'stop','🔊':'azaan','🕌':'masjid','📝':'edit','🆘':'help','🐞':'bug','🔔':'notif','🖼️':'about'};
 const howIc = e => (HOWTO_ICO[e] && typeof uiIcon === 'function' && uiIcon(HOWTO_ICO[e])) || e;
 function renderHowTo(){
   document.getElementById('detailTitle').textContent = 'Istemal ka Tareeqa';
