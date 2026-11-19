@@ -2122,3 +2122,34 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 /* Anbiya dua scenes */
 .dua-scene{ margin:0 0 12px; border-radius:18px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,.14); aspect-ratio:320/150; background:var(--card); }
 .dua-scene svg{ display:block; width:100%; height:100%; }
+
+/* ============================================================
+   MOTION PASS 3
+   ============================================================ */
+/* ---- Liquid wave inside the prayer ring ---- */
+.hero-wave{ position:absolute; inset:8px; border-radius:50%; overflow:hidden; pointer-events:none; }
+.hw-fill{ position:absolute; left:0; right:0; bottom:0; height:calc(var(--wv, .5) * 100%); background:color-mix(in srgb, var(--hc) 30%, transparent); transition:height 1.2s var(--fx-ease, ease); }
+.hw-w{ position:absolute; left:0; top:-5px; width:200%; height:6px; fill:color-mix(in srgb, var(--hc) 30%, transparent); animation:hwMove 3.2s linear infinite; }
+.hw-w2{ top:-6px; opacity:.7; animation-duration:4.6s; animation-direction:reverse; }
+@keyframes hwMove{ to{ transform:translateX(-50%); } }
+body.bg-paused .hw-w{ animation-play-state:paused; }
+.hero-ic{ z-index:1; }
+
+/* ---- Countdown digits roll ---- */
+.hero-cd b .dg{ display:inline-block; }
+.hero-cd b .dg.roll{ animation:dgRoll .38s var(--fx-spring, ease) both; }
+@keyframes dgRoll{ from{ transform:translateY(55%); opacity:0; } to{ transform:none; opacity:1; } }
+
+/* ---- Screens step back behind an overlay ---- */
+@media (prefers-reduced-motion:no-preference){
+  body:not(.calm) .screen, body:not(.calm) #tabbar{ transition:transform .38s var(--fx-ease, ease), filter .38s ease; transform-origin:50% 35%; }
+  body.ov-open:not(.calm) .screen, body.ov-open:not(.calm) #tabbar{ transform:scale(.965); filter:brightness(.92); }
+}
+/* The overlay grows out of the tapped card, so its own slide-in is off for that moment */
+#detailOverlay.ov-expand{ animation:none !important; }
+
+/* ---- Springy release on cards and buttons ---- */
+@media (prefers-reduced-motion:no-preference){
+  body:not(.calm) .aad-card, body:not(.calm) .hadees-item, body:not(.calm) .shabd-row, body:not(.calm) .name-tile, body:not(.calm) .quiz-opt, body:not(.calm) .backup-btn, body:not(.calm) .pn-btn{
+    transition:transform .45s var(--fx-spring, ease), box-shadow .2s ease, background-color .2s ease, border-color .2s ease; }
+}
