@@ -51,6 +51,27 @@ async function nativeSchedule(force){
   }catch(e){ console.warn('native schedule', e); }
   finally{ nativeBusy = false; }
 }
+/* The Android home-screen widget reads the next prayers from native storage (see native/widget) */
+let nativeWidgetSig = '';
+async function nativeWidgetPush(){
+  try{
+    const P = window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.Preferences; if(!P) return;
+    const now = new Date(), items = [];
+    for(let d = 0; d < 3; d++){
+      const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + d, 12, 0, 0);
+      buildSchedule(day).forEach(p=>{ if(FIVE.includes(p.key) && p.start > now) items.push({ n:p.name, t:p.start.getTime() }); });
+    }
+    items.sort((a, b)=>a.t - b.t);
+    const value = JSON.stringify({ city:(state.location && state.location.name) || '', fmt:state.timeFormat === '12' ? '12' : '24', items:items.slice(0, 12) });
+    if(value === nativeWidgetSig) return;
+    await P.set({ key:'waqt24_widget', value }); nativeWidgetSig = value;
+  }catch(e){ console.warn('native widget', e); }
+}
+if(nativeLN()){
+  setTimeout(nativeWidgetPush, 2000);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) nativeWidgetPush(); });
+  setInterval(nativeWidgetPush, 5 * 60000);
+}
 if(nativeLN()){
   document.body.classList.add('native-app');
   setTimeout(()=>nativeSchedule(), 1500);

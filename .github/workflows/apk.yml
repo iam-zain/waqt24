@@ -29,6 +29,14 @@ jobs:
           # permissions for exact-time notifications
           M=android/app/src/main/AndroidManifest.xml
           sed -i 's#<application#<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>\n    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>\n    <uses-permission android:name="android.permission.VIBRATE"/>\n    <application#' "$M"
+          # home-screen widget: next prayer + live countdown (reads the times the app saves with @capacitor/preferences)
+          J=android/app/src/main/java/app/waqt24
+          mkdir -p "$J" android/app/src/main/res/xml android/app/src/main/res/layout
+          cp widget/NextPrayerWidget.java "$J/"
+          cp widget/waqt24_widget.xml android/app/src/main/res/layout/
+          cp widget/waqt24_widget_bg.xml android/app/src/main/res/drawable/
+          cp widget/waqt24_widget_info.xml android/app/src/main/res/xml/
+          sed -i 's#</application>#    <receiver android:name=".NextPrayerWidget" android:exported="true" android:label="Waqt24 Agli Namaz"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/waqt24_widget_info"/></receiver>\n    </application>#' "$M"
           npx cap sync android
       - name: Build debug APK
         working-directory: native/android

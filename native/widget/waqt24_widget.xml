@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/wd_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_vertical"
+    android:padding="14dp"
+    android:background="@drawable/waqt24_widget_bg">
+
+    <TextView
+        android:id="@+id/wd_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AGLI NAMAZ"
+        android:textColor="#9fc2e0"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.08" />
+
+    <TextView
+        android:id="@+id/wd_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Waqt24"
+        android:textColor="#ffffff"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:maxLines="1" />
+
+    <Chronometer
+        android:id="@+id/wd_chrono"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ffd479"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/wd_sub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#cfe0ee"
+        android:textSize="12sp"
+        android:maxLines="1" />
+</LinearLayout>
