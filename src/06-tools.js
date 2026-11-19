@@ -475,7 +475,7 @@ function renderBackup(){
 const TASBEEH_TARGETS = [33, 34, 99, 100];
 const TASBEEH_COLORS = ['#3fae6a','#3a9bd9','#d4a72c','#c85a4a','#a074e0','#e0729a'];
 const TASBEEH_SHAPES = ['●','◆','■','★'];
-const TASBEEH_DESIGNS = [ {id:'tap', label:'🔘 Button'}, {id:'beadsH', label:'📿 Beads ↔'}, {id:'beadsV', label:'📿 Beads ↕'} ];
+const TASBEEH_DESIGNS = [ {id:'mala', label:'📿 Mala'}, {id:'tap', label:'🔘 Button'}, {id:'beadsH', label:'📿 Beads ↔'}, {id:'beadsV', label:'📿 Beads ↕'} ];
 /* Quick zikr presets: tap one to set the label and target and start from zero. Tasbeeh-e-Fatima runs 33 + 33 + 34 in a row. */
 const TASBEEH_PRESETS = [
   { n:'SubhanAllah', ar:'سُبْحَانَ اللّٰهِ', t:33 }, { n:'Alhamdulillah', ar:'اَلْحَمْدُ لِلّٰهِ', t:33 }, { n:'Allahu Akbar', ar:'اللّٰهُ أَكْبَرُ', t:34 },
@@ -496,22 +496,6 @@ function tasbeehStartFatima(){
   const t = state.tasbeeh; t.seq = 0; const pr = TASBEEH_PRESETS[0]; t.label = pr.n; t.labelAr = pr.ar; t.target = 33; t.count = 0; saveState(); renderTasbeeh();
   showToast(L({rur:'Tasbeeh-e-Fatima: 33 + 33 + 34', en:'Tasbeeh of Fatima: 33 + 33 + 34'}));
 }
-let tasbeehAudioCtx = null;
-function tasbeehBeep(){
-  if(!state.tasbeeh.sound) return;
-  try{
-    if(!tasbeehAudioCtx) tasbeehAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const ctx = tasbeehAudioCtx;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = 880;
-    gain.gain.setValueAtTime(0.18, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(); osc.stop(ctx.currentTime + 0.12);
-  }catch(e){}
-}
 function tasbeehTick(){
   const t = state.tasbeeh;
   t.count++;
@@ -526,7 +510,7 @@ function tasbeehTick(){
       const pr = TASBEEH_PRESETS[TASBEEH_FATIMA[next]]; t.seq = next; t.label = pr.n; t.labelAr = pr.ar; t.target = pr.t; t.count = 0; saveState(); renderTasbeeh();
     }, 650);
   }
-  tasbeehBeep();
+  tasbeehBeep(t.count % t.target === 0 ? 'done' : (t.count % 11 === 0 ? 'mark' : ''));
   const countEl = document.querySelector('.tasbeeh-count');
   if(countEl){
     countEl.textContent = t.count;
@@ -571,7 +555,7 @@ function setupBeadsDrag(track, isH, onTick){
   track.addEventListener('pointercancel', end);
   track.addEventListener('pointerleave', end);
 }
-function renderTasbeeh(){
+function renderTasbeehClassic(){
   document.getElementById('detailTitle').textContent = 'Tasbeeh Counter';
   const t = state.tasbeeh;
   const beadCount = 11;
@@ -587,6 +571,7 @@ function renderTasbeeh(){
     <div class="tasbeeh-count" style="--tasbeehColor:${t.color};">${t.count}</div>
     <div class="tasbeeh-target">Target: ${t.target}</div>
     ${tapAreaHtml}
+    <button type="button" class="ts-pickbtn" id="tsPickBtn">📖 ${L({rur:'Dua / Zikr chunein (koi bhi)', en:'Choose any dua / zikr'})}</button>
     <div class="ts-presets" id="tsPresets">${TASBEEH_PRESETS.map((p, i)=>`<button type="button" class="ts-preset${t.label === p.n ? ' on' : ''}" data-pr="${i}">${p.n} · ${p.t}</button>`).join('')}<button type="button" class="ts-preset fatima${t.seq != null ? ' on' : ''}" id="tsFatima">📿 ${L({rur:'Tasbeeh-e-Fatima', en:'Fatima tasbeeh'})} 33·33·34</button></div>
     <div class="tasbeeh-design-row" id="tasbeehDesignRow">
       ${TASBEEH_DESIGNS.map(d=>`<button class="tasbeeh-design-btn ${t.design===d.id?'active':''}" data-design="${d.id}">${d.label}</button>`).join('')}
@@ -605,6 +590,8 @@ function renderTasbeeh(){
       🔊 Awaaz
       <div class="roza-mini ${t.sound?'on':''}" id="tasbeehSoundBtn"><div class="roza-mini-knob"></div></div>
     </div>
+    <div class="section-title" style="padding:14px 0 6px;">♪ ${L({rur:'Bead ki awaaz', en:'Bead sound'})}</div>
+    <div id="tsSndBox">${tsPickerHtml()}</div>
     <div class="tasbeeh-sound-toggle">
       📳 ${L({rur:'Vibration', en:'Vibration'})}
       <div class="roza-mini ${t.vibrate !== false ? 'on' : ''}" id="tasbeehVibBtn"><div class="roza-mini-knob"></div></div>
@@ -625,28 +612,30 @@ function renderTasbeeh(){
   } else {
     setupBeadsDrag(document.getElementById('beadsTrack'), t.design==='beadsH');
   }
-  document.getElementById('tasbeehResetBtn').onclick = ()=>{ t.count = 0; saveState(); renderTasbeeh(); };
+  document.getElementById('tasbeehResetBtn').onclick = ()=>{ t.count = 0; saveState(); renderTasbeehClassic(); };
   document.querySelectorAll('#tsPresets [data-pr]').forEach(b=>{ b.onclick = ()=> tasbeehApplyPreset(+b.dataset.pr); });
   document.getElementById('tsFatima').onclick = tasbeehStartFatima;
-  document.getElementById('tasbeehVibBtn').onclick = ()=>{ t.vibrate = t.vibrate === false; saveState(); renderTasbeeh(); if(t.vibrate && navigator.vibrate) navigator.vibrate(30); };
-  document.getElementById('tasbeehSoundBtn').onclick = ()=>{ t.sound = !t.sound; saveState(); renderTasbeeh(); };
+  document.getElementById('tsPickBtn').onclick = ()=> renderMalaPicker({ onBack:renderTasbeehClassic, onPick:info=>{ malaUse(info); renderTasbeeh(); } });
+  const sndBox = document.getElementById('tsSndBox'); const sndAgain = ()=>{ sndBox.innerHTML = tsPickerHtml(); tsPickerWire(sndBox, sndAgain); }; tsPickerWire(sndBox, sndAgain);
+  document.getElementById('tasbeehVibBtn').onclick = ()=>{ t.vibrate = t.vibrate === false; saveState(); renderTasbeehClassic(); if(t.vibrate && navigator.vibrate) navigator.vibrate(30); };
+  document.getElementById('tasbeehSoundBtn').onclick = ()=>{ t.sound = !t.sound; saveState(); renderTasbeehClassic(); };
   document.getElementById('tasbeehDesignRow').querySelectorAll('[data-design]').forEach(btn=>{
-    btn.onclick = ()=>{ t.design = btn.dataset.design; saveState(); renderTasbeeh(); };
+    btn.onclick = ()=>{ t.design = btn.dataset.design; t.designChosen = true; saveState(); renderTasbeeh(); };
   });
   document.getElementById('tasbeehTargetRow').querySelectorAll('[data-target]').forEach(btn=>{
-    btn.onclick = ()=>{ t.target = parseInt(btn.dataset.target); t.seq = null; saveState(); renderTasbeeh(); };
+    btn.onclick = ()=>{ t.target = parseInt(btn.dataset.target); t.seq = null; saveState(); renderTasbeehClassic(); };
   });
   document.getElementById('tasbeehCustomBtn').onclick = ()=>{
     const val = prompt('Custom target darj karein:', t.target);
     const n = parseInt(val);
-    if(n && n>0){ t.target = n; saveState(); renderTasbeeh(); }
+    if(n && n>0){ t.target = n; saveState(); renderTasbeehClassic(); }
   };
   document.getElementById('tasbeehSwatches').querySelectorAll('[data-color]').forEach(el=>{
-    el.onclick = ()=>{ t.color = el.dataset.color; saveState(); renderTasbeeh(); };
+    el.onclick = ()=>{ t.color = el.dataset.color; saveState(); renderTasbeehClassic(); };
   });
   const shapeRow = document.getElementById('tasbeehShapes');
   if(shapeRow) shapeRow.querySelectorAll('[data-shape]').forEach(el=>{
-    el.onclick = ()=>{ t.shape = el.dataset.shape; saveState(); renderTasbeeh(); };
+    el.onclick = ()=>{ t.shape = el.dataset.shape; saveState(); renderTasbeehClassic(); };
   });
   renderZikrProfileList();
   document.getElementById('zikrAddProfileBtn').onclick = ()=>{
@@ -680,6 +669,10 @@ function ensureZikrProfiles(){
       { id:'morning', name:'Subah ke Azkar', builtin:true, dtype:'morning', items:defaultAzkarItems() },
       { id:'evening', name:'Shaam ke Azkar', builtin:true, dtype:'evening', items:defaultAzkarItems() },
     ];
+    saveState();
+  }
+  if(!state.tasbeeh.profiles.some(p=>p.id === 'storm5')){
+    state.tasbeeh.profiles.push({ id:'storm5', name:'Toofan Ke 5 Duas (3-3 baar)', builtin:true, dtype:'storm', items:malaStormItems() });
     saveState();
   }
   if(!state.tasbeeh.daily) state.tasbeeh.daily = {};
@@ -753,7 +746,9 @@ function renderZikrProfile(profileId){
   saveState();
   document.getElementById('detailBody').innerHTML = `
     <button id="zikrBackToTasbeeh" style="margin-bottom:14px; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer;">‹ Tasbeeh Counter</button>
+    <button type="button" class="mala-run" id="zikrRunBtn">▶ ${L({rur:'Mala mein shuru karein', en:'Start in Mala'})}</button>
     <div id="zikrItemsWrap"></div>
+    <button type="button" class="ts-pickbtn" id="zikrLibBtn">📖 ${L({rur:'Library se dua / zikr add karein', en:'Add a dua / zikr from the library'})}</button>
     <div class="zikr-add-row">
       <input type="text" id="zikrNewName" list="zikrSuggestList" placeholder="Naya zikr/dua ka naam">
       <datalist id="zikrSuggestList">${ZIKR_SUGGESTIONS.map(s=>`<option value="${s}">`).join('')}</datalist>
@@ -761,7 +756,7 @@ function renderZikrProfile(profileId){
       <button id="zikrAddItemBtn">+ Add</button>
     </div>
     <div class="tasbeeh-actions" style="margin-top:16px;">
-      ${profile.builtin ? `<button id="zikrResetDefaultBtn">↺ Default 6 Zikr Wapas Layein</button>` : `<button id="zikrDeleteProfileBtn">🗑️ Profile Delete Karein</button>`}
+      ${profile.builtin ? `<button id="zikrResetDefaultBtn">↺ ${profile.id === 'storm5' ? 'Default 5 Duas Wapas Layein' : 'Default 6 Zikr Wapas Layein'}</button>` : `<button id="zikrDeleteProfileBtn">🗑️ Profile Delete Karein</button>`}
     </div>
   `;
   function renderItems(){
@@ -803,7 +798,9 @@ function renderZikrProfile(profileId){
     });
   }
   renderItems();
-  document.getElementById('zikrBackToTasbeeh').onclick = renderTasbeeh;
+  document.getElementById('zikrBackToTasbeeh').onclick = renderTasbeehClassic;
+  document.getElementById('zikrRunBtn').onclick = ()=>{ const first = profile.items.find(it=>(day[it.id] || 0) < it.target) || profile.items[0]; malaRunSet(profile.id, first && first.id); };
+  document.getElementById('zikrLibBtn').onclick = ()=> renderMalaPicker({ onBack:()=>renderZikrProfile(profile.id), addTo:true, onPick:info=>{ profile.items.push({ id:'z' + Date.now(), name:info.n, ar:info.ar, tr:info.tr, m:info.m, en:info.en, target:info.t || 3 }); saveState(); renderZikrProfile(profile.id); } });
   document.getElementById('zikrAddItemBtn').onclick = ()=>{
     const nameEl = document.getElementById('zikrNewName');
     const targetEl = document.getElementById('zikrNewTarget');
@@ -821,12 +818,12 @@ function renderZikrProfile(profileId){
     if(!(await appConfirm('Yeh profile delete karein?'))) return;
     state.tasbeeh.profiles = state.tasbeeh.profiles.filter(p=>p.id!==profile.id);
     saveState();
-    renderTasbeeh();
+    renderTasbeehClassic();
   };
   const resetDefaultBtn = document.getElementById('zikrResetDefaultBtn');
   if(resetDefaultBtn) resetDefaultBtn.onclick = async ()=>{
     if(!(await appConfirm('Is profile ko wapas default 6 zikr par reset karein? Aapke add kiye hue extra zikr hat jayenge.'))) return;
-    profile.items = defaultAzkarItems();
+    profile.items = profile.id === 'storm5' ? malaStormItems() : defaultAzkarItems();
     saveState();
     renderZikrProfile(profile.id);
   };
@@ -838,6 +835,7 @@ function renderZikrItemCounter(profileId, itemId){
   if(!profile) return renderTasbeeh();
   const item = profile.items.find(i=>i.id===itemId);
   if(!item) return renderZikrProfile(profileId);
+  if(state.tasbeeh.design === 'mala') return malaRunSet(profileId, itemId);
   const day = getZikrDay(new Date(), profileId, true);
   const t = state.tasbeeh;
   const beadCount = 11;
@@ -868,7 +866,7 @@ function renderZikrItemCounter(profileId, itemId){
       day[item.id] = nc;
       saveState();
       if(navigator.vibrate) navigator.vibrate(nc % item.target === 0 ? [40,40,80] : 15);
-      tasbeehBeep();
+      tasbeehBeep(nc % item.target === 0 ? 'done' : (nc % 11 === 0 ? 'mark' : ''));
       const countEl = document.querySelector('.tasbeeh-count');
       if(countEl) countEl.textContent = nc;
       const newActiveIdx = nc % beadCount;

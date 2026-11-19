@@ -332,7 +332,7 @@ let duaCat='__all__', duaSearch='';
 let hadeesFilter='All', hadeesSearch='';
 /* Icon and accent colour per dua category; chips and cards share the Aadaab-e-Zindagi look */
 /* One colour per category (Quranic green is reserved for its label) */
-const DUA_CAT_META = { 'Rabbana':['🤲','#2fb6b0'], 'Roz Marra':['🛏️','#3a4d8f'], 'Khana':['🍽️','#c0563f'], 'Safar':['🧭','#3f8fe0'], 'Masjid':['🕌','#9b6fd6'], 'Pareshani':['🌧️','#e0893f'], 'Ghar':['🏠','#d6708f'], 'Ramzan':['🌙','#c79a2e'], 'Anbiya (Mushkil Waqt)':['🌟','#b5832b'] };
+const DUA_CAT_META = { 'Rabbana':['🤲','#2fb6b0'], 'Roz Marra':['🛏️','#3a4d8f'], 'Khana':['🍽️','#c0563f'], 'Safar':['🧭','#3f8fe0'], 'Masjid':['🕌','#9b6fd6'], 'Pareshani':['🌧️','#e0893f'], 'Ghar':['🏠','#d6708f'], 'Ramzan':['🌙','#c79a2e'], 'Anbiya (Mushkil Waqt)':['🌟','#b5832b'], 'Jannat Aur Jahannam':['🌳','#3f9a6a'], 'Istighfar':['💧','#4a8fd0'] };
 function duaMeta(cat){ return DUA_CAT_META[cat] || ['🤲','#5b8def']; }
 /* Rabbana duas each get an icon for their theme (the theme is the third tag) */
 const RABBANA_THEME_ICON = { 'Qabooliyat':'🙏', 'Islam':'☪️', 'Duniya Aur Aakhirat':'🌅', 'Sabr':'🏔️', 'Tauba':'💧', 'Hifazat':'🛡️', 'Maghfirat':'🌿', 'Hidayat':'💡', 'Qiyamat':'⏳', 'Iman':'☝️', 'Nek Log':'💫', 'Jahannam':'🔥', 'Rizq':'🍞', 'Sohbat':'👥', 'Haq':'⚖️', 'Ilm-e-Ilahi':'👁️', 'Namaz':'📿', 'Walidain':'👪', 'Aulad':'👶', 'Rehmat':'💞', 'Shukr':'🌸', 'Jannat':'🌳', 'Ukhuwwat':'🤝', 'Tawakkul':'🌱', 'Noor':'✨' };
@@ -463,6 +463,7 @@ function openDuaDetail(d){
       <div class="aad-tags center">${duaTagChips(d)}</div>
       <div class="aad-cat-pill">${duaIcon(d)} ${d.cat}</div>
     </div>
+    <button type="button" class="dua-tasbeeh-btn" id="duaTasbeehBtn">📿 ${L({ rur:'Tasbeeh ke saath padhein', en:'Read with Tasbeeh' })}</button>
     <div class="dua-detail">
       <div class="aad-guide-sec dua-sec-ar">
         <div class="aad-guide-head"><span class="aad-step-lbl">Dua (Arabic)</span></div>
@@ -488,6 +489,7 @@ function openDuaDetail(d){
     </div>
     ${pnBarHtml()}
   `;
+  document.getElementById('duaTasbeehBtn').onclick = ()=> malaStartWith({ n:d.title, ar:d.arabic, tr:d.translit, m:d.meaning, en:d.enm, t:d.rep || 3 }, ()=>openDuaDetail(d), dTitle(d));
   document.getElementById('duaSochBtn').onclick = ()=>{ setDuaStatus(d.title, 'soch'); openDuaDetail(d); };
   document.getElementById('duaAmalBtn').onclick = ()=>{ setDuaStatus(d.title, 'amal'); openDuaDetail(d); };
   document.getElementById('duaImgBtn').onclick = ()=> openCardShareChooser({ kind:"Du'a", arabic:d.arabic, title:dTitle(d), sub:d.translit, body:dMean(d), foot:'Hawala: '+d.ref });
