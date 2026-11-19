@@ -2005,6 +2005,38 @@ function renderMoreDua(){
   wireLiveSearch('duaSearchInput', 'duaSearchClear', renderDuaList, v=>{ duaSearch = v; });
   renderDuaList();
 }
+/* Benefits and best times of Istighfar, shown at the end of the Istighfar list: the intro is visible, the rest opens on tap */
+function istighfarBenefitsHtml(){
+  const li = (r, e)=>`<li>${L({ rur:r, en:e })}</li>`;
+  return `<div class="ist-ben">
+    <div class="ist-ben-h">🌙 ${L({ rur:'Istighfar ke fawaid aur behtareen auqaat', en:'Benefits and best times of Istighfar' })}</div>
+    <p>${L({
+      rur:'Nabi ﷺ gunahon se paak thay, phir bhi din mein sattar (70) se zyada baar istighfar karte thay (Sahih Bukhari 6307), aur ek riwayat mein sau (100) baar ka zikr hai (Sahih Muslim 2702). To hum sab ko iski aur bhi zyada zaroorat hai. Aam tor par ulama kam az kam ek tasbeeh, yaani roz 100 baar, padhne ka mashwara dete hain.',
+      en:'The Prophet ﷺ was free of sins, yet he sought forgiveness more than seventy times a day (Sahih Bukhari 6307), and another report mentions a hundred times (Sahih Muslim 2702). We need it even more. Scholars generally advise at least one tasbeeh, 100 times, every day.' })}</p>
+    <details>
+      <summary>${L({ rur:'Poora padhein', en:'Read more' })}</summary>
+      <div class="ist-ben-b">
+        <b>${L({ rur:'Fawaid', en:'Benefits' })}</b>
+        <ul>
+          ${li('Gunahon ki maafi: Qur\'an (71:10) mein Allah se maafi maangne ki dawat hai, kyunke woh bohat bakhshne wala hai.', 'Forgiveness of sins: the Qur\'an (71:10) invites us to seek forgiveness, for He is Ever-Forgiving.')}
+          ${li('Rizq aur barkat: Qur\'an (71:11-12) mein istighfar par barish, maal, aulad, baagh aur nehron ka zikr hai.', 'Provision and blessing: the Qur\'an (71:11-12) links istighfar with rain, wealth, children, gardens and rivers.')}
+          ${li('Achhi zindagi: Qur\'an (11:3) ke mutabiq maafi maang kar Allah ki taraf lautne walon ko woh ek muqarrar muddat tak achhi zindagi ata karta hai.', 'A good life: Qur\'an (11:3) says those who seek forgiveness and return to Him are given a good provision for an appointed term.')}
+          ${li('Dil ka sukoon: gunah ka bojh halka hota hai aur bande ko Allah ki rehmat se ummeed rehti hai.', 'Peace of heart: the burden of sin eases and hope in Allah\'s mercy grows.')}
+        </ul>
+        <b>${L({ rur:'Behtareen auqaat', en:'Best times' })}</b>
+        <ul>
+          ${li('Farz namaz ke baad: Nabi ﷺ salam pherne ke baad teen baar Astaghfirullah padhte thay (Sahih Muslim 591). Is ko har farz namaz ke baad ki aadat banayein.', 'After every fard prayer: the Prophet ﷺ said Astaghfirullah three times after the salam (Sahih Muslim 591). Make it a habit.')}
+          ${li('Din ki shuruaat aur sone se pehle: ulama ki nasihat hai ke din ka aaghaz aur aakhir istighfar par ho, taake din ke gunah dhul jayein.', 'Morning and before sleep: scholars advise opening and closing the day with istighfar. (This is advice, not a specific hadith.)')}
+          ${li('Raat ke aakhri pehar (sehri ke waqt): Qur\'an (3:17, 51:18) mein sehri ke waqt istighfar karne walon ki tareef hai.', 'The last part of the night: the Qur\'an (3:17, 51:18) praises those who seek forgiveness before dawn.')}
+          ${li('Har gunah ke fauran baad: Qur\'an (3:135) mein un bandon ki tareef hai jo bhool par Allah ko yaad karke maafi maangte hain.', 'Right after a sin: the Qur\'an (3:135) praises those who remember Allah and seek forgiveness after a slip.')}
+          ${li('Nek amal ke baad bhi: namaz, roze, umrah ya Hajj ke baad iqrar ke saath ke Allah ka haq poori tarah ada na ho saka (Qur\'an 2:199, 110:3).', 'After good deeds too: after prayer, fasting, Umrah or Hajj, admitting we could not give Allah His full due (Qur\'an 2:199, 110:3).')}
+          ${li('Mubarak raatein (jaise Shab-e-Qadr): Hazrat Aisha (RA) ko Shab-e-Qadr ke liye "Allahumma innaka afuwwun tuhibbul afwa fa\'fu anni" sikhayi gayi (Jami Tirmidhi 3513).', 'Blessed nights (like Laylat al-Qadr): Aisha (RA) was taught "Allahumma innaka afuwwun tuhibbul afwa fa\'fu anni" for it (Jami Tirmidhi 3513).')}
+        </ul>
+        <p>${L({ rur:'Kasrat se istighfar karna hamare apne hi faide ke liye hai: gunah dhulte hain aur Allah ki rehmat ke darwaze khulte hain.', en:'Frequent istighfar is for our own benefit: sins are washed away and the doors of Allah\'s mercy open.' })}</p>
+      </div>
+    </details>
+  </div>`;
+}
 function renderDuaList(){
   const wrap = document.getElementById('duaList');
   const q = duaSearch.trim().toLowerCase();
@@ -2027,6 +2059,7 @@ function renderDuaList(){
       <div class="chev">›</div>
     </div>`;
   }).join('');
+  if(duaCat === 'Istighfar' && !q) wrap.insertAdjacentHTML('beforeend', istighfarBenefitsHtml());
   wrap.querySelectorAll('.aad-card').forEach(el=>{
     el.onclick = ()=>{
       const i = parseInt(el.dataset.i);

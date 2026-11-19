@@ -2530,3 +2530,14 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .mala-top .mala-btn, .mala-top .mala-chip{ white-space:nowrap; }
 .mala-top #malaBack{ min-width:40px; font-size:18px; }
 .mala-top .mala-chip{ flex:0 0 auto; }
+
+/* Istighfar benefits card at the end of the Istighfar list */
+.ist-ben{ margin:14px 0 6px; padding:14px; border-radius:16px; background:var(--card); border:1px solid var(--line); border-left:4px solid #6c63d0; }
+.ist-ben-h{ font-weight:800; font-size:14.5px; margin-bottom:8px; }
+.ist-ben p{ margin:6px 0; font-size:13.5px; line-height:1.6; color:var(--text); }
+.ist-ben summary{ cursor:pointer; font-weight:700; color:var(--accent); font-size:13px; padding:6px 0; list-style:none; }
+.ist-ben summary::-webkit-details-marker{ display:none; }
+.ist-ben summary::after{ content:' ▾'; }
+.ist-ben details[open] summary::after{ content:' ▴'; }
+.ist-ben-b b{ display:block; margin:10px 0 4px; font-size:13px; }
+.ist-ben ul{ margin:0; padding-left:18px; } .ist-ben li{ margin:5px 0; font-size:13px; line-height:1.6; }
