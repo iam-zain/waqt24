@@ -2526,3 +2526,7 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .zs-chip{ padding:7px 11px; border-radius:999px; border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:12.5px; cursor:pointer; }
 .zs-chip.on{ background:var(--accent); color:var(--fardText); border-color:var(--accent); font-weight:700; }
 .zs-n{ font-size:11.5px; color:var(--sub); } .zpTag{ font-weight:600; color:var(--sub); font-size:11px; }
+/* top bar: names stay on one line and shorten with "…" instead of breaking into many lines */
+.mala-top .mala-btn, .mala-top .mala-chip{ white-space:nowrap; }
+.mala-top #malaBack{ min-width:40px; font-size:18px; }
+.mala-top .mala-chip{ flex:0 0 auto; }

@@ -6133,6 +6133,9 @@ const MALA_LIB = [
   { n:'Astaghfirullah', ar:'أَسْتَغْفِرُ اللَّهَ', m:'Main Allah se maafi maangta hoon.', en:'I seek forgiveness from Allah.', t:100, alias:['Astaghfar'] },
   { n:'Subhanallahi wa bihamdihi', ar:'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ', m:'Allah paak hai aur usi ki tareef hai.', en:'Glory be to Allah and praise be to Him.', t:100 },
   { n:'Subhanallahil azeem', ar:'سُبْحَانَ اللَّهِ الْعَظِيمِ', m:'Azmat wala Allah paak hai.', en:'Glory be to Allah, the Magnificent.', t:100 },
+  { n:'Teesra Kalima', tr:'Subhanallahi walhamdulillahi wa la ilaha illallahu wallahu akbar, wa la hawla wa la quwwata illa billahil aliyyil azim', ar:'سُبْحَانَ ٱللَّٰهِ وَٱلْحَمْدُ لِلَّٰهِ وَلَا إِلَٰهَ إِلَّا ٱللَّٰهُ وَٱللَّٰهُ أَكْبَرُ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِٱللَّٰهِ ٱلْعَلِيِّ ٱلْعَظِيمِ', m:"Allah paak hai, aur sab tareefein Allah hi ke liye hain, aur Allah ke siwa koi ma'bood nahi, aur Allah sab se bada hai. Aur gunah se bachne ki taqat aur neki karne ki quwwat Allah hi ki taraf se hai, jo buland martabe aur azmat wala hai.", en:'Glory be to Allah, and all praise is for Allah, and there is no god but Allah, and Allah is the Greatest. There is no power or strength except with Allah, the Most High, the Most Great.', t:100, alias:['Teesra Kalma', 'Third Kalima', 'Kalima Tamjeed'] },
+  { n:'Auzu Billah', tr:'Auzu billahi minash shaitanir rajim', ar:'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ', m:'Main mardood shaitan se Allah ki panah maangta hoon.', en:'I seek refuge in Allah from the accursed Satan.', t:3, alias:['Auzubillah'] },
+  { n:'Bismillah', tr:'Bismillahir rahmanir rahim', ar:'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', m:'Allah ke naam se, jo nihayat meharban, nihayat reham karne wala hai.', en:'In the name of Allah, the Most Gracious, the Most Merciful.', t:3, alias:['Bismillahir Rahmanir Rahim'] },
   { n:'Durood Sharif', ar:'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ', m:'Ae Allah, Muhammad ﷺ par rehmat bhej.', en:'O Allah, send blessings upon Muhammad ﷺ.', t:100, alias:['Durud Sharif'] },
 ];
 /* The five duas, three times each, as a ready-made set */
@@ -6263,7 +6266,7 @@ function malaInfo(o){
       || (typeof DUAS !== 'undefined' && DUAS.find(d=>malaNorm(d.translit) === k || malaNorm(d.title) === k));
     if(hit){
       if(!info.ar) info.ar = hit.ar || hit.arabic || '';
-      if(!info.tr) info.tr = hit.translit || hit.n || '';
+      if(!info.tr) info.tr = hit.translit || hit.tr || hit.n || '';
       if(!info.m) info.m = hit.m || hit.meaning || '';
       if(!info.en) info.en = hit.en || hit.enm || '';
     }
@@ -6427,7 +6430,7 @@ function malaMount(cfg){
       <div class="mala-bg">${bgHtml()}</div>
       <div class="mala-fx">${particles()}</div>
       <div class="mala-top">
-        ${cfg.onBack ? `<button type="button" class="mala-btn" id="malaBack" aria-label="Wapas">‹ ${malaEsc(cfg.backLabel || '')}</button>` : ''}
+        ${cfg.onBack ? `<button type="button" class="mala-btn" id="malaBack" aria-label="${malaEsc(cfg.backLabel || 'Wapas')}" title="${malaEsc(cfg.backLabel || 'Wapas')}">‹</button>` : ''}
         ${chip ? `<span class="mala-chip">${chip}</span>` : ''}${todayPill()}<i class="mala-sp"></i>
         ${M.live && !M.liveReal ? `<button type="button" class="mala-btn mala-live" id="malaLive" aria-label="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}" title="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}">${M.livePaused ? '▶' : '⏸'}</button>` : ''}
         <button type="button" class="mala-btn" id="malaFm" aria-label="Font smaller">A−</button>
