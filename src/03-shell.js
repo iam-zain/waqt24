@@ -332,7 +332,7 @@ let duaCat='__all__', duaSearch='';
 let hadeesFilter='All', hadeesSearch='';
 /* Icon and accent colour per dua category; chips and cards share the Aadaab-e-Zindagi look */
 /* One colour per category (Quranic green is reserved for its label) */
-const DUA_CAT_META = { 'Rabbana':['🤲','#2fb6b0'], 'Roz Marra':['🛏️','#3a4d8f'], 'Khana':['🍽️','#c0563f'], 'Safar':['🧭','#3f8fe0'], 'Masjid':['🕌','#9b6fd6'], 'Pareshani':['🌧️','#e0893f'], 'Ghar':['🏠','#d6708f'], 'Ramzan':['🌙','#c79a2e'] };
+const DUA_CAT_META = { 'Rabbana':['🤲','#2fb6b0'], 'Roz Marra':['🛏️','#3a4d8f'], 'Khana':['🍽️','#c0563f'], 'Safar':['🧭','#3f8fe0'], 'Masjid':['🕌','#9b6fd6'], 'Pareshani':['🌧️','#e0893f'], 'Ghar':['🏠','#d6708f'], 'Ramzan':['🌙','#c79a2e'], 'Anbiya (Mushkil Waqt)':['🌟','#b5832b'] };
 function duaMeta(cat){ return DUA_CAT_META[cat] || ['🤲','#5b8def']; }
 /* Rabbana duas each get an icon for their theme (the theme is the third tag) */
 const RABBANA_THEME_ICON = { 'Qabooliyat':'🙏', 'Islam':'☪️', 'Duniya Aur Aakhirat':'🌅', 'Sabr':'🏔️', 'Tauba':'💧', 'Hifazat':'🛡️', 'Maghfirat':'🌿', 'Hidayat':'💡', 'Qiyamat':'⏳', 'Iman':'☝️', 'Nek Log':'💫', 'Jahannam':'🔥', 'Rizq':'🍞', 'Sohbat':'👥', 'Haq':'⚖️', 'Ilm-e-Ilahi':'👁️', 'Namaz':'📿', 'Walidain':'👪', 'Aulad':'👶', 'Rehmat':'💞', 'Shukr':'🌸', 'Jannat':'🌳', 'Ukhuwwat':'🤝', 'Tawakkul':'🌱', 'Noor':'✨' };
@@ -403,7 +403,7 @@ function renderDuaList(){
   const filtered = DUAS.filter(d=>
     (duaCat==='__all__' || (duaCat==='__quran__' ? isQuranDua(d) : d.cat===duaCat)) &&
     (d.title+' '+d.cat+' '+(d.tags||[]).join(' ')+' '+d.translit+' '+d.meaning).toLowerCase().includes(q)
-  ).sort((a,b)=>a.title.localeCompare(b.title));
+  ).sort((a,b)=>(a.ord&&b.ord) ? a.ord-b.ord : a.title.localeCompare(b.title));
   if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi dua nahi mili.</div>`; return; }
   wrap.innerHTML = filtered.map((d,i)=>{
     const ic = duaIcon(d), color = duaMeta(d.cat)[1];
@@ -455,6 +455,7 @@ function openDuaDetail(d){
       ${bmBtn('dua:'+d.title)}
       <button class="act-btn" id="duaImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
+    ${duaSceneHtml(d)}
     <div class="aad-head status-${duaStatus(d.title)||'none'}" style="--aad-c:${duaMeta(d.cat)[1]};">
       <div class="aad-head-ic">${duaIcon(d)}</div>
       <div class="aad-head-title">${dTitle(d)}</div>
