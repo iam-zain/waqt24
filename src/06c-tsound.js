@@ -140,17 +140,26 @@ function tasbeehPreview(id){
 }
 
 /* Sound choices (chips + volume + two switches). Used by the counter screen and the classic screen. */
+const TS_PRESETS = [
+  { id:'quiet', n:{ rur:'🌙 Shaant raat', en:'🌙 Quiet night' }, set:{ sound:true, soundId:'soft', vol:0.3, chime:true, markTik:false, vibrate:false } },
+  { id:'normal', n:{ rur:'🔔 Normal', en:'🔔 Normal' }, set:{ sound:true, soundId:'tik', vol:0.8, chime:true, markTik:true, vibrate:true } },
+  { id:'loud', n:{ rur:'📣 Zor se', en:'📣 Loud' }, set:{ sound:true, soundId:'glass', vol:1, chime:true, markTik:true, vibrate:true } },
+];
 function tsPickerHtml(){
   const t = state.tasbeeh, cur = t.soundId || 'tik', vol = Math.round(tsVol() * 100);
   return `<div class="ts-snd">
+    <div class="ts-snd-chips ts-pre">${TS_PRESETS.map(x=>`<button type="button" class="ts-snd-chip" data-tspre="${x.id}">${L(x.n)}</button>`).join('')}</div>
     <div class="ts-snd-chips">${TS_SOUNDS.map(s=>`<button type="button" class="ts-snd-chip${cur === s.id ? ' on' : ''}" data-snd="${s.id}">♪ ${L(s.n)}</button>`).join('')}</div>
     <label class="ts-vol"><span>🔉 ${L({ rur:'Awaaz ki tezi', en:'Volume' })}</span><input type="range" min="10" max="100" step="5" value="${vol}" data-vol></label>
     <div class="ts-snd-sw"><span>${L({ rur:'Poora hone par khaas tone (ghanti)', en:'Bell when a round completes' })}</span><button type="button" class="ms-sw${t.chime !== false ? ' on' : ''}" data-tsw="chime" role="switch" aria-checked="${t.chime !== false}"><i></i></button></div>
     <div class="ts-snd-sw"><span>${L({ rur:'Har 11vi moti par alag tik', en:'Different tick on every 11th bead' })}</span><button type="button" class="ms-sw${t.markTik !== false ? ' on' : ''}" data-tsw="markTik" role="switch" aria-checked="${t.markTik !== false}"><i></i></button></div>
   </div>`;
 }
-function tsPickerWire(root, again){
+function tsPickerWire(root, again, full){
   const t = state.tasbeeh;
+  root.querySelectorAll('[data-tspre]').forEach(b=>{
+    b.onclick = ()=>{ const pr = TS_PRESETS.find(x=>x.id === b.dataset.tspre); if(!pr) return; Object.assign(t, pr.set); saveState(); tasbeehPreview(t.soundId); (full || again)(); };
+  });
   root.querySelectorAll('[data-snd]').forEach(b=>{
     b.onclick = ()=>{ t.soundId = b.dataset.snd; if(!t.sound) t.sound = true; saveState(); tasbeehPreview(t.soundId); again(); };
   });

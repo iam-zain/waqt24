@@ -798,7 +798,7 @@ function renderZikrProfile(profileId){
     });
   }
   renderItems();
-  document.getElementById('zikrBackToTasbeeh').onclick = renderTasbeehClassic;
+  document.getElementById('zikrBackToTasbeeh').onclick = renderTasbeeh;
   document.getElementById('zikrRunBtn').onclick = ()=>{ const first = profile.items.find(it=>(day[it.id] || 0) < it.target) || profile.items[0]; malaRunSet(profile.id, first && first.id); };
   document.getElementById('zikrLibBtn').onclick = ()=> renderMalaPicker({ onBack:()=>renderZikrProfile(profile.id), addTo:true, onPick:info=>{ profile.items.push({ id:'z' + Date.now(), name:info.n, ar:info.ar, tr:info.tr, m:info.m, en:info.en, target:info.t || 3 }); saveState(); renderZikrProfile(profile.id); } });
   document.getElementById('zikrAddItemBtn').onclick = ()=>{
@@ -817,8 +817,9 @@ function renderZikrProfile(profileId){
   if(delProfileBtn) delProfileBtn.onclick = async ()=>{
     if(!(await appConfirm('Yeh profile delete karein?'))) return;
     state.tasbeeh.profiles = state.tasbeeh.profiles.filter(p=>p.id!==profile.id);
+    if(state.tasbeeh.todayProfile === profile.id) state.tasbeeh.todayProfile = null;
     saveState();
-    renderTasbeehClassic();
+    renderTasbeeh();
   };
   const resetDefaultBtn = document.getElementById('zikrResetDefaultBtn');
   if(resetDefaultBtn) resetDefaultBtn.onclick = async ()=>{
