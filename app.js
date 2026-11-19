@@ -2298,8 +2298,8 @@ const AZAAN_TEXT = [
   { ar:'اللّٰهُ أَكْبَرُ', tr:'Allahu Akbar', n:4, m:{rur:'Allah sab se bada hai', en:'Allah is the Greatest'} },
   { ar:'أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللّٰهُ', tr:'Ash-hadu an la ilaha illallah', n:2, m:{rur:'Main gawahi deta hoon ke Allah ke siwa koi ibadat ke laaiq nahi', en:'I bear witness that there is no god but Allah'} },
   { ar:'أَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللّٰهِ', tr:'Ash-hadu anna Muhammadan Rasulullah', n:2, m:{rur:'Main gawahi deta hoon ke Muhammad ﷺ Allah ke Rasool hain', en:'I bear witness that Muhammad ﷺ is the Messenger of Allah'} },
-  { ar:'حَيَّ عَلَى الصَّلَاةِ', tr:"Hayya 'alas-Salah", n:2, m:{rur:'Aao namaz ki taraf', en:'Come to prayer'} },
-  { ar:'حَيَّ عَلَى الْفَلَاحِ', tr:"Hayya 'alal-Falah", n:2, m:{rur:'Aao kamyabi ki taraf', en:'Come to success'} },
+  { ar:'حَيَّ عَلَى الصَّلَاةِ', tr:"Hayya 'alas-Salah", n:2, m:{rur:'Aaiye namaz ki taraf', en:'Come to prayer'} },
+  { ar:'حَيَّ عَلَى الْفَلَاحِ', tr:"Hayya 'alal-Falah", n:2, m:{rur:'Aaiye kamyabi ki taraf', en:'Come to success'} },
   { ar:'الصَّلَاةُ خَيْرٌ مِنَ النَّوْمِ', tr:'As-Salatu khairum minan-nawm', n:2, fajr:true, m:{rur:'Namaz neend se behtar hai', en:'Prayer is better than sleep'} },
   { ar:'اللّٰهُ أَكْبَرُ', tr:'Allahu Akbar', n:2, m:{rur:'Allah sab se bada hai', en:'Allah is the Greatest'} },
   { ar:'لَا إِلٰهَ إِلَّا اللّٰهُ', tr:'La ilaha illallah', n:1, m:{rur:'Allah ke siwa koi ibadat ke laaiq nahi', en:'There is no god but Allah'} },
@@ -5669,7 +5669,7 @@ function renderZikrProfile(profileId){
     box.innerHTML = `<div class="zs-h">🗓 ${L({ rur:'Aaj ka zikr kab banega?', en:'When is this today\'s zikr?' })}</div>
       <div class="zs-days">${dn.map(x=>`<button type="button" class="zs-chip${sc.days.includes(x[0]) ? ' on' : ''}" data-zd="${x[0]}">${x[1]}</button>`).join('')}</div>
       <div class="zs-days">${[['any', { rur:'Kabhi bhi', en:'Any time' }], ['am', { rur:'Subah (1 baje tak)', en:'Morning (till 1pm)' }], ['pm', { rur:'Dopahar ke baad', en:'Afternoon on' }]].map(x=>`<button type="button" class="zs-chip${(sc.slot || 'any') === x[0] ? ' on' : ''}" data-zs="${x[0]}">${L(x[1])}</button>`).join('')}</div>
-      <div class="zs-n">${sc.days.length ? L({ rur:'In dino "Aaj ka zikr" button yahi set kholega (jab tak aap kuch aur na chunein).', en:'On these days the "Today\'s zikr" button opens this set (unless you pick another).' }) : L({ rur:'Koi din nahi chuna, to yeh set apne aap nahi aayega.', en:'No day picked, so this set is not chosen automatically.' })}</div>`;
+      <div class="zs-n">${sc.days.length ? L({ rur:'In dino "Aaj ka zikr" button yahi set kholega (jab tak aap kuch aur na chunein).', en:'On these days the "Today\'s zikr" button opens this set (unless you pick another).' }) : L({ rur:'Koi din chuna nahi gaya, isliye yeh set apne aap nahi aayega.', en:'No day picked, so this set is not chosen automatically.' })}</div>`;
     box.querySelectorAll('[data-zd]').forEach(b=>{ b.onclick = ()=>{ const d = +b.dataset.zd, c = profile.sched || (profile.sched = { days:[], slot:'any' }); c.days = c.days.includes(d) ? c.days.filter(x=>x !== d) : [...c.days, d]; saveState(); renderSched(); }; });
     box.querySelectorAll('[data-zs]').forEach(b=>{ b.onclick = ()=>{ const c = profile.sched || (profile.sched = { days:[], slot:'any' }); c.slot = b.dataset.zs; saveState(); renderSched(); }; });
   }
