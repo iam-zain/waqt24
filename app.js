@@ -6072,7 +6072,7 @@ const MALA_TARGETS = [1, 3, 7, 11, 33, 99, 100];
 function malaCfg(){
   const t = state.tasbeeh;
   if(!t.mala) t.mala = {};
-  const m = t.mala, d = { theme:0, scene:null, arSize:'M', markEvery:0, showTr:true, showM:true, tapAny:true, fx:true, weather:'auto', speed:'mid' };
+  const m = t.mala, d = { theme:0, scene:null, arSize:'M', light:1, markEvery:0, showTr:true, showM:true, tapAny:true, fx:true, weather:'auto', speed:'mid' };
   Object.keys(d).forEach(k=>{ if(m[k] === undefined) m[k] = d[k]; });
   if(m.markEvery === 11 && !m.markChosen) m.markEvery = 0;   /* marker beads are off unless the person turned them on */
   return m;
@@ -6198,7 +6198,7 @@ function malaMount(cfg){
   function html(){
     const th = theme(), c = counts(), fx = weatherId();
     const chip = cfg.single ? (t.seq != null ? `${L({ rur:'Tasbeeh-e-Fatima', en:'Tasbeeh of Fatima' })} · ${t.seq + 1}/3` : '') : `${L({ rur:'Dua', en:'Dua' })} ${idx + 1} / ${cfg.items.length}`;
-    return `<div class="mala ${M.tapAny ? 'tap-any' : ''}" data-fx="${fx}" style="--mo:${th.on};--mf:${th.off};--mc:${th.cur};--mk:${th.mark}">
+    return `<div class="mala ${M.tapAny ? 'tap-any' : ''}" data-fx="${fx}" data-lt="${M.light == null ? 1 : M.light}" style="--mo:${th.on};--mf:${th.off};--mc:${th.cur};--mk:${th.mark}">
       <div class="mala-bg">${malaScene(sceneIdx())}</div>
       <div class="mala-fx">${particles()}</div>
       <div class="mala-top">
@@ -6322,6 +6322,8 @@ function malaMount(cfg){
       <div class="ms-lbl">${L({ rur:'Moti ka rang', en:'Bead colours' })}</div>
       <div class="ms-chips">${MALA_THEMES.map((x, i)=>`<button type="button" class="ms-theme${M.theme === i ? ' on' : ''}" data-theme="${i}" aria-label="${L(x.n)}"><span style="background:${x.on}"></span><span style="background:${x.cur}"></span><span style="background:${x.off}"></span><em>${L(x.n)}</em></button>`).join('')}</div>
       <div class="ms-hint"><span style="--c:var(--mo)"></span>${L({ rur:'ginti hue', en:'counted' })} <span style="--c:var(--mc)"></span>${L({ rur:'abhi wala', en:'current' })} <span style="--c:var(--mf)"></span>${L({ rur:'baaki', en:'to come' })}</div>
+      <div class="ms-lbl">${L({ rur:'Roshni', en:'Brightness' })}</div>
+      <div class="ms-chips">${[[0, { rur:'🌙 Gehra', en:'🌙 Dark' }], [1, { rur:'🌤 Darmiyana', en:'🌤 Medium' }], [2, { rur:'☀ Roshan', en:'☀ Light' }]].map(x=>`<button type="button" class="ms-chip${(M.light == null ? 1 : M.light) === x[0] ? ' on' : ''}" data-lt="${x[0]}">${L(x[1])}</button>`).join('')}</div>
       <div class="ms-lbl">${L({ rur:'Manzar', en:'Scene' })}</div>
       <div class="ms-chips"><button type="button" class="ms-chip${M.scene == null ? ' on' : ''}" data-scene="auto">${L({ rur:'Auto', en:'Auto' })}</button>${MALA_SCENE_NAMES.slice(0, MALA_ART).map((x, i)=>`<button type="button" class="ms-chip${M.scene === i ? ' on' : ''}" data-scene="${i}">${L(x)}</button>`).join('')}</div>
       <div class="ms-lbl">${L({ rur:'Saaf rang aur gradient', en:'Clean colours and gradients' })}</div>
@@ -6363,6 +6365,7 @@ function malaMount(cfg){
     sh.querySelectorAll('[data-close]').forEach(b=>{ b.onclick = ()=>{ panel = null; renderSheet(); }; });
     sh.querySelectorAll('[data-theme]').forEach(b=>{ b.onclick = ()=>{ M.theme = +b.dataset.theme; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-scene]').forEach(b=>{ b.onclick = ()=>{ M.scene = b.dataset.scene === 'auto' ? null : +b.dataset.scene; saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-lt]').forEach(b=>{ b.onclick = ()=>{ M.light = +b.dataset.lt; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-wx]').forEach(b=>{ b.onclick = ()=>{ M.weather = b.dataset.wx; M.fx = b.dataset.wx !== 'none'; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-spd]').forEach(b=>{ b.onclick = ()=>{ M.speed = b.dataset.spd; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-mk]').forEach(b=>{ b.onclick = ()=>{ M.markEvery = +b.dataset.mk; M.markChosen = true; saveState(); draw(false, true); }; });

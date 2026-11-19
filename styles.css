@@ -2362,3 +2362,30 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .mala.quiet, .mala.quiet .mala-sheet, .mala.quiet .mala-bg, .mala.quiet .mala-text, .mala.quiet .mala-mid{ animation:none !important; }
 .mala-bg svg, #malaBeads circle, .mala-ar, .mala-tr, .mala-m{ transition:fill .35s ease, stroke .35s ease, opacity .35s ease; }
 .mala-rm{ border-color:rgba(255,120,120,.45); }
+
+/* MALA BRIGHTNESS: data-lt 0 = dark, 1 = medium, 2 = light */
+.mala-bg::after{ transition:background .4s ease; }
+.mala[data-lt="1"] .mala-bg::after{ background:linear-gradient(rgba(5,9,18,.16), rgba(5,9,18,0) 45%, rgba(5,9,18,.3)); }
+.mala[data-lt="1"] .mala-btn, .mala[data-lt="1"] .mala-chip{ background:rgba(10,14,24,.34); }
+.mala[data-lt="2"]{ color:#14202e; }
+.mala[data-lt="2"] .mala-bg::after{ background:linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,.3) 45%, rgba(255,255,255,.62)); }
+.mala[data-lt="2"] .mala-ar{ color:#0f1c2b; text-shadow:0 1px 10px rgba(255,255,255,.7); }
+.mala[data-lt="2"] .mala-tr, .mala[data-lt="2"] .mala-m, .mala[data-lt="2"] .mala-cap, .mala[data-lt="2"] .mala-empty{ text-shadow:0 1px 8px rgba(255,255,255,.7); }
+.mala[data-lt="2"] .mala-m{ opacity:.92; }
+.mala[data-lt="2"] .mala-div i{ background:rgba(20,32,46,.35); }
+.mala[data-lt="2"] .mala-btn, .mala[data-lt="2"] .mala-chip{ background:rgba(255,255,255,.72); border-color:rgba(20,32,46,.18); color:#14202e; }
+.mala[data-lt="2"] .mala-gar > path{ stroke:rgba(20,32,46,.5); }
+.mala[data-lt="2"] .mala-disc{ background:radial-gradient(circle at 50% 35%, rgba(255,255,255,.96), rgba(236,242,248,.96)); box-shadow:0 8px 22px rgba(20,32,46,.25), inset 0 1px 0 #fff; }
+.mala[data-lt="2"] .mala-disc svg circle:first-child{ stroke:rgba(20,32,46,.14); }
+.mala[data-lt="2"] .mala-dots button{ background:rgba(20,32,46,.28); }
+.mala[data-lt="2"] .mala-dots button.cur{ background:#14202e; }
+.mala[data-lt="2"] .mala-sheet{ background:rgba(255,255,255,.97); border-top-color:rgba(20,32,46,.12); box-shadow:0 -12px 32px rgba(20,32,46,.25); }
+.mala[data-lt="2"] .ms-chip, .mala[data-lt="2"] .ms-theme, .mala[data-lt="2"] .ms-link{ color:#14202e; border-color:rgba(20,32,46,.2); background:rgba(20,32,46,.05); }
+.mala[data-lt="2"] .ms-theme.on{ border-color:#14202e; background:rgba(20,32,46,.12); }
+.mala[data-lt="2"] .ms-chip.on{ color:#0b1220; }
+.mala[data-lt="2"] .ms-row, .mala[data-lt="2"] .ts-snd-sw{ border-bottom-color:rgba(20,32,46,.1); }
+.mala[data-lt="2"] .ms-sw{ background:rgba(20,32,46,.25); }
+.mala[data-lt="2"] .ms-sw.on{ background:var(--mo); }
+.mala[data-lt="2"] .ms-danger{ color:#b3261e; border-color:rgba(179,38,30,.4); }
+.mala[data-lt="2"] .mala-rm{ border-color:rgba(179,38,30,.4); }
+.mala[data-lt="2"] .mala-fx i{ filter:drop-shadow(0 0 1px rgba(20,32,46,.5)); }
