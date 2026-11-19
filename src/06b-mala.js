@@ -21,6 +21,11 @@ const MALA_LIB = [
   { n:'Durood Sharif', ar:'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ', m:'Ae Allah, Muhammad ﷺ par rehmat bhej.', en:'O Allah, send blessings upon Muhammad ﷺ.', t:100, alias:['Durud Sharif'] },
 ];
 /* The five duas, three times each, as a ready-made set */
+/* a profile made from one Du'a category, in the order of the Du'a section; each dua is read as often as its own repeat count */
+function malaCatItems(cat, rep){
+  return (typeof DUAS !== 'undefined' ? DUAS : []).filter(d=>d.cat === cat).sort((a, b)=>(a.ord || 99) - (b.ord || 99))
+    .map((d, i)=>({ id:'c' + i + '_' + malaHash(d.title), name:d.title, target:rep || d.rep || 3 }));
+}
 function malaStormItems(){
   return MALA_LIB.slice(0, 5).map((x, i)=>({ id:'st' + (i + 1), name:x.n, ar:x.ar, tr:x.n, m:x.m, en:x.en, target:3 }));
 }
@@ -72,6 +77,13 @@ function malaLogDua(name, d){
   const lg = malaDuaLog(), k = dayKey(new Date()); if(!lg[k]) lg[k] = {};
   lg[k][name] = Math.max(0, (lg[k][name] || 0) + d); if(!lg[k][name]) delete lg[k][name];
   const keys = Object.keys(lg).sort(); while(keys.length > 60) delete lg[keys.shift()];
+}
+/* A dua counted on the plain counter also counts for the same-named zikr in today's profile */
+function malaCreditProfile(name, d){
+  const pf = malaTodayProfile(); if(!pf || !name) return;
+  const key = malaNorm(name), it = pf.items.find(x=>malaNorm(x.name) === key); if(!it) return;
+  const day = getZikrDay(new Date(), pf.id, true); day[it.id] = Math.max(0, (day[it.id] || 0) + d);
+  if(d < 0) delete day.__marked;
 }
 function malaToday(){ return tasbeehLog()[dayKey(new Date())] || 0; }
 /* "Aaj ka zikr profile": the one the person chose, otherwise Subah before 1 pm and Shaam after */
@@ -292,6 +304,8 @@ function malaMount(cfg){
     if(num){ num.textContent = c.cur; num.classList.remove('bump'); void num.offsetWidth; num.classList.add('bump'); }
     if(tt) tt.textContent = '/ ' + c.target;
     const tdn = body.querySelector('#malaTodayN'); if(tdn) tdn.textContent = L({ rur:'Aaj', en:'Today' }) + ' ' + malaToday();
+    const pill = body.querySelector('#malaToday b'), tpf = pill ? malaTodayProfile() : null;
+    if(pill && tpf){ const pr = zikrProfileProgress(new Date(), tpf); pill.textContent = pr.done + '/' + pr.total; body.querySelector('#malaToday').classList.toggle('ok', pr.total > 0 && pr.done >= pr.total); }
     const ub = body.querySelector('#malaUndo'); if(ub) ub.classList.toggle('off', c.count <= 0);
     if(arc) arc.setAttribute('stroke-dashoffset', (339.3 * (1 - c.cur / c.target)).toFixed(1));
     if(disc) disc.classList.toggle('done', c.cur === c.target && c.count > 0);
@@ -311,7 +325,7 @@ function malaMount(cfg){
     if(cfg.single && t.seq != null){ showToast(L({ rur:'Tasbeeh-e-Fatima mein undo nahi hota', en:'No undo during the Fatima sequence' })); return; }
     if(!cfg.dec || !cfg.dec(idx)) return;
     const lg = tasbeehLog(), dk = dayKey(new Date()); lg[dk] = Math.max(0, (lg[dk] || 0) - 1);
-    malaLogDua(item().name, -1); saveState();
+    malaLogDua(item().name, -1); if(cfg.single) malaCreditProfile(item().name, -1); saveState();
     if(t.vibrate !== false && navigator.vibrate) navigator.vibrate(10);
     const c = counts();
     if(Math.abs(c.cur - pos) > 1.5){ pos = c.cur; place(pos); } else slideTo(c.cur, pos);
@@ -319,6 +333,7 @@ function malaMount(cfg){
   }
   function historyHtml(){
     const dk = dayKey(new Date()), lg = malaDuaLog(), tl = tasbeehLog();
+    const named = Object.values(lg[dk] || {}).reduce((a, v)=>a + v, 0), rest = Math.max(0, (tl[dk] || 0) - named);
     const rows = o=>Object.entries(o || {}).sort((a, b)=>b[1] - a[1]).map(([n, v])=>`<div class="mh-row"><span>${malaEsc(n)}</span><b>${v}</b></div>`).join('');
     const pf = malaTodayProfile(), day = pf ? getZikrDay(new Date(), pf.id, false) : {};
     const prof = pf && pf.items.length ? `<div class="ms-lbl">📋 ${malaEsc(pf.name)}</div>${pf.items.map(it=>{ const n = day[it.id] || 0, ok = n >= (it.target || 1); return `<div class="mh-row${ok ? ' ok' : ''}"><span>${ok ? '✅' : '○'} ${malaEsc(it.name)}</span><b>${Math.min(n, 9999)} / ${it.target}</b></div>`; }).join('')}` : '';
@@ -329,7 +344,8 @@ function malaMount(cfg){
     }
     return `<div class="ms-head"><b>📊 ${L({ rur:'Aaj ka hisaab', en:'Today' })}</b><button type="button" class="mala-btn" data-close>✕</button></div>
       <div class="mh-total"><b>${tl[dk] || 0}</b><span>${L({ rur:'kul ginti aaj', en:'counted today' })}</span></div>
-      ${rows(lg[dk]) || `<div class="ms-hint">${L({ rur:'Aaj abhi tak kuch nahi ginti hui.', en:'Nothing counted yet today.' })}</div>`}
+      ${rows(lg[dk]) || (rest ? '' : `<div class="ms-hint">${L({ rur:'Aaj abhi tak kuch nahi ginti hui.', en:'Nothing counted yet today.' })}</div>`)}
+      ${rest ? `<div class="mh-row"><span>${L({ rur:'Dusri ginti (dua ke naam ke bina)', en:'Other counts (no dua name saved)' })}</span><b>${rest}</b></div>` : ''}
       ${prof}
       ${prev.length ? `<div class="ms-lbl">${L({ rur:'Pichle din', en:'Earlier days' })}</div>${prev.join('')}` : ''}`;
   }
@@ -356,6 +372,7 @@ function malaMount(cfg){
     const wasDone = !cfg.single && before.count >= before.target;
     const nc = cfg.inc(idx);
     malaLogDua(item().name, 1);
+    if(cfg.single) malaCreditProfile(item().name, 1);
     const c = counts();
     if(!cfg.selfFeedback){
       if(t.vibrate !== false && navigator.vibrate) navigator.vibrate(c.cur === c.target ? [60, 50, 60, 50, 140] : 12);
@@ -403,7 +420,7 @@ function malaMount(cfg){
 `;
     const grp = (id, title, inner)=>`<details class="ms-grp" data-g="${id}"${openG[id] ? ' open' : ''}><summary>${title}</summary><div class="ms-grp-in">${inner}</div></details>`;
     const ps = (ensureZikrProfiles(), t.profiles), tpId = t.todayProfile && ps.some(x=>x.id === t.todayProfile) ? t.todayProfile : 'auto';
-    const zikrBox = `<div class="ms-hint" style="margin:0 0 8px">${L({ rur:'Upar "📋 Aaj ka zikr" button isi profile ko kholta hai. Ek ek zikr poora hone par agla khud aa jata hai.', en:'The "📋" button at the top opens this profile. Each zikr moves on to the next when it is done.' })}</div>
+    const zikrTop = `<div class="ms-hint" style="margin:0 0 8px">${L({ rur:'Upar "📋 Aaj ka zikr" button isi profile ko kholta hai. Ek ek zikr poora hone par agla khud aa jata hai.', en:'The "📋" button at the top opens this profile. Each zikr moves on to the next when it is done.' })}</div>
       <div class="ms-chips"><button type="button" class="ms-chip${tpId === 'auto' ? ' on' : ''}" data-tp="auto">${L({ rur:'Auto (subah / shaam)', en:'Auto (morning / evening)' })}</button>${ps.map(x=>`<button type="button" class="ms-chip${tpId === x.id ? ' on' : ''}" data-tp="${x.id}">${malaEsc(x.name.replace(/\s*\(.*\)\s*$/, ''))}</button>`).join('')}</div>
       <button type="button" class="ms-link" id="malaTpEdit">✎ ${L({ rur:'Is profile ke zikr edit karein', en:'Edit this profile\'s zikr' })}</button>
       <button type="button" class="ms-link" id="malaTpNew">＋ ${L({ rur:'Naya profile banayein', en:'Create a new profile' })}</button>`;
@@ -413,6 +430,7 @@ function malaMount(cfg){
       <div class="ms-hint">${L({ rur:'Band ho to ginti target ke baad bhi naye round mein chalti rehti hai.', en:'When off, counting continues into a new round after the target.' })}</div>
       ${sw('keepAwake', M.keepAwake, L({ rur:'Counter khula ho to screen on rakhein', en:'Keep the screen on' }))}
       ${marker}`;
+    const zikrBox = zikrTop;
     const soundBox = `${sw('sound', !!t.sound, L({ rur:'Awaaz', en:'Sound' }))}
       <div id="malaSnd">${tsPickerHtml()}</div>
       ${sw('vibrate', t.vibrate !== false, L({ rur:'Vibration', en:'Vibration' }))}`;

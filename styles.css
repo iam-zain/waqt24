@@ -2466,3 +2466,6 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .ms-more{ flex:0 0 auto; width:38px; height:38px; border-radius:50%; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06); color:inherit; font-size:14px; cursor:pointer; transition:transform .25s ease; }
 .ms-fold.open .ms-more{ transform:rotate(180deg); }
 .mala[data-lt="2"] .ms-more{ border-color:rgba(20,32,46,.2); background:rgba(20,32,46,.05); }
+.ms-grp .ms-grp{ margin-top:6px; border-bottom:none; border-top:1px solid rgba(255,255,255,.1); }
+.ms-grp .ms-grp > summary{ font-size:13.5px; }
+.mala[data-lt="2"] .ms-grp .ms-grp{ border-top-color:rgba(20,32,46,.12); }

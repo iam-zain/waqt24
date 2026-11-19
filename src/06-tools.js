@@ -671,8 +671,18 @@ function ensureZikrProfiles(){
     ];
     saveState();
   }
-  if(!state.tasbeeh.profiles.some(p=>p.id === 'storm5')){
-    state.tasbeeh.profiles.push({ id:'storm5', name:'Toofan Ke 5 Duas (3-3 baar)', builtin:true, dtype:'storm', items:malaStormItems() });
+  /* the "Toofan Ke 5 Duas" profile is no longer preloaded; remove the copy an earlier version added (once) */
+  if(!state.tasbeeh.storm5Removed){
+    state.tasbeeh.profiles = state.tasbeeh.profiles.filter(p=>!(p.id === 'storm5' && p.builtin));
+    if(state.tasbeeh.todayProfile === 'storm5') state.tasbeeh.todayProfile = null;
+    state.tasbeeh.storm5Removed = true; saveState();
+  }
+  /* two profiles made from Du'a categories (added once; deleting them later keeps them deleted) */
+  if(!state.tasbeeh.catProfiles){
+    state.tasbeeh.catProfiles = true;
+    [['anbiya', 'Anbiya ki Duaein (Mushkil Waqt)', 'Anbiya (Mushkil Waqt)', 0], ['istighfar', 'Istighfar', 'Istighfar', 70]].forEach(([id, name, cat, rep])=>{
+      if(!state.tasbeeh.profiles.some(p=>p.id === id)) state.tasbeeh.profiles.push({ id, name, builtin:true, dtype:'dua', cat, rep, items:malaCatItems(cat, rep) });
+    });
     saveState();
   }
   if(!state.tasbeeh.daily) state.tasbeeh.daily = {};
@@ -756,7 +766,7 @@ function renderZikrProfile(profileId){
       <button id="zikrAddItemBtn">+ Add</button>
     </div>
     <div class="tasbeeh-actions" style="margin-top:16px;">
-      ${profile.builtin ? `<button id="zikrResetDefaultBtn">↺ ${profile.id === 'storm5' ? 'Default 5 Duas Wapas Layein' : 'Default 6 Zikr Wapas Layein'}</button>` : `<button id="zikrDeleteProfileBtn">🗑️ Profile Delete Karein</button>`}
+      ${profile.builtin ? `<button id="zikrResetDefaultBtn">↺ ${profile.dtype === 'dua' ? 'Default duaein wapas layein' : 'Default 6 Zikr Wapas Layein'}</button>` : `<button id="zikrDeleteProfileBtn">🗑️ Profile Delete Karein</button>`}
     </div>
   `;
   function renderItems(){
@@ -824,7 +834,7 @@ function renderZikrProfile(profileId){
   const resetDefaultBtn = document.getElementById('zikrResetDefaultBtn');
   if(resetDefaultBtn) resetDefaultBtn.onclick = async ()=>{
     if(!(await appConfirm('Is profile ko wapas default 6 zikr par reset karein? Aapke add kiye hue extra zikr hat jayenge.'))) return;
-    profile.items = profile.id === 'storm5' ? malaStormItems() : defaultAzkarItems();
+    profile.items = profile.dtype === 'dua' ? malaCatItems(profile.cat, profile.rep) : defaultAzkarItems();
     saveState();
     renderZikrProfile(profile.id);
   };
