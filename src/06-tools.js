@@ -680,9 +680,16 @@ function ensureZikrProfiles(){
   /* two profiles made from Du'a categories (added once; deleting them later keeps them deleted) */
   if(!state.tasbeeh.catProfiles){
     state.tasbeeh.catProfiles = true;
-    [['anbiya', 'Anbiya ki Duaein (Mushkil Waqt)', 'Anbiya (Mushkil Waqt)', 0], ['istighfar', 'Istighfar', 'Istighfar', 70]].forEach(([id, name, cat, rep])=>{
+    [['anbiya', 'Anbiya ki Duaein (Mushkil Waqt)', 'Anbiya (Mushkil Waqt)', 0], ['istighfar', 'Istighfar', 'Istighfar', 0]].forEach(([id, name, cat, rep])=>{
       if(!state.tasbeeh.profiles.some(p=>p.id === id)) state.tasbeeh.profiles.push({ id, name, builtin:true, dtype:'dua', cat, rep, items:malaCatItems(cat, rep) });
     });
+    saveState();
+  }
+  /* the Istighfar profile used to hold one dua; give it the full list (once), unless the person already changed it */
+  if(!state.tasbeeh.istighfarV2){
+    state.tasbeeh.istighfarV2 = true;
+    const ip = state.tasbeeh.profiles.find(p=>p.id === 'istighfar');
+    if(ip && ip.builtin && ip.items.length <= 1){ ip.rep = 0; ip.items = malaCatItems('Istighfar', 0); }
     saveState();
   }
   if(!state.tasbeeh.daily) state.tasbeeh.daily = {};

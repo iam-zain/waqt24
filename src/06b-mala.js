@@ -24,7 +24,7 @@ const MALA_LIB = [
 /* a profile made from one Du'a category, in the order of the Du'a section; each dua is read as often as its own repeat count */
 function malaCatItems(cat, rep){
   return (typeof DUAS !== 'undefined' ? DUAS : []).filter(d=>d.cat === cat).sort((a, b)=>(a.ord || 99) - (b.ord || 99))
-    .map((d, i)=>({ id:'c' + i + '_' + malaHash(d.title), name:d.title, target:rep || d.rep || 3 }));
+    .map((d, i)=>({ id:'c' + i + '_' + malaHash(d.title), name:d.title, target:rep || d.ptarget || d.rep || 3 }));
 }
 function malaStormItems(){
   return MALA_LIB.slice(0, 5).map((x, i)=>({ id:'st' + (i + 1), name:x.n, ar:x.ar, tr:x.n, m:x.m, en:x.en, target:3 }));
@@ -349,6 +349,13 @@ function malaMount(cfg){
       ${prof}
       ${prev.length ? `<div class="ms-lbl">${L({ rur:'Pichle din', en:'Earlier days' })}</div>${prev.join('')}` : ''}`;
   }
+  function runToday(){
+      const pf = malaTodayProfile(); if(!pf) return;
+      if(!pf.items.length){ showToast(L({ rur:'Is profile mein abhi zikr nahi. Pehle add karein.', en:'This profile has no zikr yet. Add some first.' })); return renderZikrProfile(pf.id); }
+      const day = getZikrDay(new Date(), pf.id, false), first = pf.items.find(it=>(day[it.id] || 0) < (it.target || 1));
+      if(!first) showToast(L({ rur:'Aaj ka zikr pehle hi mukammal hai ✅', en:'Today\'s zikr is already complete ✅' }));
+      malaRunSet(pf.id, (first || pf.items[0]).id);
+  }
   function go(i){
     if(i < 0 || i >= cfg.items.length) return;
     idx = i; reroll(); draw(true);
@@ -483,7 +490,7 @@ function malaMount(cfg){
     const snd = sh.querySelector('#malaSnd'); if(snd){ const again = ()=>{ snd.innerHTML = tsPickerHtml(); tsPickerWire(snd, again, ()=>draw(false, true)); }; tsPickerWire(snd, again, ()=>draw(false, true)); }
     sh.querySelectorAll('.ms-more').forEach(b=>{ b.onclick = ()=>{ const f = b.parentElement; f.classList.toggle('open'); openF[f.dataset.f] = f.classList.contains('open'); }; });
     sh.querySelectorAll('details.ms-grp').forEach(d=>{ d.ontoggle = ()=>{ openG[d.dataset.g] = d.open; }; });
-    sh.querySelectorAll('[data-tp]').forEach(b=>{ b.onclick = ()=>{ t.todayProfile = b.dataset.tp === 'auto' ? null : b.dataset.tp; saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-tp]').forEach(b=>{ b.onclick = ()=>{ t.todayProfile = b.dataset.tp === 'auto' ? null : b.dataset.tp; saveState(); panel = null; runToday(); }; });
     const tpe = sh.querySelector('#malaTpEdit'); if(tpe) tpe.onclick = ()=>{ const pf = malaTodayProfile(); if(pf) renderZikrProfile(pf.id); };
     const tpn = sh.querySelector('#malaTpNew'); if(tpn) tpn.onclick = ()=>{
       const name = prompt(L({ rur:'Naye profile ka naam (jaise "Safar ki Duaein"):', en:'Name of the new profile (e.g. "Travel duas"):' }));
@@ -519,13 +526,7 @@ function malaMount(cfg){
     if($('#malaRm')) $('#malaRm').onclick = removeDua;
     $('#malaUndo').onclick = undo;
     $('#malaHist').onclick = ()=>{ panel = panel === 'history' ? null : 'history'; renderSheet(); };
-    if($('#malaToday')) $('#malaToday').onclick = ()=>{
-      const pf = malaTodayProfile(); if(!pf) return;
-      if(!pf.items.length){ showToast(L({ rur:'Is profile mein abhi zikr nahi. Pehle add karein.', en:'This profile has no zikr yet. Add some first.' })); return renderZikrProfile(pf.id); }
-      const day = getZikrDay(new Date(), pf.id, false), first = pf.items.find(it=>(day[it.id] || 0) < (it.target || 1));
-      if(!first) showToast(L({ rur:'Aaj ka zikr pehle hi mukammal hai ✅', en:'Today\'s zikr is already complete ✅' }));
-      malaRunSet(pf.id, (first || pf.items[0]).id);
-    };
+    if($('#malaToday')) $('#malaToday').onclick = runToday;
     $('#malaTg').onclick = ()=>{ panel = panel === 'target' ? null : 'target'; renderSheet(); };
     $('#malaReset').onclick = ()=>{ cfg.reset(idx); draw(); };
     $('#malaPrev').onclick = ()=> go(idx - 1);

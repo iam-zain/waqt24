@@ -5485,9 +5485,16 @@ function ensureZikrProfiles(){
   /* two profiles made from Du'a categories (added once; deleting them later keeps them deleted) */
   if(!state.tasbeeh.catProfiles){
     state.tasbeeh.catProfiles = true;
-    [['anbiya', 'Anbiya ki Duaein (Mushkil Waqt)', 'Anbiya (Mushkil Waqt)', 0], ['istighfar', 'Istighfar', 'Istighfar', 70]].forEach(([id, name, cat, rep])=>{
+    [['anbiya', 'Anbiya ki Duaein (Mushkil Waqt)', 'Anbiya (Mushkil Waqt)', 0], ['istighfar', 'Istighfar', 'Istighfar', 0]].forEach(([id, name, cat, rep])=>{
       if(!state.tasbeeh.profiles.some(p=>p.id === id)) state.tasbeeh.profiles.push({ id, name, builtin:true, dtype:'dua', cat, rep, items:malaCatItems(cat, rep) });
     });
+    saveState();
+  }
+  /* the Istighfar profile used to hold one dua; give it the full list (once), unless the person already changed it */
+  if(!state.tasbeeh.istighfarV2){
+    state.tasbeeh.istighfarV2 = true;
+    const ip = state.tasbeeh.profiles.find(p=>p.id === 'istighfar');
+    if(ip && ip.builtin && ip.items.length <= 1){ ip.rep = 0; ip.items = malaCatItems('Istighfar', 0); }
     saveState();
   }
   if(!state.tasbeeh.daily) state.tasbeeh.daily = {};
@@ -6066,7 +6073,7 @@ const MALA_LIB = [
 /* a profile made from one Du'a category, in the order of the Du'a section; each dua is read as often as its own repeat count */
 function malaCatItems(cat, rep){
   return (typeof DUAS !== 'undefined' ? DUAS : []).filter(d=>d.cat === cat).sort((a, b)=>(a.ord || 99) - (b.ord || 99))
-    .map((d, i)=>({ id:'c' + i + '_' + malaHash(d.title), name:d.title, target:rep || d.rep || 3 }));
+    .map((d, i)=>({ id:'c' + i + '_' + malaHash(d.title), name:d.title, target:rep || d.ptarget || d.rep || 3 }));
 }
 function malaStormItems(){
   return MALA_LIB.slice(0, 5).map((x, i)=>({ id:'st' + (i + 1), name:x.n, ar:x.ar, tr:x.n, m:x.m, en:x.en, target:3 }));
@@ -6391,6 +6398,13 @@ function malaMount(cfg){
       ${prof}
       ${prev.length ? `<div class="ms-lbl">${L({ rur:'Pichle din', en:'Earlier days' })}</div>${prev.join('')}` : ''}`;
   }
+  function runToday(){
+      const pf = malaTodayProfile(); if(!pf) return;
+      if(!pf.items.length){ showToast(L({ rur:'Is profile mein abhi zikr nahi. Pehle add karein.', en:'This profile has no zikr yet. Add some first.' })); return renderZikrProfile(pf.id); }
+      const day = getZikrDay(new Date(), pf.id, false), first = pf.items.find(it=>(day[it.id] || 0) < (it.target || 1));
+      if(!first) showToast(L({ rur:'Aaj ka zikr pehle hi mukammal hai ✅', en:'Today\'s zikr is already complete ✅' }));
+      malaRunSet(pf.id, (first || pf.items[0]).id);
+  }
   function go(i){
     if(i < 0 || i >= cfg.items.length) return;
     idx = i; reroll(); draw(true);
@@ -6525,7 +6539,7 @@ function malaMount(cfg){
     const snd = sh.querySelector('#malaSnd'); if(snd){ const again = ()=>{ snd.innerHTML = tsPickerHtml(); tsPickerWire(snd, again, ()=>draw(false, true)); }; tsPickerWire(snd, again, ()=>draw(false, true)); }
     sh.querySelectorAll('.ms-more').forEach(b=>{ b.onclick = ()=>{ const f = b.parentElement; f.classList.toggle('open'); openF[f.dataset.f] = f.classList.contains('open'); }; });
     sh.querySelectorAll('details.ms-grp').forEach(d=>{ d.ontoggle = ()=>{ openG[d.dataset.g] = d.open; }; });
-    sh.querySelectorAll('[data-tp]').forEach(b=>{ b.onclick = ()=>{ t.todayProfile = b.dataset.tp === 'auto' ? null : b.dataset.tp; saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-tp]').forEach(b=>{ b.onclick = ()=>{ t.todayProfile = b.dataset.tp === 'auto' ? null : b.dataset.tp; saveState(); panel = null; runToday(); }; });
     const tpe = sh.querySelector('#malaTpEdit'); if(tpe) tpe.onclick = ()=>{ const pf = malaTodayProfile(); if(pf) renderZikrProfile(pf.id); };
     const tpn = sh.querySelector('#malaTpNew'); if(tpn) tpn.onclick = ()=>{
       const name = prompt(L({ rur:'Naye profile ka naam (jaise "Safar ki Duaein"):', en:'Name of the new profile (e.g. "Travel duas"):' }));
@@ -6561,13 +6575,7 @@ function malaMount(cfg){
     if($('#malaRm')) $('#malaRm').onclick = removeDua;
     $('#malaUndo').onclick = undo;
     $('#malaHist').onclick = ()=>{ panel = panel === 'history' ? null : 'history'; renderSheet(); };
-    if($('#malaToday')) $('#malaToday').onclick = ()=>{
-      const pf = malaTodayProfile(); if(!pf) return;
-      if(!pf.items.length){ showToast(L({ rur:'Is profile mein abhi zikr nahi. Pehle add karein.', en:'This profile has no zikr yet. Add some first.' })); return renderZikrProfile(pf.id); }
-      const day = getZikrDay(new Date(), pf.id, false), first = pf.items.find(it=>(day[it.id] || 0) < (it.target || 1));
-      if(!first) showToast(L({ rur:'Aaj ka zikr pehle hi mukammal hai ✅', en:'Today\'s zikr is already complete ✅' }));
-      malaRunSet(pf.id, (first || pf.items[0]).id);
-    };
+    if($('#malaToday')) $('#malaToday').onclick = runToday;
     $('#malaTg').onclick = ()=>{ panel = panel === 'target' ? null : 'target'; renderSheet(); };
     $('#malaReset').onclick = ()=>{ cfg.reset(idx); draw(); };
     $('#malaPrev').onclick = ()=> go(idx - 1);
@@ -9831,9 +9839,14 @@ const DUA_SCENES = (function(){
   S[8] = wrap('#0c1a2e','#0f3a3c',`<g fill="#fff" opacity=".7">${[[30,20],[70,40],[120,16],[210,30],[160,52],[290,22]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1.2"/>`).join('')}</g><circle cx="262" cy="30" r="10" fill="#fff6cf"/><path d="M0 70 H320 V150 H0z" fill="#12474b"/><path d="M0 70 q20 -5 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" stroke="#2a7077" stroke-width="2" fill="none"/><g transform="translate(150 104)"><path d="M-70 0 Q-40 -34 20 -26 Q56 -20 70 -4 L98 -22 Q94 0 98 22 L70 4 Q50 30 -20 28 Q-60 28 -70 0z" fill="#3a8a96" opacity=".85" stroke="#8fd0da" stroke-width="1.5"/><circle cx="-48" cy="-6" r="2.2" fill="#0c1a2e"/><circle cx="0" cy="2" r="14" fill="url(#dsl8)"/><circle cx="0" cy="2" r="3.5" fill="#fff3c4"/></g><g fill="none" stroke="#8fd0da" opacity=".5"><circle cx="108" cy="84" r="2"/><circle cx="116" cy="74" r="1.4"/><circle cx="196" cy="86" r="2"/></g>`,8);
   S[9] = wrap('#fff3d6','#f1d7a1',`<path d="M110 150 V70 Q110 22 160 16 Q210 22 210 70 V150z" fill="#fffaf0" stroke="#c9a15a" stroke-width="2"/><path d="M122 150 V74 Q122 34 160 28 Q198 34 198 74 V150z" fill="none" stroke="#c9a15a" stroke-width="1" stroke-dasharray="3 3"/>${lantern(160,50,9)}<circle cx="160" cy="96" r="22" fill="url(#dsl9)"/><path d="M160 86 l3 7 7 .5 -5.5 5 2 7 -6.5 -4 -6.5 4 2 -7 -5.500 -5 7 -.5z" fill="#e5b64a"/><path d="M226 148 Q222 90 234 60 Q238 56 240 60 Q232 92 236 148z" fill="#7a4a24"/><rect x="100" y="146" width="120" height="4" fill="#c9a15a"/>`,9);
   S[10] = wrap('#e4f6e8','#c6e4cc',`<path d="M0 100 L80 56 L150 88 L200 46 L260 90 L320 66 V150 H0z" fill="#c27c4a"/><path d="M0 100 L80 56 L120 76 L60 100z" fill="#a9653a" opacity=".5"/><rect x="40" y="96" width="240" height="30" fill="#2e6a45"/><g fill="#2e6a45"><path d="M62 96 q22 -24 44 0z"/><path d="M118 96 q26 -30 52 0z"/><path d="M186 96 q22 -24 44 0z"/><rect x="104" y="64" width="6" height="34"/><path d="M104 64 l3 -10 3 10z"/><rect x="212" y="68" width="6" height="30"/><path d="M212 68 l3 -10 3 10z"/></g><g stroke="#2e6a45" stroke-width="3"><line x1="22" y1="128" x2="22" y2="92"/><line x1="298" y1="128" x2="298" y2="92"/></g><g fill="#3f8a56"><path d="M22 92 q-14 4 -18 14 q10 -6 18 -4 q10 -2 18 4 q-4 -10 -18 -14z"/><path d="M298 92 q-14 4 -18 14 q10 -6 18 -4 q10 -2 18 4 q-4 -10 -18 -14z"/></g><rect y="126" width="320" height="24" fill="#a9d2b1"/><circle cx="160" cy="112" r="9" fill="none" stroke="#d9a441" stroke-width="2"/>`,10);
+  /* Istighfar: a calm moonlit night with raindrops falling on still water */
+  S['Istighfar'] = wrap('#16233f','#2f5a78',`<g fill="#fff" opacity=".75">${[[30,18],[78,38],[130,14],[190,30],[240,16],[296,40],[160,52]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1.3"/>`).join('')}</g><path d="M262 22a15 15 0 1 0 14 22a12 12 0 0 1 -14 -22z" fill="#fff3c4"/><path d="M0 98 Q60 80 120 94 T240 90 T320 96 V104 H0z" fill="#16304a"/><rect y="100" width="320" height="50" fill="#1c3b56"/><g fill="none" stroke="#8fc3e0" stroke-width="1.4" opacity=".7"><ellipse cx="90" cy="120" rx="24" ry="5.5"/><ellipse cx="90" cy="120" rx="13" ry="2.8"/><ellipse cx="205" cy="130" rx="28" ry="6"/><ellipse cx="205" cy="130" rx="15" ry="3.2"/><ellipse cx="272" cy="112" rx="17" ry="4"/></g><g fill="#bfe3f5" opacity=".9"><path d="M90 84 q5 9 0 13 q-5 -4 0 -13z"/><path d="M205 76 q5 9 0 13 q-5 -4 0 -13z"/><path d="M150 56 q5 9 0 13 q-5 -4 0 -13z"/><path d="M40 70 q4 8 0 11 q-4 -3 0 -11z"/></g>`,'i');
   return S;
 })();
-function duaSceneHtml(d){ return d.ord && DUA_SCENES[d.ord] ? `<div class="dua-scene" aria-hidden="true">${DUA_SCENES[d.ord]}</div>` : ''; }
+function duaSceneHtml(d){
+  const sc = d.cat === 'Anbiya (Mushkil Waqt)' ? (d.ord && DUA_SCENES[d.ord]) : DUA_SCENES[d.cat];
+  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+}
 /* ===== Salutation after the name of Allah: "Allah ﷻ" everywhere =====
    Every text on screen is covered: the names, the Qur'an translations (Hinglish / English, Hindi अल्लाह, Urdu اللہ), the quiz and
    all other screens. It is applied to the text of the page as it appears or changes, so nothing needs editing one by one.
