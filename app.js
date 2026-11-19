@@ -6339,8 +6339,12 @@ function malaLivePhase(M){
 function malaLiveStars(){
   let r = 7, rnd = ()=>{ r = (r * 16807) % 2147483647; return r / 2147483647; };
   const g = [[], [], []];
-  for(let i = 0; i < 70; i++){ const px = (rnd() * 96 + 2).toFixed(1), py = (rnd() * 54 + 2).toFixed(1), sp = rnd() < .3 ? 1.5 : rnd() < .6 ? .8 : 0, c = rnd() < .8 ? '#ffffff' : '#ffe9b0'; g[i % 3].push(`${px}cqw ${py}cqh 0 ${sp}px ${c}`); }
-  return g.map(a=>`<i style="box-shadow:${a.join(',')}"></i>`).join('');
+  /* sharp little points (2 px or 3 px, no blur) ... */
+  for(let i = 0; i < 60; i++){ const px = (rnd() * 96 + 2).toFixed(1), py = (rnd() * 54 + 2).toFixed(1), sp = rnd() < .25 ? 1 : 0, c = rnd() < .8 ? '#ffffff' : '#fff1c4'; g[i % 3].push(`${px}cqw ${py}cqh 0 ${sp}px ${c}`); }
+  /* ... and a few bigger four-pointed sparkles that twinkle on their own */
+  let sp4 = '';
+  for(let i = 0; i < 12; i++){ const px = (rnd() * 90 + 5).toFixed(1), py = (rnd() * 48 + 4).toFixed(1), sz = 7 + Math.round(rnd() * 6), dl = (rnd() * 4).toFixed(1); sp4 += `<b class="sp" style="left:${px}%;top:${py}%;--s:${sz}px;--d:-${dl}s"></b>`; }
+  return g.map(a=>`<i style="box-shadow:${a.join(',')}"></i>`).join('') + sp4;
 }
 /* The moon in the sky shows today's phase from the Islamic date (day 1 is a thin crescent, day 14-15 full, day 29-30 almost gone) */
 function malaMoonSvg(day){
