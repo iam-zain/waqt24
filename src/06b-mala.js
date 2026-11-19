@@ -33,14 +33,34 @@ const MALA_THEMES = [
   { id:'amethyst', n:{rur:'Jamni', en:'Amethyst'},   on:'#a78bfa', off:'#d8d1f2', cur:'#ffffff', mark:'#fb923c' },
   { id:'sunset',   n:{rur:'Shaam', en:'Sunset'},     on:'#f0643c', off:'#8fd3d9', cur:'#ffe2d6', mark:'#e11d48' },
 ];
-const MALA_SCENE_NAMES = [ {rur:'Raat', en:'Night'}, {rur:'Maidaan', en:'Meadow'}, {rur:'Shaam', en:'Dusk'}, {rur:'Pahaad', en:'Peak'}, {rur:'Registan', en:'Desert'}, {rur:'Samundar', en:'Sea'} ];
-const MALA_FX = ['rain', 'snow', 'none', 'petal', 'dust', 'bubble'];
+const MALA_SCENE_NAMES = [ {rur:'Raat', en:'Night'}, {rur:'Maidaan', en:'Meadow'}, {rur:'Shaam', en:'Dusk'}, {rur:'Pahaad', en:'Peak'}, {rur:'Registan', en:'Desert'}, {rur:'Samundar', en:'Sea'}, {rur:'Subah', en:'Sunrise'}, {rur:'Ghuroob', en:'Sunset'}, {rur:'Badal', en:'Cloudy'} ];
+/* Clean backgrounds after the nine scenes: [name, colour or [top, bottom]] */
+const MALA_ART = 9;
+const MALA_PLAIN = [
+  [{rur:'Kaala', en:'Black'}, '#0b0e14'], [{rur:'Gehra Neela', en:'Navy'}, '#10203a'], [{rur:'Gehra Hara', en:'Forest'}, '#0e2a22'],
+  [{rur:'Baingni', en:'Plum'}, '#2a1a40'], [{rur:'Bhoora', en:'Brown'}, '#2d221b'], [{rur:'Slate', en:'Slate'}, '#2b3440'],
+  [{rur:'Neela-Baingni', en:'Indigo glow'}, ['#1b2a6b', '#6a2c91']], [{rur:'Hara-Neela', en:'Emerald sea'}, ['#0f6b4f', '#0b3a6b']],
+  [{rur:'Narangi-Gulabi', en:'Sunset blend'}, ['#e0613a', '#8e2a6b']], [{rur:'Sunehri', en:'Gold dark'}, ['#b88a2e', '#1a1409']],
+  [{rur:'Aasmani', en:'Sky'}, ['#4aa3df', '#1b3c6b']], [{rur:'Raat-Subah', en:'Night to dawn'}, ['#0b1220', '#c9785f']],
+];
+MALA_PLAIN.forEach(x=> MALA_SCENE_NAMES.push(x[0]));
+/* Each scene's own weather when the weather is left on Auto: Night, Meadow, Dusk, Peak, Desert, Sea, Sunrise, Sunset, Cloudy */
+const MALA_FX = ['firefly', 'wind', 'none', 'snow', 'dust', 'bubble', 'none', 'wind', 'rain'];
+const MALA_WEATHER = [
+  { id:'auto', n:{ rur:'Auto', en:'Auto' } }, { id:'none', n:{ rur:'Kuch nahi', en:'None' } },
+  { id:'rain', n:{ rur:'🌧 Barish', en:'🌧 Rain' } }, { id:'snow', n:{ rur:'❄ Baraf', en:'❄ Snow' } },
+  { id:'wind', n:{ rur:'🍃 Hawa', en:'🍃 Wind' } }, { id:'petal', n:{ rur:'🌸 Phool', en:'🌸 Petals' } },
+  { id:'dust', n:{ rur:'✨ Gard', en:'✨ Dust' } }, { id:'bubble', n:{ rur:'🫧 Bulbule', en:'🫧 Bubbles' } },
+  { id:'firefly', n:{ rur:'✦ Jugnu', en:'✦ Fireflies' } },
+];
+const MALA_SPEEDS = [ { id:'slow', k:1.9, n:{ rur:'Aahista', en:'Slow' } }, { id:'mid', k:1, n:{ rur:'Darmiyana', en:'Mild' } }, { id:'fast', k:0.5, n:{ rur:'Tez', en:'Fast' } } ];
+const MALA_AR_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'], MALA_AR_K = { XS:.7, S:.85, M:1, L:1.2, XL:1.45, XXL:1.75 };
 const MALA_TARGETS = [1, 3, 7, 11, 33, 99, 100];
 
 function malaCfg(){
   const t = state.tasbeeh;
   if(!t.mala) t.mala = {};
-  const m = t.mala, d = { theme:0, scene:null, arSize:'M', showTr:true, showM:true, tapAny:true, fx:true };
+  const m = t.mala, d = { theme:0, scene:null, arSize:'M', markEvery:11, showTr:true, showM:true, tapAny:true, fx:true, weather:'auto', speed:'mid' };
   Object.keys(d).forEach(k=>{ if(m[k] === undefined) m[k] = d[k]; });
   return m;
 }
@@ -73,6 +93,11 @@ function malaMeaning(info){ return isEn() ? (info.en || info.m) : (info.m || inf
 
 /* ---------- Scenes (original illustrations, drawn for Waqt24) ---------- */
 function malaScene(i){
+  if(i >= MALA_ART){
+    const c = MALA_PLAIN[i - MALA_ART][1];
+    const fill = Array.isArray(c) ? `<defs><linearGradient id="msp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient></defs><rect width="360" height="640" fill="url(#msp)"/>` : `<rect width="360" height="640" fill="${c}"/>`;
+    return `<svg viewBox="0 0 360 640" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${fill}</svg>`;
+  }
   const star = [[40,60],[110,30],[190,80],[260,40],[320,90],[70,130],[230,140],[150,20],[300,150]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1.4" fill="#fff" opacity=".8"/>`).join('');
   const S = [
     /* 0 Night */ `<defs><linearGradient id="ms0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1220"/><stop offset="1" stop-color="#27394f"/></linearGradient></defs><rect width="360" height="640" fill="url(#ms0)"/>${star}<path d="M0 470 L70 400 L130 450 L210 380 L290 450 L360 410 V640 H0z" fill="#142133"/><path d="M0 520 Q90 490 180 520 T360 510 V640 H0z" fill="#0d1827"/><g stroke="#3b5875" stroke-width="2" opacity=".5"><line x1="40" y1="560" x2="120" y2="560"/><line x1="200" y1="585" x2="300" y2="585"/><line x1="90" y1="610" x2="170" y2="610"/></g>`,
@@ -81,6 +106,9 @@ function malaScene(i){
     /* 3 Peak */ `<defs><linearGradient id="ms3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#241b45"/><stop offset=".7" stop-color="#b96590"/><stop offset="1" stop-color="#f0a97f"/></linearGradient></defs><rect width="360" height="640" fill="url(#ms3)"/>${star}<path d="M-20 520 L150 330 L190 330 L380 520z" fill="#4a3566"/><path d="M130 352 L150 330 L190 330 L210 354 L186 346 L170 358 L152 346z" fill="#fbeaf2"/><path d="M0 540 Q180 510 360 540 V640 H0z" fill="#2a2147"/><g fill="#f7b6cf" opacity=".9">${[[40,440],[62,452],[50,470],[300,430],[322,448],[310,468],[80,430],[286,452]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="9"/>`).join('')}</g><g stroke="#3b2a50" stroke-width="3" fill="none"><path d="M-10 500 Q40 470 70 440"/><path d="M370 500 Q320 470 290 430"/></g>`,
     /* 4 Desert */ `<defs><linearGradient id="ms4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1b98f"/><stop offset="1" stop-color="#fbe7c8"/></linearGradient></defs><rect width="360" height="640" fill="url(#ms4)"/><circle cx="250" cy="380" r="46" fill="#fff0c7" opacity=".9"/><path d="M-20 470 Q100 420 220 470 T380 450 V640 H-20z" fill="#e2a96d"/><path d="M-20 540 Q120 490 260 545 T380 530 V640 H-20z" fill="#d1925a"/><g stroke="#7a4a27" stroke-width="4" fill="none"><path d="M70 500 Q72 450 66 410"/></g><g fill="#3e7a4a"><path d="M66 410 q-34 -6 -44 14 q26 -10 44 -6z M66 410 q34 -6 44 14 q-26 -10 -44 -6z M66 410 q-14 -26 -38 -22 q26 4 38 22z M66 410 q14 -26 38 -22 q-26 4 -38 22z"/></g>`,
     /* 5 Sea */ `<defs><linearGradient id="ms5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06142b"/><stop offset=".55" stop-color="#0b3556"/><stop offset="1" stop-color="#0f5877"/></linearGradient></defs><rect width="360" height="640" fill="url(#ms5)"/>${star}<circle cx="270" cy="110" r="26" fill="#fff6cf"/><circle cx="282" cy="102" r="24" fill="#0a2038" opacity=".25"/><path d="M0 430 H360 V640 H0z" fill="#0d4767" opacity=".8"/><g stroke="#4aa3c7" stroke-width="2" fill="none" opacity=".6"><path d="M0 460 q22 -10 44 0 t44 0 t44 0 t44 0 t44 0 t44 0 t44 0 t44 0"/><path d="M0 500 q22 -10 44 0 t44 0 t44 0 t44 0 t44 0 t44 0 t44 0 t44 0"/><path d="M0 550 q22 -10 44 0 t44 0 t44 0 t44 0 t44 0 t44 0 t44 0 t44 0"/></g><path d="M240 430 l8 -34 l8 34z" fill="#f4e2b8" opacity=".8"/>`,
+    /* 6 Sunrise */ `<defs><linearGradient id="ms6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a6aa5"/><stop offset=".45" stop-color="#e9a9a0"/><stop offset=".72" stop-color="#ffd59a"/><stop offset="1" stop-color="#ffeec9"/></linearGradient><radialGradient id="ms6s"><stop offset="0" stop-color="#fff6d0"/><stop offset="1" stop-color="#fff6d0" stop-opacity="0"/></radialGradient></defs><rect width="360" height="640" fill="url(#ms6)"/><circle cx="180" cy="452" r="150" fill="url(#ms6s)"/><circle cx="180" cy="452" r="48" fill="#fff4c6"/><path d="M-20 470 Q60 430 140 466 T300 458 T400 470 V640 H-20z" fill="#d89a8e"/><path d="M-20 520 Q90 480 190 520 T380 505 V640 H-20z" fill="#8c6f86"/><g fill="#40384f"><path d="M232 505 Q256 462 280 505z"/><rect x="226" y="505" width="60" height="38"/><rect x="292" y="448" width="7" height="95"/><path d="M292 448 L295.5 436 L299 448z"/></g><path d="M-20 570 Q100 540 200 572 T380 560 V640 H-20z" fill="#30293f"/><g fill="none" stroke="#3b3550" stroke-width="1.6" stroke-linecap="round"><path d="M60 150 q8 -8 16 0 q8 -8 16 0"/><path d="M130 110 q6 -6 12 0 q6 -6 12 0"/><path d="M270 170 q7 -7 14 0 q7 -7 14 0"/></g>`,
+    /* 7 Sunset */ `<defs><linearGradient id="ms7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b1b4a"/><stop offset=".4" stop-color="#9a3f6b"/><stop offset=".66" stop-color="#f2693b"/><stop offset="1" stop-color="#ffb35a"/></linearGradient><radialGradient id="ms7s"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs><rect width="360" height="640" fill="url(#ms7)"/><circle cx="180" cy="468" r="140" fill="url(#ms7s)" opacity=".7"/><circle cx="180" cy="470" r="52" fill="#ffd98a"/><path d="M-20 484 L60 446 L130 484 L220 438 L300 484 L380 452 V500 H-20z" fill="#4a2650"/><rect y="496" width="360" height="144" fill="#2a1840"/><g stroke="#ffb764" stroke-linecap="round" opacity=".75"><path d="M130 512 H230" stroke-width="3"/><path d="M146 530 H214" stroke-width="3"/><path d="M158 550 H202" stroke-width="2.5"/><path d="M168 570 H192" stroke-width="2"/></g><g fill="#1b0f2b"><path d="M42 496 L58 480 H98 L114 496z"/><rect x="74" y="446" width="2" height="34"/><path d="M76 448 L100 474 H76z"/></g>`,
+    /* 8 Cloudy */ `<defs><linearGradient id="ms8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d4e63"/><stop offset=".6" stop-color="#8da0b2"/><stop offset="1" stop-color="#c3d0da"/></linearGradient></defs><rect width="360" height="640" fill="url(#ms8)"/><g fill="#e7edf3" opacity=".85"><ellipse cx="90" cy="130" rx="70" ry="22"/><ellipse cx="130" cy="112" rx="46" ry="22"/><ellipse cx="270" cy="210" rx="80" ry="24"/><ellipse cx="236" cy="194" rx="42" ry="20"/></g><g fill="#c2ceda" opacity=".8"><ellipse cx="60" cy="300" rx="64" ry="18"/><ellipse cx="300" cy="340" rx="70" ry="18"/></g><path d="M-20 500 Q80 440 180 490 T380 470 V640 H-20z" fill="#44594f"/><path d="M-20 560 Q120 510 240 560 T380 545 V640 H-20z" fill="#2b3f37"/><g fill="#1c2c27"><path d="M40 560 L58 510 L76 560z"/><path d="M62 570 L84 505 L106 570z"/><path d="M278 556 L296 506 L314 556z"/></g>`,
   ];
   return `<svg viewBox="0 0 360 640" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${S[i % S.length]}</svg>`;
 }
@@ -105,15 +133,23 @@ function malaMount(cfg){
     return { count, target, cur:Math.min(count, target), round:1 };
   }
   const theme = ()=> MALA_THEMES[M.theme] || MALA_THEMES[0];
-  const sceneIdx = ()=> (M.scene != null ? M.scene : (cfg.single ? malaHash(info().n) : idx)) % 6;
+  const sceneIdx = ()=> (M.scene != null ? M.scene : (cfg.single ? malaHash(info().n) : idx)) % MALA_ART;
 
   function arSize(text){
     const n = (text || '').length, base = n <= 24 ? 40 : n <= 50 ? 32 : n <= 90 ? 26 : 22;
-    return Math.round(base * ({ S:.85, M:1, L:1.2 }[M.arSize] || 1));
+    return Math.round(base * (MALA_AR_K[M.arSize] || 1));
+  }
+  function weatherId(){
+    if(!M.fx) return 'none';
+    return M.weather && M.weather !== 'auto' ? M.weather : (MALA_FX[sceneIdx()] || 'none');
   }
   function particles(){
-    if(!M.fx) return '';
-    return Array.from({ length:22 }).map((_, i)=>`<i style="left:${(i * 47 + malaHash('p' + i) % 40) % 100}%;animation-delay:${-((i * 0.77) % 6).toFixed(2)}s;animation-duration:${(3.5 + (i % 5) * 0.9).toFixed(1)}s"></i>`).join('');
+    const w = weatherId(); if(w === 'none') return '';
+    const k = (MALA_SPEEDS.find(x=>x.id === M.speed) || MALA_SPEEDS[1]).k, n = w === 'wind' ? 16 : w === 'firefly' ? 14 : 24;
+    return Array.from({ length:n }).map((_, i)=>{
+      const h = malaHash('p' + i), x = (i * 47 + h % 40) % 100, y = (i * 29 + h % 31) % 94, base = w === 'wind' ? 1.6 + (i % 5) * 0.45 : w === 'firefly' ? 5 + (i % 4) * 1.6 : 3.5 + (i % 5) * 0.9;
+      return `<i style="left:${x}%;--y:${y}%;animation-delay:${-((i * 0.77) % 6).toFixed(2)}s;animation-duration:${(base * k).toFixed(2)}s"></i>`;
+    }).join('');
   }
   function defs(){
     const th = theme(), g = (id, c)=>`<radialGradient id="${id}" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="${malaMix(c, '#ffffff', .55)}"/><stop offset=".5" stop-color="${c}"/><stop offset="1" stop-color="${malaMix(c, '#000000', .35)}"/></radialGradient>`;
@@ -138,7 +174,7 @@ function malaMount(cfg){
       ${M.showM && mean ? `<div class="mala-m">${malaEsc(mean)}</div>` : ''}`;
   }
   function html(){
-    const th = theme(), c = counts(), fx = M.fx ? MALA_FX[sceneIdx()] : 'none';
+    const th = theme(), c = counts(), fx = weatherId();
     const chip = cfg.single ? (t.seq != null ? `${L({ rur:'Tasbeeh-e-Fatima', en:'Tasbeeh of Fatima' })} · ${t.seq + 1}/3` : '') : `${L({ rur:'Dua', en:'Dua' })} ${idx + 1} / ${cfg.items.length}`;
     return `<div class="mala ${M.tapAny ? 'tap-any' : ''}" data-fx="${fx}" style="--mo:${th.on};--mf:${th.off};--mc:${th.cur};--mk:${th.mark}">
       <div class="mala-bg">${malaScene(sceneIdx())}</div>
@@ -146,6 +182,8 @@ function malaMount(cfg){
       <div class="mala-top">
         ${cfg.onBack ? `<button type="button" class="mala-btn" id="malaBack" aria-label="Wapas">‹ ${malaEsc(cfg.backLabel || '')}</button>` : ''}
         ${chip ? `<span class="mala-chip">${chip}</span>` : ''}<i class="mala-sp"></i>
+        <button type="button" class="mala-btn" id="malaFm" aria-label="Font smaller">A−</button>
+        <button type="button" class="mala-btn" id="malaFp" aria-label="Font bigger">A+</button>
         <button type="button" class="mala-btn" id="malaPick" aria-label="Dua chunein">📖</button>
         <button type="button" class="mala-btn" id="malaSet" aria-label="Settings">⚙</button>
       </div>
@@ -178,7 +216,7 @@ function malaMount(cfg){
       else { k = Math.floor(c) - 8 + j; u = k - c; }
       if(k < 1 || k > n){ el.setAttribute('opacity', 0); return; }
       const sp = stat ? Math.min(40, 290 / n) : 24, x = 180 + u * sp, au = Math.abs(u), lim = stat ? 99 : 7.6;
-      const marker = !stat && k % 11 === 0 && k < n, last = k === n;
+      const ev = M.markEvery === 0 ? 0 : (M.markEvery || 11), marker = !stat && ev > 0 && k % ev === 0 && k < n, last = k === n;
       const isCur = k === cur, isOn = k <= cur;
       let r = (stat ? 14 : 8 + 5 * Math.max(0, 1 - au / 6)) * (marker ? 1.22 : 1) * (isCur ? 1.15 : 1);
       el.setAttribute('cx', x.toFixed(1)); el.setAttribute('cy', malaY(x).toFixed(1)); el.setAttribute('r', r.toFixed(1));
@@ -238,7 +276,7 @@ function malaMount(cfg){
     const c = counts();
     if(!cfg.selfFeedback){
       if(t.vibrate !== false && navigator.vibrate) navigator.vibrate(c.cur === c.target ? [60, 50, 60, 50, 140] : 12);
-      if(typeof tasbeehBeep === 'function') tasbeehBeep(c.cur === c.target ? 'done' : (c.target > 11 && c.cur % 11 === 0 ? 'mark' : ''));
+      if(typeof tasbeehBeep === 'function') tasbeehBeep(c.cur === c.target ? 'done' : (c.target > 11 && M.markEvery !== 0 && c.cur % (M.markEvery || 11) === 0 ? 'mark' : ''));
     }
     /* a new round starts from the first bead again */
     if(cfg.single && c.cur === 1 && before.cur === before.target){ pos = 0; place(0); }
@@ -263,13 +301,21 @@ function malaMount(cfg){
       <div class="ms-chips">${MALA_THEMES.map((x, i)=>`<button type="button" class="ms-theme${M.theme === i ? ' on' : ''}" data-theme="${i}" aria-label="${L(x.n)}"><span style="background:${x.on}"></span><span style="background:${x.cur}"></span><span style="background:${x.off}"></span><em>${L(x.n)}</em></button>`).join('')}</div>
       <div class="ms-hint"><span style="--c:var(--mo)"></span>${L({ rur:'ginti hue', en:'counted' })} <span style="--c:var(--mc)"></span>${L({ rur:'abhi wala', en:'current' })} <span style="--c:var(--mf)"></span>${L({ rur:'baaki', en:'to come' })}</div>
       <div class="ms-lbl">${L({ rur:'Manzar', en:'Scene' })}</div>
-      <div class="ms-chips"><button type="button" class="ms-chip${M.scene == null ? ' on' : ''}" data-scene="auto">${L({ rur:'Auto', en:'Auto' })}</button>${MALA_SCENE_NAMES.map((x, i)=>`<button type="button" class="ms-chip${M.scene === i ? ' on' : ''}" data-scene="${i}">${L(x)}</button>`).join('')}</div>
+      <div class="ms-chips"><button type="button" class="ms-chip${M.scene == null ? ' on' : ''}" data-scene="auto">${L({ rur:'Auto', en:'Auto' })}</button>${MALA_SCENE_NAMES.slice(0, MALA_ART).map((x, i)=>`<button type="button" class="ms-chip${M.scene === i ? ' on' : ''}" data-scene="${i}">${L(x)}</button>`).join('')}</div>
+      <div class="ms-lbl">${L({ rur:'Saaf rang aur gradient', en:'Clean colours and gradients' })}</div>
+      <div class="ms-chips">${MALA_PLAIN.map((x, j)=>{ const i = MALA_ART + j, c = x[1], bg = Array.isArray(c) ? `linear-gradient(135deg,${c[0]},${c[1]})` : c; return `<button type="button" class="ms-chip ms-bg${M.scene === i ? ' on' : ''}" data-scene="${i}"><span style="background:${bg}"></span>${L(x[0])}</button>`; }).join('')}</div>
       <div class="ms-lbl">${L({ rur:'Arabic ka size', en:'Arabic size' })}</div>
-      <div class="ms-chips">${['S', 'M', 'L'].map(s=>`<button type="button" class="ms-chip${M.arSize === s ? ' on' : ''}" data-ars="${s}">${s === 'S' ? 'A−' : s === 'M' ? 'A' : 'A+'}</button>`).join('')}</div>
+      <div class="ms-chips">${MALA_AR_SIZES.map((s, i)=>`<button type="button" class="ms-chip${M.arSize === s ? ' on' : ''}" data-ars="${s}">${['A−−', 'A−', 'A', 'A+', 'A++', 'A+++'][i]}</button>`).join('')}</div>
+      <div class="ms-lbl">${L({ rur:'Khaas moti (alag rang)', en:'Marker bead' })}</div>
+      <div class="ms-chips">${[[11, { rur:'Har 11vi', en:'Every 11th' }], [10, { rur:'Har 10vi', en:'Every 10th' }], [0, { rur:'Band', en:'Off' }]].map(x=>`<button type="button" class="ms-chip${(M.markEvery == null ? 11 : M.markEvery) === x[0] ? ' on' : ''}" data-mk="${x[0]}">${L(x[1])}</button>`).join('')}</div>
+      <div class="ms-hint">${L({ rur:'Asli tasbeeh ki tarah har 11vi moti par nishaan, taake 33 mein 11-11 ka hisaab dikhe.', en:'Like a real tasbih, a marker bead every 11 so you can see 11-11-11 inside 33.' })}</div>
       ${sw('showTr', M.showTr, L({ rur:'Talaffuz dikhayein', en:'Show pronunciation' }))}
       ${sw('showM', M.showM, L({ rur:'Tarjuma dikhayein', en:'Show meaning' }))}
       ${sw('tapAny', M.tapAny, L({ rur:'Screen par kahin bhi tap karein', en:'Tap anywhere to count' }))}
-      ${sw('fx', M.fx, L({ rur:'Barish / baraf ka asar', en:'Weather effect' }))}
+      <div class="ms-lbl">${L({ rur:'Mausam', en:'Weather' })}</div>
+      <div class="ms-chips">${MALA_WEATHER.map(x=>`<button type="button" class="ms-chip${(M.fx ? (M.weather || 'auto') : 'none') === x.id ? ' on' : ''}" data-wx="${x.id}">${L(x.n)}</button>`).join('')}</div>
+      <div class="ms-lbl">${L({ rur:'Mausam ki raftaar', en:'Weather speed' })}</div>
+      <div class="ms-chips">${MALA_SPEEDS.map(x=>`<button type="button" class="ms-chip${(M.speed || 'mid') === x.id ? ' on' : ''}" data-spd="${x.id}">${L(x.n)}</button>`).join('')}</div>
       ${sw('sound', !!t.sound, L({ rur:'Awaaz', en:'Sound' }))}
       <div id="malaSnd">${tsPickerHtml()}</div>
       ${sw('vibrate', t.vibrate !== false, L({ rur:'Vibration', en:'Vibration' }))}
@@ -282,6 +328,9 @@ function malaMount(cfg){
     sh.querySelectorAll('[data-close]').forEach(b=>{ b.onclick = ()=>{ panel = null; renderSheet(); }; });
     sh.querySelectorAll('[data-theme]').forEach(b=>{ b.onclick = ()=>{ M.theme = +b.dataset.theme; saveState(); draw(); }; });
     sh.querySelectorAll('[data-scene]').forEach(b=>{ b.onclick = ()=>{ M.scene = b.dataset.scene === 'auto' ? null : +b.dataset.scene; saveState(); draw(); }; });
+    sh.querySelectorAll('[data-wx]').forEach(b=>{ b.onclick = ()=>{ M.weather = b.dataset.wx; M.fx = b.dataset.wx !== 'none'; saveState(); draw(); }; });
+    sh.querySelectorAll('[data-spd]').forEach(b=>{ b.onclick = ()=>{ M.speed = b.dataset.spd; saveState(); draw(); }; });
+    sh.querySelectorAll('[data-mk]').forEach(b=>{ b.onclick = ()=>{ M.markEvery = +b.dataset.mk; saveState(); draw(); }; });
     sh.querySelectorAll('[data-ars]').forEach(b=>{ b.onclick = ()=>{ M.arSize = b.dataset.ars; saveState(); draw(); }; });
     sh.querySelectorAll('[data-sw]').forEach(b=>{
       b.onclick = ()=>{
@@ -293,7 +342,7 @@ function malaMount(cfg){
     sh.querySelectorAll('[data-tg]').forEach(b=>{
       b.onclick = ()=>{
         let n = b.dataset.tg === 'custom' ? parseInt(prompt(L({ rur:'Apna target darj karein:', en:'Enter your target:' }), counts().target)) : +b.dataset.tg;
-        if(n && n > 0){ cfg.setTarget(idx, n); panel = null; draw(); }
+        if(n && n > 0){ cfg.setTarget(idx, n); if(cfg.single) cfg.items[0] = malaSingleItem(); panel = null; draw(); }
       };
     });
     const snd = sh.querySelector('#malaSnd'); if(snd){ const again = ()=>{ snd.innerHTML = tsPickerHtml(); tsPickerWire(snd, again); }; tsPickerWire(snd, again); }
@@ -314,6 +363,8 @@ function malaMount(cfg){
     if($('#malaBack')) $('#malaBack').onclick = ()=> cfg.onBack();
     const pick = ()=>{ if(cfg.onPick) cfg.onPick(); };
     if($('#malaPick')) $('#malaPick').onclick = pick; if($('#malaPick2')) $('#malaPick2').onclick = pick;
+    const stepFont = d=>{ const i = Math.max(0, MALA_AR_SIZES.indexOf(M.arSize || 'M')), j = Math.max(0, Math.min(MALA_AR_SIZES.length - 1, i + d)); if(j === i) return; M.arSize = MALA_AR_SIZES[j]; saveState(); draw(); };
+    $('#malaFm').onclick = ()=>stepFont(-1); $('#malaFp').onclick = ()=>stepFont(1);
     $('#malaSet').onclick = ()=>{ panel = panel === 'settings' ? null : 'settings'; renderSheet(); };
     $('#malaTg').onclick = ()=>{ panel = panel === 'target' ? null : 'target'; renderSheet(); };
     $('#malaReset').onclick = ()=>{ cfg.reset(idx); draw(); };

@@ -2336,3 +2336,11 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .ts-pickbtn, .dua-tasbeeh-btn{ border:1.5px solid color-mix(in srgb, var(--accent) 55%, var(--line)); background:color-mix(in srgb, var(--accent) 10%, var(--card)); color:var(--accentInk, var(--accent)); }
 .mala-run{ border:none; background:var(--accent); color:var(--fardText); box-shadow:var(--sh-2); }
 .ts-pickbtn:active, .mala-run:active, .dua-tasbeeh-btn:active{ transform:scale(.98); }
+
+/* Mala weather: wind, fireflies, and a taller falling range */
+.mala[data-fx="wind"] .mala-fx i{ left:-12% !important; top:var(--y); width:26px; height:1.5px; border-radius:2px; background:linear-gradient(90deg, transparent, rgba(255,255,255,.65)); animation-name:malaWind; }
+.mala[data-fx="firefly"] .mala-fx i{ top:var(--y); width:5px; height:5px; border-radius:50%; background:#ffe98a; box-shadow:0 0 8px 3px rgba(255,226,120,.7); animation-name:malaFly; animation-timing-function:ease-in-out; }
+@keyframes malaWind{ 0%{ transform:translate(0,0); opacity:0; } 10%{ opacity:.8; } 100%{ transform:translate(130vw,18px); opacity:0; } }
+@keyframes malaFly{ 0%,100%{ transform:translate(0,0); opacity:.15; } 25%{ transform:translate(18px,-14px); opacity:1; } 50%{ transform:translate(-10px,-26px); opacity:.3; } 75%{ transform:translate(14px,-10px); opacity:.95; } }
+.ms-bg{ display:inline-flex; align-items:center; gap:7px; }
+.ms-bg span{ width:16px; height:16px; border-radius:50%; border:1px solid rgba(255,255,255,.35); flex:0 0 auto; }
