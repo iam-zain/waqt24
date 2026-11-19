@@ -4774,8 +4774,8 @@ function renderMoreAbout(){
       <div class="howto-ic">${uiIcon('about')}</div>
       <div class="howto-body">
         <div class="howto-t">${L({rur:'Banane wale', en:'Made by'})}</div>
-        <div class="howto-d"><b data-no-i18n>Dr Zain</b> (PhD, Computational Biology)<br>${L({rur:'Yeh app Dr Zain ne banayi hai.', en:'This app is made by Dr Zain.'})}</div>
-        ${ABOUT_LINKEDIN ? `<a class="raabta-btn" style="display:inline-block;margin-top:8px" href="${ABOUT_LINKEDIN}" target="_blank" rel="noopener" data-no-i18n>LinkedIn</a>` : ''}
+        <div class="howto-d"><b data-no-i18n>Dr Zain</b><br><span data-no-i18n>PhD, Computational Biology<br>University of Hyderabad</span><br>${L({rur:'Yeh app Dr Zain ne banayi hai.', en:'This app is made by Dr Zain.'})}</div>
+        ${ABOUT_LINKEDIN ? `<a class="li-link" href="${ABOUT_LINKEDIN}" target="_blank" rel="noopener" data-no-i18n><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="4.5" fill="#0A66C2"/><circle cx="7.3" cy="7.6" r="1.7" fill="#fff"/><path fill="#fff" d="M5.8 10h3v8.4h-3zM10.8 10h2.9v1.2c.5-.8 1.5-1.4 2.9-1.4 2.6 0 3.4 1.7 3.4 4v4.6h-3v-4.1c0-1.1-.3-1.8-1.3-1.8-1.1 0-1.5.8-1.5 1.9v4h-3z"/></svg><span>LinkedIn</span></a>` : ''}
       </div>
     </div>
   `;

@@ -2115,3 +2115,6 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .howto-card.sub .howto-d{ font-size:12.5px; }
 .about-maker{ margin-top:18px; }
 .raabta-ic svg{ width:34px; height:34px; color:var(--accentInk, var(--accent)); }
+.li-link{ display:inline-flex; align-items:center; gap:8px; margin-top:10px; padding:7px 14px 7px 8px; border-radius:999px; border:1px solid var(--line); background:var(--card2, var(--card)); color:var(--text); font-weight:700; font-size:13px; text-decoration:none; }
+.li-link svg{ width:22px; height:22px; flex:none; }
+.li-link:active{ transform:scale(.97); }
