@@ -5528,6 +5528,8 @@ function zikrDayMarkedBaaki(date, profileId){
   const k = dayKey(date);
   return !!(state.tasbeeh.daily[k] && state.tasbeeh.daily[k][profileId] && state.tasbeeh.daily[k][profileId].__marked);
 }
+/* Weekdays always run Monday to Sunday; the number is JS getDay() (0 = Sunday) */
+const ZIKR_DAYS = [[1, 'Peer', 'Mon'], [2, 'Mangal', 'Tue'], [3, 'Budh', 'Wed'], [4, 'Jumeraat', 'Thu'], [5, 'Juma', 'Fri'], [6, 'Hafta', 'Sat'], [0, 'Itwar', 'Sun']];
 function renderZikrProfileList(){
   ensureZikrProfiles();
   const wrap = document.getElementById('zikrProfileList');
@@ -5538,7 +5540,7 @@ function renderZikrProfileList(){
     const pct = total>0 ? Math.round(done/total*100) : 0;
     return `<div class="zikr-profile-card" data-pf="${pf.id}">
       <div style="flex:1;">
-        <div class="zpName">${pf.name}${pf.sched && pf.sched.days && pf.sched.days.length ? ' <small class="zpTag">🗓 ' + (pf.sched.days.length === 7 ? L({ rur:'har din', en:'daily' }) : pf.sched.days.map(i=>['Itwar', 'Peer', 'Mangal', 'Budh', 'Jumeraat', 'Jumma', 'Hafta'][i]).join(', ')) + '</small>' : ''}</div>
+        <div class="zpName">${pf.name}${pf.sched && pf.sched.days && pf.sched.days.length ? ' <small class="zpTag">🗓 ' + (pf.sched.days.length === 7 ? L({ rur:'har din', en:'daily' }) : ZIKR_DAYS.filter(x=>pf.sched.days.includes(x[0])).map(x=>isEn() ? x[2] : x[1]).join(', ')) + '</small>' : ''}</div>
         <div class="zpProgWrap"><div style="width:${pct}%;"></div></div>
         <div class="zpCount">${done}/${total} zikr mukammal (aaj)</div>
       </div>
@@ -5657,9 +5659,9 @@ function renderZikrProfile(profileId){
   /* When should this set be today's zikr? (days of the week and morning / evening) */
   function renderSched(){
     const sc = profile.sched || { days:[], slot:'any' }, box = document.getElementById('zikrSched'); if(!box) return;
-    const dn = L({ rur:['Itwar', 'Peer', 'Mangal', 'Budh', 'Jumeraat', 'Jumma', 'Hafta'], en:['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] });
+    const dn = ZIKR_DAYS.map(x=>[x[0], isEn() ? x[2] : x[1]]);
     box.innerHTML = `<div class="zs-h">🗓 ${L({ rur:'Aaj ka zikr kab banega?', en:'When is this today\'s zikr?' })}</div>
-      <div class="zs-days">${dn.map((n, i)=>`<button type="button" class="zs-chip${sc.days.includes(i) ? ' on' : ''}" data-zd="${i}">${n}</button>`).join('')}</div>
+      <div class="zs-days">${dn.map(x=>`<button type="button" class="zs-chip${sc.days.includes(x[0]) ? ' on' : ''}" data-zd="${x[0]}">${x[1]}</button>`).join('')}</div>
       <div class="zs-days">${[['any', { rur:'Kabhi bhi', en:'Any time' }], ['am', { rur:'Subah (1 baje tak)', en:'Morning (till 1pm)' }], ['pm', { rur:'Dopahar ke baad', en:'Afternoon on' }]].map(x=>`<button type="button" class="zs-chip${(sc.slot || 'any') === x[0] ? ' on' : ''}" data-zs="${x[0]}">${L(x[1])}</button>`).join('')}</div>
       <div class="zs-n">${sc.days.length ? L({ rur:'In dino "Aaj ka zikr" button yahi set kholega (jab tak aap kuch aur na chunein).', en:'On these days the "Today\'s zikr" button opens this set (unless you pick another).' }) : L({ rur:'Koi din nahi chuna, to yeh set apne aap nahi aayega.', en:'No day picked, so this set is not chosen automatically.' })}</div>`;
     box.querySelectorAll('[data-zd]').forEach(b=>{ b.onclick = ()=>{ const d = +b.dataset.zd, c = profile.sched || (profile.sched = { days:[], slot:'any' }); c.days = c.days.includes(d) ? c.days.filter(x=>x !== d) : [...c.days, d]; saveState(); renderSched(); }; });
@@ -5668,7 +5670,7 @@ function renderZikrProfile(profileId){
   renderSched();
   document.getElementById('zikrBackToTasbeeh').onclick = ()=>{
     /* back to the counter on the dua that was just open, not on the earlier plain zikr */
-    const last = window.__malaLast;
+    const last = state.tasbeeh.lastRun;
     if(last && last.pid === profile.id && profile.items.some(it=>it.id === last.id)) return malaRunSet(profile.id, last.id);
     renderTasbeeh();
   };
@@ -6603,8 +6605,8 @@ function malaMount(cfg){
       <div class="ms-lbl">${L({ rur:'Roshni', en:'Brightness' })}</div>
       <div class="ms-chips">${[[0, { rur:'🌙 Gehra', en:'🌙 Dark' }], [1, { rur:'🌤 Darmiyana', en:'🌤 Medium' }], [2, { rur:'☀ Roshan', en:'☀ Light' }]].map(x=>`<button type="button" class="ms-chip${(M.light == null ? 1 : M.light) === x[0] ? ' on' : ''}" data-lt="${x[0]}">${L(x[1])}</button>`).join('')}</div>
       <div class="ms-lbl">${L({ rur:'Live aasman (subah se raat tak)', en:'Live sky (dawn to night)' })}</div>
-      <div class="ms-chips">${[[0, { rur:'Band', en:'Off' }], ['real', { rur:'🕌 Asli waqt', en:'🕌 Real time' }], ...MALA_LIVE_MIN.map(m=>[m, { rur:m + ' min', en:m + ' min' }])].map(x=>`<button type="button" class="ms-chip${(!M.live ? 0 : M.liveReal ? 'real' : M.liveMin || 5) === x[0] ? ' on' : ''}" data-live="${x[0]}">${L(x[1])}</button>`).join('')}</div>
-      <div class="ms-hint">${L({ rur:'Poora din-raat itne waqt mein (counter ke ⏸ se rukta hai). "Asli waqt" mein aasman aapke shehar ke Fajr, Zuhr, Maghrib aur Isha ke hisaab se chalta hai.', en:'One full day-and-night in this time (pause with the ⏸). "Real time" follows the Fajr, Zuhr, Maghrib and Isha of your city.' })}</div>
+      <div class="ms-chips">${[[0, { rur:'Band', en:'Off' }], ['real', { rur:'Waqti', en:'Real time' }], ...MALA_LIVE_MIN.map(m=>[m, { rur:m + ' min', en:m + ' min' }])].map(x=>`<button type="button" class="ms-chip${(!M.live ? 0 : M.liveReal ? 'real' : M.liveMin || 5) === x[0] ? ' on' : ''}" data-live="${x[0]}">${L(x[1])}</button>`).join('')}</div>
+      <div class="ms-hint">${L({ rur:'Poora din-raat itne waqt mein (counter ke ⏸ se rukta hai). "Waqti" mein aasman aapke shehar ke Fajr, Zuhr, Maghrib aur Isha ke hisaab se chalta hai.', en:'One full day-and-night in this time (pause with the ⏸). "Real time" follows the Fajr, Zuhr, Maghrib and Isha of your city.' })}</div>
       <div class="ms-lbl">${L({ rur:'Manzar', en:'Scene' })}</div>
       <div class="ms-fold${F('sc')}" data-f="sc"><div class="ms-chips"><button type="button" class="ms-chip${!M.live && M.scene == null ? ' on' : ''}" data-scene="auto">${L({ rur:'Auto', en:'Auto' })}</button>${MALA_SCENE_NAMES.slice(0, MALA_ART).map((x, i)=>`<button type="button" class="ms-chip${!M.live && M.scene === i ? ' on' : ''}" data-scene="${i}">${L(x)}</button>`).join('')}</div><button type="button" class="ms-more" aria-label="More">▾</button></div>
       <div class="ms-lbl">${L({ rur:'Saaf rang aur gradient', en:'Clean colours and gradients' })}</div>
@@ -6625,6 +6627,7 @@ function malaMount(cfg){
     const ps = (ensureZikrProfiles(), t.profiles), tpId = t.todayProfile && ps.some(x=>x.id === t.todayProfile) ? t.todayProfile : 'auto';
     const zikrTop = `<div class="ms-hint" style="margin:0 0 8px">${L({ rur:'Upar "📋 Aaj ka zikr" button isi profile ko kholta hai. Ek ek zikr poora hone par agla khud aa jata hai.', en:'The "📋" button at the top opens this profile. Each zikr moves on to the next when it is done.' })}</div>
       <div class="ms-chips"><button type="button" class="ms-chip${tpId === 'auto' ? ' on' : ''}" data-tp="auto">${L({ rur:'Auto (subah / shaam)', en:'Auto (morning / evening)' })}</button>${ps.map(x=>`<button type="button" class="ms-chip${tpId === x.id ? ' on' : ''}" data-tp="${x.id}">${malaEsc(x.name.replace(/\s*\(.*\)\s*$/, ''))}</button>`).join('')}</div>
+      ${t.lastRun || !cfg.single ? `<button type="button" class="ms-link" id="malaPlain">📿 ${L({ rur:'Seedha counter (profile ke bina)', en:'Plain counter (no profile)' })}</button>` : ''}
       <button type="button" class="ms-link" id="malaTpEdit">✎ ${L({ rur:'Is profile ke zikr edit karein', en:'Edit this profile\'s zikr' })}</button>
       <button type="button" class="ms-link" id="malaTpNew">＋ ${L({ rur:'Naya profile banayein', en:'Create a new profile' })}</button>`;
     const countBox = `${sw('tapAny', M.tapAny, L({ rur:'Screen par kahin bhi tap karein', en:'Tap anywhere to count' }))}
@@ -6689,6 +6692,7 @@ function malaMount(cfg){
     sh.querySelectorAll('.ms-more').forEach(b=>{ b.onclick = ()=>{ const f = b.parentElement; f.classList.toggle('open'); openF[f.dataset.f] = f.classList.contains('open'); }; });
     sh.querySelectorAll('details.ms-grp').forEach(d=>{ d.ontoggle = ()=>{ openG[d.dataset.g] = d.open; }; });
     sh.querySelectorAll('[data-tp]').forEach(b=>{ b.onclick = ()=>{ t.todayProfile = b.dataset.tp === 'auto' ? null : b.dataset.tp; saveState(); panel = null; runToday(); }; });
+    const pln = sh.querySelector('#malaPlain'); if(pln) pln.onclick = ()=>{ t.lastRun = null; saveState(); malaOpenMain(); };
     const tpe = sh.querySelector('#malaTpEdit'); if(tpe) tpe.onclick = ()=>{ const pf = malaTodayProfile(); if(pf) renderZikrProfile(pf.id); };
     const tpn = sh.querySelector('#malaTpNew'); if(tpn) tpn.onclick = ()=>{
       const name = prompt(L({ rur:'Naye profile ka naam (jaise "Safar ki Duaein"):', en:'Name of the new profile (e.g. "Travel duas"):' }));
@@ -6812,7 +6816,7 @@ function renderMalaPicker(opts){
 function malaUse(info){
   const t = state.tasbeeh;
   t.label = info.n; t.labelAr = info.ar || ''; t.labelTr = info.tr || ''; t.labelM = info.m || ''; t.labelEn = info.en || '';
-  t.target = info.t || t.target || 33; t.count = 0; t.seq = null; saveState();
+  t.target = info.t || t.target || 33; t.count = 0; t.seq = null; t.lastRun = null; saveState();
 }
 function malaSingleItem(){
   const t = state.tasbeeh;
@@ -6845,6 +6849,15 @@ function malaStartWith(info, onBack, backLabel){
     onPick:()=> renderMalaPicker({ onBack:()=>malaStartWith(info, onBack, backLabel), onPick:p=>malaStartWith(p, onBack, backLabel) }),
   });
 }
+/* The profile dua being read is saved, so the counter comes back on it after a refresh (until the set is done or the day changes) */
+function malaRemember(pid, id){ state.tasbeeh.lastRun = { pid, id, day:dayKey(new Date()) }; saveState(); }
+function malaResumeRun(){
+  const t = state.tasbeeh, r = t.lastRun; if(!r) return false;
+  ensureZikrProfiles();
+  const pf = t.profiles.find(p=>p.id === r.pid);
+  if(!pf || r.day !== dayKey(new Date()) || !pf.items.some(i=>i.id === r.id) || isZikrProfileComplete(new Date(), pf)){ t.lastRun = null; saveState(); return false; }
+  malaRunSet(r.pid, r.id); return true;
+}
 function malaRunSet(profileId, itemId){
   ensureZikrProfiles();
   const pf = state.tasbeeh.profiles.find(p=>p.id === profileId); if(!pf) return renderTasbeeh();
@@ -6852,9 +6865,9 @@ function malaRunSet(profileId, itemId){
   const items = pf.items;
   if(!items.length){ showToast(L({ rur:'Is set mein abhi koi dua nahi', en:'No duas in this set yet' })); return renderZikrProfile(profileId); }
   let start = Math.max(0, items.findIndex(i=>i.id === itemId));
-  if(items[start]) window.__malaLast = { pid:profileId, id:items[start].id };
+  if(items[start]) malaRemember(profileId, items[start].id);
   malaMount({
-    onIdx:it=>{ window.__malaLast = { pid:profileId, id:it.id }; },
+    onIdx:it=>{ malaRemember(profileId, it.id); },
     single:false, selfFeedback:false, idx:start, title:pf.name,
     items, get:i=> day[items[i].id] || 0,
     inc:i=>{ const it = items[i]; day[it.id] = (day[it.id] || 0) + 1; const lg = tasbeehLog(), dk = dayKey(new Date()); lg[dk] = (lg[dk] || 0) + 1; saveState(); return day[it.id]; },
@@ -6871,7 +6884,7 @@ function malaRunSet(profileId, itemId){
 function renderTasbeeh(){
   const t = state.tasbeeh;
   if(!t.designChosen && t.design === 'tap') t.design = 'mala';
-  if(t.design === 'mala' && !window.__tsClassicOnce) return malaOpenMain();
+  if(t.design === 'mala' && !window.__tsClassicOnce){ if(malaResumeRun()) return; return malaOpenMain(); }
   window.__tsClassicOnce = false;
   renderTasbeehClassic();
 }

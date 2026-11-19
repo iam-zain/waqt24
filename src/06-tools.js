@@ -718,6 +718,8 @@ function zikrDayMarkedBaaki(date, profileId){
   const k = dayKey(date);
   return !!(state.tasbeeh.daily[k] && state.tasbeeh.daily[k][profileId] && state.tasbeeh.daily[k][profileId].__marked);
 }
+/* Weekdays always run Monday to Sunday; the number is JS getDay() (0 = Sunday) */
+const ZIKR_DAYS = [[1, 'Peer', 'Mon'], [2, 'Mangal', 'Tue'], [3, 'Budh', 'Wed'], [4, 'Jumeraat', 'Thu'], [5, 'Juma', 'Fri'], [6, 'Hafta', 'Sat'], [0, 'Itwar', 'Sun']];
 function renderZikrProfileList(){
   ensureZikrProfiles();
   const wrap = document.getElementById('zikrProfileList');
@@ -728,7 +730,7 @@ function renderZikrProfileList(){
     const pct = total>0 ? Math.round(done/total*100) : 0;
     return `<div class="zikr-profile-card" data-pf="${pf.id}">
       <div style="flex:1;">
-        <div class="zpName">${pf.name}${pf.sched && pf.sched.days && pf.sched.days.length ? ' <small class="zpTag">🗓 ' + (pf.sched.days.length === 7 ? L({ rur:'har din', en:'daily' }) : pf.sched.days.map(i=>['Itwar', 'Peer', 'Mangal', 'Budh', 'Jumeraat', 'Jumma', 'Hafta'][i]).join(', ')) + '</small>' : ''}</div>
+        <div class="zpName">${pf.name}${pf.sched && pf.sched.days && pf.sched.days.length ? ' <small class="zpTag">🗓 ' + (pf.sched.days.length === 7 ? L({ rur:'har din', en:'daily' }) : ZIKR_DAYS.filter(x=>pf.sched.days.includes(x[0])).map(x=>isEn() ? x[2] : x[1]).join(', ')) + '</small>' : ''}</div>
         <div class="zpProgWrap"><div style="width:${pct}%;"></div></div>
         <div class="zpCount">${done}/${total} zikr mukammal (aaj)</div>
       </div>
@@ -847,9 +849,9 @@ function renderZikrProfile(profileId){
   /* When should this set be today's zikr? (days of the week and morning / evening) */
   function renderSched(){
     const sc = profile.sched || { days:[], slot:'any' }, box = document.getElementById('zikrSched'); if(!box) return;
-    const dn = L({ rur:['Itwar', 'Peer', 'Mangal', 'Budh', 'Jumeraat', 'Jumma', 'Hafta'], en:['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] });
+    const dn = ZIKR_DAYS.map(x=>[x[0], isEn() ? x[2] : x[1]]);
     box.innerHTML = `<div class="zs-h">🗓 ${L({ rur:'Aaj ka zikr kab banega?', en:'When is this today\'s zikr?' })}</div>
-      <div class="zs-days">${dn.map((n, i)=>`<button type="button" class="zs-chip${sc.days.includes(i) ? ' on' : ''}" data-zd="${i}">${n}</button>`).join('')}</div>
+      <div class="zs-days">${dn.map(x=>`<button type="button" class="zs-chip${sc.days.includes(x[0]) ? ' on' : ''}" data-zd="${x[0]}">${x[1]}</button>`).join('')}</div>
       <div class="zs-days">${[['any', { rur:'Kabhi bhi', en:'Any time' }], ['am', { rur:'Subah (1 baje tak)', en:'Morning (till 1pm)' }], ['pm', { rur:'Dopahar ke baad', en:'Afternoon on' }]].map(x=>`<button type="button" class="zs-chip${(sc.slot || 'any') === x[0] ? ' on' : ''}" data-zs="${x[0]}">${L(x[1])}</button>`).join('')}</div>
       <div class="zs-n">${sc.days.length ? L({ rur:'In dino "Aaj ka zikr" button yahi set kholega (jab tak aap kuch aur na chunein).', en:'On these days the "Today\'s zikr" button opens this set (unless you pick another).' }) : L({ rur:'Koi din nahi chuna, to yeh set apne aap nahi aayega.', en:'No day picked, so this set is not chosen automatically.' })}</div>`;
     box.querySelectorAll('[data-zd]').forEach(b=>{ b.onclick = ()=>{ const d = +b.dataset.zd, c = profile.sched || (profile.sched = { days:[], slot:'any' }); c.days = c.days.includes(d) ? c.days.filter(x=>x !== d) : [...c.days, d]; saveState(); renderSched(); }; });
@@ -858,7 +860,7 @@ function renderZikrProfile(profileId){
   renderSched();
   document.getElementById('zikrBackToTasbeeh').onclick = ()=>{
     /* back to the counter on the dua that was just open, not on the earlier plain zikr */
-    const last = window.__malaLast;
+    const last = state.tasbeeh.lastRun;
     if(last && last.pid === profile.id && profile.items.some(it=>it.id === last.id)) return malaRunSet(profile.id, last.id);
     renderTasbeeh();
   };
