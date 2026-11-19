@@ -2207,3 +2207,17 @@ body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
 .time-row.current.nafil::after{ box-shadow:0 0 22px 1px color-mix(in srgb, var(--nafil) 32%, transparent); }
 @keyframes rowGlow{ 0%,100%{ opacity:.55; } 50%{ opacity:1; } }
 body.bg-paused .time-row.current::after{ animation-play-state:paused; }
+
+/* ============================================================
+   INTERACTION PASS
+   ============================================================ */
+.streak-chip{ display:inline-flex; align-items:center; gap:4px; margin-top:6px; padding:3px 10px; border-radius:var(--r-pill, 999px); border:1px solid color-mix(in srgb, #e8742a 40%, var(--line)); background:color-mix(in srgb, #e8742a 12%, var(--card)); color:var(--text); font:inherit; font-size:12px; font-weight:700; cursor:pointer; }
+.streak-chip .sc-f{ display:inline-block; }
+.streak-chip.pop .sc-f{ animation:scFlame .7s var(--fx-spring, ease); }
+@keyframes scFlame{ 0%{ transform:scale(.4) rotate(-14deg); } 60%{ transform:scale(1.35) rotate(6deg); } 100%{ transform:none; } }
+/* Quran reading progress: a thin line along the bottom edge of the header */
+.q-prog{ position:absolute; left:0; right:0; bottom:-1px; height:3px; background:transparent; pointer-events:none; }
+.q-prog i{ display:block; height:100%; background:var(--accent); border-radius:0 3px 3px 0; transition:width .5s var(--fx-ease, ease); }
+/* Bigger touch areas without changing the look */
+.detail-header button, .act-btn, .bm-btn, .pn-btn, .ptr-ic{ position:relative; }
+.detail-header button::after, .act-btn::after, .bm-btn::after{ content:''; position:absolute; inset:-5px; }
