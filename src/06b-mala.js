@@ -194,10 +194,16 @@ function malaLiveStars(){
   for(let i = 0; i < 42; i++){ const px = (rnd() * 98 + 1).toFixed(1), py = (rnd() * 52 + 2).toFixed(1), sz = rnd() < .2 ? 1 : 0, c = rnd() < .85 ? '#fff' : '#ffe9b0'; g[i % 3].push(`${px}vw ${py}vh 0 ${sz}px ${c}`); }
   return g.map(a=>`<i style="box-shadow:${a.join(',')}"></i>`).join('');
 }
+/* The moon in the sky shows today's phase from the Islamic date (day 1 is a thin crescent, day 14-15 full, day 29-30 almost gone) */
+function malaMoonSvg(day){
+  const T = 29.53, a = Math.min(Math.max(day, 0), T), k = Math.cos(2 * Math.PI * a / T), rx = (Math.abs(k) * 50).toFixed(1), waxing = a < T / 2;
+  const d = `M50 0A50 50 0 0 1 50 100A${rx} 50 0 0 ${k > 0 ? 0 : 1} 50 0Z`;
+  return { lit:(1 - k) / 2, svg:`<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50" fill="#1a2440" opacity=".6"/><path d="${d}" fill="#efe8c4"${waxing ? '' : ' transform="translate(100 0) scale(-1 1)"'}/></svg>` };
+}
 function malaLiveHtml(M){
-  const dur = (M.liveMin || 5) * 60, p = malaLivePhase(M);
+  const dur = (M.liveMin || 5) * 60, p = malaLivePhase(M), mn = malaMoonSvg(window.__moonDay || gregorianToHijri(new Date()).day);
   const still = (document.body.classList.contains('calm') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) ? ' still' : '';
-  return `<div class="lsky${M.livePaused || M.liveReal ? ' paused' : ''}${still}" style="--ld:${dur}s;--lo:-${(p * dur).toFixed(2)}s"><div class="ls-l ls-night"></div><div class="ls-l ls-dawn"></div><div class="ls-l ls-day"></div><div class="ls-l ls-dusk"></div><div class="ls-stars">${malaLiveStars()}</div><div class="ls-sun"></div><div class="ls-moon"></div><div class="ls-hills"><svg viewBox="0 0 360 240" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 C50 30 90 52 140 40 S250 18 300 44 S345 40 360 34 V240 H0z" fill="#1c3040"/><path d="M0 110 C60 78 110 98 170 84 S290 70 360 96 V240 H0z" fill="#10202c"/></svg></div></div>`;
+  return `<div class="lsky${M.livePaused || M.liveReal ? ' paused' : ''}${still}" style="--ld:${dur}s;--lo:-${(p * dur).toFixed(2)}s"><div class="ls-l ls-night"></div><div class="ls-l ls-dawn"></div><div class="ls-l ls-day"></div><div class="ls-l ls-dusk"></div><div class="ls-stars">${malaLiveStars()}</div><div class="ls-sun"></div><div class="ls-moon" style="--mi:${(.25 + .75 * mn.lit).toFixed(2)}">${mn.svg}</div><div class="ls-hills"><svg viewBox="0 0 360 240" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 C50 30 90 52 140 40 S250 18 300 44 S345 40 360 34 V240 H0z" fill="#1c3040"/><path d="M0 110 C60 78 110 98 170 84 S290 70 360 96 V240 H0z" fill="#10202c"/></svg></div></div>`;
 }
 
 /* ---------- Scenes (original illustrations, drawn for Waqt24) ---------- */
@@ -343,7 +349,9 @@ function malaMount(cfg){
 
   /* ----- draw the beads for a centre position ----- */
   function place(c){
-    const th = theme(), cnt = counts(), n = cnt.target, cur = cnt.cur;
+    /* the bead that counts as "current" is the one at the centre of the strand right now (c moves while the strand slides),
+       so the highlight never jumps ahead of the bead and the glow stays fixed above the number */
+    const th = theme(), cnt = counts(), n = cnt.target, cur = Math.min(n, Math.max(0, Math.round(c)));
     const circles = body.querySelectorAll('#malaBeads circle');
     const stat = false;   /* one layout for every target: the current bead sits above the number, counted beads slide off to the left */
     let tassel = null;
@@ -355,15 +363,16 @@ function malaMount(cfg){
       const sp = n <= 11 ? 36 : 24, x = 180 + u * sp, au = Math.abs(u), lim = Math.min(7.6, 196 / sp);
       const ev = M.markEvery === 0 ? 0 : (M.markEvery || 11), marker = !stat && ev > 0 && k % ev === 0 && k < n, last = k === n;
       const isCur = k === cur, isOn = k <= cur;
-      let r = (stat ? 14 : 8 + 5 * Math.max(0, 1 - au / 6)) * (marker ? 1.22 : 1) * (isCur ? 1.15 : 1);
+      let r = (stat ? 14 : 8 + 5 * Math.max(0, 1 - au / 6)) * (marker ? 1.22 : 1) * (1 + .15 * Math.max(0, 1 - au));
       el.setAttribute('cx', x.toFixed(1)); el.setAttribute('cy', malaY(x).toFixed(1)); el.setAttribute('r', r.toFixed(1));
       el.setAttribute('fill', isCur ? 'url(#mgCur)' : marker ? 'url(#mgMk)' : isOn ? 'url(#mgOn)' : 'url(#mgOff)');
       el.setAttribute('opacity', Math.max(0, Math.min(1, (lim - au) / 1.4)).toFixed(2) * (isOn || isCur ? 1 : .88));
       el.setAttribute('stroke', isCur ? th.cur : isOn && marker ? '#fff' : 'none'); el.setAttribute('stroke-width', isCur ? 2.5 : 1.5);
+      /* the ring fades out on the bead that is leaving the centre and fades in on the one arriving, so it never jumps */
+      el.setAttribute('stroke-opacity', isCur ? Math.max(0, 1 - au * 2).toFixed(2) : 1);
       if(last) tassel = { x, y:malaY(x) + r - 1, o:Math.max(0, Math.min(1, (lim - au) / 1.4)) };
-      if(isCur){ const g = body.querySelector('#malaGlow'); if(g){ g.setAttribute('cx', x.toFixed(1)); g.setAttribute('cy', malaY(x).toFixed(1)); g.setAttribute('r', (r + 6).toFixed(1)); g.setAttribute('opacity', .85); } }
     });
-    if(cur === 0){ const g = body.querySelector('#malaGlow'); if(g) g.setAttribute('opacity', 0); }
+    { const g = body.querySelector('#malaGlow'); if(g){ g.setAttribute('cx', '180'); g.setAttribute('cy', malaY(180).toFixed(1)); g.setAttribute('r', (13 * 1.15 + 6).toFixed(1)); g.setAttribute('opacity', cur >= 1 ? .85 : 0); } }
     const ts = body.querySelector('#malaTassel');
     if(ts){ if(tassel){ ts.setAttribute('transform', `translate(${tassel.x.toFixed(1)} ${tassel.y.toFixed(1)})`); ts.setAttribute('opacity', tassel.o.toFixed(2)); } else ts.setAttribute('opacity', 0); }
   }
