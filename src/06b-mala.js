@@ -314,6 +314,10 @@ function malaMount(cfg){
       <div class="ms-chips"><button type="button" class="ms-chip${M.scene == null ? ' on' : ''}" data-scene="auto">${L({ rur:'Auto', en:'Auto' })}</button>${MALA_SCENE_NAMES.slice(0, MALA_ART).map((x, i)=>`<button type="button" class="ms-chip${M.scene === i ? ' on' : ''}" data-scene="${i}">${L(x)}</button>`).join('')}</div>
       <div class="ms-lbl">${L({ rur:'Saaf rang aur gradient', en:'Clean colours and gradients' })}</div>
       <div class="ms-chips">${MALA_PLAIN.map((x, j)=>{ const i = MALA_ART + j, c = x[1], bg = Array.isArray(c) ? `linear-gradient(135deg,${c[0]},${c[1]})` : c; return `<button type="button" class="ms-chip ms-bg${M.scene === i ? ' on' : ''}" data-scene="${i}"><span style="background:${bg}"></span>${L(x[0])}</button>`; }).join('')}</div>
+      <div class="ms-lbl">${L({ rur:'Mausam', en:'Weather' })}</div>
+      <div class="ms-chips">${MALA_WEATHER.map(x=>`<button type="button" class="ms-chip${(M.fx ? (M.weather || 'auto') : 'none') === x.id ? ' on' : ''}" data-wx="${x.id}">${L(x.n)}</button>`).join('')}</div>
+      <div class="ms-lbl">${L({ rur:'Mausam ki raftaar', en:'Weather speed' })}</div>
+      <div class="ms-chips">${MALA_SPEEDS.map(x=>`<button type="button" class="ms-chip${(M.speed || 'mid') === x.id ? ' on' : ''}" data-spd="${x.id}">${L(x.n)}</button>`).join('')}</div>
       <div class="ms-lbl">${L({ rur:'Arabic ka size', en:'Arabic size' })}</div>
       <div class="ms-chips">${MALA_AR_SIZES.map((s, i)=>`<button type="button" class="ms-chip${M.arSize === s ? ' on' : ''}" data-ars="${s}">${['A−−', 'A−', 'A', 'A+', 'A++', 'A+++'][i]}</button>`).join('')}</div>
       <div class="ms-lbl">${L({ rur:'Khaas moti (alag rang)', en:'Marker bead' })}</div>
@@ -322,10 +326,6 @@ function malaMount(cfg){
       ${sw('showTr', M.showTr, L({ rur:'Talaffuz dikhayein', en:'Show pronunciation' }))}
       ${sw('showM', M.showM, L({ rur:'Tarjuma dikhayein', en:'Show meaning' }))}
       ${sw('tapAny', M.tapAny, L({ rur:'Screen par kahin bhi tap karein', en:'Tap anywhere to count' }))}
-      <div class="ms-lbl">${L({ rur:'Mausam', en:'Weather' })}</div>
-      <div class="ms-chips">${MALA_WEATHER.map(x=>`<button type="button" class="ms-chip${(M.fx ? (M.weather || 'auto') : 'none') === x.id ? ' on' : ''}" data-wx="${x.id}">${L(x.n)}</button>`).join('')}</div>
-      <div class="ms-lbl">${L({ rur:'Mausam ki raftaar', en:'Weather speed' })}</div>
-      <div class="ms-chips">${MALA_SPEEDS.map(x=>`<button type="button" class="ms-chip${(M.speed || 'mid') === x.id ? ' on' : ''}" data-spd="${x.id}">${L(x.n)}</button>`).join('')}</div>
       ${sw('sound', !!t.sound, L({ rur:'Awaaz', en:'Sound' }))}
       <div id="malaSnd">${tsPickerHtml()}</div>
       ${sw('vibrate', t.vibrate !== false, L({ rur:'Vibration', en:'Vibration' }))}
