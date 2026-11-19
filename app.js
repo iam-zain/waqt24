@@ -10049,6 +10049,7 @@ function honNode(n){
   if(!n) return;
   if(n.nodeType === 3){
     const p = n.parentNode; if(!p || HON_SKIP.test(p.nodeName) || p.isContentEditable) return;
+    if(p.closest && p.closest('.mh-row')) return;   /* the Tasbih hisaab lists show names plainly */
     const v = n.nodeValue; if(v && HON_FAST.test(v)){ const w = v.replace(HON_RE, '$1 ﷻ'); if(w !== v) n.nodeValue = w; }
     return;
   }
