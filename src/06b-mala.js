@@ -72,7 +72,7 @@ function malaCfg(){
 }
 /* "SubhanAllah" and "Subhan Allah ﷻ" are the same zikr: add up names that differ only in spacing, case or the ﷻ sign (the most-read spelling is shown) */
 /* names are shown without the ﷻ / ﷺ signs in the history lists */
-function malaPlainName(n){ return String(n == null ? '' : n).replace(/[\uFDFA\uFDFB]/g, '').replace(/\s{2,}/g, ' ').trim(); }
+function malaPlainName(n){ return String(n == null ? '' : n).replace(/[\uFDFA\uFDFB]/g, '').replace(/\bSubhan\s+Allah\b/gi, 'SubhanAllah').replace(/\s{2,}/g, ' ').trim(); }
 function malaMergeNames(o){
   const m = {};
   Object.entries(o || {}).forEach(([n, v])=>{

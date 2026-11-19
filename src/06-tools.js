@@ -652,10 +652,10 @@ function renderTasbeehClassic(){
 /* ============================================================
    ZIKR PROFILES (Morning/Evening Azkar + custom), attached to Tasbeeh
    ============================================================ */
-const ZIKR_SUGGESTIONS = ["Subhan Allah","Alhamdulillah","Allahu Akbar","La ilaha illallah","Durud Sharif","Astaghfar","Teesra Kalima","Auzu Billah","Bismillah","La hawla wala quwwata illa billah","Ayat-ul-Kursi","Surah Ikhlas","Surah Al-Falaq","Surah An-Naas","Subhanallahi wa bihamdihi"];
+const ZIKR_SUGGESTIONS = ["SubhanAllah","Alhamdulillah","Allahu Akbar","La ilaha illallah","Durud Sharif","Astaghfar","Teesra Kalima","Auzu Billah","Bismillah","La hawla wala quwwata illa billah","Ayat-ul-Kursi","Surah Ikhlas","Surah Al-Falaq","Surah An-Naas","Subhanallahi wa bihamdihi"];
 function defaultAzkarItems(){
   return [
-    {id:'subhanallah', name:'Subhan Allah', target:99},
+    {id:'subhanallah', name:'SubhanAllah', target:99},
     {id:'alhamdulillah', name:'Alhamdulillah', target:99},
     {id:'allahuakbar', name:'Allahu Akbar', target:100},
     {id:'durud', name:'Durud Sharif', target:100},
@@ -696,6 +696,13 @@ function ensureZikrProfiles(){
   if(!state.tasbeeh.catClean){
     state.tasbeeh.catClean = true;
     state.tasbeeh.profiles.forEach(p=>{ if(p.builtin && p.dtype === 'dua') p.items = p.items.filter(i=>/^c\d+_/.test(i.id)); });
+    saveState();
+  }
+  /* one spelling everywhere: SubhanAllah */
+  if(!state.tasbeeh.spellV1){
+    state.tasbeeh.spellV1 = true;
+    state.tasbeeh.profiles.forEach(p=>p.items.forEach(i=>{ if(i.name) i.name = i.name.replace(/\bSubhan\s+Allah\b/g, 'SubhanAllah'); }));
+    if(state.tasbeeh.label) state.tasbeeh.label = state.tasbeeh.label.replace(/\bSubhan\s+Allah\b/g, 'SubhanAllah');
     saveState();
   }
   if(!state.tasbeeh.daily) state.tasbeeh.daily = {};
