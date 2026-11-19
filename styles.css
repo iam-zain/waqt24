@@ -2359,3 +2359,5 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .hero-ring .bar{ transition:stroke-dashoffset 2.4s cubic-bezier(.22,.61,.36,1); }
 @media (prefers-reduced-motion:reduce){ .hw-w, .hw-fill{ animation:none; } }
 .mala-tr, .mala-m, .mala-ar{ overflow-wrap:anywhere; }
+.mala.quiet, .mala.quiet .mala-sheet, .mala.quiet .mala-bg, .mala.quiet .mala-text, .mala.quiet .mala-mid{ animation:none !important; }
+.mala-bg svg, #malaBeads circle, .mala-ar, .mala-tr, .mala-m{ transition:fill .35s ease, stroke .35s ease, opacity .35s ease; }

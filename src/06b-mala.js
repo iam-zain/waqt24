@@ -335,17 +335,17 @@ function malaMount(cfg){
     if(!panel){ sh.hidden = true; sh.innerHTML = ''; return; }
     sh.hidden = false; sh.innerHTML = sheetHtml();
     sh.querySelectorAll('[data-close]').forEach(b=>{ b.onclick = ()=>{ panel = null; renderSheet(); }; });
-    sh.querySelectorAll('[data-theme]').forEach(b=>{ b.onclick = ()=>{ M.theme = +b.dataset.theme; saveState(); draw(); }; });
-    sh.querySelectorAll('[data-scene]').forEach(b=>{ b.onclick = ()=>{ M.scene = b.dataset.scene === 'auto' ? null : +b.dataset.scene; saveState(); draw(); }; });
-    sh.querySelectorAll('[data-wx]').forEach(b=>{ b.onclick = ()=>{ M.weather = b.dataset.wx; M.fx = b.dataset.wx !== 'none'; saveState(); draw(); }; });
-    sh.querySelectorAll('[data-spd]').forEach(b=>{ b.onclick = ()=>{ M.speed = b.dataset.spd; saveState(); draw(); }; });
-    sh.querySelectorAll('[data-mk]').forEach(b=>{ b.onclick = ()=>{ M.markEvery = +b.dataset.mk; saveState(); draw(); }; });
-    sh.querySelectorAll('[data-ars]').forEach(b=>{ b.onclick = ()=>{ M.arSize = b.dataset.ars; saveState(); draw(); }; });
+    sh.querySelectorAll('[data-theme]').forEach(b=>{ b.onclick = ()=>{ M.theme = +b.dataset.theme; saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-scene]').forEach(b=>{ b.onclick = ()=>{ M.scene = b.dataset.scene === 'auto' ? null : +b.dataset.scene; saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-wx]').forEach(b=>{ b.onclick = ()=>{ M.weather = b.dataset.wx; M.fx = b.dataset.wx !== 'none'; saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-spd]').forEach(b=>{ b.onclick = ()=>{ M.speed = b.dataset.spd; saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-mk]').forEach(b=>{ b.onclick = ()=>{ M.markEvery = +b.dataset.mk; saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-ars]').forEach(b=>{ b.onclick = ()=>{ M.arSize = b.dataset.ars; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-sw]').forEach(b=>{
       b.onclick = ()=>{
         const k = b.dataset.sw;
         if(k === 'sound') t.sound = !t.sound; else if(k === 'vibrate') t.vibrate = t.vibrate === false; else M[k] = !M[k];
-        saveState(); if(k === 'vibrate' && t.vibrate && navigator.vibrate) navigator.vibrate(30); draw();
+        saveState(); if(k === 'vibrate' && t.vibrate && navigator.vibrate) navigator.vibrate(30); draw(false, true);
       };
     });
     sh.querySelectorAll('[data-tg]').forEach(b=>{
@@ -372,20 +372,24 @@ function malaMount(cfg){
   }
 
   /* ----- build, wire ----- */
-  function draw(swap){
+  function draw(swap, quiet){
+    /* quiet: a setting changed, so rebuild without the entrance animations and keep the panel's scroll position */
+    const oldSh = body.querySelector('#malaSheet'), keepTop = quiet && oldSh ? oldSh.scrollTop : 0;
     body.innerHTML = html();
     const root = body.querySelector('.mala');
     if(swap && root){ root.classList.add('enter'); }
+    if(quiet && root) root.classList.add('quiet');
     const c = counts();
     pos = c.target <= 11 ? c.cur : c.cur;
     place(pos); updateCount();
     const num = body.querySelector('#malaN'); if(num) num.classList.remove('bump');
     renderSheet();
+    if(quiet){ const ns = body.querySelector('#malaSheet'); if(ns) ns.scrollTop = keepTop; }
     const $ = id=>body.querySelector(id);
     if($('#malaBack')) $('#malaBack').onclick = ()=> cfg.onBack();
     const pick = ()=>{ if(cfg.onPick) cfg.onPick(); };
     if($('#malaPick')) $('#malaPick').onclick = pick; if($('#malaPick2')) $('#malaPick2').onclick = pick;
-    const stepFont = d=>{ const i = Math.max(0, MALA_AR_SIZES.indexOf(M.arSize || 'M')), j = Math.max(0, Math.min(MALA_AR_SIZES.length - 1, i + d)); if(j === i) return; M.arSize = MALA_AR_SIZES[j]; saveState(); draw(); };
+    const stepFont = d=>{ const i = Math.max(0, MALA_AR_SIZES.indexOf(M.arSize || 'M')), j = Math.max(0, Math.min(MALA_AR_SIZES.length - 1, i + d)); if(j === i) return; M.arSize = MALA_AR_SIZES[j]; saveState(); draw(false, true); };
     $('#malaFm').onclick = ()=>stepFont(-1); $('#malaFp').onclick = ()=>stepFont(1);
     $('#malaSet').onclick = ()=>{ panel = panel === 'settings' ? null : 'settings'; renderSheet(); };
     $('#malaTg').onclick = ()=>{ panel = panel === 'target' ? null : 'target'; renderSheet(); };
