@@ -65,7 +65,7 @@ const MALA_TARGETS = [1, 3, 7, 11, 33, 99, 100];
 function malaCfg(){
   const t = state.tasbeeh;
   if(!t.mala) t.mala = {};
-  const m = t.mala, d = { theme:0, scene:null, arSize:'M', light:1, markEvery:0, stopAtTarget:false, keepAwake:false, showTr:true, showM:true, tapAny:true, fx:true, weather:'auto', speed:'mid', live:true, liveMin:5, liveT0:0, livePaused:false, livePhase:0 };
+  const m = t.mala, d = { theme:0, scene:null, arSize:'M', light:1, markEvery:0, stopAtTarget:false, keepAwake:false, showTr:true, showM:true, tapAny:true, fx:true, weather:'auto', speed:'mid', live:true, liveReal:false, liveMin:5, liveT0:0, livePaused:false, livePhase:0 };
   Object.keys(d).forEach(k=>{ if(m[k] === undefined) m[k] = d[k]; });
   if(m.markEvery === 11 && !m.markChosen) m.markEvery = 0;   /* marker beads are off unless the person turned them on */
   return m;
@@ -90,7 +90,19 @@ function malaToday(){ return tasbeehLog()[dayKey(new Date())] || 0; }
 function malaTodayProfile(){
   ensureZikrProfiles();
   const t = state.tasbeeh, ps = t.profiles;
-  return (t.todayProfile && ps.find(x=>x.id === t.todayProfile)) || ps.find(x=>x.id === (new Date().getHours() < 13 ? 'morning' : 'evening')) || ps[0];
+  const chosen = t.todayProfile && ps.find(x=>x.id === t.todayProfile);
+  if(chosen) return chosen;
+  /* a profile the person scheduled for today's weekday (and morning / evening) comes before the built-in ones */
+  const now = new Date(), dow = now.getDay(), pm = now.getHours() >= 13;
+  const hit = ps.filter(p=>p.sched && p.sched.days && p.sched.days.includes(dow) && (!p.sched.slot || p.sched.slot === 'any' || (p.sched.slot === 'pm') === pm) && p.items.length);
+  if(hit.length) return hit.sort((a, b)=>(a.sched.slot && a.sched.slot !== 'any' ? 0 : 1) - (b.sched.slot && b.sched.slot !== 'any' ? 0 : 1))[0];
+  return ps.find(x=>x.id === (pm ? 'evening' : 'morning')) || ps[0];
+}
+/* Days in a row on which at least one zikr set was completed */
+function malaProfileStreak(){
+  ensureZikrProfiles();
+  const ps = state.tasbeeh.profiles.filter(p=>p.items.length);
+  return calcStreak(d=> ps.some(p=>isZikrProfileComplete(d, p)));
 }
 /* Keep the screen on while the counter is open (only when switched on in settings) */
 let malaWakeLock = null, malaWakeWatch = false;
@@ -136,7 +148,26 @@ function malaMeaning(info){ return isEn() ? (info.en || info.m) : (info.m || inf
 
 /* ---------- Live sky: the sun, moon and stars move through one cycle (2, 5 or 10 minutes) while the person counts ---------- */
 const MALA_LIVE_MIN = [2, 5, 10];
+/* Real-time sky: Sunrise = 0, Zuhr = .3 (sun at its highest), Maghrib = .6 (sunset), Isha = .72, next Fajr = .88, next Sunrise = 1 */
+function malaRealPhase(){
+  try{
+    const now = Date.now(), knots = [], at = (sch, k)=>{ const x = sch.find(y=>y.key === k); return x ? x.start.getTime() : 0; };
+    for(let i = -1; i <= 1; i++){
+      const d = new Date(); d.setDate(d.getDate() + i);
+      const nx = new Date(d); nx.setDate(nx.getDate() + 1);
+      const a = buildSchedule(d), b = buildSchedule(nx);
+      [[at(a, 'tulu'), 0], [at(a, 'zuhr'), .3], [at(a, 'maghrib'), .6], [at(a, 'isha'), .72], [at(b, 'fajr'), .88]].forEach(k=>{ if(k[0]) knots.push([k[0], i + k[1]]); });
+    }
+    knots.sort((x, y)=>x[0] - y[0]);
+    for(let j = 0; j < knots.length - 1; j++){
+      const x = knots[j], y = knots[j + 1];
+      if(now >= x[0] && now < y[0]){ const p = x[1] + (y[1] - x[1]) * (now - x[0]) / (y[0] - x[0]); return ((p % 1) + 1) % 1; }
+    }
+  }catch(e){}
+  return .3;
+}
 function malaLivePhase(M){
+  if(M.liveReal) return malaRealPhase();
   if(M.livePaused) return M.livePhase || 0;
   if(!M.liveT0){ M.liveT0 = Date.now(); saveState(); }
   const d = (M.liveMin || 5) * 60000;
@@ -151,7 +182,7 @@ function malaLiveStars(){
 function malaLiveHtml(M){
   const dur = (M.liveMin || 5) * 60, p = malaLivePhase(M);
   const still = (document.body.classList.contains('calm') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) ? ' still' : '';
-  return `<div class="lsky${M.livePaused ? ' paused' : ''}${still}" style="--ld:${dur}s;--lo:-${(p * dur).toFixed(2)}s"><div class="ls-l ls-night"></div><div class="ls-l ls-dawn"></div><div class="ls-l ls-day"></div><div class="ls-l ls-dusk"></div><div class="ls-stars">${malaLiveStars()}</div><div class="ls-sun"></div><div class="ls-moon"></div><div class="ls-hills"><svg viewBox="0 0 360 240" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 C50 30 90 52 140 40 S250 18 300 44 S345 40 360 34 V240 H0z" fill="#1c3040"/><path d="M0 110 C60 78 110 98 170 84 S290 70 360 96 V240 H0z" fill="#10202c"/></svg></div></div>`;
+  return `<div class="lsky${M.livePaused || M.liveReal ? ' paused' : ''}${still}" style="--ld:${dur}s;--lo:-${(p * dur).toFixed(2)}s"><div class="ls-l ls-night"></div><div class="ls-l ls-dawn"></div><div class="ls-l ls-day"></div><div class="ls-l ls-dusk"></div><div class="ls-stars">${malaLiveStars()}</div><div class="ls-sun"></div><div class="ls-moon"></div><div class="ls-hills"><svg viewBox="0 0 360 240" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 C50 30 90 52 140 40 S250 18 300 44 S345 40 360 34 V240 H0z" fill="#1c3040"/><path d="M0 110 C60 78 110 98 170 84 S290 70 360 96 V240 H0z" fill="#10202c"/></svg></div></div>`;
 }
 
 /* ---------- Scenes (original illustrations, drawn for Waqt24) ---------- */
@@ -200,6 +231,16 @@ function malaMount(cfg){
   const sceneIdx = ()=> M.scene != null ? M.scene : autoScn;
   function reroll(){ if(M.scene != null) return; let n; do { n = Math.floor(Math.random() * MALA_ART); } while(n === autoScn && MALA_ART > 1); autoScn = n; }
   const bgHtml = ()=> M.live ? malaLiveHtml(M) : malaScene(sceneIdx());
+  let realTimer = 0;
+  function keepRealSky(){
+    clearInterval(realTimer);
+    if(!M.live || !M.liveReal) return;
+    realTimer = setInterval(()=>{
+      const sky = body.querySelector('.lsky');
+      if(!sky || !document.body.contains(sky)){ clearInterval(realTimer); return; }
+      sky.style.setProperty('--lo', '-' + (malaRealPhase() * 300).toFixed(2) + 's');
+    }, 30000);
+  }
   function applyScene(){
     const root = body.querySelector('.mala'); if(!root) return;
     const bg = root.querySelector('.mala-bg'), fx = root.querySelector('.mala-fx');
@@ -261,7 +302,7 @@ function malaMount(cfg){
       <div class="mala-top">
         ${cfg.onBack ? `<button type="button" class="mala-btn" id="malaBack" aria-label="Wapas">‹ ${malaEsc(cfg.backLabel || '')}</button>` : ''}
         ${chip ? `<span class="mala-chip">${chip}</span>` : ''}${todayPill()}<i class="mala-sp"></i>
-        ${M.live ? `<button type="button" class="mala-btn mala-live" id="malaLive" aria-label="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}" title="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}">${M.livePaused ? '▶' : '⏸'}</button>` : ''}
+        ${M.live && !M.liveReal ? `<button type="button" class="mala-btn mala-live" id="malaLive" aria-label="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}" title="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}">${M.livePaused ? '▶' : '⏸'}</button>` : ''}
         <button type="button" class="mala-btn" id="malaFm" aria-label="Font smaller">A−</button>
         <button type="button" class="mala-btn" id="malaFp" aria-label="Font bigger">A+</button>
         <button type="button" class="mala-btn" id="malaPick" aria-label="Dua chunein">📖</button>
@@ -353,7 +394,27 @@ function malaMount(cfg){
     if(Math.abs(c.cur - pos) > 1.5){ pos = c.cur; place(pos); } else slideTo(c.cur, pos);
     updateCount();
   }
+  let histTab = 'today';
+  function statsHtml(n){
+    const tl = tasbeehLog(), lg = malaDuaLog(), days = [];
+    for(let i = n - 1; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); days.push({ d, k:dayKey(d), v:tl[dayKey(d)] || 0 }); }
+    const sum = days.reduce((a, x)=>a + x.v, 0), act = days.filter(x=>x.v > 0).length, mx = Math.max(1, ...days.map(x=>x.v));
+    const best = days.reduce((a, x)=>x.v > a.v ? x : a, days[0]);
+    const ps = state.tasbeeh.profiles.filter(p=>p.items.length);
+    const full = days.filter(x=>ps.some(p=>isZikrProfileComplete(x.d, p))).length;
+    const top = {}; days.forEach(x=>Object.entries(lg[x.k] || {}).forEach(([nm, v])=>{ top[nm] = (top[nm] || 0) + v; }));
+    const tops = Object.entries(top).sort((a, b)=>b[1] - a[1]).slice(0, 6), tmax = tops.length ? tops[0][1] : 1;
+    const st = malaProfileStreak();
+    const bars = days.map(x=>`<i class="${x.k === dayKey(new Date()) ? 'now' : ''}" title="${x.d.toLocaleDateString('en-GB', { day:'numeric', month:'short' })}: ${x.v}"><u style="height:${Math.max(x.v ? 6 : 2, Math.round(x.v / mx * 100))}%"></u><em>${n <= 7 ? x.d.toLocaleDateString('en-GB', { weekday:'narrow' }) : (x.d.getDate() % 5 === 0 ? x.d.getDate() : '')}</em></i>`).join('');
+    const cell = (v, l)=>`<div class="mh-cell"><b>${v}</b><span>${l}</span></div>`;
+    return `<div class="mh-bars ${n > 7 ? 'm' : ''}">${bars}</div>
+      <div class="mh-cells">${cell(sum, L({ rur:'kul ginti', en:'total' }))}${cell(act + '/' + n, L({ rur:'din ginti ki', en:'active days' }))}${cell(best && best.v ? best.v : 0, L({ rur:'sab se zyada (ek din)', en:'best day' }))}${cell(full, L({ rur:'din set mukammal', en:'days set done' }))}</div>
+      <div class="mh-streak">🔥 ${L({ rur:'Lagatar din', en:'Streak' })}: <b>${st.cur}</b> · ${L({ rur:'sab se lamba', en:'best' })}: <b>${st.best}</b></div>
+      ${tops.length ? `<div class="ms-lbl">${L({ rur:'Sab se zyada padhi gayi', en:'Most read' })}</div>${tops.map(([nm, v])=>`<div class="mh-row mh-top"><span>${malaEsc(nm)}</span><i style="--w:${Math.round(v / tmax * 100)}%"></i><b>${v}</b></div>`).join('')}` : `<div class="ms-hint">${L({ rur:'Dua ka tafseel abhi nahi hai. Ginti shuru karein.', en:'No per-dua detail yet. Start counting.' })}</div>`}`;
+  }
   function historyHtml(){
+    const tabs = `<div class="ms-chips mh-tabs">${[['today', { rur:'Aaj', en:'Today' }], ['week', { rur:'Hafta', en:'Week' }], ['month', { rur:'Mahina', en:'Month' }]].map(x=>`<button type="button" class="ms-chip${histTab === x[0] ? ' on' : ''}" data-ht="${x[0]}">${L(x[1])}</button>`).join('')}</div>`;
+    if(histTab !== 'today') return `<div class="ms-head"><b>📊 ${L({ rur:'Hisaab', en:'Stats' })}</b><button type="button" class="mala-btn" data-close>✕</button></div>${tabs}${statsHtml(histTab === 'week' ? 7 : 30)}`;
     const dk = dayKey(new Date()), lg = malaDuaLog(), tl = tasbeehLog();
     const named = Object.values(lg[dk] || {}).reduce((a, v)=>a + v, 0), rest = Math.max(0, (tl[dk] || 0) - named);
     const rows = o=>Object.entries(o || {}).sort((a, b)=>b[1] - a[1]).map(([n, v])=>`<div class="mh-row"><span>${malaEsc(n)}</span><b>${v}</b></div>`).join('');
@@ -364,7 +425,7 @@ function malaMount(cfg){
       const d = new Date(); d.setDate(d.getDate() - i); const k = dayKey(d), tot = tl[k] || 0; if(!tot) continue;
       prev.push(`<details class="mh-day"><summary><span>${d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' })}</span><b>${tot}</b></summary>${rows(lg[k]) || `<div class="ms-hint">${L({ rur:'Dua ka tafseel is din se pehle ka hai, sirf kul ginti mehfooz hai.', en:'Only the total was saved for this day.' })}</div>`}</details>`);
     }
-    return `<div class="ms-head"><b>📊 ${L({ rur:'Aaj ka hisaab', en:'Today' })}</b><button type="button" class="mala-btn" data-close>✕</button></div>
+    return `<div class="ms-head"><b>📊 ${L({ rur:'Aaj ka hisaab', en:'Today' })}</b><button type="button" class="mala-btn" data-close>✕</button></div>${tabs}
       <div class="mh-total"><b>${tl[dk] || 0}</b><span>${L({ rur:'kul ginti aaj', en:'counted today' })}</span></div>
       ${rows(lg[dk]) || (rest ? '' : `<div class="ms-hint">${L({ rur:'Aaj abhi tak kuch nahi ginti hui.', en:'Nothing counted yet today.' })}</div>`)}
       ${rest ? `<div class="mh-row"><span>${L({ rur:'Dusri ginti (dua ke naam ke bina)', en:'Other counts (no dua name saved)' })}</span><b>${rest}</b></div>` : ''}
@@ -382,13 +443,23 @@ function malaMount(cfg){
     if(i < 0 || i >= cfg.items.length) return;
     idx = i; reroll(); if(cfg.onIdx) cfg.onIdx(cfg.items[i]); draw(true);
   }
+  /* The whole set is done: a small card with today's total and the day streak, then back to the list */
+  function showDone(){
+    const root = body.querySelector('.mala'); if(!root || root.querySelector('.mala-done')) { if(cfg.onFinish) cfg.onFinish(); return; }
+    const st = malaProfileStreak(), tot = tasbeehLog()[dayKey(new Date())] || 0;
+    const line = st.cur > 1 ? L({ rur:`🔥 ${st.cur} din lagatar`, en:`🔥 ${st.cur} days in a row` }) : L({ rur:'🌱 Aaj se shuruaat, kal bhi aaiye', en:'🌱 A good start, come back tomorrow' });
+    const el = document.createElement('div'); el.className = 'mala-done';
+    el.innerHTML = `<div class="md-card"><div class="md-ic">🎉</div><b>${L({ rur:'Mashallah!', en:'Mashallah!' })}</b><span>${malaEsc(cfg.title || '')} ${L({ rur:'mukammal', en:'complete' })}</span><div class="md-st">${line}</div><div class="md-sub">${L({ rur:'Aaj kul ginti', en:'Counted today' })}: <b>${tot}</b>${st.best > 1 ? ' · ' + L({ rur:'sab se lamba', en:'best' }) + ': ' + st.best : ''}</div><button type="button" class="md-ok">${L({ rur:'Alhamdulillah', en:'Alhamdulillah' })}</button></div>`;
+    root.appendChild(el);
+    el.querySelector('.md-ok').onclick = ()=>{ el.remove(); if(cfg.onFinish) cfg.onFinish(); };
+  }
   function finishItem(){
     if(cfg.single) return;
     const next = cfg.items.findIndex((it, i)=>i > idx && (cfg.get(i) || 0) < (it.target || 1));
     const any = next >= 0 ? next : cfg.items.findIndex((it, i)=>(cfg.get(i) || 0) < (it.target || 1));
     setTimeout(()=>{
       if(any >= 0 && any !== idx) go(any);
-      else if(any < 0){ showToast(L({ rur:'Mashallah! Sab mukammal 🎉', en:'Mashallah! All done 🎉' })); if(cfg.onFinish) cfg.onFinish(); }
+      else if(any < 0){ showDone(); }
     }, 800);
   }
   function tick(){
@@ -432,8 +503,8 @@ function malaMount(cfg){
       <div class="ms-lbl">${L({ rur:'Roshni', en:'Brightness' })}</div>
       <div class="ms-chips">${[[0, { rur:'🌙 Gehra', en:'🌙 Dark' }], [1, { rur:'🌤 Darmiyana', en:'🌤 Medium' }], [2, { rur:'☀ Roshan', en:'☀ Light' }]].map(x=>`<button type="button" class="ms-chip${(M.light == null ? 1 : M.light) === x[0] ? ' on' : ''}" data-lt="${x[0]}">${L(x[1])}</button>`).join('')}</div>
       <div class="ms-lbl">${L({ rur:'Live aasman (subah se raat tak)', en:'Live sky (dawn to night)' })}</div>
-      <div class="ms-chips">${[[0, { rur:'Band', en:'Off' }], ...MALA_LIVE_MIN.map(m=>[m, { rur:m + ' min', en:m + ' min' }])].map(x=>`<button type="button" class="ms-chip${(M.live ? M.liveMin || 5 : 0) === x[0] ? ' on' : ''}" data-live="${x[0]}">${L(x[1])}</button>`).join('')}</div>
-      <div class="ms-hint">${L({ rur:'Poora din-raat itne waqt mein; counter ke ⏸ se roka ja sakta hai.', en:'One full day-and-night in this time; pause it with the ⏸ on the counter.' })}</div>
+      <div class="ms-chips">${[[0, { rur:'Band', en:'Off' }], ['real', { rur:'🕌 Asli waqt', en:'🕌 Real time' }], ...MALA_LIVE_MIN.map(m=>[m, { rur:m + ' min', en:m + ' min' }])].map(x=>`<button type="button" class="ms-chip${(!M.live ? 0 : M.liveReal ? 'real' : M.liveMin || 5) === x[0] ? ' on' : ''}" data-live="${x[0]}">${L(x[1])}</button>`).join('')}</div>
+      <div class="ms-hint">${L({ rur:'Poora din-raat itne waqt mein (counter ke ⏸ se rukta hai). "Asli waqt" mein aasman aapke shehar ke Fajr, Zuhr, Maghrib aur Isha ke hisaab se chalta hai.', en:'One full day-and-night in this time (pause with the ⏸). "Real time" follows the Fajr, Zuhr, Maghrib and Isha of your city.' })}</div>
       <div class="ms-lbl">${L({ rur:'Manzar', en:'Scene' })}</div>
       <div class="ms-fold${F('sc')}" data-f="sc"><div class="ms-chips"><button type="button" class="ms-chip${!M.live && M.scene == null ? ' on' : ''}" data-scene="auto">${L({ rur:'Auto', en:'Auto' })}</button>${MALA_SCENE_NAMES.slice(0, MALA_ART).map((x, i)=>`<button type="button" class="ms-chip${!M.live && M.scene === i ? ' on' : ''}" data-scene="${i}">${L(x)}</button>`).join('')}</div><button type="button" class="ms-more" aria-label="More">▾</button></div>
       <div class="ms-lbl">${L({ rur:'Saaf rang aur gradient', en:'Clean colours and gradients' })}</div>
@@ -491,10 +562,11 @@ function malaMount(cfg){
     const sh = body.querySelector('#malaSheet'); if(!sh) return;
     if(!panel){ sh.hidden = true; sh.innerHTML = ''; return; }
     sh.hidden = false; sh.innerHTML = sheetHtml();
+    sh.querySelectorAll('[data-ht]').forEach(b=>{ b.onclick = ev=>{ ev.stopPropagation(); histTab = b.dataset.ht; renderSheet(); }; });
     sh.querySelectorAll('[data-close]').forEach(b=>{ b.onclick = ()=>{ panel = null; renderSheet(); }; });
     sh.querySelectorAll('[data-theme]').forEach(b=>{ b.onclick = ()=>{ M.theme = +b.dataset.theme; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-scene]').forEach(b=>{ b.onclick = ()=>{ M.live = false; M.scene = b.dataset.scene === 'auto' ? null : +b.dataset.scene; saveState(); draw(false, true); }; });
-    sh.querySelectorAll('[data-live]').forEach(b=>{ b.onclick = ()=>{ const v = +b.dataset.live, p = malaLivePhase(M); if(!v) M.live = false; else { M.live = true; M.liveMin = v; M.liveT0 = Date.now() - p * v * 60000; } saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-live]').forEach(b=>{ b.onclick = ()=>{ const raw = b.dataset.live, v = +raw, p = M.liveReal ? 0 : malaLivePhase(M); if(raw === 'real'){ M.live = true; M.liveReal = true; } else if(!v) M.live = false; else { M.live = true; M.liveReal = false; M.liveMin = v; M.liveT0 = Date.now() - p * v * 60000; M.livePaused = false; } saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-lt]').forEach(b=>{ b.onclick = ()=>{ M.light = +b.dataset.lt; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-wx]').forEach(b=>{ b.onclick = ()=>{ M.weather = b.dataset.wx; M.fx = b.dataset.wx !== 'none'; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-spd]').forEach(b=>{ b.onclick = ()=>{ M.speed = b.dataset.spd; saveState(); draw(false, true); }; });
@@ -540,7 +612,7 @@ function malaMount(cfg){
     pos = c.target <= 11 ? c.cur : c.cur;
     place(pos); updateCount();
     const num = body.querySelector('#malaN'); if(num) num.classList.remove('bump');
-    renderSheet();
+    renderSheet(); keepRealSky();
     if(quiet){ const ns = body.querySelector('#malaSheet'); if(ns) ns.scrollTop = keepTop; }
     const $ = id=>body.querySelector(id);
     if($('#malaBack')) $('#malaBack').onclick = ()=> cfg.onBack();

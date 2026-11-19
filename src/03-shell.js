@@ -447,6 +447,11 @@ function setDuaStatus(title, val){
   saveState();
 }
 function openDuaDetail(d){
+  /* Opened from Tasbeeh, search, Continue or a bookmark? Then there is no list yet: use this dua's own category so Pichla / Agla always show */
+  if(!__navCtx || __navCtx.openFn !== openDuaDetail || !__navCtx.list.includes(d)){
+    const same = DUAS.filter(x=>x.cat === d.cat).sort((a,b)=>(a.ord&&b.ord) ? a.ord-b.ord : a.title.localeCompare(b.title));
+    setNavCtx(same, Math.max(0, same.indexOf(d)), openDuaDetail, duaNavCat());
+  }
   state.lastRead = { k:'dua', id:d.title, label:dTitle(d) }; saveState();
   markReadDay();
   document.getElementById('detailTitle').textContent = dTitle(d);
