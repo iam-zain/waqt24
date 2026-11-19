@@ -475,7 +475,7 @@ function renderBackup(){
 const TASBEEH_TARGETS = [33, 34, 99, 100];
 const TASBEEH_COLORS = ['#3fae6a','#3a9bd9','#d4a72c','#c85a4a','#a074e0','#e0729a'];
 const TASBEEH_SHAPES = ['●','◆','■','★'];
-const TASBEEH_DESIGNS = [ {id:'mala', label:'📿 Mala'}, {id:'tap', label:'🔘 Button'}, {id:'beadsH', label:'📿 Beads ↔'}, {id:'beadsV', label:'📿 Beads ↕'} ];
+const TASBEEH_DESIGNS = [ {id:'mala', label:'📿 Tasbih'}, {id:'tap', label:'🔘 Button'}, {id:'beadsH', label:'📿 Beads ↔'}, {id:'beadsV', label:'📿 Beads ↕'} ];
 /* Quick zikr presets: tap one to set the label and target and start from zero. Tasbeeh-e-Fatima runs 33 + 33 + 34 in a row. */
 const TASBEEH_PRESETS = [
   { n:'SubhanAllah', ar:'سُبْحَانَ اللّٰهِ', t:33 }, { n:'Alhamdulillah', ar:'اَلْحَمْدُ لِلّٰهِ', t:33 }, { n:'Allahu Akbar', ar:'اللّٰهُ أَكْبَرُ', t:34 },
@@ -746,7 +746,7 @@ function renderZikrProfile(profileId){
   saveState();
   document.getElementById('detailBody').innerHTML = `
     <button id="zikrBackToTasbeeh" style="margin-bottom:14px; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer;">‹ Tasbeeh Counter</button>
-    <button type="button" class="mala-run" id="zikrRunBtn">▶ ${L({rur:'Mala mein shuru karein', en:'Start in Mala'})}</button>
+    <button type="button" class="mala-run" id="zikrRunBtn">▶ ${L({rur:'Tasbih mein shuru karein', en:'Start in Tasbih'})}</button>
     <div id="zikrItemsWrap"></div>
     <button type="button" class="ts-pickbtn" id="zikrLibBtn">📖 ${L({rur:'Library se dua / zikr add karein', en:'Add a dua / zikr from the library'})}</button>
     <div class="zikr-add-row">

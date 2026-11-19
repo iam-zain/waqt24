@@ -2456,3 +2456,13 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .off-bar button{ flex:0 0 auto; width:26px; height:26px; border-radius:50%; border:1px solid var(--line); background:var(--card2); color:var(--sub); cursor:pointer; }
 .tr-ul{ margin:6px 0 0; padding-left:18px; } .tr-ul li{ margin:5px 0; }
 .tr-btn{ margin-top:8px; padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; }
+
+/* Settings chips: one line, the rest in a dropdown. The chosen chip is shown first while it is folded. */
+.ms-fold{ display:flex; align-items:flex-start; gap:8px; }
+.ms-fold .ms-chips{ flex:1; min-width:0; max-height:38px; overflow:hidden; -webkit-mask-image:linear-gradient(90deg,#000 88%,transparent); mask-image:linear-gradient(90deg,#000 88%,transparent); }
+.ms-fold .ms-chips .on{ order:-1; }
+.ms-fold.open .ms-chips{ max-height:none; -webkit-mask-image:none; mask-image:none; }
+.ms-fold.open .ms-chips .on{ order:0; }
+.ms-more{ flex:0 0 auto; width:38px; height:38px; border-radius:50%; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06); color:inherit; font-size:14px; cursor:pointer; transition:transform .25s ease; }
+.ms-fold.open .ms-more{ transform:rotate(180deg); }
+.mala[data-lt="2"] .ms-more{ border-color:rgba(20,32,46,.2); background:rgba(20,32,46,.05); }

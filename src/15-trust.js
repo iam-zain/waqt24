@@ -3,7 +3,7 @@
    ============================================================ */
 const APP_VERSION = '1.1';
 const WHATS_NEW = [
-  ['📿', { rur:'Naya Tasbeeh Mala', en:'New Tasbeeh Mala' }, { rur:'Moti ki mala, 6 rang, kai manzar, mausam, 3 roshni ke andaaz. Koi bhi dua ya zikr chun kar ginti karein.', en:'A bead garland with 6 colours, many scenes, weather and 3 brightness modes. Count with any dua or zikr.' }],
+  ['📿', { rur:'Naya Tasbih', en:'New Tasbih' }, { rur:'Moti wali tasbih, 6 rang, kai manzar, mausam, 3 roshni ke andaaz. Koi bhi dua ya zikr chun kar ginti karein.', en:'A bead tasbih with 6 colours, many scenes, weather and 3 brightness modes. Count with any dua or zikr.' }],
   ['🔊', { rur:'Moti ki 8 awaazein', en:'8 bead sounds' }, { rur:'Tik, Lakdi, Sheesha, Ghanti aur baaqi. Round poora hone par khaas tone.', en:'Tik, Wood, Glass, Bell and more, with a special tone when a round completes.' }],
   ['📋', { rur:'Aaj ka zikr profile', en:'Today\'s zikr profile' }, { rur:'Ek button se poora profile shuru karein, ek ek zikr poora hone par agla khud aata hai.', en:'Start a whole profile with one button; each zikr moves on to the next when done.' }],
   ['📊', { rur:'Undo aur aaj ka hisaab', en:'Undo and today\'s count' }, { rur:'Galat tap wapas karein, aur dekhein aaj kaun si dua kitni baar padhi.', en:'Undo a wrong tap and see which dua you read how many times today.' }],

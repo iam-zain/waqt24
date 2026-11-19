@@ -154,7 +154,7 @@ function malaStringPath(){ const pts = []; for(let x = -10; x <= 370; x += 10) p
            selfFeedback (the caller already vibrates/beeps), onFinish(), onBack(), backLabel, onPick() } */
 function malaMount(cfg){
   const t = state.tasbeeh, M = malaCfg();
-  let openG = { look:true }, autoScn = Math.floor(Math.random() * MALA_ART), idx = cfg.idx || 0, anim = null, panel = null, raf = 0, lastCur = null;
+  let openF = {}, openG = { look:true }, autoScn = Math.floor(Math.random() * MALA_ART), idx = cfg.idx || 0, anim = null, panel = null, raf = 0, lastCur = null;
   const body = document.getElementById('detailBody');
   const item = ()=> cfg.items[idx];
   const info = ()=> malaInfo(item());
@@ -379,17 +379,18 @@ function malaMount(cfg){
       return `<div class="ms-head"><b>${L({ rur:'Target', en:'Target' })}</b><button type="button" class="mala-btn" data-close>✕</button></div>
         <div class="ms-chips">${MALA_TARGETS.map(n=>`<button type="button" class="ms-chip${c.target === n ? ' on' : ''}" data-tg="${n}">${n}</button>`).join('')}<button type="button" class="ms-chip" data-tg="custom">✎ ${L({ rur:'Apna', en:'Custom' })}</button></div>`;
     }
+    const F = id=> openF[id] ? ' open' : '';
     const look = `      <div class="ms-lbl">${L({ rur:'Moti ka rang', en:'Bead colours' })}</div>
-      <div class="ms-chips">${MALA_THEMES.map((x, i)=>`<button type="button" class="ms-theme${M.theme === i ? ' on' : ''}" data-theme="${i}" aria-label="${L(x.n)}"><span style="background:${x.on}"></span><span style="background:${x.cur}"></span><span style="background:${x.off}"></span><em>${L(x.n)}</em></button>`).join('')}</div>
+      <div class="ms-fold${F('th')}" data-f="th"><div class="ms-chips">${MALA_THEMES.map((x, i)=>`<button type="button" class="ms-theme${M.theme === i ? ' on' : ''}" data-theme="${i}" aria-label="${L(x.n)}"><span style="background:${x.on}"></span><span style="background:${x.cur}"></span><span style="background:${x.off}"></span><em>${L(x.n)}</em></button>`).join('')}</div><button type="button" class="ms-more" aria-label="More">▾</button></div>
       <div class="ms-hint"><span style="--c:var(--mo)"></span>${L({ rur:'ginti hue', en:'counted' })} <span style="--c:var(--mc)"></span>${L({ rur:'abhi wala', en:'current' })} <span style="--c:var(--mf)"></span>${L({ rur:'baaki', en:'to come' })}</div>
       <div class="ms-lbl">${L({ rur:'Roshni', en:'Brightness' })}</div>
       <div class="ms-chips">${[[0, { rur:'🌙 Gehra', en:'🌙 Dark' }], [1, { rur:'🌤 Darmiyana', en:'🌤 Medium' }], [2, { rur:'☀ Roshan', en:'☀ Light' }]].map(x=>`<button type="button" class="ms-chip${(M.light == null ? 1 : M.light) === x[0] ? ' on' : ''}" data-lt="${x[0]}">${L(x[1])}</button>`).join('')}</div>
       <div class="ms-lbl">${L({ rur:'Manzar', en:'Scene' })}</div>
-      <div class="ms-chips"><button type="button" class="ms-chip${M.scene == null ? ' on' : ''}" data-scene="auto">${L({ rur:'Auto', en:'Auto' })}</button>${MALA_SCENE_NAMES.slice(0, MALA_ART).map((x, i)=>`<button type="button" class="ms-chip${M.scene === i ? ' on' : ''}" data-scene="${i}">${L(x)}</button>`).join('')}</div>
+      <div class="ms-fold${F('sc')}" data-f="sc"><div class="ms-chips"><button type="button" class="ms-chip${M.scene == null ? ' on' : ''}" data-scene="auto">${L({ rur:'Auto', en:'Auto' })}</button>${MALA_SCENE_NAMES.slice(0, MALA_ART).map((x, i)=>`<button type="button" class="ms-chip${M.scene === i ? ' on' : ''}" data-scene="${i}">${L(x)}</button>`).join('')}</div><button type="button" class="ms-more" aria-label="More">▾</button></div>
       <div class="ms-lbl">${L({ rur:'Saaf rang aur gradient', en:'Clean colours and gradients' })}</div>
-      <div class="ms-chips">${MALA_PLAIN.map((x, j)=>{ const i = MALA_ART + j, c = x[1], bg = Array.isArray(c) ? `linear-gradient(135deg,${c[0]},${c[1]})` : c; return `<button type="button" class="ms-chip ms-bg${M.scene === i ? ' on' : ''}" data-scene="${i}"><span style="background:${bg}"></span>${L(x[0])}</button>`; }).join('')}</div>
+      <div class="ms-fold${F('pl')}" data-f="pl"><div class="ms-chips">${MALA_PLAIN.map((x, j)=>{ const i = MALA_ART + j, c = x[1], bg = Array.isArray(c) ? `linear-gradient(135deg,${c[0]},${c[1]})` : c; return `<button type="button" class="ms-chip ms-bg${M.scene === i ? ' on' : ''}" data-scene="${i}"><span style="background:${bg}"></span>${L(x[0])}</button>`; }).join('')}</div><button type="button" class="ms-more" aria-label="More">▾</button></div>
       <div class="ms-lbl">${L({ rur:'Mausam', en:'Weather' })}</div>
-      <div class="ms-chips">${MALA_WEATHER.map(x=>`<button type="button" class="ms-chip${(M.fx ? (M.weather || 'auto') : 'none') === x.id ? ' on' : ''}" data-wx="${x.id}">${L(x.n)}</button>`).join('')}</div>
+      <div class="ms-fold${F('wx')}" data-f="wx"><div class="ms-chips">${MALA_WEATHER.map(x=>`<button type="button" class="ms-chip${(M.fx ? (M.weather || 'auto') : 'none') === x.id ? ' on' : ''}" data-wx="${x.id}">${L(x.n)}</button>`).join('')}</div><button type="button" class="ms-more" aria-label="More">▾</button></div>
       <div class="ms-lbl">${L({ rur:'Mausam ki raftaar', en:'Weather speed' })}</div>
       <div class="ms-chips">${MALA_SPEEDS.map(x=>`<button type="button" class="ms-chip${(M.speed || 'mid') === x.id ? ' on' : ''}" data-spd="${x.id}">${L(x.n)}</button>`).join('')}</div>
 `, text = `      <div class="ms-lbl">${L({ rur:'Arabic ka size', en:'Arabic size' })}</div>
@@ -407,7 +408,7 @@ function malaMount(cfg){
       <button type="button" class="ms-link" id="malaTpEdit">✎ ${L({ rur:'Is profile ke zikr edit karein', en:'Edit this profile\'s zikr' })}</button>
       <button type="button" class="ms-link" id="malaTpNew">＋ ${L({ rur:'Naya profile banayein', en:'Create a new profile' })}</button>`;
     const countBox = `${sw('tapAny', M.tapAny, L({ rur:'Screen par kahin bhi tap karein', en:'Tap anywhere to count' }))}
-      <div class="ms-hint">${L({ rur:'Band karne par sirf mala aur disc par tap se ginti hogi.', en:'When off, only taps on the beads and disc count.' })}</div>
+      <div class="ms-hint">${L({ rur:'Band karne par sirf tasbih ke moti aur disc par tap se ginti hogi.', en:'When off, only taps on the beads and disc count.' })}</div>
       ${sw('stopAtTarget', M.stopAtTarget, L({ rur:'Target par ruk jayein', en:'Stop at the target' }))}
       <div class="ms-hint">${L({ rur:'Band ho to ginti target ke baad bhi naye round mein chalti rehti hai.', en:'When off, counting continues into a new round after the target.' })}</div>
       ${sw('keepAwake', M.keepAwake, L({ rur:'Counter khula ho to screen on rakhein', en:'Keep the screen on' }))}
@@ -462,6 +463,7 @@ function malaMount(cfg){
       };
     });
     const snd = sh.querySelector('#malaSnd'); if(snd){ const again = ()=>{ snd.innerHTML = tsPickerHtml(); tsPickerWire(snd, again, ()=>draw(false, true)); }; tsPickerWire(snd, again, ()=>draw(false, true)); }
+    sh.querySelectorAll('.ms-more').forEach(b=>{ b.onclick = ()=>{ const f = b.parentElement; f.classList.toggle('open'); openF[f.dataset.f] = f.classList.contains('open'); }; });
     sh.querySelectorAll('details.ms-grp').forEach(d=>{ d.ontoggle = ()=>{ openG[d.dataset.g] = d.open; }; });
     sh.querySelectorAll('[data-tp]').forEach(b=>{ b.onclick = ()=>{ t.todayProfile = b.dataset.tp === 'auto' ? null : b.dataset.tp; saveState(); draw(false, true); }; });
     const tpe = sh.querySelector('#malaTpEdit'); if(tpe) tpe.onclick = ()=>{ const pf = malaTodayProfile(); if(pf) renderZikrProfile(pf.id); };
