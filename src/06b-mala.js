@@ -65,7 +65,7 @@ const MALA_TARGETS = [1, 3, 7, 11, 33, 99, 100];
 function malaCfg(){
   const t = state.tasbeeh;
   if(!t.mala) t.mala = {};
-  const m = t.mala, d = { theme:0, scene:null, arSize:'M', light:1, markEvery:0, stopAtTarget:false, keepAwake:false, showTr:true, showM:true, tapAny:true, fx:true, weather:'auto', speed:'mid' };
+  const m = t.mala, d = { theme:0, scene:null, arSize:'M', light:1, markEvery:0, stopAtTarget:false, keepAwake:false, showTr:true, showM:true, tapAny:true, fx:true, weather:'auto', speed:'mid', live:true, liveMin:5, liveT0:0, livePaused:false, livePhase:0 };
   Object.keys(d).forEach(k=>{ if(m[k] === undefined) m[k] = d[k]; });
   if(m.markEvery === 11 && !m.markChosen) m.markEvery = 0;   /* marker beads are off unless the person turned them on */
   return m;
@@ -134,6 +134,26 @@ function malaInfo(o){
 }
 function malaMeaning(info){ return isEn() ? (info.en || info.m) : (info.m || info.en); }
 
+/* ---------- Live sky: the sun, moon and stars move through one cycle (2, 5 or 10 minutes) while the person counts ---------- */
+const MALA_LIVE_MIN = [2, 5, 10];
+function malaLivePhase(M){
+  if(M.livePaused) return M.livePhase || 0;
+  if(!M.liveT0){ M.liveT0 = Date.now(); saveState(); }
+  const d = (M.liveMin || 5) * 60000;
+  return (((Date.now() - M.liveT0) / d) % 1 + 1) % 1;
+}
+function malaLiveStars(){
+  let r = 7, rnd = ()=>{ r = (r * 16807) % 2147483647; return r / 2147483647; };
+  const g = [[], [], []];
+  for(let i = 0; i < 42; i++){ const px = (rnd() * 98 + 1).toFixed(1), py = (rnd() * 52 + 2).toFixed(1), sz = rnd() < .2 ? 1 : 0, c = rnd() < .85 ? '#fff' : '#ffe9b0'; g[i % 3].push(`${px}vw ${py}vh 0 ${sz}px ${c}`); }
+  return g.map(a=>`<i style="box-shadow:${a.join(',')}"></i>`).join('');
+}
+function malaLiveHtml(M){
+  const dur = (M.liveMin || 5) * 60, p = malaLivePhase(M);
+  const still = (document.body.classList.contains('calm') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) ? ' still' : '';
+  return `<div class="lsky${M.livePaused ? ' paused' : ''}${still}" style="--ld:${dur}s;--lo:-${(p * dur).toFixed(2)}s"><div class="ls-l ls-night"></div><div class="ls-l ls-dawn"></div><div class="ls-l ls-day"></div><div class="ls-l ls-dusk"></div><div class="ls-stars">${malaLiveStars()}</div><div class="ls-sun"></div><div class="ls-moon"></div><div class="ls-hills"><svg viewBox="0 0 360 240" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 C50 30 90 52 140 40 S250 18 300 44 S345 40 360 34 V240 H0z" fill="#1c3040"/><path d="M0 110 C60 78 110 98 170 84 S290 70 360 96 V240 H0z" fill="#10202c"/></svg></div></div>`;
+}
+
 /* ---------- Scenes (original illustrations, drawn for Waqt24) ---------- */
 function malaScene(i){
   if(i >= MALA_ART){
@@ -179,10 +199,11 @@ function malaMount(cfg){
   /* On Auto the scene is picked at random, and picked again when a target completes, the dua changes or the target changes */
   const sceneIdx = ()=> M.scene != null ? M.scene : autoScn;
   function reroll(){ if(M.scene != null) return; let n; do { n = Math.floor(Math.random() * MALA_ART); } while(n === autoScn && MALA_ART > 1); autoScn = n; }
+  const bgHtml = ()=> M.live ? malaLiveHtml(M) : malaScene(sceneIdx());
   function applyScene(){
     const root = body.querySelector('.mala'); if(!root) return;
     const bg = root.querySelector('.mala-bg'), fx = root.querySelector('.mala-fx');
-    if(bg){ bg.innerHTML = malaScene(sceneIdx()); bg.classList.remove('swap'); void bg.offsetWidth; bg.classList.add('swap'); }
+    if(bg && !M.live){ bg.innerHTML = malaScene(sceneIdx()); bg.classList.remove('swap'); void bg.offsetWidth; bg.classList.add('swap'); }
     if(fx) fx.innerHTML = particles();
     root.dataset.fx = weatherId();
   }
@@ -193,7 +214,7 @@ function malaMount(cfg){
   }
   function weatherId(){
     if(!M.fx) return 'none';
-    return M.weather && M.weather !== 'auto' ? M.weather : (MALA_FX[sceneIdx()] || 'none');
+    return M.weather && M.weather !== 'auto' ? M.weather : (M.live ? 'none' : (MALA_FX[sceneIdx()] || 'none'));
   }
   function particles(){
     const w = weatherId(); if(w === 'none') return '';
@@ -234,8 +255,8 @@ function malaMount(cfg){
   function html(){
     const th = theme(), c = counts(), fx = weatherId();
     const chip = cfg.single ? (t.seq != null ? `${L({ rur:'Tasbeeh-e-Fatima', en:'Tasbeeh of Fatima' })} · ${t.seq + 1}/3` : '') : `${L({ rur:'Dua', en:'Dua' })} ${idx + 1} / ${cfg.items.length}`;
-    return `<div class="mala ${M.tapAny ? 'tap-any' : ''}" data-fx="${fx}" data-lt="${M.light == null ? 1 : M.light}" style="--mo:${th.on};--mf:${th.off};--mc:${th.cur};--mk:${th.mark}">
-      <div class="mala-bg">${malaScene(sceneIdx())}</div>
+    return `<div class="mala ${M.tapAny ? 'tap-any' : ''}" data-fx="${fx}" data-live="${M.live ? 1 : 0}" data-lt="${M.light == null ? 1 : M.light}" style="--mo:${th.on};--mf:${th.off};--mc:${th.cur};--mk:${th.mark}">
+      <div class="mala-bg">${bgHtml()}</div>
       <div class="mala-fx">${particles()}</div>
       <div class="mala-top">
         ${cfg.onBack ? `<button type="button" class="mala-btn" id="malaBack" aria-label="Wapas">‹ ${malaEsc(cfg.backLabel || '')}</button>` : ''}
@@ -245,6 +266,7 @@ function malaMount(cfg){
         <button type="button" class="mala-btn" id="malaPick" aria-label="Dua chunein">📖</button>
         <button type="button" class="mala-btn" id="malaSet" aria-label="Settings">⚙</button>
       </div>
+      ${M.live ? `<button type="button" class="mala-btn mala-live" id="malaLive" aria-label="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}" title="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}">${M.livePaused ? '▶' : '⏸'}</button>` : ''}
       <div class="mala-text" id="malaText"><div class="mala-text-in">${textHtml()}</div></div>
       <div class="mala-mid">${garland()}</div>
       <div class="mala-count" id="malaCount"><div class="mala-crow"><button type="button" class="mala-side" id="malaUndo" aria-label="${L({ rur:'Undo', en:'Undo' })}">↶<small>${L({ rur:'Undo', en:'Undo' })}</small></button><div class="mala-disc" id="malaDisc">
@@ -358,7 +380,7 @@ function malaMount(cfg){
   }
   function go(i){
     if(i < 0 || i >= cfg.items.length) return;
-    idx = i; reroll(); draw(true);
+    idx = i; reroll(); if(cfg.onIdx) cfg.onIdx(cfg.items[i]); draw(true);
   }
   function finishItem(){
     if(cfg.single) return;
@@ -391,7 +413,7 @@ function malaMount(cfg){
     updateCount();
     const g = body.querySelector('#malaGlow'); if(g){ g.classList.remove('pulse'); void g.getBoundingClientRect(); g.classList.add('pulse'); }
     if(!cfg.single && !wasDone && c.count === c.target) finishItem();
-    else if(cfg.single && c.cur === c.target && M.scene == null){ setTimeout(()=>{ reroll(); applyScene(); }, 900); }
+    else if(cfg.single && c.cur === c.target && M.scene == null && !M.live){ setTimeout(()=>{ reroll(); applyScene(); }, 900); }
   }
 
   /* ----- settings and target panels ----- */
@@ -409,10 +431,13 @@ function malaMount(cfg){
       <div class="ms-hint"><span style="--c:var(--mo)"></span>${L({ rur:'ginti hue', en:'counted' })} <span style="--c:var(--mc)"></span>${L({ rur:'abhi wala', en:'current' })} <span style="--c:var(--mf)"></span>${L({ rur:'baaki', en:'to come' })}</div>
       <div class="ms-lbl">${L({ rur:'Roshni', en:'Brightness' })}</div>
       <div class="ms-chips">${[[0, { rur:'🌙 Gehra', en:'🌙 Dark' }], [1, { rur:'🌤 Darmiyana', en:'🌤 Medium' }], [2, { rur:'☀ Roshan', en:'☀ Light' }]].map(x=>`<button type="button" class="ms-chip${(M.light == null ? 1 : M.light) === x[0] ? ' on' : ''}" data-lt="${x[0]}">${L(x[1])}</button>`).join('')}</div>
+      <div class="ms-lbl">${L({ rur:'Live aasman (subah se raat tak)', en:'Live sky (dawn to night)' })}</div>
+      <div class="ms-chips">${[[0, { rur:'Band', en:'Off' }], ...MALA_LIVE_MIN.map(m=>[m, { rur:m + ' min', en:m + ' min' }])].map(x=>`<button type="button" class="ms-chip${(M.live ? M.liveMin || 5 : 0) === x[0] ? ' on' : ''}" data-live="${x[0]}">${L(x[1])}</button>`).join('')}</div>
+      <div class="ms-hint">${L({ rur:'Poora din-raat itne waqt mein; counter ke ⏸ se roka ja sakta hai.', en:'One full day-and-night in this time; pause it with the ⏸ on the counter.' })}</div>
       <div class="ms-lbl">${L({ rur:'Manzar', en:'Scene' })}</div>
-      <div class="ms-fold${F('sc')}" data-f="sc"><div class="ms-chips"><button type="button" class="ms-chip${M.scene == null ? ' on' : ''}" data-scene="auto">${L({ rur:'Auto', en:'Auto' })}</button>${MALA_SCENE_NAMES.slice(0, MALA_ART).map((x, i)=>`<button type="button" class="ms-chip${M.scene === i ? ' on' : ''}" data-scene="${i}">${L(x)}</button>`).join('')}</div><button type="button" class="ms-more" aria-label="More">▾</button></div>
+      <div class="ms-fold${F('sc')}" data-f="sc"><div class="ms-chips"><button type="button" class="ms-chip${!M.live && M.scene == null ? ' on' : ''}" data-scene="auto">${L({ rur:'Auto', en:'Auto' })}</button>${MALA_SCENE_NAMES.slice(0, MALA_ART).map((x, i)=>`<button type="button" class="ms-chip${!M.live && M.scene === i ? ' on' : ''}" data-scene="${i}">${L(x)}</button>`).join('')}</div><button type="button" class="ms-more" aria-label="More">▾</button></div>
       <div class="ms-lbl">${L({ rur:'Saaf rang aur gradient', en:'Clean colours and gradients' })}</div>
-      <div class="ms-fold${F('pl')}" data-f="pl"><div class="ms-chips">${MALA_PLAIN.map((x, j)=>{ const i = MALA_ART + j, c = x[1], bg = Array.isArray(c) ? `linear-gradient(135deg,${c[0]},${c[1]})` : c; return `<button type="button" class="ms-chip ms-bg${M.scene === i ? ' on' : ''}" data-scene="${i}"><span style="background:${bg}"></span>${L(x[0])}</button>`; }).join('')}</div><button type="button" class="ms-more" aria-label="More">▾</button></div>
+      <div class="ms-fold${F('pl')}" data-f="pl"><div class="ms-chips">${MALA_PLAIN.map((x, j)=>{ const i = MALA_ART + j, c = x[1], bg = Array.isArray(c) ? `linear-gradient(135deg,${c[0]},${c[1]})` : c; return `<button type="button" class="ms-chip ms-bg${!M.live && M.scene === i ? ' on' : ''}" data-scene="${i}"><span style="background:${bg}"></span>${L(x[0])}</button>`; }).join('')}</div><button type="button" class="ms-more" aria-label="More">▾</button></div>
       <div class="ms-lbl">${L({ rur:'Mausam', en:'Weather' })}</div>
       <div class="ms-fold${F('wx')}" data-f="wx"><div class="ms-chips">${MALA_WEATHER.map(x=>`<button type="button" class="ms-chip${(M.fx ? (M.weather || 'auto') : 'none') === x.id ? ' on' : ''}" data-wx="${x.id}">${L(x.n)}</button>`).join('')}</div><button type="button" class="ms-more" aria-label="More">▾</button></div>
       <div class="ms-lbl">${L({ rur:'Mausam ki raftaar', en:'Weather speed' })}</div>
@@ -468,7 +493,8 @@ function malaMount(cfg){
     sh.hidden = false; sh.innerHTML = sheetHtml();
     sh.querySelectorAll('[data-close]').forEach(b=>{ b.onclick = ()=>{ panel = null; renderSheet(); }; });
     sh.querySelectorAll('[data-theme]').forEach(b=>{ b.onclick = ()=>{ M.theme = +b.dataset.theme; saveState(); draw(false, true); }; });
-    sh.querySelectorAll('[data-scene]').forEach(b=>{ b.onclick = ()=>{ M.scene = b.dataset.scene === 'auto' ? null : +b.dataset.scene; saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-scene]').forEach(b=>{ b.onclick = ()=>{ M.live = false; M.scene = b.dataset.scene === 'auto' ? null : +b.dataset.scene; saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-live]').forEach(b=>{ b.onclick = ()=>{ const v = +b.dataset.live, p = malaLivePhase(M); if(!v) M.live = false; else { M.live = true; M.liveMin = v; M.liveT0 = Date.now() - p * v * 60000; } saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-lt]').forEach(b=>{ b.onclick = ()=>{ M.light = +b.dataset.lt; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-wx]').forEach(b=>{ b.onclick = ()=>{ M.weather = b.dataset.wx; M.fx = b.dataset.wx !== 'none'; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-spd]').forEach(b=>{ b.onclick = ()=>{ M.speed = b.dataset.spd; saveState(); draw(false, true); }; });
@@ -521,6 +547,13 @@ function malaMount(cfg){
     const pick = ()=>{ if(cfg.onPick) cfg.onPick(); };
     if($('#malaPick')) $('#malaPick').onclick = pick; if($('#malaPick2')) $('#malaPick2').onclick = pick;
     const stepFont = d=>{ const i = Math.max(0, MALA_AR_SIZES.indexOf(M.arSize || 'M')), j = Math.max(0, Math.min(MALA_AR_SIZES.length - 1, i + d)); if(j === i) return; M.arSize = MALA_AR_SIZES[j]; saveState(); draw(false, true); };
+    if($('#malaLive')) $('#malaLive').onclick = ()=>{
+      const p = malaLivePhase(M);
+      if(M.livePaused){ M.livePaused = false; M.liveT0 = Date.now() - p * (M.liveMin || 5) * 60000; } else { M.livePaused = true; M.livePhase = p; }
+      saveState();
+      const sky = body.querySelector('.lsky'); if(sky) sky.classList.toggle('paused', M.livePaused);
+      $('#malaLive').textContent = M.livePaused ? '▶' : '⏸';
+    };
     $('#malaFm').onclick = ()=>stepFont(-1); $('#malaFp').onclick = ()=>stepFont(1);
     $('#malaSet').onclick = ()=>{ panel = panel === 'settings' ? null : 'settings'; renderSheet(); };
     if($('#malaRm')) $('#malaRm').onclick = removeDua;
@@ -647,7 +680,9 @@ function malaRunSet(profileId, itemId){
   const items = pf.items;
   if(!items.length){ showToast(L({ rur:'Is set mein abhi koi dua nahi', en:'No duas in this set yet' })); return renderZikrProfile(profileId); }
   let start = Math.max(0, items.findIndex(i=>i.id === itemId));
+  if(items[start]) window.__malaLast = { pid:profileId, id:items[start].id };
   malaMount({
+    onIdx:it=>{ window.__malaLast = { pid:profileId, id:it.id }; },
     single:false, selfFeedback:false, idx:start, title:pf.name,
     items, get:i=> day[items[i].id] || 0,
     inc:i=>{ const it = items[i]; day[it.id] = (day[it.id] || 0) + 1; const lg = tasbeehLog(), dk = dayKey(new Date()); lg[dk] = (lg[dk] || 0) + 1; saveState(); return day[it.id]; },

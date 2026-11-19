@@ -778,13 +778,14 @@ function renderZikrProfile(profileId){
   `;
   function renderItems(){
     const w = document.getElementById('zikrItemsWrap');
-    w.innerHTML = profile.items.map(it=>{
+    w.innerHTML = profile.items.map((it, n)=>{
       const c = day[it.id]||0;
       const done = c>=it.target;
       const pct = Math.min(100, Math.round(c/it.target*100));
       return `<div class="zikr-item-card ${done?'done':''}" data-item="${it.id}">
+        <button type="button" class="zikr-item-grip" data-grip="${it.id}" aria-label="${L({rur:'Order badlein (pakad kar kheenchein)', en:'Reorder (hold and drag)'})}">⠿</button>
         <div style="flex:1; cursor:pointer;" data-open="${it.id}">
-          <div class="ziName">${done?'✅ ':''}${it.name}</div>
+          <div class="ziName"><span class="ziNo">${n + 1}</span>${done?'✅ ':''}${it.name}</div>
           <div class="ziCount">${c} / ${it.target}</div>
           <div class="ziBar"><div style="width:${pct}%;"></div></div>
         </div>
@@ -804,6 +805,33 @@ function renderZikrProfile(profileId){
     w.querySelectorAll('[data-open]').forEach(el=>{
       el.onclick = ()=> renderZikrItemCounter(profile.id, el.dataset.open);
     });
+    /* drag the grip to reorder: the card follows the finger, the others slide aside, the new order is saved on release */
+    w.querySelectorAll('[data-grip]').forEach(g=>{
+      g.onpointerdown = ev=>{
+        const cards = [...w.querySelectorAll('.zikr-item-card')], from = cards.findIndex(c=>c.contains(g)); if(from < 0) return;
+        ev.preventDefault(); try{ g.setPointerCapture(ev.pointerId); }catch(e){}
+        const card = cards[from], y0 = ev.clientY, rects = cards.map(c=>c.getBoundingClientRect());
+        const step = rects.length > 1 ? (rects[1].top - rects[0].top) : card.offsetHeight + 9;
+        let to = from;
+        card.classList.add('drag');
+        g.onpointermove = e=>{
+          const dy = e.clientY - y0, center = rects[from].top + rects[from].height / 2 + dy;
+          card.style.transform = `translateY(${dy}px)`;
+          to = from;
+          rects.forEach((r, i)=>{ if(i !== from && ((i > from && center > r.top + r.height / 2) || (i < from && center < r.top + r.height / 2))) to = i; });
+          cards.forEach((c, i)=>{
+            if(i === from) return;
+            c.style.transform = (from < to && i > from && i <= to) ? `translateY(${-step}px)` : (from > to && i < from && i >= to) ? `translateY(${step}px)` : '';
+          });
+        };
+        const end = ()=>{
+          g.onpointermove = g.onpointerup = g.onpointercancel = null;
+          if(to !== from){ const it = profile.items.splice(from, 1)[0]; profile.items.splice(to, 0, it); saveState(); }
+          renderItems();
+        };
+        g.onpointerup = end; g.onpointercancel = end;
+      };
+    });
     w.querySelectorAll('[data-del]').forEach(btn=>{
       btn.onclick = ()=>{
         const id = btn.dataset.del;
@@ -815,7 +843,12 @@ function renderZikrProfile(profileId){
     });
   }
   renderItems();
-  document.getElementById('zikrBackToTasbeeh').onclick = renderTasbeeh;
+  document.getElementById('zikrBackToTasbeeh').onclick = ()=>{
+    /* back to the counter on the dua that was just open, not on the earlier plain zikr */
+    const last = window.__malaLast;
+    if(last && last.pid === profile.id && profile.items.some(it=>it.id === last.id)) return malaRunSet(profile.id, last.id);
+    renderTasbeeh();
+  };
   document.getElementById('zikrRunBtn').onclick = ()=>{ const first = profile.items.find(it=>(day[it.id] || 0) < it.target) || profile.items[0]; malaRunSet(profile.id, first && first.id); };
   document.getElementById('zikrLibBtn').onclick = ()=> renderMalaPicker({ onBack:()=>renderZikrProfile(profile.id), addTo:true, onPick:info=>{ profile.items.push({ id:'z' + Date.now(), name:info.n, ar:info.ar, tr:info.tr, m:info.m, en:info.en, target:info.t || 3 }); saveState(); renderZikrProfile(profile.id); } });
   document.getElementById('zikrAddItemBtn').onclick = ()=>{
