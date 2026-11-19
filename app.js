@@ -6331,6 +6331,7 @@ function malaMount(cfg){
       ${sw('sound', !!t.sound, L({ rur:'Awaaz', en:'Sound' }))}
       <div id="malaSnd">${tsPickerHtml()}</div>
       ${sw('vibrate', t.vibrate !== false, L({ rur:'Vibration', en:'Vibration' }))}
+      ${(item().name || item().ar) ? `<button type="button" class="ms-link ms-danger" id="malaRemove">🗑 ${cfg.single ? L({ rur:'Yeh dua hata dein', en:'Remove this dua' }) : L({ rur:'Yeh dua set se hata dein', en:'Remove this dua from the set' })}</button>` : ''}
       <button type="button" class="ms-link" id="malaClassic">⚙ ${L({ rur:'Purana counter, profiles aur history', en:'Classic counter, profiles and history' })}</button>`;
   }
   function renderSheet(){
@@ -6358,6 +6359,19 @@ function malaMount(cfg){
       };
     });
     const snd = sh.querySelector('#malaSnd'); if(snd){ const again = ()=>{ snd.innerHTML = tsPickerHtml(); tsPickerWire(snd, again); }; tsPickerWire(snd, again); }
+    const rm = sh.querySelector('#malaRemove');
+    if(rm) rm.onclick = ()=>{
+      panel = null;
+      if(cfg.single){
+        t.label = ''; t.labelAr = ''; t.labelTr = ''; t.labelM = ''; t.labelEn = ''; t.seq = null; saveState();
+        cfg.items[0] = malaSingleItem();
+      } else {
+        cfg.items.splice(idx, 1); saveState();
+        if(!cfg.items.length){ showToast(L({ rur:'Dua hata di', en:'Dua removed' })); return cfg.onFinish ? cfg.onFinish() : renderTasbeeh(); }
+        idx = Math.min(idx, cfg.items.length - 1);
+      }
+      showToast(L({ rur:'Dua hata di', en:'Dua removed' })); draw();
+    };
     const cl = sh.querySelector('#malaClassic'); if(cl) cl.onclick = ()=>{ window.__tsClassicOnce = true; renderTasbeeh(); };
   }
 

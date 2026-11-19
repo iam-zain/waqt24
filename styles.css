@@ -2344,3 +2344,4 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 @keyframes malaFly{ 0%,100%{ transform:translate(0,0); opacity:.15; } 25%{ transform:translate(18px,-14px); opacity:1; } 50%{ transform:translate(-10px,-26px); opacity:.3; } 75%{ transform:translate(14px,-10px); opacity:.95; } }
 .ms-bg{ display:inline-flex; align-items:center; gap:7px; }
 .ms-bg span{ width:16px; height:16px; border-radius:50%; border:1px solid rgba(255,255,255,.35); flex:0 0 auto; }
+.ms-danger{ border-color:rgba(255,120,120,.5); color:#ffb4b4; }
