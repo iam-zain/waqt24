@@ -2358,3 +2358,4 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 @keyframes hwBob{ 0%,100%{ margin-bottom:0; } 50%{ margin-bottom:-1.5px; } }
 .hero-ring .bar{ transition:stroke-dashoffset 2.4s cubic-bezier(.22,.61,.36,1); }
 @media (prefers-reduced-motion:reduce){ .hw-w, .hw-fill{ animation:none; } }
+.mala-tr, .mala-m, .mala-ar{ overflow-wrap:anywhere; }

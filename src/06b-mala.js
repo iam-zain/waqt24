@@ -179,8 +179,8 @@ function malaMount(cfg){
     const mean = malaMeaning(inf);
     return `${inf.ar ? `<div class="mala-ar" dir="rtl" style="font-size:${arSize(inf.ar)}px">${malaEsc(inf.ar)}</div>` : ''}
       ${(inf.ar && (M.showTr || M.showM)) ? '<div class="mala-div"><i></i><b></b><i></i></div>' : ''}
-      ${M.showTr && inf.tr ? `<div class="mala-tr">${malaEsc(inf.tr)}</div>` : ''}
-      ${M.showM && mean ? `<div class="mala-m">${malaEsc(mean)}</div>` : ''}`;
+      ${M.showTr && inf.tr ? `<div class="mala-tr" style="font-size:${Math.round(16 * (MALA_AR_K[M.arSize] || 1))}px">${malaEsc(inf.tr)}</div>` : ''}
+      ${M.showM && mean ? `<div class="mala-m" style="font-size:${Math.round(13 * (MALA_AR_K[M.arSize] || 1))}px">${malaEsc(mean)}</div>` : ''}`;
   }
   function html(){
     const th = theme(), c = counts(), fx = weatherId();
