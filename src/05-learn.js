@@ -1402,7 +1402,7 @@ function renderRamzanCalendar(){
     };
   });
 }
-const ABOUT_LINKEDIN = '';   /* set to the LinkedIn profile URL */
+const ABOUT_LINKEDIN = 'https://www.linkedin.com/in/mdzainulali/';
 function renderMoreAbout(){
   document.getElementById('detailTitle').textContent="Iske Baare Mein";
   document.getElementById('detailBody').innerHTML = `
