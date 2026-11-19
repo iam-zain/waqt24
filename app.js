@@ -6399,7 +6399,7 @@ function malaMount(cfg){
     if(!cfg.single || cfg.onBack) return '';
     const pf = malaTodayProfile(); if(!pf) return '';
     const pr = zikrProfileProgress(new Date(), pf), nm = pf.name.replace(/\s*\(.*\)\s*$/, '');
-    return `<button type="button" class="mala-btn mala-today${pr.total && pr.done >= pr.total ? ' ok' : ''}" id="malaToday" title="${malaEsc(pf.name)}">📋 <span>${malaEsc(nm)}</span> <b>${pr.done}/${pr.total}</b></button>`;
+    return `<button type="button" class="mala-btn mala-today${pr.total && pr.done >= pr.total ? ' ok' : ''}" id="malaToday" title="${malaEsc(nm)}">📋 <span>${L({ rur:'Aaj ka zikr', en:'Today\'s zikr' })}</span> <b>${pr.done}/${pr.total}</b></button>`;
   }
   function html(){
     const th = theme(), c = counts(), fx = weatherId();
