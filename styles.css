@@ -2361,3 +2361,4 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .mala-tr, .mala-m, .mala-ar{ overflow-wrap:anywhere; }
 .mala.quiet, .mala.quiet .mala-sheet, .mala.quiet .mala-bg, .mala.quiet .mala-text, .mala.quiet .mala-mid{ animation:none !important; }
 .mala-bg svg, #malaBeads circle, .mala-ar, .mala-tr, .mala-m{ transition:fill .35s ease, stroke .35s ease, opacity .35s ease; }
+.mala-rm{ border-color:rgba(255,120,120,.45); }

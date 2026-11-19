@@ -6218,6 +6218,7 @@ function malaMount(cfg){
       <div class="mala-bar">
         <button type="button" class="mala-btn" id="malaPrev" ${cfg.single ? 'style="visibility:hidden"' : ''} aria-label="Pichli dua">‹</button>
         <button type="button" class="mala-btn" id="malaReset">↺ ${L({ rur:'Reset', en:'Reset' })}</button>
+        ${(item().name || item().ar) ? `<button type="button" class="mala-btn mala-rm" id="malaRm" aria-label="${L({ rur:'Dua hatayein', en:'Remove dua' })}" title="${L({ rur:'Dua hatayein', en:'Remove dua' })}">🗑</button>` : ''}
         <button type="button" class="mala-btn" id="malaTg">🎯 ${L({ rur:'Target', en:'Target' })} <b id="malaTgN">${c.target}</b></button>
         <button type="button" class="mala-btn" id="malaNext" ${cfg.single ? 'style="visibility:hidden"' : ''} aria-label="Agli dua">›</button>
       </div>
@@ -6342,6 +6343,18 @@ function malaMount(cfg){
       ${(item().name || item().ar) ? `<button type="button" class="ms-link ms-danger" id="malaRemove">🗑 ${cfg.single ? L({ rur:'Yeh dua hata dein', en:'Remove this dua' }) : L({ rur:'Yeh dua set se hata dein', en:'Remove this dua from the set' })}</button>` : ''}
       <button type="button" class="ms-link" id="malaClassic">⚙ ${L({ rur:'Purana counter, profiles aur history', en:'Classic counter, profiles and history' })}</button>`;
   }
+  function removeDua(){
+    panel = null;
+    if(cfg.single){
+      t.label = ''; t.labelAr = ''; t.labelTr = ''; t.labelM = ''; t.labelEn = ''; t.seq = null; saveState();
+      cfg.items[0] = malaSingleItem();
+    } else {
+      cfg.items.splice(idx, 1); saveState();
+      if(!cfg.items.length){ showToast(L({ rur:'Dua hata di', en:'Dua removed' })); return cfg.onFinish ? cfg.onFinish() : renderTasbeeh(); }
+      idx = Math.min(idx, cfg.items.length - 1);
+    }
+    showToast(L({ rur:'Dua hata di', en:'Dua removed' })); draw(false, true);
+  }
   function renderSheet(){
     const sh = body.querySelector('#malaSheet'); if(!sh) return;
     if(!panel){ sh.hidden = true; sh.innerHTML = ''; return; }
@@ -6367,19 +6380,7 @@ function malaMount(cfg){
       };
     });
     const snd = sh.querySelector('#malaSnd'); if(snd){ const again = ()=>{ snd.innerHTML = tsPickerHtml(); tsPickerWire(snd, again); }; tsPickerWire(snd, again); }
-    const rm = sh.querySelector('#malaRemove');
-    if(rm) rm.onclick = ()=>{
-      panel = null;
-      if(cfg.single){
-        t.label = ''; t.labelAr = ''; t.labelTr = ''; t.labelM = ''; t.labelEn = ''; t.seq = null; saveState();
-        cfg.items[0] = malaSingleItem();
-      } else {
-        cfg.items.splice(idx, 1); saveState();
-        if(!cfg.items.length){ showToast(L({ rur:'Dua hata di', en:'Dua removed' })); return cfg.onFinish ? cfg.onFinish() : renderTasbeeh(); }
-        idx = Math.min(idx, cfg.items.length - 1);
-      }
-      showToast(L({ rur:'Dua hata di', en:'Dua removed' })); draw();
-    };
+    const rm = sh.querySelector('#malaRemove'); if(rm) rm.onclick = removeDua;
     const cl = sh.querySelector('#malaClassic'); if(cl) cl.onclick = ()=>{ window.__tsClassicOnce = true; renderTasbeeh(); };
   }
 
@@ -6404,6 +6405,7 @@ function malaMount(cfg){
     const stepFont = d=>{ const i = Math.max(0, MALA_AR_SIZES.indexOf(M.arSize || 'M')), j = Math.max(0, Math.min(MALA_AR_SIZES.length - 1, i + d)); if(j === i) return; M.arSize = MALA_AR_SIZES[j]; saveState(); draw(false, true); };
     $('#malaFm').onclick = ()=>stepFont(-1); $('#malaFp').onclick = ()=>stepFont(1);
     $('#malaSet').onclick = ()=>{ panel = panel === 'settings' ? null : 'settings'; renderSheet(); };
+    if($('#malaRm')) $('#malaRm').onclick = removeDua;
     $('#malaTg').onclick = ()=>{ panel = panel === 'target' ? null : 'target'; renderSheet(); };
     $('#malaReset').onclick = ()=>{ cfg.reset(idx); draw(); };
     $('#malaPrev').onclick = ()=> go(idx - 1);
