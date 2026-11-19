@@ -191,7 +191,7 @@ function malaLivePhase(M){
 function malaLiveStars(){
   let r = 7, rnd = ()=>{ r = (r * 16807) % 2147483647; return r / 2147483647; };
   const g = [[], [], []];
-  for(let i = 0; i < 42; i++){ const px = (rnd() * 98 + 1).toFixed(1), py = (rnd() * 52 + 2).toFixed(1), sz = rnd() < .2 ? 1 : 0, c = rnd() < .85 ? '#fff' : '#ffe9b0'; g[i % 3].push(`${px}vw ${py}vh 0 ${sz}px ${c}`); }
+  for(let i = 0; i < 70; i++){ const px = (rnd() * 96 + 2).toFixed(1), py = (rnd() * 54 + 2).toFixed(1), sp = rnd() < .3 ? 1.5 : rnd() < .6 ? .8 : 0, c = rnd() < .8 ? '#ffffff' : '#ffe9b0'; g[i % 3].push(`${px}vw ${py}vh 0 ${sp}px ${c}`); }
   return g.map(a=>`<i style="box-shadow:${a.join(',')}"></i>`).join('');
 }
 /* The moon in the sky shows today's phase from the Islamic date (day 1 is a thin crescent, day 14-15 full, day 29-30 almost gone) */
@@ -201,7 +201,7 @@ function malaMoonSvg(day){
   return { lit:(1 - k) / 2, svg:`<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50" fill="#1a2440" opacity=".6"/><path d="${d}" fill="#efe8c4"${waxing ? '' : ' transform="translate(100 0) scale(-1 1)"'}/></svg>` };
 }
 function malaLiveHtml(M){
-  const dur = (M.liveMin || 5) * 60, p = malaLivePhase(M), mn = malaMoonSvg(window.__moonDay || gregorianToHijri(new Date()).day);
+  const dur = M.liveReal ? 300 : (M.liveMin || 5) * 60, p = malaLivePhase(M), mn = malaMoonSvg(window.__moonDay || gregorianToHijri(new Date()).day);
   const still = (document.body.classList.contains('calm') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) ? ' still' : '';
   return `<div class="lsky${M.livePaused || M.liveReal ? ' paused' : ''}${still}" style="--ld:${dur}s;--lo:-${(p * dur).toFixed(2)}s"><div class="ls-l ls-night"></div><div class="ls-l ls-dawn"></div><div class="ls-l ls-day"></div><div class="ls-l ls-dusk"></div><div class="ls-stars">${malaLiveStars()}</div><div class="ls-sun"></div><div class="ls-moon" style="--mi:${(.25 + .75 * mn.lit).toFixed(2)}">${mn.svg}</div><div class="ls-hills"><svg viewBox="0 0 360 240" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 C50 30 90 52 140 40 S250 18 300 44 S345 40 360 34 V240 H0z" fill="#1c3040"/><path d="M0 110 C60 78 110 98 170 84 S290 70 360 96 V240 H0z" fill="#10202c"/></svg></div></div>`;
 }
