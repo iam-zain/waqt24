@@ -261,12 +261,12 @@ function malaMount(cfg){
       <div class="mala-top">
         ${cfg.onBack ? `<button type="button" class="mala-btn" id="malaBack" aria-label="Wapas">‹ ${malaEsc(cfg.backLabel || '')}</button>` : ''}
         ${chip ? `<span class="mala-chip">${chip}</span>` : ''}${todayPill()}<i class="mala-sp"></i>
+        ${M.live ? `<button type="button" class="mala-btn mala-live" id="malaLive" aria-label="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}" title="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}">${M.livePaused ? '▶' : '⏸'}</button>` : ''}
         <button type="button" class="mala-btn" id="malaFm" aria-label="Font smaller">A−</button>
         <button type="button" class="mala-btn" id="malaFp" aria-label="Font bigger">A+</button>
         <button type="button" class="mala-btn" id="malaPick" aria-label="Dua chunein">📖</button>
         <button type="button" class="mala-btn" id="malaSet" aria-label="Settings">⚙</button>
       </div>
-      ${M.live ? `<button type="button" class="mala-btn mala-live" id="malaLive" aria-label="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}" title="${L({ rur:'Aasman rokein / chalayein', en:'Pause or play the sky' })}">${M.livePaused ? '▶' : '⏸'}</button>` : ''}
       <div class="mala-text" id="malaText"><div class="mala-text-in">${textHtml()}</div></div>
       <div class="mala-mid">${garland()}</div>
       <div class="mala-count" id="malaCount"><div class="mala-crow"><button type="button" class="mala-side" id="malaUndo" aria-label="${L({ rur:'Undo', en:'Undo' })}">↶<small>${L({ rur:'Undo', en:'Undo' })}</small></button><div class="mala-disc" id="malaDisc">
