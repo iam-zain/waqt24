@@ -6229,14 +6229,14 @@ function malaMount(cfg){
   function place(c){
     const th = theme(), cnt = counts(), n = cnt.target, cur = cnt.cur;
     const circles = body.querySelectorAll('#malaBeads circle');
-    const stat = n <= 11;
+    const stat = false;   /* one layout for every target: the current bead sits above the number, counted beads slide off to the left */
     let tassel = null;
     circles.forEach((el, j)=>{
       let k, u;
       if(stat){ k = j + 1; u = k - (n + 1) / 2; if(k > n){ el.setAttribute('opacity', 0); return; } }
       else { k = Math.floor(c) - 8 + j; u = k - c; }
       if(k < 1 || k > n){ el.setAttribute('opacity', 0); return; }
-      const sp = stat ? Math.min(40, 290 / n) : 24, x = 180 + u * sp, au = Math.abs(u), lim = stat ? 99 : 7.6;
+      const sp = n <= 11 ? 36 : 24, x = 180 + u * sp, au = Math.abs(u), lim = Math.min(7.6, 196 / sp);
       const ev = M.markEvery === 0 ? 0 : (M.markEvery || 11), marker = !stat && ev > 0 && k % ev === 0 && k < n, last = k === n;
       const isCur = k === cur, isOn = k <= cur;
       let r = (stat ? 14 : 8 + 5 * Math.max(0, 1 - au / 6)) * (marker ? 1.22 : 1) * (isCur ? 1.15 : 1);
@@ -6302,7 +6302,6 @@ function malaMount(cfg){
     /* a new round starts from the first bead again */
     if(cfg.single && c.cur === 1 && before.cur === before.target){ pos = 0; place(0); }
     slideTo(c.target <= 11 ? c.cur : c.cur, pos);
-    if(c.target <= 11){ pos = c.cur; place(pos); }
     updateCount();
     const g = body.querySelector('#malaGlow'); if(g){ g.classList.remove('pulse'); void g.getBoundingClientRect(); g.classList.add('pulse'); }
     if(!cfg.single && !wasDone && c.count === c.target) finishItem();
