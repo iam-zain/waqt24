@@ -14,7 +14,7 @@ const ASMA_SETS = {
 function asmaScreenWhich(){ const s = typeof curScreen !== 'undefined' ? curScreen : null; return s && s.args && s.args[0] === 'prophet' ? 'prophet' : 'asma'; }
 function asmaW(){ return asmaSt.mode ? asmaSt.which : asmaScreenWhich(); }
 function asmaSet(){ return ASMA_SETS[asmaW()]; }
-const ASMA_GAP_MS = 1500;   // pause between the repeats of a name
+const ASMA_GAP_MS = 500;    // pause between the repeats of a name
 let asmaGapT = 0;
 const asmaSt = { mode:null, idx:-1, n:1, gap:false, which:'asma' };   // n: which repeat of a single name is playing   // mode: 'full' | 'one' | null
 let asmaAu = null;
