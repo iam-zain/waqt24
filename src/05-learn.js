@@ -1065,8 +1065,27 @@ function renderSettingsMenu(){
     ['backup',uiIcon('backup'),'Data Backup', ''],
     ['about',uiIcon('about'),'Iske Baare Mein', ''],
   ];
-  document.getElementById('detailBody').innerHTML = `<div class="more-list set-list">${items.map(([k,ic,l,sub])=>`
-    <div class="more-item" data-sec="${k}" role="button" tabindex="0"><div class="ic">${ic}</div><div class="lbl">${l}${sub?`<span class="lblSub">${sub}</span>`:''}</div><div class="chev">›</div></div>`).join('')}</div>`;
+  /* Settings are grouped under headings and can be searched (the words after each key are extra search terms) */
+  const SET_GROUPS = [
+    [L({rur:'Namaz aur shahar', en:'Prayer and city'}), ['location','calc','iqamah','nafil','azaan','notif','qibla']],
+    [L({rur:'Dikhawat aur awaaz', en:'Look and sound'}), ['lang','timefmt','textsize','homecard','feedback']],
+    [L({rur:'Madad aur data', en:'Help and data'}), ['howto','backup','about']],
+  ];
+  const SET_KW = { location:'city shahar gps location', calc:'method hisaab asr hanafi shafi hijri fajr isha time calculation', iqamah:'jamaat iqamah masjid', nafil:'nafil ishraq chasht tahajjud', azaan:'adhan azan awaaz', notif:'reminder alert yaad notification', qibla:'compass direction rukh', lang:'language zubaan english urdu hinglish', timefmt:'12 24 hour clock time format', textsize:'font size arabic bara chhota', homecard:'home card hero strip', feedback:'vibration haptic sound awaaz', howto:'help guide tareeqa', backup:'backup restore export import data', about:'privacy version sources naya kya hai whats new' };
+  const byKey = {}; items.forEach(it=>{ byKey[it[0]] = it; });
+  document.getElementById('detailBody').innerHTML = `<div class="set-search"><input id="setQ" type="search" autocomplete="off" placeholder="${L({rur:'Settings dhoondhiye...', en:'Search settings...'})}" aria-label="${L({rur:'Settings dhoondhiye', en:'Search settings'})}"></div>
+    ${SET_GROUPS.map(([gl, keys])=>`<div class="set-grp"><div class="set-grp-t">${gl}</div><div class="more-list set-list">${keys.filter(k=>byKey[k]).map(k=>{ const [kk,ic,l,sub] = byKey[k]; return `<div class="more-item" data-sec="${kk}" data-kw="${SET_KW[kk] || ''}" role="button" tabindex="0"><div class="ic">${ic}</div><div class="lbl">${l}${sub?`<span class="lblSub">${sub}</span>`:''}</div><div class="chev">›</div></div>`; }).join('')}</div></div>`).join('')}
+    <div class="empty-state" id="setNone" hidden>${L({rur:'Koi setting nahi mili.', en:'No setting found.'})}</div>`;
+  const setQ = document.getElementById('setQ');
+  setQ.oninput = ()=>{
+    const q = setQ.value.trim().toLowerCase(); let any = false;
+    document.querySelectorAll('#detailBody .set-grp').forEach(g=>{
+      let vis = 0;
+      g.querySelectorAll('.more-item').forEach(el=>{ const hit = !q || (el.textContent + ' ' + (el.dataset.kw || '')).toLowerCase().includes(q); el.hidden = !hit; if(hit) vis++; });
+      g.hidden = !vis; if(vis) any = true;
+    });
+    document.getElementById('setNone').hidden = any;
+  };
   document.querySelectorAll('#detailBody [data-sec]').forEach(el=>{
     el.onclick = ()=>{
       const k = el.dataset.sec;
