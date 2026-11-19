@@ -237,7 +237,7 @@ function malaMount(cfg){
     const nc = cfg.inc(idx);
     const c = counts();
     if(!cfg.selfFeedback){
-      if(t.vibrate !== false && navigator.vibrate) navigator.vibrate(c.cur === c.target ? [40, 40, 80] : 12);
+      if(t.vibrate !== false && navigator.vibrate) navigator.vibrate(c.cur === c.target ? [60, 50, 60, 50, 140] : 12);
       if(typeof tasbeehBeep === 'function') tasbeehBeep(c.cur === c.target ? 'done' : (c.target > 11 && c.cur % 11 === 0 ? 'mark' : ''));
     }
     /* a new round starts from the first bead again */

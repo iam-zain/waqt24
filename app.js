@@ -6249,7 +6249,7 @@ function malaMount(cfg){
     const nc = cfg.inc(idx);
     const c = counts();
     if(!cfg.selfFeedback){
-      if(t.vibrate !== false && navigator.vibrate) navigator.vibrate(c.cur === c.target ? [40, 40, 80] : 12);
+      if(t.vibrate !== false && navigator.vibrate) navigator.vibrate(c.cur === c.target ? [60, 50, 60, 50, 140] : 12);
       if(typeof tasbeehBeep === 'function') tasbeehBeep(c.cur === c.target ? 'done' : (c.target > 11 && c.cur % 11 === 0 ? 'mark' : ''));
     }
     /* a new round starts from the first bead again */
@@ -6570,16 +6570,29 @@ const TS_RECIPES = {
     tsTone(ctx, t, (k === 'mark' ? 660 : 880) * r, 0.18, 0.04, { att:0.004 });
   },
 };
-/* The round-complete bell: three soft rising notes */
+/* The "complete" tone: a clear rising four-note bell with a long ring. It is the same for every bead sound, so it always means "done". */
 function tsChime(ctx, t){
-  [880, 1108.7, 1318.5].forEach((f, i)=>{ tsTone(ctx, t + i * 0.09, f, 0.2, 0.22, { att:0.004 }); tsTone(ctx, t + i * 0.09, f * 2, 0.05, 0.12, { att:0.004 }); });
+  [[659.3, 0], [880, 0.11], [1108.7, 0.22], [1318.5, 0.35]].forEach(([f, d], i)=>{
+    const last = i === 3, tau = last ? 0.55 : 0.2, a = last ? 0.5 : 0.38;
+    tsTone(ctx, t + d, f, a, tau, { att:0.003 });
+    tsTone(ctx, t + d, f * 2.01, a * 0.35, tau * 0.6, { att:0.003 });
+    tsTone(ctx, t + d, f * 3.0, a * 0.15, tau * 0.4, { att:0.003 });
+  });
 }
 function tsPlay(id, kind, force){
   const ctx = tsCtx(); if(!ctx) return;
   tsMaster.gain.value = tsVol();
   const fn = TS_RECIPES[id] || TS_RECIPES.tik, r = 0.97 + Math.random() * 0.06, t = ctx.currentTime + 0.005;
+  if(kind === 'done'){
+    fn(ctx, t, r, 'tap');
+    if(state.tasbeeh.chime !== false) tsChime(ctx, t + 0.12);
+    return;
+  }
   fn(ctx, t, r, kind === 'mark' ? 'mark' : 'tap');
-  if(kind === 'done' && state.tasbeeh.chime !== false) tsChime(ctx, t + 0.07);
+}
+function tasbeehChimePreview(){
+  if(state.sounds === false) return;
+  try{ const ctx = tsCtx(); if(ctx){ tsMaster.gain.value = tsVol(); tsChime(ctx, ctx.currentTime + 0.01); } }catch(e){}
 }
 /* Called on every counted bead. kind: '' | 'mark' | 'done' */
 function tasbeehBeep(kind){
@@ -6598,7 +6611,7 @@ function tsPickerHtml(){
   return `<div class="ts-snd">
     <div class="ts-snd-chips">${TS_SOUNDS.map(s=>`<button type="button" class="ts-snd-chip${cur === s.id ? ' on' : ''}" data-snd="${s.id}">♪ ${L(s.n)}</button>`).join('')}</div>
     <label class="ts-vol"><span>🔉 ${L({ rur:'Awaaz ki tezi', en:'Volume' })}</span><input type="range" min="10" max="100" step="5" value="${vol}" data-vol></label>
-    <div class="ts-snd-sw"><span>${L({ rur:'Round poora hone par ghanti', en:'Bell when a round completes' })}</span><button type="button" class="ms-sw${t.chime !== false ? ' on' : ''}" data-tsw="chime" role="switch" aria-checked="${t.chime !== false}"><i></i></button></div>
+    <div class="ts-snd-sw"><span>${L({ rur:'Poora hone par khaas tone (ghanti)', en:'Bell when a round completes' })}</span><button type="button" class="ms-sw${t.chime !== false ? ' on' : ''}" data-tsw="chime" role="switch" aria-checked="${t.chime !== false}"><i></i></button></div>
     <div class="ts-snd-sw"><span>${L({ rur:'Har 11vi moti par alag tik', en:'Different tick on every 11th bead' })}</span><button type="button" class="ms-sw${t.markTik !== false ? ' on' : ''}" data-tsw="markTik" role="switch" aria-checked="${t.markTik !== false}"><i></i></button></div>
   </div>`;
 }
@@ -6613,7 +6626,7 @@ function tsPickerWire(root, again){
     v.onchange = ()=>{ saveState(); tasbeehPreview(t.soundId || 'tik'); };
   }
   root.querySelectorAll('[data-tsw]').forEach(b=>{
-    b.onclick = ()=>{ const k = b.dataset.tsw; t[k] = t[k] === false; saveState(); if(k === 'chime' && t.chime) tasbeehPreview(t.soundId || 'tik'); again(); };
+    b.onclick = ()=>{ const k = b.dataset.tsw; t[k] = t[k] === false; saveState(); if(k === 'chime' && t.chime !== false) tasbeehChimePreview(); again(); };
   });
 }
 /* ============================================================
