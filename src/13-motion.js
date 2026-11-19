@@ -63,10 +63,14 @@
     tapped = t ? { r:t.getBoundingClientRect(), t:performance.now() } : null;
   }, true);
   document.addEventListener('pointercancel', ()=>{ tapped = null; }, true);
+  /* header shadow appears once the content scrolls under it */
+  const db = document.getElementById('detailBody');
+  if(db) db.addEventListener('scroll', ()=>{ ov.classList.toggle('scrolled', db.scrollTop > 4); }, { passive:true });
   let wasOpen = false;
   new MutationObserver(()=>{
     const open = ov.classList.contains('active') && !ov.classList.contains('closing');
     document.body.classList.toggle('ov-open', open);
+    if(open && !wasOpen) ov.classList.remove('scrolled');
     if(open && !wasOpen && tapped && performance.now() - tapped.t < 800 && !reduced() && ov.animate){
       const o = ov.getBoundingClientRect(), r = tapped.r;
       if(o.width > 0 && r.width > 0 && r.height > 0){

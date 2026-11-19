@@ -2153,3 +2153,57 @@ body.bg-paused .hw-w{ animation-play-state:paused; }
   body:not(.calm) .aad-card, body:not(.calm) .hadees-item, body:not(.calm) .shabd-row, body:not(.calm) .name-tile, body:not(.calm) .quiz-opt, body:not(.calm) .backup-btn, body:not(.calm) .pn-btn{
     transition:transform .45s var(--fx-spring, ease), box-shadow .2s ease, background-color .2s ease, border-color .2s ease; }
 }
+
+/* ============================================================
+   VISUAL POLISH: tokens, layered elevation, frosted hero, header shadow, softer type
+   ============================================================ */
+:root{
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px;
+  --r-sm:8px; --r-lg:20px; --r-pill:999px;
+  --t-xs:11.5px; --t-sm:13px; --t-md:15px; --t-lg:18px; --t-xl:22px;
+  /* dark themes (the default): shadows are deeper, the top edge catches a faint light */
+  --hi:rgba(255,255,255,.05);
+  --sh-1:0 1px 2px rgba(0,0,0,.28);
+  --sh-2:0 1px 2px rgba(0,0,0,.25), 0 8px 18px -10px rgba(0,0,0,.55);
+  --sh-3:0 2px 4px rgba(0,0,0,.25), 0 16px 34px -14px rgba(0,0,0,.65);
+}
+[data-theme="light"], [data-theme="waqt-morning"], [data-theme="waqt-bright"], [data-theme="waqt-dim"]{
+  --hi:rgba(255,255,255,.75);
+  --sh-1:0 1px 2px rgba(16,24,40,.06), 0 1px 1px rgba(16,24,40,.04);
+  --sh-2:0 1px 2px rgba(16,24,40,.06), 0 8px 18px -10px rgba(16,24,40,.20);
+  --sh-3:0 2px 4px rgba(16,24,40,.06), 0 16px 34px -14px rgba(16,24,40,.34);
+}
+
+/* Softer type */
+body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+.section-title, .aad-title, .hero-n, #detailTitle, .aad-head-title, .goal-title{ letter-spacing:-.012em; }
+#detailTitle{ font-weight:700; }
+
+/* Cards: a hairline highlight on the top edge and a layered shadow, so surfaces sit above the page */
+.more-item, .aad-card, .hadees-item, .dua-card, .name-tile, .shabd-row, .howto-card, .qbook, .goal-card, .goal-mini-card, .ramzan-card, .review-card, .myth-card, .az-line, .tl-card{
+  box-shadow:inset 0 1px 0 var(--hi), var(--sh-1);
+}
+.aad-head, .dua-detail .aad-guide-sec, .hero{ box-shadow:inset 0 1px 0 var(--hi), var(--sh-2); }
+.qbook.last{ box-shadow:0 0 0 1px var(--accent) inset, var(--sh-1); }
+
+/* Frosted hero over the ambient sky */
+.hero{
+  background:linear-gradient(135deg, color-mix(in srgb, var(--hc) 17%, color-mix(in srgb, var(--card) 72%, transparent)), color-mix(in srgb, var(--card) 72%, transparent) 75%);
+  -webkit-backdrop-filter:blur(14px) saturate(1.35); backdrop-filter:blur(14px) saturate(1.35);
+}
+
+/* Bottom bar lifts off the content */
+#tabbar{ box-shadow:0 -1px 0 color-mix(in srgb, var(--accent) 35%, transparent), 0 -14px 26px -20px rgba(0,0,0,.35); position:relative; z-index:3; }
+
+/* Detail header gets a shadow only once the content has scrolled under it */
+.detail-header{ position:relative; z-index:2; transition:box-shadow .25s ease, border-color .25s ease; }
+#detailOverlay.scrolled .detail-header{ box-shadow:var(--sh-2); border-bottom-color:transparent; }
+
+/* The current prayer breathes softly */
+.time-row.current{ isolation:isolate; }
+.time-row.current::after{ content:''; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none; z-index:-1;
+  box-shadow:0 0 22px 1px color-mix(in srgb, var(--accent) 32%, transparent); animation:rowGlow 3.8s ease-in-out infinite; }
+.time-row.current.fard::after{ box-shadow:0 0 22px 1px color-mix(in srgb, var(--fard) 32%, transparent); }
+.time-row.current.nafil::after{ box-shadow:0 0 22px 1px color-mix(in srgb, var(--nafil) 32%, transparent); }
+@keyframes rowGlow{ 0%,100%{ opacity:.55; } 50%{ opacity:1; } }
+body.bg-paused .time-row.current::after{ animation-play-state:paused; }
