@@ -6339,7 +6339,7 @@ function malaLivePhase(M){
 function malaLiveStars(){
   let r = 7, rnd = ()=>{ r = (r * 16807) % 2147483647; return r / 2147483647; };
   const g = [[], [], []];
-  for(let i = 0; i < 70; i++){ const px = (rnd() * 96 + 2).toFixed(1), py = (rnd() * 54 + 2).toFixed(1), sp = rnd() < .3 ? 1.5 : rnd() < .6 ? .8 : 0, c = rnd() < .8 ? '#ffffff' : '#ffe9b0'; g[i % 3].push(`${px}vw ${py}vh 0 ${sp}px ${c}`); }
+  for(let i = 0; i < 70; i++){ const px = (rnd() * 96 + 2).toFixed(1), py = (rnd() * 54 + 2).toFixed(1), sp = rnd() < .3 ? 1.5 : rnd() < .6 ? .8 : 0, c = rnd() < .8 ? '#ffffff' : '#ffe9b0'; g[i % 3].push(`${px}cqw ${py}cqh 0 ${sp}px ${c}`); }
   return g.map(a=>`<i style="box-shadow:${a.join(',')}"></i>`).join('');
 }
 /* The moon in the sky shows today's phase from the Islamic date (day 1 is a thin crescent, day 14-15 full, day 29-30 almost gone) */
