@@ -2389,3 +2389,12 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .mala[data-lt="2"] .ms-danger{ color:#b3261e; border-color:rgba(179,38,30,.4); }
 .mala[data-lt="2"] .mala-rm{ border-color:rgba(179,38,30,.4); }
 .mala[data-lt="2"] .mala-fx i{ filter:drop-shadow(0 0 1px rgba(20,32,46,.5)); }
+
+/* Light mode readability: a stronger pale veil and crisp dark text, no blurry halo */
+.mala[data-lt="2"] .mala-bg::after{ background:linear-gradient(rgba(255,255,255,.78), rgba(255,255,255,.62) 48%, rgba(255,255,255,.8)); }
+.mala[data-lt="2"] .mala-ar{ color:#0a1522; text-shadow:0 0 1px rgba(255,255,255,.9); }
+.mala[data-lt="2"] .mala-tr{ color:#0a1522; text-shadow:none; }
+.mala[data-lt="2"] .mala-m{ color:#1b2b3d; opacity:1; font-weight:500; text-shadow:none; }
+.mala[data-lt="2"] .mala-cap, .mala[data-lt="2"] .mala-empty{ color:#0a1522; text-shadow:none; }
+.mala[data-lt="2"] .mala-div b{ background:#b5832b; }
+.mala[data-lt="2"] #malaBeads circle{ filter:drop-shadow(0 2px 2px rgba(20,32,46,.45)); }
