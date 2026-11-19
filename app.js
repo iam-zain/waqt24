@@ -6072,8 +6072,9 @@ const MALA_TARGETS = [1, 3, 7, 11, 33, 99, 100];
 function malaCfg(){
   const t = state.tasbeeh;
   if(!t.mala) t.mala = {};
-  const m = t.mala, d = { theme:0, scene:null, arSize:'M', markEvery:11, showTr:true, showM:true, tapAny:true, fx:true, weather:'auto', speed:'mid' };
+  const m = t.mala, d = { theme:0, scene:null, arSize:'M', markEvery:0, showTr:true, showM:true, tapAny:true, fx:true, weather:'auto', speed:'mid' };
   Object.keys(d).forEach(k=>{ if(m[k] === undefined) m[k] = d[k]; });
+  if(m.markEvery === 11 && !m.markChosen) m.markEvery = 0;   /* marker beads are off unless the person turned them on */
   return m;
 }
 function malaEsc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c])); }
@@ -6364,7 +6365,7 @@ function malaMount(cfg){
     sh.querySelectorAll('[data-scene]').forEach(b=>{ b.onclick = ()=>{ M.scene = b.dataset.scene === 'auto' ? null : +b.dataset.scene; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-wx]').forEach(b=>{ b.onclick = ()=>{ M.weather = b.dataset.wx; M.fx = b.dataset.wx !== 'none'; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-spd]').forEach(b=>{ b.onclick = ()=>{ M.speed = b.dataset.spd; saveState(); draw(false, true); }; });
-    sh.querySelectorAll('[data-mk]').forEach(b=>{ b.onclick = ()=>{ M.markEvery = +b.dataset.mk; saveState(); draw(false, true); }; });
+    sh.querySelectorAll('[data-mk]').forEach(b=>{ b.onclick = ()=>{ M.markEvery = +b.dataset.mk; M.markChosen = true; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-ars]').forEach(b=>{ b.onclick = ()=>{ M.arSize = b.dataset.ars; saveState(); draw(false, true); }; });
     sh.querySelectorAll('[data-sw]').forEach(b=>{
       b.onclick = ()=>{
