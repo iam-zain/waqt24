@@ -6178,6 +6178,18 @@ function malaCfg(){
   if(m.markEvery === 11 && !m.markChosen) m.markEvery = 0;   /* marker beads are off unless the person turned them on */
   return m;
 }
+/* "SubhanAllah" and "Subhan Allah ﷻ" are the same zikr: add up names that differ only in spacing, case or the ﷻ sign (the most-read spelling is shown) */
+/* names are shown without the ﷻ / ﷺ signs in the history lists */
+function malaPlainName(n){ return String(n == null ? '' : n).replace(/[\uFDFA\uFDFB]/g, '').replace(/\s{2,}/g, ' ').trim(); }
+function malaMergeNames(o){
+  const m = {};
+  Object.entries(o || {}).forEach(([n, v])=>{
+    const k = String(n).toLowerCase().replace(/[^a-z\u0600-\u06ff]/g, '') || n;
+    if(!m[k]) m[k] = { n, v:0, top:0 };
+    m[k].v += v; if(v > m[k].top){ m[k].top = v; m[k].n = n; }
+  });
+  return Object.values(m).sort((x, y)=>y.v - x.v).map(x=>[malaPlainName(x.n), x.v]);
+}
 /* What was read today, by dua: state.tasbeeh.duaLog[day][name] = count (kept for 60 days) */
 function malaDuaLog(){ const t = state.tasbeeh; if(!t.duaLog) t.duaLog = {}; return t.duaLog; }
 function malaLogDua(name, d){
@@ -6511,7 +6523,7 @@ function malaMount(cfg){
     const ps = state.tasbeeh.profiles.filter(p=>p.items.length);
     const full = days.filter(x=>ps.some(p=>isZikrProfileComplete(x.d, p))).length;
     const top = {}; days.forEach(x=>Object.entries(lg[x.k] || {}).forEach(([nm, v])=>{ top[nm] = (top[nm] || 0) + v; }));
-    const tops = Object.entries(top).sort((a, b)=>b[1] - a[1]).slice(0, 6), tmax = tops.length ? tops[0][1] : 1;
+    const tops = malaMergeNames(top).slice(0, 6), tmax = tops.length ? tops[0][1] : 1;
     const st = malaProfileStreak();
     const bars = days.map(x=>`<i class="${x.k === dayKey(new Date()) ? 'now' : ''}" title="${x.d.toLocaleDateString('en-GB', { day:'numeric', month:'short' })}: ${x.v}"><u style="height:${Math.max(x.v ? 6 : 2, Math.round(x.v / mx * 100))}%"></u><em>${n <= 7 ? x.d.toLocaleDateString('en-GB', { weekday:'narrow' }) : (x.d.getDate() % 5 === 0 ? x.d.getDate() : '')}</em></i>`).join('');
     const cell = (v, l)=>`<div class="mh-cell"><b>${v}</b><span>${l}</span></div>`;
@@ -6525,9 +6537,9 @@ function malaMount(cfg){
     if(histTab !== 'today') return `<div class="ms-head"><b>📊 ${L({ rur:'Hisaab', en:'Stats' })}</b><button type="button" class="mala-btn" data-close>✕</button></div>${tabs}${statsHtml(histTab === 'week' ? 7 : 30)}`;
     const dk = dayKey(new Date()), lg = malaDuaLog(), tl = tasbeehLog();
     const named = Object.values(lg[dk] || {}).reduce((a, v)=>a + v, 0), rest = Math.max(0, (tl[dk] || 0) - named);
-    const rows = o=>Object.entries(o || {}).sort((a, b)=>b[1] - a[1]).map(([n, v])=>`<div class="mh-row"><span>${malaEsc(n)}</span><b>${v}</b></div>`).join('');
+    const rows = o=>malaMergeNames(o).map(([n, v])=>`<div class="mh-row"><span>${malaEsc(n)}</span><b>${v}</b></div>`).join('');
     const pf = malaTodayProfile(), day = pf ? getZikrDay(new Date(), pf.id, false) : {};
-    const prof = pf && pf.items.length ? `<div class="ms-lbl">📋 ${malaEsc(pf.name)}</div>${pf.items.map(it=>{ const n = day[it.id] || 0, ok = n >= (it.target || 1); return `<div class="mh-row${ok ? ' ok' : ''}"><span>${ok ? '✅' : '○'} ${malaEsc(it.name)}</span><b>${Math.min(n, 9999)} / ${it.target}</b></div>`; }).join('')}` : '';
+    const prof = pf && pf.items.length ? `<div class="ms-lbl">📋 ${malaEsc(pf.name)}</div>${pf.items.map(it=>{ const n = day[it.id] || 0, ok = n >= (it.target || 1); return `<div class="mh-row${ok ? ' ok' : ''}"><span>${ok ? '✅' : '○'} ${malaEsc(malaPlainName(it.name))}</span><b>${Math.min(n, 9999)} / ${it.target}</b></div>`; }).join('')}` : '';
     const prev = [];
     for(let i = 1; i <= 6; i++){
       const d = new Date(); d.setDate(d.getDate() - i); const k = dayKey(d), tot = tl[k] || 0; if(!tot) continue;
