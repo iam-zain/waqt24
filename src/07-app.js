@@ -955,6 +955,7 @@ function reloadSmooth(backToSettings){
     stop:      '<circle cx="12" cy="12" r="9"/><path d="M8.5 8.5l7 7"/>',
     edit:      'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
     bug:       '<path d="M9 9a3 3 0 0 1 6 0v6a3 3 0 0 1-6 0zM12 12v6M5 8l3 2M19 8l-3 2M4 14h4M16 14h4M6 20l3-2M18 20l-3-2"/>',
+    support:   'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z',
     help:      '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>',
     refresh:   'M20 11a8 8 0 0 0-14-4.5L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4.5L20 15M20 20v-5h-5',
     sun:       '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',

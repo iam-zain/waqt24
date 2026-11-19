@@ -2113,3 +2113,5 @@ body:has(#tbSheet) #qPlayer .qp-voice{ display:none; }
 .howto-card.sub .howto-ic svg{ width:18px; height:18px; }
 .howto-card.sub .howto-t{ font-size:13.5px; }
 .howto-card.sub .howto-d{ font-size:12.5px; }
+.about-maker{ margin-top:18px; }
+.raabta-ic svg{ width:34px; height:34px; color:var(--accentInk, var(--accent)); }

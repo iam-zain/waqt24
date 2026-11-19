@@ -1040,10 +1040,11 @@ function renderRaabta(){
     { ic:'📝', t:{rur:'Sujhaav Dein', en:'Send a Suggestion'}, d:{rur:'Koi nayi cheez ya behtari ka khayal ho to batayein.', en:'Have an idea for a new feature or an improvement? Tell us.'}, subj:'Waqt24 - Suggestion' },
     { ic:'🆘', t:{rur:'Madad Chahiye', en:'Need Help'}, d:{rur:'App istemal karne mein koi mushkil ho to likhein.', en:'Facing difficulty using the app? Write to us.'}, subj:'Waqt24 - Help' },
     { ic:'🐞', t:{rur:'Masla / Ghalti Batayein', en:'Report a Problem'}, d:{rur:'Koi ghalti, ghalat waqt ya ghalat maloomat nazar aaye to zaroor batayein.', en:'Spotted a bug, a wrong time or wrong information? Please let us know.'}, subj:'Waqt24 - Problem report' },
+    ,{ ic:'🤝', t:{rur:'Maali Madad (Donation)', en:'Financial Support (Donation)'}, d:{rur:'Agar aap app ke liye maali madad dena chahte hain (Zakat nahi), to email karein. Tafseel abhi yahan nahi di gayi, email par bata di jayegi.', en:'If you would like to support the app financially (not Zakat), please email us. We are not listing details here yet; we will share them by email.'}, subj:'Waqt24 - Support' }
   ];
   document.getElementById('detailBody').innerHTML = `
     <div class="raabta-head">
-      <div class="raabta-ic">📧</div>
+      <div class="raabta-ic">${uiIcon("raabta")}</div>
       <div class="raabta-t">${L({rur:'Hum se raabta karein', en:'Get in touch'})}</div>
       <div class="raabta-sub">${L({rur:'Sujhaav aur madad ke liye is email par likhein:', en:'For suggestions and help, write to this email:'})}</div>
       <div class="raabta-mail" data-no-i18n>${CONTACT_EMAIL}</div>
@@ -1076,7 +1077,7 @@ function renderRaabta(){
 /* ============================================================
    ISTEMAL KA TAREEQA (How to Use)
    ============================================================ */
-const HOWTO_ICO = {'🏡':'home','✅':'check','🌜':'ramzan','🎛️':'settings','📅':'calendar','🪔':'explore','🎯':'target','💚':'asma','🌙':'prophetNames','🤲':'dua','📖':'quran','📗':'quranWords','🎧':'azaan','🧠':'quiz','🧭':'qibla','📿':'tasbeeh','📚':'khaasShabd','🔤':'dailyWord','💡':'mythBusters','⭐':'bookmarks','📊':'stats','🕰️':'islamicMonths','☪️':'ramzan','🔁':'hijriConv','🔭':'islamicMonths','🎉':'islamicEvents','🧎':'qaza','📍':'location','⚙️':'settings','🎨':'palette','💾':'backup','📲':'install','📮':'raabta','📳':'feedback','🔠':'textsize','🃏':'homecard','🕒':'timefmt','🧮':'calc','🎧':'azaan','🌐':'lang','🛑':'stop','🔊':'azaan','🕌':'masjid','📝':'edit','🆘':'help','🐞':'bug','🔔':'notif','🖼️':'about'};
+const HOWTO_ICO = {'🏡':'home','✅':'check','🌜':'ramzan','🎛️':'settings','📅':'calendar','🪔':'explore','🎯':'target','💚':'asma','🌙':'prophetNames','🤲':'dua','📖':'quran','📗':'quranWords','🎧':'azaan','🧠':'quiz','🧭':'qibla','📿':'tasbeeh','📚':'khaasShabd','🔤':'dailyWord','💡':'mythBusters','⭐':'bookmarks','📊':'stats','🕰️':'islamicMonths','☪️':'ramzan','🔁':'hijriConv','🔭':'islamicMonths','🎉':'islamicEvents','🧎':'qaza','📍':'location','⚙️':'settings','🎨':'palette','💾':'backup','📲':'install','📮':'raabta','📳':'feedback','🔠':'textsize','🃏':'homecard','🕒':'timefmt','🧮':'calc','🎧':'azaan','🌐':'lang','🛑':'stop','🔊':'azaan','🕌':'masjid','📝':'edit','🆘':'help','🐞':'bug','🤝':'support','🔔':'notif','🖼️':'about'};
 const howIc = e => (HOWTO_ICO[e] && typeof uiIcon === 'function' && uiIcon(HOWTO_ICO[e])) || e;
 function renderHowTo(){
   document.getElementById('detailTitle').textContent = 'Istemal ka Tareeqa';

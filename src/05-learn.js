@@ -1402,12 +1402,21 @@ function renderRamzanCalendar(){
     };
   });
 }
+const ABOUT_LINKEDIN = '';   /* set to the LinkedIn profile URL */
 function renderMoreAbout(){
   document.getElementById('detailTitle').textContent="Iske Baare Mein";
   document.getElementById('detailBody').innerHTML = `
     <div style="font-size:13.5px; line-height:1.8; color:var(--sub);">
-      Namaz Timer App: Aapki roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein.<br><br>
-      Banaya gaya hai mohabbat se, taake har Musalman apni namaz waqt par ada kar sake. Allah hum sabko namaz ki hifazat karne ki taufeeq de. Ameen.
+      ${L({rur:'Namaz Timer App: Aapki roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein.', en:'Namaz Timer App: your daily prayer, sehri, iftar and nafl times at a glance.'})}<br><br>
+      ${L({rur:'Banaya gaya hai mohabbat se, taake har Musalman apni namaz waqt par ada kar sake. Allah hum sabko namaz ki hifazat karne ki taufeeq de. Ameen.', en:'Made with love so that every Muslim can pray on time. May Allah give us all the ability to guard our prayers. Ameen.'})}
+    </div>
+    <div class="howto-card about-maker">
+      <div class="howto-ic">${uiIcon('about')}</div>
+      <div class="howto-body">
+        <div class="howto-t">${L({rur:'Banane wale', en:'Made by'})}</div>
+        <div class="howto-d"><b data-no-i18n>Dr Zain</b> (PhD, Computational Biology)<br>${L({rur:'Yeh app Dr Zain ne banayi hai.', en:'This app is made by Dr Zain.'})}</div>
+        ${ABOUT_LINKEDIN ? `<a class="raabta-btn" style="display:inline-block;margin-top:8px" href="${ABOUT_LINKEDIN}" target="_blank" rel="noopener" data-no-i18n>LinkedIn</a>` : ''}
+      </div>
     </div>
   `;
 }
