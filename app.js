@@ -5502,6 +5502,12 @@ function ensureZikrProfiles(){
     if(ip && ip.builtin && ip.items.length <= 1){ ip.rep = 0; ip.items = malaCatItems('Istighfar', 0); }
     saveState();
   }
+  /* duas that were added by mistake to the Anbiya / Istighfar sets (their own items have ids starting with "c") are removed once */
+  if(!state.tasbeeh.catClean){
+    state.tasbeeh.catClean = true;
+    state.tasbeeh.profiles.forEach(p=>{ if(p.builtin && p.dtype === 'dua') p.items = p.items.filter(i=>/^c\d+_/.test(i.id)); });
+    saveState();
+  }
   if(!state.tasbeeh.daily) state.tasbeeh.daily = {};
 }
 function getZikrDay(date, profileId, create){
@@ -6876,7 +6882,8 @@ function malaRunSet(profileId, itemId){
     dec:i=>{ const it = items[i]; if((day[it.id] || 0) > 0){ day[it.id]--; return true; } return false; },
     onFinish:()=> renderZikrProfile(profileId),
     onBack:()=> renderZikrProfile(profileId), backLabel:pf.name,
-    onPick:()=> renderMalaPicker({ onBack:()=>malaRunSet(profileId, itemId), addTo:true, onPick:info=>{ pf.items.push({ id:'z' + Date.now(), name:info.n, ar:info.ar, tr:info.tr, m:info.m, en:info.en, target:info.t || 3 }); saveState(); malaRunSet(profileId, pf.items[pf.items.length - 1].id); } }),
+    /* a dua picked here is read on its own; it is not added to the profile (add duas from the profile screen) */
+    onPick:()=> renderMalaPicker({ onBack:()=>malaRunSet(profileId, itemId), onPick:info=>{ malaUse(info); malaOpenMain(); } }),
   });
 }
 

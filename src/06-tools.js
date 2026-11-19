@@ -692,6 +692,12 @@ function ensureZikrProfiles(){
     if(ip && ip.builtin && ip.items.length <= 1){ ip.rep = 0; ip.items = malaCatItems('Istighfar', 0); }
     saveState();
   }
+  /* duas that were added by mistake to the Anbiya / Istighfar sets (their own items have ids starting with "c") are removed once */
+  if(!state.tasbeeh.catClean){
+    state.tasbeeh.catClean = true;
+    state.tasbeeh.profiles.forEach(p=>{ if(p.builtin && p.dtype === 'dua') p.items = p.items.filter(i=>/^c\d+_/.test(i.id)); });
+    saveState();
+  }
   if(!state.tasbeeh.daily) state.tasbeeh.daily = {};
 }
 function getZikrDay(date, profileId, create){
