@@ -123,7 +123,7 @@ function malaStringPath(){ const pts = []; for(let x = -10; x <= 370; x += 10) p
            selfFeedback (the caller already vibrates/beeps), onFinish(), onBack(), backLabel, onPick() } */
 function malaMount(cfg){
   const t = state.tasbeeh, M = malaCfg();
-  let idx = cfg.idx || 0, anim = null, panel = null, raf = 0, lastCur = null;
+  let autoScn = Math.floor(Math.random() * MALA_ART), idx = cfg.idx || 0, anim = null, panel = null, raf = 0, lastCur = null;
   const body = document.getElementById('detailBody');
   const item = ()=> cfg.items[idx];
   const info = ()=> malaInfo(item());
@@ -133,7 +133,16 @@ function malaMount(cfg){
     return { count, target, cur:Math.min(count, target), round:1 };
   }
   const theme = ()=> MALA_THEMES[M.theme] || MALA_THEMES[0];
-  const sceneIdx = ()=> (M.scene != null ? M.scene : (cfg.single ? malaHash(info().n) : idx)) % MALA_ART;
+  /* On Auto the scene is picked at random, and picked again when a target completes, the dua changes or the target changes */
+  const sceneIdx = ()=> M.scene != null ? M.scene : autoScn;
+  function reroll(){ if(M.scene != null) return; let n; do { n = Math.floor(Math.random() * MALA_ART); } while(n === autoScn && MALA_ART > 1); autoScn = n; }
+  function applyScene(){
+    const root = body.querySelector('.mala'); if(!root) return;
+    const bg = root.querySelector('.mala-bg'), fx = root.querySelector('.mala-fx');
+    if(bg){ bg.innerHTML = malaScene(sceneIdx()); bg.classList.remove('swap'); void bg.offsetWidth; bg.classList.add('swap'); }
+    if(fx) fx.innerHTML = particles();
+    root.dataset.fx = weatherId();
+  }
 
   function arSize(text){
     const n = (text || '').length, base = n <= 24 ? 40 : n <= 50 ? 32 : n <= 90 ? 26 : 22;
@@ -258,7 +267,7 @@ function malaMount(cfg){
 
   function go(i){
     if(i < 0 || i >= cfg.items.length) return;
-    idx = i; draw(true);
+    idx = i; reroll(); draw(true);
   }
   function finishItem(){
     if(cfg.single) return;
@@ -285,7 +294,7 @@ function malaMount(cfg){
     updateCount();
     const g = body.querySelector('#malaGlow'); if(g){ g.classList.remove('pulse'); void g.getBoundingClientRect(); g.classList.add('pulse'); }
     if(!cfg.single && !wasDone && c.count === c.target) finishItem();
-    else if(cfg.single && c.cur === c.target && c.target > 1){ /* a round is complete: the disc glows */ }
+    else if(cfg.single && c.cur === c.target && M.scene == null){ setTimeout(()=>{ reroll(); applyScene(); }, 900); }
   }
 
   /* ----- settings and target panels ----- */
@@ -343,7 +352,7 @@ function malaMount(cfg){
     sh.querySelectorAll('[data-tg]').forEach(b=>{
       b.onclick = ()=>{
         let n = b.dataset.tg === 'custom' ? parseInt(prompt(L({ rur:'Apna target darj karein:', en:'Enter your target:' }), counts().target)) : +b.dataset.tg;
-        if(n && n > 0){ cfg.setTarget(idx, n); if(cfg.single) cfg.items[0] = malaSingleItem(); panel = null; draw(); }
+        if(n && n > 0){ cfg.setTarget(idx, n); if(cfg.single) cfg.items[0] = malaSingleItem(); reroll(); panel = null; draw(); }
       };
     });
     const snd = sh.querySelector('#malaSnd'); if(snd){ const again = ()=>{ snd.innerHTML = tsPickerHtml(); tsPickerWire(snd, again); }; tsPickerWire(snd, again); }

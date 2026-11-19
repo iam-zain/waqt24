@@ -2345,3 +2345,16 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .ms-bg{ display:inline-flex; align-items:center; gap:7px; }
 .ms-bg span{ width:16px; height:16px; border-radius:50%; border:1px solid rgba(255,255,255,.35); flex:0 0 auto; }
 .ms-danger{ border-color:rgba(255,120,120,.5); color:#ffb4b4; }
+.mala-bg.swap{ animation:malaSwap .9s ease; }
+@keyframes malaSwap{ from{ opacity:0; } to{ opacity:1; } }
+
+/* Smoother liquid ring: everything moves with transforms on the GPU, slower and softer */
+.hero-wave{ isolation:isolate; transform:translateZ(0); }
+.hw-fill{ height:100%; bottom:0; transform:translate3d(0, calc((1 - var(--wv, .5)) * 100%), 0); transition:transform 2.4s cubic-bezier(.22,.61,.36,1); will-change:transform; backface-visibility:hidden; }
+.hw-w{ will-change:transform; backface-visibility:hidden; animation:hwMove2 7s linear infinite; top:-5px; }
+.hw-w2{ animation-duration:11s; animation-direction:reverse; }
+.hw-fill{ animation:hwBob 5.5s ease-in-out infinite; }
+@keyframes hwMove2{ from{ transform:translate3d(0,0,0); } to{ transform:translate3d(-50%,0,0); } }
+@keyframes hwBob{ 0%,100%{ margin-bottom:0; } 50%{ margin-bottom:-1.5px; } }
+.hero-ring .bar{ transition:stroke-dashoffset 2.4s cubic-bezier(.22,.61,.36,1); }
+@media (prefers-reduced-motion:reduce){ .hw-w, .hw-fill{ animation:none; } }
