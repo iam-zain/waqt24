@@ -62,29 +62,6 @@ const IBADAT_GUIDES = [
     ],
     closing:'Ghusl ke baad alag se wuzu zaroori nahi, agar ghusl ke dauran wuzu ka koi sabab pesh na aaye. Is mein haya aur pardah ka khayal rakhein.' },
 
-  { id:'tayammum', title:'Tayammum Ka Tareeqa', ic:'🏜️', color:'#d4a017', tags:['Taharat','Hanafi','Paani na ho'], sub:'Jab wuzu ya ghusl mumkin na ho',
-    intro:'Jab paani na mile ya istemal se nuqsan ka khauf ho to wuzu aur ghusl ki jagah pak mitti se tayammum karna Allah ki ek aasani hai.',
-    sections:[
-      { h:'Tayammum Kab Jaiz Hai', ic:'📌', steps:[
-        { t:'Paani maujood na ho', d:'Aas-paas kam az kam ek meel (takreeban 1.8 km) tak paani na mile.' },
-        { t:'Bimari', d:'Paani se bimari ke badhne ya der se theek hone ka khauf ho.' },
-        { t:'Sakht sardi', d:'Jaan ya sehat ko nuqsan ka khauf ho aur garam paani ka intezam na ho.' } ] },
-      { h:'Tayammum ke Farz', ic:'⭐', steps:[
-        { t:'Niyyat', d:'Paaki hasil karne ya namaz padhne ke jawaz ki niyyat.' },
-        { t:'Chehre ka masah', d:'Poore chehre par haath pherna.' },
-        { t:'Kohniyon samet dono haath ka masah', d:'Dono haath kohniyon tak masah karna.' } ] },
-      { h:'Tayammum ka Tareeqa', ic:'🏜️', steps:[
-        { t:'Niyyat aur Bismillah', d:'Niyyat karke Bismillah kehein.' },
-        { t:'Pehli baar zameen par haath maarein', d:'Pak mitti, ret, patthar ya chuna jaisi zameen ki cheez par dono haath ungliyan khuli rakhkar marein, phir halka jhaad lein.' },
-        { t:'Chehre par haath pheren', d:'Dono hatheliyon se poore chehre ka masah karein.' },
-        { t:'Doosri baar zameen par haath maarein', d:'Dobara haath marein aur jhaad lein. Angoothi ya ghadi utar lein.' },
-        { t:'Dono haath kohniyon tak', d:'Pehle daaye phir baayen haath ka kohni samet masah karein. Ungliyon ka khilaal bhi karein.' } ] },
-      { h:'Tayammum Kab Toot Jata Hai', ic:'⚠️', steps:[
-        { t:'Jin cheezon se wuzu ya ghusl toot jata hai', d:'Unhi se tayammum bhi toot jata hai.' },
-        { t:'Paani par qudrat mil jana', d:'Jaise hi paani mil jaye ya bimari door ho, tayammum khatam ho jata hai aur wuzu ya ghusl karna hoga.' } ] }
-    ],
-    closing:'Tayammum ek ruksat hai, jaise hi paani mile ya uzr khatam ho, wuzu ya ghusl kar lein.' },
-
   { id:'namaz-tareeqa', title:'Namaz Ka Tareeqa', ic:'🕌', color:'#2f9e6e', tags:['Namaz','Hanafi','Qadam ba qadam'], sub:'Takbeer se salam tak, dua ke saath',
     intro:'Namaz Islam ka sutoon hai. Niche 2 rakat farz (jaise Fajr) ka tareeqa qadam ba qadam diya gaya hai, phir 3 aur 4 rakat ka farq.',
     sections:[
@@ -147,7 +124,30 @@ const IBADAT_GUIDES = [
         { t:'Sunnat Ghair Muakkada', d:'Kabhi padhi, kabhi chhodi. Padhne par sawab hai, chhodne par gunah nahi.' },
         { t:'Nafl', d:'Mustahab aur Sunnat ke ilawa extra namaz, jis mein sirf sawab hai.' } ] }
     ],
-    closing:'Farz kabhi na chhodein. Sunnat-e-Muakkada ka ahtimam karein, baqi nafl jitni himmat ho utni padhein.' }
+    closing:'Farz kabhi na chhodein. Sunnat-e-Muakkada ka ahtimam karein, baqi nafl jitni himmat ho utni padhein.' },
+
+  { id:'tayammum', title:'Tayammum Ka Tareeqa', ic:'🏜️', color:'#d4a017', tags:['Taharat','Hanafi','Paani na ho'], sub:'Jab wuzu ya ghusl mumkin na ho',
+    intro:'Jab paani na mile ya istemal se nuqsan ka khauf ho to wuzu aur ghusl ki jagah pak mitti se tayammum karna Allah ki ek aasani hai.',
+    sections:[
+      { h:'Tayammum Kab Jaiz Hai', ic:'📌', steps:[
+        { t:'Paani maujood na ho', d:'Aas-paas kam az kam ek meel (takreeban 1.8 km) tak paani na mile.' },
+        { t:'Bimari', d:'Paani se bimari ke badhne ya der se theek hone ka khauf ho.' },
+        { t:'Sakht sardi', d:'Jaan ya sehat ko nuqsan ka khauf ho aur garam paani ka intezam na ho.' } ] },
+      { h:'Tayammum ke Farz', ic:'⭐', steps:[
+        { t:'Niyyat', d:'Paaki hasil karne ya namaz padhne ke jawaz ki niyyat.' },
+        { t:'Chehre ka masah', d:'Poore chehre par haath pherna.' },
+        { t:'Kohniyon samet dono haath ka masah', d:'Dono haath kohniyon tak masah karna.' } ] },
+      { h:'Tayammum ka Tareeqa', ic:'🏜️', steps:[
+        { t:'Niyyat aur Bismillah', d:'Niyyat karke Bismillah kehein.' },
+        { t:'Pehli baar zameen par haath maarein', d:'Pak mitti, ret, patthar ya chuna jaisi zameen ki cheez par dono haath ungliyan khuli rakhkar marein, phir halka jhaad lein.' },
+        { t:'Chehre par haath pheren', d:'Dono hatheliyon se poore chehre ka masah karein.' },
+        { t:'Doosri baar zameen par haath maarein', d:'Dobara haath marein aur jhaad lein. Angoothi ya ghadi utar lein.' },
+        { t:'Dono haath kohniyon tak', d:'Pehle daaye phir baayen haath ka kohni samet masah karein. Ungliyon ka khilaal bhi karein.' } ] },
+      { h:'Tayammum Kab Toot Jata Hai', ic:'⚠️', steps:[
+        { t:'Jin cheezon se wuzu ya ghusl toot jata hai', d:'Unhi se tayammum bhi toot jata hai.' },
+        { t:'Paani par qudrat mil jana', d:'Jaise hi paani mil jaye ya bimari door ho, tayammum khatam ho jata hai aur wuzu ya ghusl karna hoga.' } ] }
+    ],
+    closing:'Tayammum ek ruksat hai, jaise hi paani mile ya uzr khatam ho, wuzu ya ghusl kar lein.' }
 ];
 function ibadatNavCat(){
   return { sec:{ ur:'Namaz aur Taharat', en:'Prayer and Purity' }, cats:['all'], catOf:()=>'all', all:IBADAT_GUIDES, sortFn:(a,b)=>IBADAT_GUIDES.indexOf(a)-IBADAT_GUIDES.indexOf(b) };

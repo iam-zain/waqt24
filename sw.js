@@ -1,5 +1,5 @@
 // BUILD and the ?v= hashes below are rewritten by tools/build.py; do not edit them by hand.
-const BUILD = '23fe2cb2';
+const BUILD = 'd703ef76';
 const CACHE_NAME = 'waqt24-' + BUILD;         // the page shell; replaced on every build
 // Quran page images and Azaan recordings live in their own cache that survives every build, so a reader
 // who already downloaded a page never re-downloads it because something else in the app changed.
@@ -10,7 +10,7 @@ const STATIC_CACHE = 'waqt24-static-v1';
 const SHELL = ['./', './index.html'];
 const VERSIONED = [
   './styles.css?v=f458ba0e',
-  './app.js?v=d11e0e68',
+  './app.js?v=cee945d9',
   './data.js?v=91a09da2',
   './i18n.js?v=d17dbf5f',
 ];
