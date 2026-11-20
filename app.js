@@ -2141,7 +2141,7 @@ function openDuaDetail(d){
   wirePnBar();
 }
 
-let qwordView=(state.qwordView==='list'||state.qwordView==='cols')?state.qwordView:'grid', qwordSearch='', qwordGroupFilter='__all__', qwordSortMode=0;
+let qwcSort=null, qwordView=(state.qwordView==='list'||state.qwordView==='grid')?state.qwordView:'cols', qwordSearch='', qwordGroupFilter='__all__', qwordSortMode=0;
 /* Taadaad button cycles: 0 = A to Z, 1 = most used first, 2 = least used first */
 function qwordSortFn(){
   if(qwordSortMode===1) return (a,b)=>Number(b.occ)-Number(a.occ);
@@ -3287,9 +3287,9 @@ function renderQuranWords(){
     </div>
     <div class="chip-row" id="qwordGroupRow" style="padding:0 0 10px;"></div>
     <div class="view-toggle">
+      <button id="qwordColBtn" class="${qwordView==='cols'?'active':''}">${L({rur:'Column', en:'Columns'})}</button>
       <button id="qwordGridBtn" class="${qwordView==='grid'?'active':''}">Grid</button>
       <button id="qwordListBtn" class="${qwordView==='list'?'active':''}">List</button>
-      <button id="qwordColBtn" class="${qwordView==='cols'?'active':''}">${L({rur:'Column', en:'Columns'})}</button>
       <button id="qwordSortBtn" class="${qwordSortMode>0?'active':''} sort-m${qwordSortMode}" title="Zyada istemal hone wale alfaaz pehle">Taadaad ke Hisaab se</button>
     </div>
     <div class="${qwordView==='cols' ? 'qw-cols' : 'dua-grid' + (qwordView==='list' ? ' list' : '')}" id="qwordGrid"></div>
@@ -3312,7 +3312,7 @@ function renderQuranWords(){
   body.querySelector('#qwordGridBtn').onclick = ()=> setQV('grid');
   body.querySelector('#qwordListBtn').onclick = ()=> setQV('list');
   body.querySelector('#qwordColBtn').onclick = ()=> setQV('cols');
-  body.querySelector('#qwordSortBtn').onclick = ()=>{ qwordSortMode=(qwordSortMode+1)%3; renderQuranWords(); };
+  body.querySelector('#qwordSortBtn').onclick = ()=>{ qwordSortMode=(qwordSortMode+1)%3; qwcSort=null; renderQuranWords(); };
   renderQwordGrid();
 }
 function renderQwordGrid(){
@@ -3326,7 +3326,17 @@ function renderQwordGrid(){
   if(!filtered.length){ grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Koi lafz nahi mila.</div>`; return; }
   if(qwordView === 'cols'){
     /* Column view: Arabic | word | meaning | count, one tidy row per word, easy to scan and learn */
-    grid.innerHTML = `<div class="qwc-row qwc-head"><span>${L({rur:'Arabi', en:'Arabic'})}</span><span>${L({rur:'Lafz', en:'Word'})}</span><span>${L({rur:'Matlab', en:'Meaning'})}</span><span title="${L({rur:'Qur’an mein kitni martaba', en:'Times in the Qur’an'})}">#</span></div>`;
+    const hd = (k, label, title)=> `<button type="button" class="qwc-h${qwcSort && qwcSort.k===k ? ' on' : ''}" data-k="${k}" ${title ? `title="${title}"` : ''}>${label}<i>${qwcSort && qwcSort.k===k ? (qwcSort.d>0 ? '▲' : '▼') : '↕'}</i></button>`;
+    grid.innerHTML = `<div class="qwc-row qwc-head">${hd('ar', L({rur:'Arabi', en:'Arabic'}))}${hd('tr', L({rur:'Lafz', en:'Word'}))}${hd('m', L({rur:'Matlab', en:'Meaning'}))}${hd('n', '#', L({rur:'Qur’an mein kitni martaba', en:'Times in the Qur’an'}))}</div>`;
+    grid.querySelectorAll('.qwc-h').forEach(b=>{ b.onclick = ()=>{
+      const k = b.dataset.k;
+      qwcSort = (qwcSort && qwcSort.k===k) ? { k, d:-qwcSort.d } : { k, d: k==='n' ? -1 : 1 }; /* # starts high to low, text columns A to Z */
+      renderQwordGrid();
+    }; });
+    if(qwcSort){
+      const key = { ar:w=>w.ar, tr:w=>w.tr, m:w=>wMean(w), n:w=>+w.occ || 0 }[qwcSort.k];
+      filtered.sort((a, b)=>{ const x = key(a), y = key(b); return qwcSort.d * (typeof x === 'number' ? x - y : String(x).localeCompare(String(y), qwcSort.k==='ar' ? 'ar' : 'en', { sensitivity:'base' })); });
+    }
     filtered.forEach((w,i)=>{
       const st = duaStatus(qwordKey(w));
       const r = document.createElement('div');

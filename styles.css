@@ -2572,3 +2572,10 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .qwc-m{ font-size:12.5px; color:var(--sub); line-height:1.4; }
 .qwc-n{ justify-self:end; min-width:30px; text-align:center; padding:2px 7px; border-radius:20px; font-size:10.5px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--sub); background:color-mix(in srgb, var(--text) 6%, transparent); }
 .qwc-head .qwc-n{ background:none; padding:0; font-size:10px; }
+
+.qwc-h{ all:unset; box-sizing:border-box; display:flex; align-items:center; gap:4px; cursor:pointer; font:inherit; font-size:10px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--sub); padding:2px 0; -webkit-tap-highlight-color:transparent; }
+.qwc-head > .qwc-h:first-child{ justify-content:center; }
+.qwc-head > .qwc-h:last-child{ justify-content:flex-end; }
+.qwc-h i{ font-style:normal; font-size:9px; opacity:.45; }
+.qwc-h.on{ color:var(--accentInk, var(--accent)); }
+.qwc-h.on i{ opacity:1; }
