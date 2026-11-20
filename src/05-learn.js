@@ -713,6 +713,7 @@ function renderDailyWord(){
   document.getElementById('detailBody').innerHTML = `
     <div class="dw-wrap">
       <div class="dw-top"><span class="dw-pos">Lafz ${idx+1} / ${KHAAS_SHABD.length}</span><span class="act-group">${bmBtn('word:'+w.tr)}<button class="act-btn" id="wordImgBtn" title="Share karein">${SHARE_SVG}</button></span></div>
+      ${shabdSceneHtml(w)}
       <div class="daily-word-card ${st==='known'?'is-known':st==='learning'?'is-learning':''}" id="dailyWordCard">
         <div class="cat">${w.cat}</div>
         <div class="ar">${w.ar}</div>
