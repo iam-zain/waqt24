@@ -235,6 +235,7 @@ function bmResolve(k){
   if(t==='prophet'){ const x = PROPHET_NAMES.findIndex(n=>n.tr===id); return x>=0 && { type:'Asma-ul-Nabi', ar:PROPHET_NAMES[x].ar, title:id, sub:PROPHET_NAMES[x].m, open:()=>renderNameDetail('prophet', x) }; }
   if(t==='word'){ const x = KHAAS_SHABD.findIndex(n=>n.tr===id); return x>=0 && { type:'Khaas Shabd', ar:KHAAS_SHABD[x].ar, scene:shabdSceneSvg(KHAAS_SHABD[x]), title:id, sub:KHAAS_SHABD[x].m, open:()=>{ __navCtx=null; renderShabdDetail(x, renderBookmarks); } }; }
   if(t==='qword'){ const w = QURAN_WORDS.find(n=>n.tr===id); return w && { type:'Qur’ani Alfaaz', ar:w.ar, title:id, sub:w.m, open:()=>{ __navCtx=null; openQuranWordDetail(w); } }; }
+  if(t==='ibadat'){ const g = IBADAT_GUIDES.find(n=>n.id===id); return g && { type:'Namaz aur Taharat', ar:'', scene:ibadatSceneSvg(g), title:g.title, sub:g.sub, open:()=>{ __navCtx=null; openIbadatDetail(g); } }; }
   if(t==='aadaab'){ const a = AADAAB_TOPICS.find(n=>n.id===id); return a && { type:'Aadaab-e-Zindagi', ar:'', scene:aadaabSceneSvg(a), title:a.title, sub:aadaabCatInfo(a.cat).label, open:()=>{ __navCtx=null; openAadaabDetail(a); } }; }
   return null;
 }
@@ -589,7 +590,7 @@ function openLastRead(){
   if(r.k==='quran'){ if(r.ed) state.quranEd = r.ed; return openOverlay(()=> renderQuranReader(r.id)); }
   if(r.k==='name') return openOverlay(()=> renderNameDetail(r.which, r.id));
   const find = { dua:()=>DUAS.find(x=>x.title===r.id), hadees:()=>HADEES.find(x=>hadeesKey(x)===r.id),
-    aadaab:()=>AADAAB_TOPICS.find(x=>x.id===r.id), qword:()=>QURAN_WORDS.find(x=>x.tr===r.id) }[r.k];
+    aadaab:()=>AADAAB_TOPICS.find(x=>x.id===r.id), qword:()=>QURAN_WORDS.find(x=>x.tr===r.id), ibadat:()=>IBADAT_GUIDES.find(x=>x.id===r.id) }[r.k];
   const open = { dua:openDuaDetail, hadees:openHadeesDetail, aadaab:openAadaabDetail, qword:openQuranWordDetail }[r.k];
   const item = find && find();
   if(item) openOverlay(()=>{ __navCtx = null; open(item); });
@@ -616,6 +617,7 @@ function drawGlobalSearch(){
     { k:'dua', t:L({rur:'Duain', en:'Duas'}), ic:'🤲', items:DUAS.map((d,i)=>({d,i})).filter(({d})=>has(d.title, dTitle(d), d.translit, d.meaning, dMean(d))).map(({d,i})=>({ i, t:dTitle(d), s:d.cat })) },
     { k:'hadees', t:L({rur:'Hadees', en:'Hadith'}), ic:'📜', items:HADEES.map((h,i)=>({h,i})).filter(({h})=>has(h.txt, hTxt(h), h.src)).map(({h,i})=>({ i, t:(hTxt(h)||'').slice(0,70)+'…', s:h.src })) },
     { k:'aadaab', t:'Aadaab-e-Zindagi', ic:'🪴', items:AADAAB_TOPICS.map((t,i)=>({t,i})).filter(({t})=>has(t.title, t.en && t.en.title)).map(({t,i})=>({ i, t:(isEn() && t.en && t.en.title) || t.title, s:'' })) },
+    { k:'ibadat', t:L({rur:'Namaz aur Taharat', en:'Prayer and Purity'}), ic:'🕌', items:IBADAT_GUIDES.map((g,i)=>({g,i})).filter(({g})=>has(g.title, g.sub, g.tags.join(' '), 'wuzu wudu ghusl tayammum namaz salah rakat')).map(({g,i})=>({ i, t:g.title, s:g.sub })) },
     { k:'qword', t:L({rur:"Qur'ani Alfaaz", en:'Quranic Words'}), ic:'📗', items:QURAN_WORDS.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'shabd', t:L({rur:'Khaas Shabd', en:'Special Words'}), ic:'📚', items:KHAAS_SHABD.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'asma', t:'Asma-ul-Husna', ic:'💚', items:ASMA_UL_HUSNA.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
@@ -635,6 +637,7 @@ function drawGlobalSearch(){
       else if(g==='hadees') openHadeesDetail(HADEES[i]);
       else if(g==='aadaab') openAadaabDetail(AADAAB_TOPICS[i]);
       else if(g==='qword') openQuranWordDetail(QURAN_WORDS[i]);
+      else if(g==='ibadat') openIbadatDetail(IBADAT_GUIDES[i]);
     };
   });
 }

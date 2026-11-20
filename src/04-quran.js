@@ -765,6 +765,7 @@ function openQuranWordDetail(w){
       ${bmBtn('qword:'+w.tr)}
       <button class="act-btn" id="qwordImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
+    ${qwordSceneHtml(w)}
     <div class="aad-head status-${st||'none'}" style="--aad-c:${color};">
       <div class="aad-head-ic">🔤</div>
       <div class="aad-head-title">${w.tr}</div>
@@ -795,7 +796,7 @@ function openQuranWordDetail(w){
   `;
   document.getElementById('qwordSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openQuranWordDetail(w); };
   document.getElementById('qwordAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openQuranWordDetail(w); };
-  document.getElementById('qwordImgBtn').onclick = ()=> openCardShareChooser({ kind:'Qur’ani Lafz', arabic:w.ar, title:w.tr, sub:w.m, body:w.ex+'\n'+w.exm, foot:'Qur’an mein '+w.occ+' martaba' });
+  document.getElementById('qwordImgBtn').onclick = ()=> openCardShareChooser({ scene:qwordSceneSvg(w), kind:'Qur’ani Lafz', arabic:w.ar, title:w.tr, sub:w.m, body:w.ex+'\n'+w.exm, foot:'Qur’an mein '+w.occ+' martaba' });
   wirePnBar();
 }
 

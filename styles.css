@@ -2600,3 +2600,14 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 /* Bookmarks: a picture thumbnail on each card */
 .bm-card .bm-thumb{ flex:0 0 auto; width:56px; height:56px; border-radius:14px; overflow:hidden; }
 .bm-card .bm-thumb svg{ display:block; width:100%; height:100%; }
+
+/* Namaz aur Taharat steps */
+.ib-steps{ display:flex; flex-direction:column; counter-reset:ibs; }
+.ib-step{ counter-increment:ibs; padding:10px 0; border-top:1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.ib-step:first-child{ border-top:0; padding-top:2px; }
+.ib-b b{ display:block; font-size:14px; font-weight:800; margin-bottom:3px; }
+.ib-b p{ margin:0; font-size:13.5px; line-height:1.65; color:var(--sub); }
+.ib-b .dua-ar{ margin-top:8px; font-size:24px; line-height:1.9; text-align:center; }
+.ib-b .dua-tr{ margin-top:4px; font-size:12.5px; line-height:1.55; text-align:center; }
+/* Empty lists: a small calm picture above the words */
+.empty-state::before{ content:''; display:block; width:54px; height:54px; margin:0 auto 10px; opacity:.55; background:center / contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a98a56' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 6Q8 4 3 5V18Q8 17 12 19Q16 17 21 18V5Q16 4 12 6z'/%3E%3Cpath d='M12 6V19'/%3E%3Cpath d='M17.5 2l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z'/%3E%3C/svg%3E"); }

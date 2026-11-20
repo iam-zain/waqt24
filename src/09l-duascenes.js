@@ -43,3 +43,11 @@ function shabdSceneHtml(w){
   const sc = (typeof shabdSceneSvg === 'function') ? shabdSceneSvg(w) : '';
   return sc ? sceneBox(sc) : '';
 }
+function qwordSceneHtml(w){
+  const sc = (typeof qwordSceneSvg === 'function') ? qwordSceneSvg(w) : '';
+  return sc ? sceneBox(sc) : '';
+}
+function nameSceneHtml(which, w){
+  const sc = (typeof nameSceneSvg === 'function') ? nameSceneSvg(which, w) : '';
+  return sc ? sceneBox(sc) : '';
+}

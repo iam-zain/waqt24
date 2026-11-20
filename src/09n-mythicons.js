@@ -1,10 +1,9 @@
 /* Ghalat Fehmi Ka Izala: a small line icon beside each question, and a bolded "nahi" in the explanation. Drawn for Waqt24. */
 const MYTH_ICONS = {
   scissors:'<circle cx="6" cy="6.5" r="2.8"/><circle cx="6" cy="17.5" r="2.8"/><path d="M8.4 8 L20 19 M8.4 16 L20 5"/>',
-  cat:'<path d="M5 9 V4 L9 7 Q12 6 15 7 L19 4 V9 Q20 13 17 17 Q12 21 7 17 Q4 13 5 9z"/><circle cx="9.5" cy="12" r=".8"/><circle cx="14.5" cy="12" r=".8"/>',
+  cat:'<path d="M5 9 V4 L9 7 Q12 6 15 7 L19 4 V9 Q20 13 17 17 Q12 21 7 17 Q4 13 5 9z"/>',
   calendar:'<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10 H20 M8 3 V7 M16 3 V7"/>',
   broom:'<path d="M19 3 L12 13"/><path d="M7.5 13 H15 L17 21 H5.5z"/>',
-  smile:'<circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r=".8"/><circle cx="15" cy="10" r=".8"/><path d="M8 14 Q12 18 16 14"/>',
   mosque:'<path d="M5 20 V13 Q5 7 12 7 Q19 7 19 13 V20z"/><path d="M12 7 V3"/><path d="M10 20 V16 Q12 14 14 16 V20"/>',
   minaret:'<path d="M10 21 V8 L12 3 L14 8 V21"/><path d="M8 13 H16 M8 21 H16"/>',
   tap:'<path d="M5 9 H13 Q17 9 17 13 V14"/><path d="M5 6 V12"/><path d="M17 17 q1.6 2.6 0 4 q-1.6 -1.4 0 -4z"/>',
@@ -28,9 +27,9 @@ const MYTH_ICONS = {
   gate:'<path d="M5 21 V10 Q5 4 12 4 Q19 4 19 10 V21"/><path d="M9 21 V12 Q9 9 12 9 Q15 9 15 12 V21"/>',
   globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12 H21"/><path d="M12 3 Q7 12 12 21 Q17 12 12 3z"/>'
 };
-const MYTH_ICON_COL = { scissors:'#e0709f', cat:'#6b7f99', calendar:'#e0893f', broom:'#c79a2e', smile:'#e0b04f', mosque:'#2f9e6e', minaret:'#3aa86a', tap:'#3f8fe0', book:'#9b6fd6', speech:'#5c7cfa', hands:'#9b6fd6', mat:'#2fb6b0', crescent:'#c79a2e', heart:'#e0709f', scale:'#c0563f', people:'#3f8fe0', rings:'#e0709f', sprout:'#3aa86a', house:'#e0893f', eye:'#6b7f99', coins:'#d4a017', dove:'#4f8fd6', mountain:'#6b7f99', sun:'#e0893f', drop:'#3f8fe0', gate:'#4fb286', globe:'#2fb6b0' };
+const MYTH_ICON_COL = { scissors:'#e0709f', cat:'#6b7f99', calendar:'#e0893f', broom:'#c79a2e', mosque:'#2f9e6e', minaret:'#3aa86a', tap:'#3f8fe0', book:'#9b6fd6', speech:'#5c7cfa', hands:'#9b6fd6', mat:'#2fb6b0', crescent:'#c79a2e', heart:'#e0709f', scale:'#c0563f', people:'#3f8fe0', rings:'#e0709f', sprout:'#3aa86a', house:'#e0893f', eye:'#6b7f99', coins:'#d4a017', dove:'#4f8fd6', mountain:'#6b7f99', sun:'#e0893f', drop:'#3f8fe0', gate:'#4fb286', globe:'#2fb6b0' };
 /* one icon per myth, in the same order as MYTH_BUSTERS */
-const MYTH_ICON_ORDER = ['scissors','scissors','scissors','cat','calendar','calendar','broom','smile','mosque','minaret',
+const MYTH_ICON_ORDER = ['scissors','scissors','scissors','cat','calendar','calendar','broom','speech','mosque','minaret',
   'tap','book','speech','hands','hands','hands','mat','mat','crescent','crescent',
   'crescent','heart','book','hands','scale','people','rings','people','sprout','house',
   'speech','speech','eye','eye','coins','dove','mountain','sun','drop','heart',

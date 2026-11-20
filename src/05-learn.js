@@ -382,6 +382,7 @@ function renderNameDetail(which, idx){
       ${bmBtn((which==='asma'?'asma:':'prophet:')+w.tr)}
       <button class="act-btn" id="nameImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
+    ${nameSceneHtml(which, w)}
     <div class="aad-head status-${st||'none'}" style="--aad-c:${nameAccent(which)};">
       <div class="aad-head-ic">🔤</div>
       <div class="aad-head-title ar-font">${w.ar}</div>
@@ -410,7 +411,7 @@ function renderNameDetail(which, idx){
   `;
   document.getElementById('nameSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); renderNameDetail(which, idx); };
   document.getElementById('nameAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); renderNameDetail(which, idx); };
-  document.getElementById('nameImgBtn').onclick = ()=> openCardShareChooser({ kind: which==='asma' ? 'Asma-ul-Husna' : 'Asma-ul-Nabi', arabic:w.ar, title:w.tr, body:isEn() && w.en ? w.en : w.m });
+  document.getElementById('nameImgBtn').onclick = ()=> openCardShareChooser({ scene:nameSceneSvg(which, w), kind: which==='asma' ? 'Asma-ul-Husna' : 'Asma-ul-Nabi', arabic:w.ar, title:w.tr, body:isEn() && w.en ? w.en : w.m });
   { const lb = document.querySelector('.asma-listen'); if(lb){ lb.onclick = ()=> asmaPlayOne(idx, which); asmaWireOpts(); asmaUI(); } }
   wirePnBar();
 }
