@@ -2225,7 +2225,7 @@ function drawGlobalSearch(){
     { k:'dua', t:L({rur:'Duain', en:'Duas'}), ic:'🤲', items:DUAS.map((d,i)=>({d,i})).filter(({d})=>has(d.title, dTitle(d), d.translit, d.meaning, dMean(d))).map(({d,i})=>({ i, t:dTitle(d), s:d.cat })) },
     { k:'hadees', t:L({rur:'Hadees', en:'Hadith'}), ic:'📜', items:HADEES.map((h,i)=>({h,i})).filter(({h})=>has(h.txt, hTxt(h), h.src)).map(({h,i})=>({ i, t:(hTxt(h)||'').slice(0,70)+'…', s:h.src })) },
     { k:'aadaab', t:'Aadaab-e-Zindagi', ic:'🪴', items:AADAAB_TOPICS.map((t,i)=>({t,i})).filter(({t})=>has(t.title, t.en && t.en.title)).map(({t,i})=>({ i, t:(isEn() && t.en && t.en.title) || t.title, s:'' })) },
-    { k:'ibadat', t:L({rur:'Namaz aur Taharat', en:'Prayer and Purity'}), ic:'🕌', items:IBADAT_GUIDES.map((g,i)=>({g,i})).filter(({g})=>has(g.title, g.sub, g.tags.join(' '), 'wuzu wudu ghusl tayammum namaz salah rakat')).map(({g,i})=>({ i, t:g.title, s:g.sub })) },
+    { k:'ibadat', t:L({rur:'Namaz aur Taharat', en:'Prayer and Purity'}), ic:'🕌', items:IBADAT_GUIDES.map((g,i)=>({g,i})).filter(({g})=>has(g.title, g.sub, g.tags.join(' '), 'wuzu wudu ghusl tayammum namaz salah rakat janaza taraweeh eid tahajjud ishraq chasht duha haajat istikhara sahw qasr safar')).map(({g,i})=>({ i, t:g.title, s:g.sub })) },
     { k:'qword', t:L({rur:"Qur'ani Alfaaz", en:'Quranic Words'}), ic:'📗', items:QURAN_WORDS.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'shabd', t:L({rur:'Khaas Shabd', en:'Special Words'}), ic:'📚', items:KHAAS_SHABD.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'asma', t:'Asma-ul-Husna', ic:'💚', items:ASMA_UL_HUSNA.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
@@ -10356,7 +10356,7 @@ function nameSceneHtml(which, w){
   T.shower = ()=> wrap('#e4f3fa','#c6e3f0', `<rect y="124" width="320" height="26" fill="#b3d6e6"/><path d="M120 22 H196 a6 6 0 0 1 6 6 v6 H114 v-6 a6 6 0 0 1 6 -6z" fill="#8fa9c0"/><path d="M158 22 V10" stroke="#8fa9c0" stroke-width="6" stroke-linecap="round"/><path d="M112 34 H204 L214 54 H102z" fill="#9fb8cc"/><g stroke="#7fc0e8" stroke-width="2" stroke-linecap="round" opacity=".9">${Array.from({length:15},(_,i)=>{ const x = 112 + (i%5)*24 + (Math.floor(i/5)%2)*8, y = 66 + Math.floor(i/5)*20; return `<line x1="${x}" y1="${y}" x2="${x-3}" y2="${y+12}"/>`; }).join('')}</g><g fill="none" stroke="#fff" stroke-width="1.4" opacity=".7"><ellipse cx="150" cy="134" rx="24" ry="5"/><ellipse cx="190" cy="138" rx="16" ry="3.6"/></g>`, 'sw');
   T.dunes = ()=> wrap('#fdeccf','#f1cf92', sun(250, 40, 14, 'dn') + `<path d="M0 104 Q70 74 140 96 T320 88 V150 H0z" fill="#e8be7c"/><path d="M0 124 Q90 100 180 120 T320 112 V150 H0z" fill="#dcab63"/><path d="M0 138 Q110 124 220 136 T320 132 V150 H0z" fill="#cf9a52"/><g fill="none" stroke="#fff" stroke-width="1.2" opacity=".35"><path d="M30 118 q14 -4 28 0"/><path d="M200 130 q14 -4 28 0"/></g>`, 'dn');
   window.sceneByKey = k => make(k);
-  const IBMAP = { wuzu:'tap', ghusl:'shower', tayammum:'dunes', 'namaz-tareeqa':'mat', 'namaz-rakaat':'dawn' };
+  const IBMAP = { wuzu:'tap', ghusl:'shower', tayammum:'dunes', 'namaz-tareeqa':'mat', 'namaz-rakaat':'dawn', janaza:'dove', taraweeh:'bookNight', eid:'lanterns', tahajjud:'cosmos', 'ishraq-chasht':'smile', haajat:'hands', istikhara:'path', sahw:'clock', qasr:'road' };
   window.ibadatSceneSvg = g => IBMAP[g.id] ? make(IBMAP[g.id]) : '';
   const QMAP = { 'Ism':'book', 'Sifat':'flower', 'Zameer':'hands', 'Harf':'path', "Fail (fe'l)":'boat', 'Ism-e-mausool':'gate', 'Ism-e-ishara':'lamp', 'Sawaliya lafz':'cosmos' };
   window.qwordSceneSvg = function(w){ const k = QMAP[qwordGroup(w)]; return k ? make(k) : ''; };
@@ -10569,6 +10569,158 @@ const IBADAT_GUIDES = [
     ],
     closing:'Farz kabhi na chhodein. Sunnat-e-Muakkada ka ahtimam karein, baqi nafl jitni himmat ho utni padhein.' },
 
+  { id:'janaza', title:'Janaza Ka Tareeqa', ic:'🕊️', color:'#6b7a90', tags:['Janaza','Farz-e-Kifaya','Hanafi'], sub:'Ghusl, kafan, namaz-e-janaza aur dafan',
+    intro:'Janaza ke huqooq adaa karna farz-e-kifaya hai: kuch log adaa kar dein to sab ki taraf se ho jata hai. Marne wale ke liye ye aakhri neki aur dua ka moqa hai.',
+    sections:[
+      { h:'Inteqal ke Foran Baad', ic:'🤍', steps:[
+        { t:'Sabr aur Istirja', d:'Khabar milte hi sabr karein aur ye padhein.', ar:'إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ', tr:'Inna lillahi wa inna ilayhi raji-oon' },
+        { t:'Aankhein band karein', d:'Narmi se aankhein band karein aur munh ko kapde ya patti se baandh dein. Dua dein.' },
+        { t:'Jaldi karein', d:'Ghusl, kafan aur dafan mein bila wajah der na karein.' } ] },
+      { h:'Ghusl aur Kafan', ic:'🧼', steps:[
+        { t:'Ghusl', d:'Mayyit ko wuzu karakar, poora badan dhoya jata hai. Mard ko mard aur aurat ko aurat ghusl de. Satr hamesha dhaka rahe.' },
+        { t:'Mard ka kafan', d:'Sunnat ke mutabiq 3 kapde: izaar, qameez (kafni) aur lifafa. Safed kapda behtar hai.' },
+        { t:'Aurat ka kafan', d:'Sunnat ke mutabiq 5 kapde: izaar, qameez, lifafa, orhni (sar-band) aur seena-band.' } ] },
+      { h:'Namaz-e-Janaza', ic:'🕌', steps:[
+        { t:'Ye namaz kaise alag hai', d:'Isme ruku, sajda aur qa’da nahi hota. Sirf 4 takbeerein aur khade hokar dua. Dono farz hain: 4 takbeerein aur qiyam. Isme wuzu aur qibla bhi zaroori hain.' },
+        { t:'Niyyat', d:'Dil mein niyyat karein: "Main Allah ke liye ye namaz-e-janaza, isme dua mayyit ke liye, imam ke peeche padhta hoon." Imam mayyit ke seene ke barabar khada hota hai.' },
+        { t:'1. Pehli takbeer + Sana', d:'Haath kaanon tak utha kar "Allahu Akbar", phir haath baandh lein (mard naaf ke neeche, aurat seene par). Phir aahista Sana padhein.', ar:'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَى جَدُّكَ وَجَلَّ ثَنَاؤُكَ وَلَا إِلَهَ غَيْرُكَ', tr:'Subhanakallahumma wa bihamdika wa tabarakasmuka wa ta-ala jadduka wa jalla thana-uka wa la ilaha ghairuk' },
+        { t:'2. Doosri takbeer + Durood', d:'Bina haath uthaye "Allahu Akbar" kehein aur Durood-e-Ibrahim padhein (wahi jo namaz ke aakhri qa’da mein padhte hain).' },
+        { t:'3. Teesri takbeer + Janaza ki Dua', d:'Bina haath uthaye "Allahu Akbar" kehein. Baaligh mard ya aurat ke liye ye dua padhein.', ar:'اللَّهُمَّ اغْفِرْ لِحَيِّنَا وَمَيِّتِنَا وَشَاهِدِنَا وَغَائِبِنَا وَصَغِيرِنَا وَكَبِيرِنَا وَذَكَرِنَا وَأُنْثَانَا، اللَّهُمَّ مَنْ أَحْيَيْتَهُ مِنَّا فَأَحْيِهِ عَلَى الْإِسْلَامِ وَمَنْ تَوَفَّيْتَهُ مِنَّا فَتَوَفَّهُ عَلَى الْإِيمَانِ', tr:'Allahummaghfir li hayyina wa mayyitina wa shahidina wa gha-ibina wa saghirina wa kabirina wa dhakarina wa unthana. Allahumma man ahyaytahu minna fa-ahyihi alal Islam, wa man tawaffaytahu minna fa-tawaffahu alal Iman' },
+        { t:'Nabalig ladke ki dua', d:'Agar mayyit nabalig bachcha ho to ye padhein.', ar:'اللَّهُمَّ اجْعَلْهُ لَنَا فَرَطًا وَاجْعَلْهُ لَنَا أَجْرًا وَذُخْرًا وَاجْعَلْهُ لَنَا شَافِعًا وَمُشَفَّعًا', tr:'Allahummaj-alhu lana faratan waj-alhu lana ajran wa dhukhran waj-alhu lana shafi-an wa mushaffa-a' },
+        { t:'Nabaligh ladki ki dua', d:'Agar mayyit nabaligh bachchi ho to ye padhein.', ar:'اللَّهُمَّ اجْعَلْهَا لَنَا فَرَطًا وَاجْعَلْهَا لَنَا أَجْرًا وَذُخْرًا وَاجْعَلْهَا لَنَا شَافِعَةً وَمُشَفَّعَةً', tr:'Allahummaj-alha lana faratan waj-alha lana ajran wa dhukhran waj-alha lana shafi-atan wa mushaffa-ah' },
+        { t:'4. Chauthi takbeer + Salam', d:'"Allahu Akbar" kehein, phir haath chhod dein aur pehle daayen phir baayen salam pherein.', ar:'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ', tr:'As-salamu alaykum wa rahmatullah' } ] },
+      { h:'Dafan', ic:'🌿', steps:[
+        { t:'Qabr', d:'Qabr qibla ki taraf, seedhi gehri aur lahad (daayen taraf khoda hua hissa) wali behtar hai.' },
+        { t:'Mayyit ko utarna', d:'Mayyit ko qibla ki taraf daayen karwat par litayein. Utarte waqt ye padhein.', ar:'بِسْمِ اللَّهِ وَعَلَى مِلَّةِ رَسُولِ اللَّهِ', tr:'Bismillahi wa ala millati Rasulillah' },
+        { t:'Mitti dena', d:'Teen baar mitti daalein aur phir qabr dhak dein. Qabr ko zameen se thoda unchi (ek balisht) rakhein.' },
+        { t:'Dafan ke baad', d:'Thodi der qabr ke paas theher kar mayyit ke liye saabit qadmi (sabit-qadmi) aur maghfirat ki dua karein.' } ] }
+    ],
+    closing:'Mayyit ke liye dua aur sadqa-e-jaariya sabse badi madad hai. Ghusl aur kafan ka amali tareeqa kisi aalim ya tajurbakar se zaroor seekhein.' },
+
+  { id:'taraweeh', title:'Taraweeh', ic:'🌙', color:'#7a5bd6', tags:['Ramzan','Sunnat-e-Muakkada','Hanafi'], sub:'Ramzan ki raaton ki khaas namaz',
+    intro:'Taraweeh Ramzan ki raaton mein Isha ke baad padhi jati hai. Hanafi mein ye sunnat-e-muakkada hai aur mard aur aurat dono ke liye hai.',
+    sections:[
+      { h:'Kab aur Kitni Rakaat', ic:'⏰', steps:[
+        { t:'Waqt', d:'Ramzan ki har raat, Isha ki farz ke baad se subah sadiq tak.' },
+        { t:'Rakaat', d:'20 rakaat, 2-2 rakaat karke 10 salam ke saath. Hanafi mein jamaat ke saath padhna sunnat-e-kifaya hai.' },
+        { t:'Witr', d:'Ramzan mein Taraweeh ke baad Witr ki 3 rakaat jamaat se padhi jati hain.' } ] },
+      { h:'Tareeqa', ic:'🕌', steps:[
+        { t:'Niyyat', d:'"Main Allah ke liye 2 rakaat Taraweeh ki niyyat karta hoon, rukh Kaaba sharif ki taraf, imam ke peeche."' },
+        { t:'Har 2 rakaat par salam', d:'2 rakaat padh kar salam phero, phir naye sire se 2 rakaat ki niyyat karein.' },
+        { t:'Har 4 rakaat ke baad aaram', d:'4 rakaat ke baad thodi der baithna (tarweeha) mustahab hai. Is waqt tasbeeh, dua ya durood padhein.' },
+        { t:'Aam taur par padhi jane wali tasbeeh', d:'Ye zikr bahut jagah padha jata hai (isme koi khaas hadees ki pabandi nahi).', ar:'سُبْحَانَ ذِي الْمُلْكِ وَالْمَلَكُوتِ، سُبْحَانَ ذِي الْعِزَّةِ وَالْعَظَمَةِ وَالْهَيْبَةِ وَالْقُدْرَةِ وَالْكِبْرِيَاءِ وَالْجَبَرُوتِ، سُبْحَانَ الْمَلِكِ الْحَيِّ الَّذِي لَا يَنَامُ وَلَا يَمُوتُ، سُبُّوحٌ قُدُّوسٌ رَبُّنَا وَرَبُّ الْمَلَائِكَةِ وَالرُّوحِ', tr:'Subhana dhil-mulki wal-malakut, subhana dhil-izzati wal-azamati wal-haybati wal-qudrati wal-kibriya-i wal-jabarut, subhanal-malikil-hayyil-ladhi la yanamu wa la yamut, subbuhun quddusun Rabbuna wa Rabbul-mala-ikati war-ruh' },
+        { t:'Quran ka khatm', d:'Poori Ramzan mein ek baar Qur’an khatm sunna sunnat hai. Hafiz na ho to chhoti surahon se bhi padh sakte hain.' } ] }
+    ],
+    closing:'Taraweeh ke ruku aur sajde aaram se karein, jaldi mein na padhein. Ramzan ka asal maqsad taqwa hai.' },
+
+  { id:'eid', title:'Eid Ki Namaz', ic:'🎉', color:'#e08a1e', tags:['Eid','Wajib','Hanafi'], sub:'Eid-ul-Fitr aur Eid-ul-Adha',
+    intro:'Hanafi mein Eid ki namaz wajib hai. Ye 2 rakaat hai, isme azaan ya iqamat nahi hoti, aur jamaat ke saath ada hoti hai.',
+    sections:[
+      { h:'Eid ki Sunnatein', ic:'🌿', steps:[
+        { t:'Ghusl aur miswak', d:'Subah uth kar ghusl karein, miswak karein.' },
+        { t:'Behtar kapde aur khushbu', d:'Apne paas ke sabse achhe paak kapde pehnein aur khushbu lagayein.' },
+        { t:'Eid-ul-Fitr', d:'Namaz se pehle kuch meetha (khajoor) khayein aur Sadqa-e-Fitr namaz se pehle ada kar dein. Raaste mein aahista takbeer padhein.' },
+        { t:'Eid-ul-Adha', d:'Namaz ke baad kuch khayein (qurbani ka gosht behtar). Raaste mein buland awaaz se takbeer padhein.' },
+        { t:'Raaste badal kar jana', d:'Eidgah ek raaste se jayein aur doosre raaste se wapas aayein.' },
+        { t:'Takbeer-e-Tashreeq', d:'Eid-ul-Adha ke dino mein padhi jati hai.', ar:'اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَهَ إِلَّا اللَّهُ وَاللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ وَلِلَّهِ الْحَمْدُ', tr:'Allahu Akbar Allahu Akbar, La ilaha illallahu wallahu Akbar, Allahu Akbar wa lillahil hamd' } ] },
+      { h:'Eid ki Namaz ka Tareeqa', ic:'🕌', steps:[
+        { t:'Niyyat', d:'"Main Allah ke liye 2 rakaat Eid-ul-Fitr (ya Adha) ki wajib namaz, 6 zaid takbeeron ke saath, imam ke peeche padhta hoon."' },
+        { t:'Pehli rakat', d:'Takbeer-e-Tahreema, haath baandh kar Sana padhein.' },
+        { t:'3 zaid takbeerein', d:'Sana ke baad 3 baar "Allahu Akbar" kehein: pehli aur doosri par haath kaanon tak utha kar chhod dein, teesri par haath utha kar baandh lein.' },
+        { t:'Qira’at aur rakat poori', d:'Ta’awwuz, Bismillah, Fatiha aur surah padhein, phir ruku aur sajde karein.' },
+        { t:'Doosri rakat', d:'Fatiha aur surah padhne ke baad 3 zaid takbeerein kehein: teeno par haath kaanon tak utha kar chhod dein.' },
+        { t:'4th takbeer ruku ke liye', d:'Phir bina haath uthaye "Allahu Akbar" kehkar ruku mein jayein. Baaki namaz aam tareeqe se poori karein, salam pheren.' },
+        { t:'Khutba', d:'Namaz ke baad imam khutba deta hai. Isko sunna wajib hai.' } ] }
+    ],
+    closing:'Eid khushi aur shukr ka din hai. Is din ghareeb aur padosi ko bhi apni khushi mein shamil karein.' },
+
+  { id:'tahajjud', title:'Tahajjud', ic:'🌌', color:'#3a4d8f', tags:['Raat ki Namaz','Nafl','Hanafi'], sub:'Raat ke aakhri hisse ki khaas ibadat',
+    intro:'Nabi ﷺ ne farmaya ke farz ke baad sabse afzal namaz raat ki namaz hai (Sahih Muslim). Tahajjud raat ke aakhri hisse mein padhne ki ek khaas nafl ibadat hai.',
+    sections:[
+      { h:'Kab aur Kitni', ic:'⏰', steps:[
+        { t:'Waqt', d:'Isha ke baad soo kar uthne ke baad se subah sadiq tak. Raat ka aakhri tihai (teesra hissa) sabse behtar hai.' },
+        { t:'Rakaat', d:'Kam az kam 2 rakaat, aur zyada se zyada 12. Aam taur par 8 rakaat padhi jati hai.' },
+        { t:'Salam', d:'2-2 rakaat karke salam pherna behtar hai.' } ] },
+      { h:'Tareeqa', ic:'🕌', steps:[
+        { t:'Niyyat', d:'Dil mein 2 rakaat nafl Tahajjud ki niyyat karein.' },
+        { t:'Namaz', d:'Aam nafl namaz ki tarah: Sana, Fatiha, surah, ruku, sajde, qa’da, durood, dua aur salam. Aahista aur sukoon se padhein.' },
+        { t:'Dua ka waqt', d:'Tahajjud ke baad aur sajde mein dil khol kar dua karein. Hadees mein hai ke raat ke aakhri hisse mein Allah ki khaas rehmat utarti hai (Bukhari, Muslim).' } ] }
+    ],
+    closing:'Agar neend gaalib ho to halki namaz padhein. Tahajjud ke liye raat ko jaldi sona aur Isha ke baad ghair-zaroori baatein kam karna madadgar hai.' },
+
+  { id:'ishraq-chasht', title:'Ishraq aur Chasht', ic:'☀️', color:'#f0a020', tags:['Nafl','Subah','Hanafi'], sub:'Sooraj nikalne ke baad ki nafl namazein',
+    intro:'Fajr ke baad ibadat mein masroof rehna aur phir sooraj nikalne ke baad Ishraq padhna bahut fazilat wala amal hai. Chasht (Duha) din chadhne ke baad ki nafl namaz hai.',
+    sections:[
+      { h:'Ishraq', ic:'🌅', steps:[
+        { t:'Fazilat', d:'Hadees (Tirmidhi) mein hai ke jo Fajr ki jamaat ke baad baithkar Allah ka zikr kare, phir sooraj nikalne ke baad 2 rakaat padhe, use mukammal Hajj aur Umrah jaisa sawab milta hai.' },
+        { t:'Waqt', d:'Sooraj nikalne ke takreeban 15-20 minute baad, jab makruh waqt khatam ho jaye.' },
+        { t:'Rakaat', d:'2 rakaat (ya 4). Niyyat: "2 rakaat nafl Ishraq ki."' } ] },
+      { h:'Chasht (Duha)', ic:'🌞', steps:[
+        { t:'Fazilat', d:'Sahih Muslim mein hai ke subah har insaan ke jism ke har jod ki taraf se sadqa hota hai, aur Duha ki 2 rakaat uski taraf se kaafi hain.' },
+        { t:'Waqt', d:'Sooraj ke achhi tarah buland hone se le kar zawal (dopahar) se pehle tak. Afzal waqt din ka chauthai hissa guzarne ke baad hai.' },
+        { t:'Rakaat', d:'Kam az kam 2 rakaat, zyada se zyada 12. 2-2 karke padhein.' } ] }
+    ],
+    closing:'Ye namazein chhoti hain magar roz padhne se bohat sawab banta hai. Thoda lekin lagaatar amal pasandeeda hai.' },
+
+  { id:'haajat', title:'Salat-ul-Haajat', ic:'🤲', color:'#2f9e6e', tags:['Nafl','Dua','Hanafi'], sub:'Kisi zaroorat ya mushkil ke liye',
+    intro:'Jab koi bari zaroorat ya pareshani ho to wuzu karke 2 rakaat nafl padhna aur phir Allah se dua karna musta’mal tareeqa hai. Ye riwayat Tirmidhi aur Ibn Majah mein aati hai, jis ki sanad par ulama ne kalam kiya hai, magar fazail ke baab mein ye amal aam hai.',
+    sections:[
+      { h:'Tareeqa', ic:'🕌', steps:[
+        { t:'Wuzu aur niyyat', d:'Achhi tarah wuzu karein aur 2 rakaat nafl Salat-ul-Haajat ki niyyat karein.' },
+        { t:'2 rakaat namaz', d:'Aam nafl ki tarah: Fatiha aur surah (jaise Ikhlas), ruku aur sajde karein, salam pheren.' },
+        { t:'Hamd aur Durood', d:'Salam ke baad Allah ki hamd karein aur Nabi ﷺ par durood bhejein.' },
+        { t:'Dua', d:'Phir ye dua padhein aur apni zaroorat Allah ke samne rakhein.', ar:'لَا إِلَهَ إِلَّا اللَّهُ الْحَلِيمُ الْكَرِيمُ، سُبْحَانَ اللَّهِ رَبِّ الْعَرْشِ الْعَظِيمِ، الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ، أَسْأَلُكَ مُوجِبَاتِ رَحْمَتِكَ وَعَزَائِمَ مَغْفِرَتِكَ، وَالْغَنِيمَةَ مِنْ كُلِّ بِرٍّ وَالسَّلَامَةَ مِنْ كُلِّ إِثْمٍ، لَا تَدَعْ لِي ذَنْبًا إِلَّا غَفَرْتَهُ وَلَا هَمًّا إِلَّا فَرَّجْتَهُ وَلَا حَاجَةً هِيَ لَكَ رِضًا إِلَّا قَضَيْتَهَا يَا أَرْحَمَ الرَّاحِمِينَ', tr:'La ilaha illallahul Haleemul Kareem, subhanallahi Rabbil Arshil Azeem, alhamdu lillahi Rabbil Aalameen. As-aluka mujibati rahmatika wa aza-ima maghfiratik, wal ghaneemata min kulli birrin was-salamata min kulli ithm. La tada-li dhanban illa ghafartahu, wa la hamman illa farrajtahu, wa la hajatan hiya laka ridan illa qadaytaha, ya Arhamar-Rahimeen' } ] }
+    ],
+    closing:'Dua mein yaqeen aur sabr rakhein. Allah ka faisla hamesha hamare liye behtar hota hai, chahe dua ka jawab der se aaye.' },
+
+  { id:'istikhara', title:'Salat-ul-Istikhara', ic:'🧭', color:'#2fb6b0', tags:['Nafl','Faisla','Sahih Bukhari'], sub:'Kisi kaam ya faisle mein Allah se bhalai maangna',
+    intro:'Jab kisi kaam ya faisle mein uljhan ho, to Nabi ﷺ ne istikhara sikhaya (Sahih Bukhari, Jabir RA ki riwayat). Istikhara ka matlab hai Allah se behtari maangna.',
+    sections:[
+      { h:'Tareeqa', ic:'🕌', steps:[
+        { t:'Pehle mashwara', d:'Pehle samajhdar aur bharosemand logon se mashwara karein, phir istikhara karein.' },
+        { t:'2 rakaat nafl', d:'Wuzu karke 2 rakaat nafl padhein (farz namaz ke ilawa). Pehli rakat mein Surah Kafirun aur doosri mein Surah Ikhlas padhna behtar hai.' },
+        { t:'Salam ke baad dua', d:'Salam ke baad Allah ki hamd, durood aur ye dua padhein. "Haadhal amra" ki jagah apna kaam dil mein soch kar uska naam lein.', ar:'اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ، فَإِنَّكَ تَقْدِرُ وَلَا أَقْدِرُ وَتَعْلَمُ وَلَا أَعْلَمُ وَأَنْتَ عَلَّامُ الْغُيُوبِ، اللَّهُمَّ إِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ خَيْرٌ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي فَاقْدُرْهُ لِي وَيَسِّرْهُ لِي ثُمَّ بَارِكْ لِي فِيهِ، وَإِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ شَرٌّ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي فَاصْرِفْهُ عَنِّي وَاصْرِفْنِي عَنْهُ وَاقْدُرْ لِيَ الْخَيْرَ حَيْثُ كَانَ ثُمَّ أَرْضِنِي بِهِ', tr:'Allahumma inni astakheeruka bi-ilmika, wa astaqdiruka bi-qudratika, wa as-aluka min fadlikal azeem. Fa innaka taqdiru wa la aqdir, wa ta-lamu wa la a-lam, wa anta Allamul Ghuyoob. Allahumma in kunta ta-lamu anna haadhal amra khayrun li fi deeni wa ma-ashi wa aaqibati amri, faqdurhu li wa yassirhu li thumma baarik li feeh. Wa in kunta ta-lamu anna haadhal amra sharrun li fi deeni wa ma-ashi wa aaqibati amri, fasrifhu anni wasrifni anhu, waqdur liyal khayra haythu kaana thumma ardini bih' },
+        { t:'Phir kya karein', d:'Istikhara ke baad jis taraf dil ka sukoon aur raasta aasan lage, tawakkul karke wahi kaam karein. Ye zaroori nahi ke khwab hi aaye.' } ] }
+    ],
+    closing:'Istikhara ek dua hai, koi jadoo ya khwab dekhne ka amal nahi. Faisla karne ke baad Allah par bharosa rakhein.' },
+
+  { id:'sahw', title:'Sajda-e-Sahw', ic:'⏱️', color:'#c0605a', tags:['Namaz','Bhool','Hanafi'], sub:'Namaz mein bhool ho jaye to',
+    intro:'Namaz mein agar bhool se koi wajib chhoot jaye to namaz doharane ke bajaye 2 sajde-e-sahw kar lene se namaz theek ho jati hai. Ye Allah ki aasani hai.',
+    sections:[
+      { h:'Kab Wajib Hota Hai', ic:'📌', steps:[
+        { t:'Koi wajib bhool kar chhoot jaye', d:'Jaise Fatiha ke baad surah milana bhool jana, ya pehla qa’da (3 ya 4 rakaat mein) chhod dena.' },
+        { t:'Wajib mein der ho jaye', d:'Jaise Fatiha padhne ya ruku-sajde mein kuch der ke liye soch mein ruk jana.' },
+        { t:'Rakaat ya sajde ki ginti mein shak', d:'Shak ho to zyada par yaqeen karein ya jis taraf dil jame us par amal karein, aur akhir mein sajda-e-sahw kar lein.' } ] },
+      { h:'Tareeqa', ic:'🕌', steps:[
+        { t:'Aakhri qa’da tak padhein', d:'Aakhri qa’da mein sirf Attahiyyat padhein.' },
+        { t:'Sirf daayen taraf salam', d:'Phir sirf daayen taraf ek salam pherein.' },
+        { t:'2 sajde karein', d:'"Allahu Akbar" kehkar 2 sajde karein, beech mein jalsa karke.' },
+        { t:'Dobara qa’da', d:'Phir baith kar Attahiyyat, Durood-e-Ibrahim aur dua padhein, aur dono taraf salam pherein.' } ] },
+      { h:'Zaroori Baatein', ic:'⚠️', steps:[
+        { t:'Farz chhoot jaye', d:'Agar koi farz (jaise ruku ya sajda) chhoot jaye to sajda-e-sahw se kaam nahi chalta, namaz dobara padhni hogi.' },
+        { t:'Sunnat chhoot jaye', d:'Sunnat ya mustahab chhootne par sajda-e-sahw nahi hota.' },
+        { t:'Jaan-boojh kar wajib chhodna', d:'Isme sajda-e-sahw kaafi nahi, namaz dobara padhna wajib hai.' },
+        { t:'Kai bhool par bhi 2 sajde', d:'Ek namaz mein kai wajib chhootein to bhi sirf 2 sajde kaafi hain.' } ] }
+    ],
+    closing:'Bhool insaan ki fitrat hai. Ghabrayein nahi, sajda-e-sahw kar ke namaz mukammal kar lein.' },
+
+  { id:'qasr', title:'Safar Ki Namaz (Qasr)', ic:'🧳', color:'#3f8fe0', tags:['Safar','Qasr','Hanafi'], sub:'Musafir ki namaz ke ahkaam',
+    intro:'Safar mein Allah ne namaz mein aasani di hai: 4 rakaat wali farz namaz 2 rakaat padhi jati hai. Hanafi mein musafir ke liye qasr zaroori hai, ikhtiyari nahi.',
+    sections:[
+      { h:'Musafir Kaun Hai', ic:'📌', steps:[
+        { t:'Doori', d:'Hanafi ke mutabiq takreeban 48 meel (aam taur par 77-78 km) ya zyada ka safar karne ki niyyat ho.' },
+        { t:'Qasr kab shuru hota hai', d:'Apni basti ya shehar ki aabadi ki hadd se bahar nikalte hi.' },
+        { t:'Qasr kab khatam hota hai', d:'Apne watan ya shehar ki hadd mein dakhil hone par. Ya jahan 15 din ya zyada rukne ki pakki niyyat ho, wahan muqeem ho jata hai.' } ] },
+      { h:'Safar mein Namaz', ic:'🕌', steps:[
+        { t:'Zuhr, Asr, Isha', d:'4 rakaat ki farz ki jagah 2 rakaat padhein.' },
+        { t:'Fajr aur Maghrib', d:'Inme koi kami nahi, Fajr 2 aur Maghrib 3 rakaat hi rahengi.' },
+        { t:'Witr', d:'Witr ki 3 rakaat poori padhein.' },
+        { t:'Sunnatein', d:'Fajr ki sunnat na chhodein. Baaki sunnatein halat dekh kar padh sakte hain. Jaldi ho ya thakan ho to chhodna gunah nahi.' },
+        { t:'Imam ke saath', d:'Agar musafir muqeem imam ke peeche namaz padhe to imam ke saath poori namaz padhega. Agar musafir imam ho to wo 2 rakaat ke baad salam pherega aur muqeem muqtadi apni baaki rakaat khud poori karenge.' },
+        { t:'Qaza', d:'Safar mein qaza hui namaz ghar wapas aakar bhi 2 rakaat hi padhi jati hai, aur ghar mein qaza hui namaz safar mein poori padhi jati hai.' } ] }
+    ],
+    closing:'Safar ke masail mein halaat aur door ka hisaab alag ho sakta hai. Zaroorat ho to apne mustanad aalim se poochh lein.' },
+
   { id:'tayammum', title:'Tayammum Ka Tareeqa', ic:'🏜️', color:'#d4a017', tags:['Taharat','Hanafi','Paani na ho'], sub:'Jab wuzu ya ghusl mumkin na ho',
     intro:'Jab paani na mile ya istemal se nuqsan ka khauf ho to wuzu aur ghusl ki jagah pak mitti se tayammum karna Allah ki ek aasani hai.',
     sections:[
@@ -10599,7 +10751,7 @@ function ibadatTagChips(g){ return g.tags.map(t=>`<span class="aad-tag">${t}</sp
 function renderIbadat(){
   document.getElementById('detailTitle').textContent = L({ rur:'Namaz aur Taharat', en:'Prayer and Purity' });
   document.getElementById('detailBody').innerHTML = `
-    <div class="aad-intro">${L({ rur:'Wuzu, Ghusl, Tayammum aur Namaz ka tareeqa qadam ba qadam, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum and the prayer, step by step, following Hanafi fiqh.' })}</div>
+    <div class="aad-intro">${L({ rur:'Wuzu, Ghusl, Namaz ka tareeqa, Janaza, Taraweeh, Eid, Tahajjud, Istikhara, Sajda-e-Sahw, Qasr aur Tayammum, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum and the prayer, step by step, following Hanafi fiqh.' })}</div>
     <div class="dua-grid list" id="ibadatList">${IBADAT_GUIDES.map((g,i)=>{
       const st = duaStatus('ibadat:' + g.id);
       return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${g.color};">
