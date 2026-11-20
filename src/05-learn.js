@@ -450,6 +450,19 @@ function wireLiveSearch(inputId, clearBtnId, onChange, setVal){
     input.focus();
   };
 }
+/* A word card in the same family as the Dua / Hadees / Aadaab cards: Arabic tile, word, meaning, category */
+function shabdCardHtml(w){
+  const col = (typeof shabdColor === 'function') ? shabdColor(w) : 'var(--accent)';
+  return `<div class="aad-card status-none" data-idx="${w.i}" style="--aad-c:${col};">
+      <div class="aad-ic qw-ic" dir="rtl"><span>${w.ar}</span></div>
+      <div class="aad-info">
+        <div class="aad-title">${w.tr}</div>
+        <div class="aad-tags"><span class="aad-tag">${sMean(w)}</span></div>
+        <div class="aad-cat-lbl">${w.cat}</div>
+      </div>
+      <div class="chev">›</div>
+    </div>`;
+}
 function renderKhaasShabd(){
   document.getElementById('detailTitle').textContent = 'Khaas Shabd';
   const body = document.getElementById('detailBody');
@@ -468,10 +481,8 @@ function renderShabdHubList(){
   const q = shabdSearch.trim().toLowerCase();
   if(q){
     const results = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> (w.tr+w.m+w.cat).toLowerCase().includes(q));
-    wrap.innerHTML = results.map(w=>`<div class="shabd-row" data-idx="${w.i}">
-        <div class="ar">${w.ar}</div>
-        <div class="info"><div class="tr">${w.tr}</div><div class="m">${sMean(w)}</div></div>
-      </div>`).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
+    wrap.className = 'dua-grid list';
+    wrap.innerHTML = results.map(w=>shabdCardHtml(w)).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
     const idxList = results.map(w=>w.i);
     wrap.querySelectorAll('[data-idx]').forEach((el,i)=>{
       el.onclick = ()=>{
@@ -482,6 +493,7 @@ function renderShabdHubList(){
     });
     return;
   }
+  wrap.className = '';
   const cats = [...new Set(KHAAS_SHABD.map(w=>w.cat))];
   const allCard = `<div class="shabd-cat-card" data-cat="__all__" style="border-color:var(--accent);">
       <div class="ic">🌐</div>
@@ -512,17 +524,14 @@ function renderShabdCategory(cat){
       <input id="shabdCatSearchInput" placeholder="${isAll?'Sabhi mein dhoondhiye...':'Isi category mein dhoondhiye...'}">
       <button id="shabdCatSearchClear" class="search-clear-btn">✕</button>
     </div>
-    <div id="shabdCatList"></div>
+    <div class="dua-grid list" id="shabdCatList"></div>
   `;
   document.getElementById('shabdCatBackBtn').onclick = renderKhaasShabd;
   const renderList = ()=>{
     const wrap = document.getElementById('shabdCatList');
     const q = shabdCatSearch.trim().toLowerCase();
     const items = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> (isAll || w.cat===cat) && (w.tr+w.m).toLowerCase().includes(q));
-    wrap.innerHTML = items.map(w=>`<div class="shabd-row" data-idx="${w.i}">
-        <div class="ar">${w.ar}</div>
-        <div class="info"><div class="tr">${w.tr}</div><div class="m">${sMean(w)}</div></div>
-      </div>`).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
+    wrap.innerHTML = items.map(w=>shabdCardHtml(w)).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
     const idxList = items.map(w=>w.i);
     wrap.querySelectorAll('[data-idx]').forEach((el,i)=>{
       el.onclick = ()=>{
@@ -543,17 +552,24 @@ function renderShabdDetail(idx, backFn){
   const w = KHAAS_SHABD[idx];
   document.getElementById('detailTitle').textContent = w.cat;
   document.getElementById('detailBody').innerHTML = `
-    <div class="detail-actions between" style="margin:0 14px 14px;">
-      <button id="shabdBackBtn" class="back-pill">‹ Wapas</button>
-      <span class="act-group">${bmBtn('word:'+w.tr)}<button class="act-btn" id="shabdImgBtn" title="Share karein">${SHARE_SVG}</button></span>
+    <div style="margin:0 0 10px;"><button id="shabdBackBtn" class="back-pill">‹ Wapas</button></div>
+    <div class="detail-actions">${bmBtn('word:'+w.tr)}<button class="act-btn" id="shabdImgBtn" title="Share karein">${SHARE_SVG}</button></div>
+    ${shabdSceneHtml(w)}
+    <div class="aad-head" style="--aad-c:${(typeof shabdColor === 'function') ? shabdColor(w) : 'var(--accent)'};">
+      <div class="aad-head-ic">${SHABD_CAT_ICON[w.cat] || '📚'}</div>
+      <div class="aad-head-title">${w.tr}</div>
+      <div class="arabic qword-ar">${w.ar}</div>
+      <div class="aad-cat-pill">${SHABD_CAT_ICON[w.cat] || '📚'} ${w.cat}</div>
     </div>
-    <div class="shabd-detail">
-      <div class="ar">${w.ar}</div>
-      <div class="tr">${w.tr}</div>
-      <div class="section-label">Meaning</div>
-      <div class="m">${sMean(w)}</div>
-      <div class="section-label">Misaal (Example)</div>
-      <div class="ex">${sEx(w)}</div>
+    <div class="dua-detail">
+      <div class="aad-guide-sec qword-sec-m">
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Meaning' : 'Matlab'}</span></div>
+        <div class="meaning qword-m">${sMean(w)}</div>
+      </div>
+      ${w.ex ? `<div class="aad-guide-sec qword-sec-ex">
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Example' : 'Misaal'}</span></div>
+        <div class="meaning qword-m">${sEx(w)}</div>
+      </div>` : ''}
     </div>
     ${pnBarHtml()}
   `;

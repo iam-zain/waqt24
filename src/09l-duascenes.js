@@ -32,3 +32,7 @@ function aadaabSceneHtml(t){
   const sc = (typeof aadaabSceneSvg === 'function') ? aadaabSceneSvg(t) : '';
   return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
 }
+function shabdSceneHtml(w){
+  const sc = (typeof shabdSceneSvg === 'function') ? shabdSceneSvg(w) : '';
+  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+}

@@ -3876,6 +3876,19 @@ function wireLiveSearch(inputId, clearBtnId, onChange, setVal){
     input.focus();
   };
 }
+/* A word card in the same family as the Dua / Hadees / Aadaab cards: Arabic tile, word, meaning, category */
+function shabdCardHtml(w){
+  const col = (typeof shabdColor === 'function') ? shabdColor(w) : 'var(--accent)';
+  return `<div class="aad-card status-none" data-idx="${w.i}" style="--aad-c:${col};">
+      <div class="aad-ic qw-ic" dir="rtl"><span>${w.ar}</span></div>
+      <div class="aad-info">
+        <div class="aad-title">${w.tr}</div>
+        <div class="aad-tags"><span class="aad-tag">${sMean(w)}</span></div>
+        <div class="aad-cat-lbl">${w.cat}</div>
+      </div>
+      <div class="chev">›</div>
+    </div>`;
+}
 function renderKhaasShabd(){
   document.getElementById('detailTitle').textContent = 'Khaas Shabd';
   const body = document.getElementById('detailBody');
@@ -3894,10 +3907,8 @@ function renderShabdHubList(){
   const q = shabdSearch.trim().toLowerCase();
   if(q){
     const results = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> (w.tr+w.m+w.cat).toLowerCase().includes(q));
-    wrap.innerHTML = results.map(w=>`<div class="shabd-row" data-idx="${w.i}">
-        <div class="ar">${w.ar}</div>
-        <div class="info"><div class="tr">${w.tr}</div><div class="m">${sMean(w)}</div></div>
-      </div>`).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
+    wrap.className = 'dua-grid list';
+    wrap.innerHTML = results.map(w=>shabdCardHtml(w)).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
     const idxList = results.map(w=>w.i);
     wrap.querySelectorAll('[data-idx]').forEach((el,i)=>{
       el.onclick = ()=>{
@@ -3908,6 +3919,7 @@ function renderShabdHubList(){
     });
     return;
   }
+  wrap.className = '';
   const cats = [...new Set(KHAAS_SHABD.map(w=>w.cat))];
   const allCard = `<div class="shabd-cat-card" data-cat="__all__" style="border-color:var(--accent);">
       <div class="ic">🌐</div>
@@ -3938,17 +3950,14 @@ function renderShabdCategory(cat){
       <input id="shabdCatSearchInput" placeholder="${isAll?'Sabhi mein dhoondhiye...':'Isi category mein dhoondhiye...'}">
       <button id="shabdCatSearchClear" class="search-clear-btn">✕</button>
     </div>
-    <div id="shabdCatList"></div>
+    <div class="dua-grid list" id="shabdCatList"></div>
   `;
   document.getElementById('shabdCatBackBtn').onclick = renderKhaasShabd;
   const renderList = ()=>{
     const wrap = document.getElementById('shabdCatList');
     const q = shabdCatSearch.trim().toLowerCase();
     const items = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> (isAll || w.cat===cat) && (w.tr+w.m).toLowerCase().includes(q));
-    wrap.innerHTML = items.map(w=>`<div class="shabd-row" data-idx="${w.i}">
-        <div class="ar">${w.ar}</div>
-        <div class="info"><div class="tr">${w.tr}</div><div class="m">${sMean(w)}</div></div>
-      </div>`).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
+    wrap.innerHTML = items.map(w=>shabdCardHtml(w)).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
     const idxList = items.map(w=>w.i);
     wrap.querySelectorAll('[data-idx]').forEach((el,i)=>{
       el.onclick = ()=>{
@@ -3969,17 +3978,24 @@ function renderShabdDetail(idx, backFn){
   const w = KHAAS_SHABD[idx];
   document.getElementById('detailTitle').textContent = w.cat;
   document.getElementById('detailBody').innerHTML = `
-    <div class="detail-actions between" style="margin:0 14px 14px;">
-      <button id="shabdBackBtn" class="back-pill">‹ Wapas</button>
-      <span class="act-group">${bmBtn('word:'+w.tr)}<button class="act-btn" id="shabdImgBtn" title="Share karein">${SHARE_SVG}</button></span>
+    <div style="margin:0 0 10px;"><button id="shabdBackBtn" class="back-pill">‹ Wapas</button></div>
+    <div class="detail-actions">${bmBtn('word:'+w.tr)}<button class="act-btn" id="shabdImgBtn" title="Share karein">${SHARE_SVG}</button></div>
+    ${shabdSceneHtml(w)}
+    <div class="aad-head" style="--aad-c:${(typeof shabdColor === 'function') ? shabdColor(w) : 'var(--accent)'};">
+      <div class="aad-head-ic">${SHABD_CAT_ICON[w.cat] || '📚'}</div>
+      <div class="aad-head-title">${w.tr}</div>
+      <div class="arabic qword-ar">${w.ar}</div>
+      <div class="aad-cat-pill">${SHABD_CAT_ICON[w.cat] || '📚'} ${w.cat}</div>
     </div>
-    <div class="shabd-detail">
-      <div class="ar">${w.ar}</div>
-      <div class="tr">${w.tr}</div>
-      <div class="section-label">Meaning</div>
-      <div class="m">${sMean(w)}</div>
-      <div class="section-label">Misaal (Example)</div>
-      <div class="ex">${sEx(w)}</div>
+    <div class="dua-detail">
+      <div class="aad-guide-sec qword-sec-m">
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Meaning' : 'Matlab'}</span></div>
+        <div class="meaning qword-m">${sMean(w)}</div>
+      </div>
+      ${w.ex ? `<div class="aad-guide-sec qword-sec-ex">
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Example' : 'Misaal'}</span></div>
+        <div class="meaning qword-m">${sEx(w)}</div>
+      </div>` : ''}
     </div>
     ${pnBarHtml()}
   `;
@@ -10162,6 +10178,10 @@ function aadaabSceneHtml(t){
   const sc = (typeof aadaabSceneSvg === 'function') ? aadaabSceneSvg(t) : '';
   return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
 }
+function shabdSceneHtml(w){
+  const sc = (typeof shabdSceneSvg === 'function') ? shabdSceneSvg(w) : '';
+  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+}
 /* More original SVG scenes: one quiet motif per dua (a bowl for the meal duas, a lit window for the home dua, a gate of light for acceptance…).
    Several close duas share a motif. Minimal on purpose: two soft colours, a few shapes. Drawn for Waqt24. */
 (function(){
@@ -10265,6 +10285,14 @@ function aadaabSceneHtml(t){
     const k = AMAP[t.id] || ACAT[t.cat];
     return k ? make(k) : '';
   };
+  /* ---- Khaas Shabd: one scene per category ---- */
+  T.light = ()=> wrap('#e6f0fb','#cfe0f5', `<g fill="#fff3c4" opacity=".55"><path d="M120 0 L200 0 L240 150 L80 150z"/></g><g fill="#fff3c4" opacity=".35"><path d="M150 0 L170 0 L196 150 L124 150z"/></g>` + cloud(70, 44, 1.2, '#fff', .9) + cloud(250, 52, 1.1, '#fff', .85) + cloud(160, 126, 1.6, '#fff', .95) + stars([[52,20],[274,24],[200,96],[110,92]], ) + `<path d="M152 70 q8 -20 20 -14 q-4 10 -8 18 q-8 8 -12 -4z" fill="#fff" stroke="#d3e0ee" stroke-width="1"/>`, 'lt');
+  T.kaaba = ()=> wrap('#fdeccf','#f3cf96', sun(60, 34, 12, 'kb') + `<rect y="116" width="320" height="34" fill="#e3c48c"/><ellipse cx="160" cy="124" rx="96" ry="14" fill="none" stroke="#c9a15a" stroke-width="1.6" stroke-dasharray="2 7" stroke-linecap="round"/><path d="M128 48 L192 48 L198 112 L122 112z" fill="#2f2f38"/><path d="M128 48 L192 48 L194 60 L126 60z" fill="#c9a15a"/><rect x="146" y="74" width="28" height="38" rx="3" fill="#d9b76a" opacity=".85"/>`, 'kb');
+  const SMAP = [['Allah, Imaan','cosmos'],['Naam aur Sifaat','mercy'],['Nabi, Rasool','path'],['Wahi','book'],['Farishte','light'],['Sahaba','family'],['Ibadat aur Namaz','mat'],['Roza','iftar'],['Nekiyan','scale'],['Sadqah, Khairat','coins'],['Hajj','kaaba'],['Jannat aur Aakhirat','garden'],['Qayamat, Qabr','hourglass'],['Seerat','masjidOut'],['Battles','mountain'],['Mashhoor Log','pillars'],['Islamic Titles','lamp'],['Nabi ﷺ ke liye','dawn'],['Expressions','speech'],['Durood','dove'],['Dua aur Allah','hands'],['Jannat ke Naam','gate'],['important Islamic Terms','bookNight']];
+  const SCOL = ['#3f8fe0','#2fb6b0','#e0893f','#9b6fd6','#5c7cfa','#c79a2e','#2f9e6e','#e0709f','#c0563f','#d4a017','#8a6d3b','#3aa86a','#7a6fd6','#d9822b','#6b7f99','#a1724a','#c79a2e','#e07a5f','#4f8fd6','#5aa0b8','#9b6fd6','#4fb286','#5c7cfa'];
+  const shabdIdx = w => SMAP.findIndex(m=> String(w.cat).includes(m[0]));
+  window.shabdSceneSvg = function(w){ const i = shabdIdx(w); return i < 0 ? '' : make(SMAP[i][1]); };
+  window.shabdColor = function(w){ const i = shabdIdx(w); return SCOL[i < 0 ? 0 : i]; };
   const MAP = {"Sone ki Dua": "sleep", "Jagne ki Dua": "dawn", "Khana Shuru Karne ki Dua": "bowl", "Khane ka hisaab se bachne ki dua": "bowl2", "Khana khatam hone ki dua": "bowlDone", "Safar ki Dua": "road", "Masjid Mein Dakhil Hone ki Dua": "masjidIn", "Masjid Se Nikalne ki Dua": "masjidOut", "Pareshani Ke Waqt ki Dua": "cloudBreak", "Gham, Susti Aur Qarz Se Panah Ki Dua": "heavy", "La Hawla Wala Quwwata Illa Billah": "mountain", "Ghar Mein Dakhil Hone ki Dua": "house", "Iftar karne ki dua": "iftar", "Jannat Maangne Ki Dua": "garden", "Jahannam Se Panah Ki Dua": "refuge", "Qabooliyat Ki Dua": "hands", "Islam Par Qaim Rehne Ki Dua": "path", "Duniya Aur Aakhirat Ki Bhalai": "both", "Sabr Aur Sabit Qadmi Ki Dua": "stones", "Bhool Chook Ki Maafi": "rain", "Bhari Bojh Se Hifazat": "burden", "Taqat Se Zyada Imtihan Na Ho": "mountain", "Dil Ko Haq Par Qaim Rakh": "path", "Qiyamat Par Yaqeen Ki Dua": "hourglass", "Iman Aur Gunahon Ki Maafi": "rain", "Gawahi Mein Shamil Hone Ki Dua": "book", "Gunah Aur Hadd Se Barhi Zyadati Ki Maafi": "rain", "Kainat Ki Hikmat Aur Jahannam Se Panah": "cosmos", "Ruswai Se Panah Ki Dua": "refuge", "Pukarne Wale Ki Pukaar Par Iman": "call", "Gunahon Ki Safai Aur Nek Logon Ke Saath Maut": "garden", "Wade Ki Pooran Ki Dua, Qiyamat Ki Ruswai Se Bachao": "gate", "Gawahi Ki Dua": "book", "Rizq Ki Dua (Dastarkhwan)": "bowl", "Apne Nafs Par Zulm Ka Iqrar": "rain", "Zalim Logon Ki Sohbat Se Panah": "storm", "Haq Ke Saath Faisla": "scale", "Sabr Aur Iman Par Maut": "dawn", "Zalim Qaum Ke Fitne Se Nijaat": "storm", "Allah Se Kuch Chhupa Nahi": "lamp", "Namaz Qaim Karne Ki Dua (Hazrat Ibrahim AS)": "mat", "Maghfirat Walidain Aur Momineen Ke Liye": "family", "Rehmat Aur Hidayat Ki Dua (Ashab-e-Kahf)": "cave", "Zulm Aur Sarkashi Ka Khauf": "storm", "Maghfirat Aur Reham Ki Dua": "mercy", "Jahannam Ke Azaab Se Panah": "refuge", "Aankhon Ki Thandak, Nek Aulad Aur Imam": "sprout", "Shukr Aur Bakhshish": "palm", "Tauba Karne Walon Ki Maghfirat Aur Jahannam Se Hifazat": "rain", "Jannat Mein Walidain, Aulad Aur Biwiyon Ke Saath": "garden", "Bhai Bandon Ke Liye Maghfirat, Dil Mein Kina Na Ho": "lanterns", "Rauf Aur Raheem Rab Ki Pukaar": "mercy", "Tawakkul Aur Akhirat Ki Taraf Wapsi": "boat", "Kafiron Ke Fitne Se Hifazat (Hazrat Ibrahim AS)": "storm", "Noor Ki Takmeel Aur Maghfirat": "lamp"};
   const IST = { 2:'lanterns', 3:'mercy', 4:'path', 5:'rainBreak', 6:'bookNight', 7:'family', 8:'beads', 9:'gateNight' };
   const cache = {};
