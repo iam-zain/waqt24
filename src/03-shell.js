@@ -362,7 +362,7 @@ let duaCat='__all__', duaSearch='';
 let hadeesFilter='All', hadeesSearch='';
 /* Icon and accent colour per dua category; chips and cards share the Aadaab-e-Zindagi look */
 /* One colour per category (Quranic green is reserved for its label) */
-const DUA_CAT_META = { 'Rabbana':['🤲','#2fb6b0'], 'Roz Marra':['🛏️','#3a4d8f'], 'Khana':['🍽️','#c0563f'], 'Safar':['🧭','#3f8fe0'], 'Masjid':['🕌','#9b6fd6'], 'Pareshani':['🌧️','#e0893f'], 'Ghar':['🏠','#d6708f'], 'Ramzan':['🌙','#c79a2e'], 'Anbiya (Mushkil Waqt)':['🌟','#b5832b'], 'Jannat Aur Jahannam':['🌳','#3f9a6a'], 'Istighfar':['💧','#4a8fd0'] };
+const DUA_CAT_META = { 'Rabbana':['🤲','#2fb6b0'], 'Roz Marra':['🛏️','#3a4d8f'], 'Khana':['🍽️','#c0563f'], 'Safar':['🧭','#3f8fe0'], 'Masjid':['🕌','#9b6fd6'], 'Pareshani':['🌧️','#e0893f'], 'Ghar':['🏠','#d6708f'], 'Ramzan':['🌙','#c79a2e'], 'Anbiya (Mushkil Waqt)':['🌟','#b5832b'], 'Jannat Aur Jahannam':['🌳','#3f9a6a'], 'Istighfar':['💧','#4a8fd0'], 'Hifazat':['🛡️','#2f9e6e'] };
 function duaMeta(cat){ return DUA_CAT_META[cat] || ['🤲','#5b8def']; }
 /* Rabbana duas each get an icon for their theme (the theme is the third tag) */
 const RABBANA_THEME_ICON = { 'Qabooliyat':'🙏', 'Islam':'☪️', 'Duniya Aur Aakhirat':'🌅', 'Sabr':'🏔️', 'Tauba':'💧', 'Hifazat':'🛡️', 'Maghfirat':'🌿', 'Hidayat':'💡', 'Qiyamat':'⏳', 'Iman':'☝️', 'Nek Log':'💫', 'Jahannam':'🔥', 'Rizq':'🍞', 'Sohbat':'👥', 'Haq':'⚖️', 'Ilm-e-Ilahi':'👁️', 'Namaz':'📿', 'Walidain':'👪', 'Aulad':'👶', 'Rehmat':'💞', 'Shukr':'🌸', 'Jannat':'🌳', 'Ukhuwwat':'🤝', 'Tawakkul':'🌱', 'Noor':'✨' };

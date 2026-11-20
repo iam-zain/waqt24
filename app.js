@@ -1970,7 +1970,7 @@ let duaCat='__all__', duaSearch='';
 let hadeesFilter='All', hadeesSearch='';
 /* Icon and accent colour per dua category; chips and cards share the Aadaab-e-Zindagi look */
 /* One colour per category (Quranic green is reserved for its label) */
-const DUA_CAT_META = { 'Rabbana':['🤲','#2fb6b0'], 'Roz Marra':['🛏️','#3a4d8f'], 'Khana':['🍽️','#c0563f'], 'Safar':['🧭','#3f8fe0'], 'Masjid':['🕌','#9b6fd6'], 'Pareshani':['🌧️','#e0893f'], 'Ghar':['🏠','#d6708f'], 'Ramzan':['🌙','#c79a2e'], 'Anbiya (Mushkil Waqt)':['🌟','#b5832b'], 'Jannat Aur Jahannam':['🌳','#3f9a6a'], 'Istighfar':['💧','#4a8fd0'] };
+const DUA_CAT_META = { 'Rabbana':['🤲','#2fb6b0'], 'Roz Marra':['🛏️','#3a4d8f'], 'Khana':['🍽️','#c0563f'], 'Safar':['🧭','#3f8fe0'], 'Masjid':['🕌','#9b6fd6'], 'Pareshani':['🌧️','#e0893f'], 'Ghar':['🏠','#d6708f'], 'Ramzan':['🌙','#c79a2e'], 'Anbiya (Mushkil Waqt)':['🌟','#b5832b'], 'Jannat Aur Jahannam':['🌳','#3f9a6a'], 'Istighfar':['💧','#4a8fd0'], 'Hifazat':['🛡️','#2f9e6e'] };
 function duaMeta(cat){ return DUA_CAT_META[cat] || ['🤲','#5b8def']; }
 /* Rabbana duas each get an icon for their theme (the theme is the third tag) */
 const RABBANA_THEME_ICON = { 'Qabooliyat':'🙏', 'Islam':'☪️', 'Duniya Aur Aakhirat':'🌅', 'Sabr':'🏔️', 'Tauba':'💧', 'Hifazat':'🛡️', 'Maghfirat':'🌿', 'Hidayat':'💡', 'Qiyamat':'⏳', 'Iman':'☝️', 'Nek Log':'💫', 'Jahannam':'🔥', 'Rizq':'🍞', 'Sohbat':'👥', 'Haq':'⚖️', 'Ilm-e-Ilahi':'👁️', 'Namaz':'📿', 'Walidain':'👪', 'Aulad':'👶', 'Rehmat':'💞', 'Shukr':'🌸', 'Jannat':'🌳', 'Ukhuwwat':'🤝', 'Tawakkul':'🌱', 'Noor':'✨' };
@@ -10362,7 +10362,7 @@ function nameSceneHtml(which, w){
   T.shower = ()=> wrap('#e4f3fa','#c6e3f0', `<rect y="124" width="320" height="26" fill="#b3d6e6"/><path d="M120 22 H196 a6 6 0 0 1 6 6 v6 H114 v-6 a6 6 0 0 1 6 -6z" fill="#8fa9c0"/><path d="M158 22 V10" stroke="#8fa9c0" stroke-width="6" stroke-linecap="round"/><path d="M112 34 H204 L214 54 H102z" fill="#9fb8cc"/><g stroke="#7fc0e8" stroke-width="2" stroke-linecap="round" opacity=".9">${Array.from({length:15},(_,i)=>{ const x = 112 + (i%5)*24 + (Math.floor(i/5)%2)*8, y = 66 + Math.floor(i/5)*20; return `<line x1="${x}" y1="${y}" x2="${x-3}" y2="${y+12}"/>`; }).join('')}</g><g fill="none" stroke="#fff" stroke-width="1.4" opacity=".7"><ellipse cx="150" cy="134" rx="24" ry="5"/><ellipse cx="190" cy="138" rx="16" ry="3.6"/></g>`, 'sw');
   T.dunes = ()=> wrap('#fdeccf','#f1cf92', sun(250, 40, 14, 'dn') + `<path d="M0 104 Q70 74 140 96 T320 88 V150 H0z" fill="#e8be7c"/><path d="M0 124 Q90 100 180 120 T320 112 V150 H0z" fill="#dcab63"/><path d="M0 138 Q110 124 220 136 T320 132 V150 H0z" fill="#cf9a52"/><g fill="none" stroke="#fff" stroke-width="1.2" opacity=".35"><path d="M30 118 q14 -4 28 0"/><path d="M200 130 q14 -4 28 0"/></g>`, 'dn');
   window.sceneByKey = k => make(k);
-  const IBMAP = { wuzu:'tap', ghusl:'shower', tayammum:'dunes', 'namaz-tareeqa':'mat', 'namaz-rakaat':'dawn', janaza:'dove', taraweeh:'bookNight', eid:'lanterns', tahajjud:'cosmos', 'ishraq-chasht':'smile', haajat:'hands', istikhara:'path', sahw:'clock', qasr:'road' };
+  const IBMAP = { wuzu:'tap', ghusl:'shower', tayammum:'dunes', 'namaz-tareeqa':'mat', 'namaz-rakaat':'dawn', janaza:'dove', taraweeh:'bookNight', eid:'lanterns', tahajjud:'cosmos', 'ishraq-chasht':'smile', haajat:'hands', istikhara:'path', sahw:'clock', qasr:'road', tauba:'rain' };
   window.ibadatSceneSvg = g => IBMAP[g.id] ? make(IBMAP[g.id]) : '';
   const QMAP = { 'Ism':'book', 'Sifat':'flower', 'Zameer':'hands', 'Harf':'path', "Fail (fe'l)":'boat', 'Ism-e-mausool':'gate', 'Ism-e-ishara':'lamp', 'Sawaliya lafz':'cosmos' };
   window.qwordSceneSvg = function(w){ const k = QMAP[qwordGroup(w)]; return k ? make(k) : ''; };
@@ -10386,6 +10386,7 @@ function nameSceneHtml(which, w){
     return make(hit ? hit[1] : (which === 'asma' ? 'mercy' : 'dawn'));
   };
   const MAP = {"Sone ki Dua": "sleep", "Jagne ki Dua": "dawn", "Khana Shuru Karne ki Dua": "bowl", "Khane ka hisaab se bachne ki dua": "bowl2", "Khana khatam hone ki dua": "bowlDone", "Safar ki Dua": "road", "Masjid Mein Dakhil Hone ki Dua": "masjidIn", "Masjid Se Nikalne ki Dua": "masjidOut", "Pareshani Ke Waqt ki Dua": "cloudBreak", "Gham, Susti Aur Qarz Se Panah Ki Dua": "heavy", "La Hawla Wala Quwwata Illa Billah": "mountain", "Ghar Mein Dakhil Hone ki Dua": "house", "Iftar karne ki dua": "iftar", "Jannat Maangne Ki Dua": "garden", "Jahannam Se Panah Ki Dua": "fire", "Qabooliyat Ki Dua": "hands", "Islam Par Qaim Rehne Ki Dua": "path", "Duniya Aur Aakhirat Ki Bhalai": "both", "Sabr Aur Sabit Qadmi Ki Dua": "stones", "Bhool Chook Ki Maafi": "rain", "Bhari Bojh Se Hifazat": "burden", "Taqat Se Zyada Imtihan Na Ho": "mountain", "Dil Ko Haq Par Qaim Rakh": "path", "Qiyamat Par Yaqeen Ki Dua": "hourglass", "Iman Aur Gunahon Ki Maafi": "rain", "Gawahi Mein Shamil Hone Ki Dua": "book", "Gunah Aur Hadd Se Barhi Zyadati Ki Maafi": "rain", "Kainat Ki Hikmat Aur Jahannam Se Panah": "cosmos", "Ruswai Se Panah Ki Dua": "refuge", "Pukarne Wale Ki Pukaar Par Iman": "call", "Gunahon Ki Safai Aur Nek Logon Ke Saath Maut": "garden", "Wade Ki Pooran Ki Dua, Qiyamat Ki Ruswai Se Bachao": "gate", "Gawahi Ki Dua": "book", "Rizq Ki Dua (Dastarkhwan)": "bowl", "Apne Nafs Par Zulm Ka Iqrar": "rain", "Zalim Logon Ki Sohbat Se Panah": "storm", "Haq Ke Saath Faisla": "scale", "Sabr Aur Iman Par Maut": "dawn", "Zalim Qaum Ke Fitne Se Nijaat": "storm", "Allah Se Kuch Chhupa Nahi": "lamp", "Namaz Qaim Karne Ki Dua (Hazrat Ibrahim AS)": "mat", "Maghfirat Walidain Aur Momineen Ke Liye": "family", "Rehmat Aur Hidayat Ki Dua (Ashab-e-Kahf)": "cave", "Zulm Aur Sarkashi Ka Khauf": "storm", "Maghfirat Aur Reham Ki Dua": "mercy", "Jahannam Ke Azaab Se Panah": "fire", "Aankhon Ki Thandak, Nek Aulad Aur Imam": "sprout", "Shukr Aur Bakhshish": "palm", "Tauba Karne Walon Ki Maghfirat Aur Jahannam Se Hifazat": "rain", "Jannat Mein Walidain, Aulad Aur Biwiyon Ke Saath": "garden", "Bhai Bandon Ke Liye Maghfirat, Dil Mein Kina Na Ho": "lanterns", "Rauf Aur Raheem Rab Ki Pukaar": "mercy", "Tawakkul Aur Akhirat Ki Taraf Wapsi": "boat", "Kafiron Ke Fitne Se Hifazat (Hazrat Ibrahim AS)": "storm", "Noor Ki Takmeel Aur Maghfirat": "lamp"};
+  Object.assign(MAP, { 'Ayat-ul-Kursi':'cosmos', 'Surah Al-Ikhlas':'light', 'Surah Al-Falaq':'dawn', 'Surah An-Naas':'refuge' });
   const IST = { 2:'lanterns', 3:'mercy', 4:'path', 5:'rainBreak', 6:'bookNight', 7:'family', 8:'beads', 9:'gateNight' };
   const cache = {};
   const make = k => cache[k] || (cache[k] = (T[k] ? T[k]() : ''));
@@ -10727,6 +10728,22 @@ const IBADAT_GUIDES = [
     ],
     closing:'Safar ke masail mein halaat aur door ka hisaab alag ho sakta hai. Zaroorat ho to apne mustanad aalim se poochh lein.' },
 
+  { id:'tauba', title:'Salat-ut-Tauba', ic:'💧', color:'#4a8fd0', tags:['Nafl','Tauba','Istighfar'], sub:'Gunah ke baad Allah ki taraf lautna',
+    intro:'Jab insaan se koi gunah ho jaye to Allah ki rehmat se naumeed hone ke bajaye fauran tauba karna chahiye. Hadees mein tauba ke liye 2 rakaat nafl padhne ka tareeqa aaya hai (Sunan Abu Dawood, Tirmidhi, Abu Bakr RA se).',
+    sections:[
+      { h:'Tauba ki Shartein', ic:'📌', steps:[
+        { t:'Gunah chhod dena', d:'Jis gunah par tauba kar rahe hain use fauran chhod dein.' },
+        { t:'Dil se sharminda hona', d:'Dil mein sachchi nadamat ho ke Allah ki na-farmani hui.' },
+        { t:'Dobara na karne ka pakka irada', d:'Pakka irada karein ke ye gunah dobara nahi karenge.' },
+        { t:'Haq wapas karna', d:'Agar gunah mein kisi bande ka haq tha (maal ya izzat) to use lauta dein ya maafi maang lein.' } ] },
+      { h:'Namaz ka Tareeqa', ic:'🕌', steps:[
+        { t:'Achhi tarah wuzu', d:'Pehle achhi tarah wuzu karein.' },
+        { t:'2 rakaat nafl', d:'Makruh waqt chhod kar kisi bhi waqt 2 rakaat nafl Salat-ut-Tauba ki niyyat se padhein. Aam nafl namaz ki tarah Fatiha aur surah milayein.' },
+        { t:'Salam ke baad istighfar', d:'Salam ke baad Allah ki hamd aur durood ke baad dil se istighfar karein. Sabse behtareen istighfar ye hai.', ar:'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ لَكَ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', tr:'Allahumma anta Rabbi la ilaha illa ant, khalaqtani wa ana abduka wa ana ala ahdika wa wa-dika mastata-t, a-udhu bika min sharri ma sana-t, abu-u laka bi-ni-matika alayya wa abu-u laka bidhanbi, faghfir li fa innahu la yaghfirudh-dhunuba illa ant' },
+        { t:'Allah ka wada', d:'Hadees mein hai ke jo banda gunah kar baithe, phir achhi tarah wuzu karke 2 rakaat padhe aur Allah se maghfirat maange, to Allah use bakhsh deta hai.' } ] }
+    ],
+    closing:'Allah tauba karne walon ko pasand farmata hai. Gunah ke baad der na karein, aur Allah ki rehmat se kabhi naumeed na hon.' },
+
   { id:'tayammum', title:'Tayammum Ka Tareeqa', ic:'🏜️', color:'#d4a017', tags:['Taharat','Hanafi','Paani na ho'], sub:'Jab wuzu ya ghusl mumkin na ho',
     intro:'Jab paani na mile ya istemal se nuqsan ka khauf ho to wuzu aur ghusl ki jagah pak mitti se tayammum karna Allah ki ek aasani hai.',
     sections:[
@@ -10750,6 +10767,7 @@ const IBADAT_GUIDES = [
     ],
     closing:'Tayammum ek ruksat hai, jaise hi paani mile ya uzr khatam ho, wuzu ya ghusl kar lein.' }
 ];
+IBADAT_GUIDES.sort((a,b)=>['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw'].indexOf(a.id) - ['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw'].indexOf(b.id));
 function ibadatNavCat(){
   return { sec:{ ur:'Namaz aur Taharat', en:'Prayer and Purity' }, cats:['all'], catOf:()=>'all', all:IBADAT_GUIDES, sortFn:(a,b)=>IBADAT_GUIDES.indexOf(a)-IBADAT_GUIDES.indexOf(b) };
 }
@@ -10757,7 +10775,7 @@ function ibadatTagChips(g){ return g.tags.map(t=>`<span class="aad-tag">${t}</sp
 function renderIbadat(){
   document.getElementById('detailTitle').textContent = L({ rur:'Namaz aur Taharat', en:'Prayer and Purity' });
   document.getElementById('detailBody').innerHTML = `
-    <div class="aad-intro">${L({ rur:'Wuzu, Ghusl, Namaz ka tareeqa, Janaza, Taraweeh, Eid, Tahajjud, Istikhara, Sajda-e-Sahw, Qasr aur Tayammum, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum and the prayer, step by step, following Hanafi fiqh.' })}</div>
+    <div class="aad-intro">${L({ rur:'Wuzu, Ghusl, Tayammum, Namaz ka tareeqa, Safar, Janaza, Taraweeh, Eid, Tahajjud, Istikhara, Tauba aur Sajda-e-Sahw, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum and the prayer, step by step, following Hanafi fiqh.' })}</div>
     <div class="dua-grid list" id="ibadatList">${IBADAT_GUIDES.map((g,i)=>{
       const st = duaStatus('ibadat:' + g.id);
       return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${g.color};">

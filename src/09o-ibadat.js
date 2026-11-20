@@ -278,6 +278,22 @@ const IBADAT_GUIDES = [
     ],
     closing:'Safar ke masail mein halaat aur door ka hisaab alag ho sakta hai. Zaroorat ho to apne mustanad aalim se poochh lein.' },
 
+  { id:'tauba', title:'Salat-ut-Tauba', ic:'💧', color:'#4a8fd0', tags:['Nafl','Tauba','Istighfar'], sub:'Gunah ke baad Allah ki taraf lautna',
+    intro:'Jab insaan se koi gunah ho jaye to Allah ki rehmat se naumeed hone ke bajaye fauran tauba karna chahiye. Hadees mein tauba ke liye 2 rakaat nafl padhne ka tareeqa aaya hai (Sunan Abu Dawood, Tirmidhi, Abu Bakr RA se).',
+    sections:[
+      { h:'Tauba ki Shartein', ic:'📌', steps:[
+        { t:'Gunah chhod dena', d:'Jis gunah par tauba kar rahe hain use fauran chhod dein.' },
+        { t:'Dil se sharminda hona', d:'Dil mein sachchi nadamat ho ke Allah ki na-farmani hui.' },
+        { t:'Dobara na karne ka pakka irada', d:'Pakka irada karein ke ye gunah dobara nahi karenge.' },
+        { t:'Haq wapas karna', d:'Agar gunah mein kisi bande ka haq tha (maal ya izzat) to use lauta dein ya maafi maang lein.' } ] },
+      { h:'Namaz ka Tareeqa', ic:'🕌', steps:[
+        { t:'Achhi tarah wuzu', d:'Pehle achhi tarah wuzu karein.' },
+        { t:'2 rakaat nafl', d:'Makruh waqt chhod kar kisi bhi waqt 2 rakaat nafl Salat-ut-Tauba ki niyyat se padhein. Aam nafl namaz ki tarah Fatiha aur surah milayein.' },
+        { t:'Salam ke baad istighfar', d:'Salam ke baad Allah ki hamd aur durood ke baad dil se istighfar karein. Sabse behtareen istighfar ye hai.', ar:'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ لَكَ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', tr:'Allahumma anta Rabbi la ilaha illa ant, khalaqtani wa ana abduka wa ana ala ahdika wa wa-dika mastata-t, a-udhu bika min sharri ma sana-t, abu-u laka bi-ni-matika alayya wa abu-u laka bidhanbi, faghfir li fa innahu la yaghfirudh-dhunuba illa ant' },
+        { t:'Allah ka wada', d:'Hadees mein hai ke jo banda gunah kar baithe, phir achhi tarah wuzu karke 2 rakaat padhe aur Allah se maghfirat maange, to Allah use bakhsh deta hai.' } ] }
+    ],
+    closing:'Allah tauba karne walon ko pasand farmata hai. Gunah ke baad der na karein, aur Allah ki rehmat se kabhi naumeed na hon.' },
+
   { id:'tayammum', title:'Tayammum Ka Tareeqa', ic:'🏜️', color:'#d4a017', tags:['Taharat','Hanafi','Paani na ho'], sub:'Jab wuzu ya ghusl mumkin na ho',
     intro:'Jab paani na mile ya istemal se nuqsan ka khauf ho to wuzu aur ghusl ki jagah pak mitti se tayammum karna Allah ki ek aasani hai.',
     sections:[
@@ -301,6 +317,7 @@ const IBADAT_GUIDES = [
     ],
     closing:'Tayammum ek ruksat hai, jaise hi paani mile ya uzr khatam ho, wuzu ya ghusl kar lein.' }
 ];
+IBADAT_GUIDES.sort((a,b)=>['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw'].indexOf(a.id) - ['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw'].indexOf(b.id));
 function ibadatNavCat(){
   return { sec:{ ur:'Namaz aur Taharat', en:'Prayer and Purity' }, cats:['all'], catOf:()=>'all', all:IBADAT_GUIDES, sortFn:(a,b)=>IBADAT_GUIDES.indexOf(a)-IBADAT_GUIDES.indexOf(b) };
 }
@@ -308,7 +325,7 @@ function ibadatTagChips(g){ return g.tags.map(t=>`<span class="aad-tag">${t}</sp
 function renderIbadat(){
   document.getElementById('detailTitle').textContent = L({ rur:'Namaz aur Taharat', en:'Prayer and Purity' });
   document.getElementById('detailBody').innerHTML = `
-    <div class="aad-intro">${L({ rur:'Wuzu, Ghusl, Namaz ka tareeqa, Janaza, Taraweeh, Eid, Tahajjud, Istikhara, Sajda-e-Sahw, Qasr aur Tayammum, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum and the prayer, step by step, following Hanafi fiqh.' })}</div>
+    <div class="aad-intro">${L({ rur:'Wuzu, Ghusl, Tayammum, Namaz ka tareeqa, Safar, Janaza, Taraweeh, Eid, Tahajjud, Istikhara, Tauba aur Sajda-e-Sahw, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum and the prayer, step by step, following Hanafi fiqh.' })}</div>
     <div class="dua-grid list" id="ibadatList">${IBADAT_GUIDES.map((g,i)=>{
       const st = duaStatus('ibadat:' + g.id);
       return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${g.color};">
