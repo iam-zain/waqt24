@@ -56,7 +56,7 @@ const IBADAT_GUIDES = [
         { t:'Baayen kandhe par teen baar', d:'Phir baayen hisse par teen baar paani bahayein.' },
         { t:'Haath se malein', d:'Paani bahate hue badan ko malte jayein taake har jagah paani pahunche.' } ] },
       { h:'Ghusl Jinke Liye Sunnat Hai', ic:'🌿', steps:[
-        { t:'Jumma ke din', d:'Jumma ki namaz ke liye ghusl karna sunnat hai.' },
+        { t:'Juma ke din', d:'Juma ki namaz ke liye ghusl karna sunnat hai.' },
         { t:'Eid ke din', d:'Eid-ul-Fitr aur Eid-ul-Adha par ghusl karna sunnat hai.' },
         { t:'Arafa ke din aur Ihram se pehle', d:'Hajj ke dino mein ghusl karna mustahab hai.' } ] }
     ],
@@ -127,17 +127,17 @@ const IBADAT_GUIDES = [
     ],
     closing:'Namaz sukoon aur khushu ke saath padhein, jaldi mein nahi. Namaz ke har rukn ko poora ada karein, aur pehle sunnat tareeqa seekhne ke liye kisi aalim se ek baar amali tareeqa zaroor dekh lein.' },
 
-  { id:'namaz-rakaat', title:'Namaz Ki Rakaat', ic:'🔢', color:'#5c7cfa', tags:['Namaz','Farz','Sunnat','Nafl'], sub:'Paanchon namaz, Jumma aur Witr',
-    intro:'Har namaz mein farz ke saath sunnat aur nafl rakaat bhi hoti hain. Neeche tarteeb se likhi hain (Hanafi).',
+  { id:'namaz-rakaat', title:'Namaz Ki Rakaat', ic:'🔢', color:'#5c7cfa', tags:['Namaz','Farz','Sunnat','Nafl'], sub:'Paanchon namaz, Juma aur Witr',
+    intro:'Har namaz mein farz ke saath sunnat aur nafl rakaat bhi hoti hain. Neeche tarteeb se likhi hain (Hanafi), har namaz ke kul rakaat ke saath.',
     sections:[
       { h:'Paanch Waqt ki Namaz', ic:'🕌', steps:[
-        { t:'Fajr', d:'2 Sunnat-e-Muakkada, phir 2 Farz.' },
-        { t:'Zuhr', d:'4 Sunnat-e-Muakkada, 4 Farz, 2 Sunnat-e-Muakkada, 2 Nafl.' },
-        { t:'Asr', d:'4 Sunnat (ghair muakkada), 4 Farz.' },
-        { t:'Maghrib', d:'3 Farz, 2 Sunnat-e-Muakkada, 2 Nafl.' },
-        { t:'Isha', d:'4 Sunnat (ghair muakkada), 4 Farz, 2 Sunnat-e-Muakkada, 2 Nafl, 3 Witr (Wajib), 2 Nafl.' } ] },
-      { h:'Jumma ki Namaz', ic:'🌙', steps:[
-        { t:'Jumma', d:'4 Sunnat-e-Muakkada, khutba, 2 Farz, 4 Sunnat-e-Muakkada, 2 Sunnat-e-Muakkada, 2 Nafl.' } ] },
+        { t:'Fajr', d:'2 Sunnat-e-Muakkada, phir 2 Farz.<br><b>Kul: 4 rakaat</b>' },
+        { t:'Zuhr', d:'4 Sunnat-e-Muakkada, 4 Farz, 2 Sunnat-e-Muakkada, 2 Nafl.<br><b>Kul: 12 rakaat</b>' },
+        { t:'Asr', d:'4 Sunnat (ghair muakkada), 4 Farz.<br><b>Kul: 8 rakaat</b>' },
+        { t:'Maghrib', d:'3 Farz, 2 Sunnat-e-Muakkada, 2 Nafl.<br><b>Kul: 7 rakaat</b>' },
+        { t:'Isha', d:'4 Sunnat (ghair muakkada), 4 Farz, 2 Sunnat-e-Muakkada, 2 Nafl, 3 Witr (Wajib), 2 Nafl.<br><b>Kul: 17 rakaat</b>' } ] },
+      { h:'Juma ki Namaz', ic:'🌙', steps:[
+        { t:'Juma', d:'4 Sunnat-e-Muakkada, khutba, 2 Farz, 4 Sunnat-e-Muakkada, 2 Sunnat-e-Muakkada, 2 Nafl.<br><b>Kul: 14 (khutba ke alawa) rakaat</b>' } ] },
       { h:'Witr ki 3 Rakat (Wajib)', ic:'🌌', steps:[
         { t:'Pehli aur doosri rakat', d:'Doosri rakat ke baad qa’da mein sirf Attahiyyat padhkar teesri rakat ke liye khade ho jayein.' },
         { t:'Teesri rakat', d:'Fatiha aur surah padhkar "Allahu Akbar" kehte hue dono haath kaanon tak uthayein, phir haath baandhkar Dua-e-Qunoot padhein, phir ruku karein.' },
