@@ -2590,3 +2590,13 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .myth-opt-btn.wrong{ background:color-mix(in srgb, var(--red) 15%, var(--card)); border-color:color-mix(in srgb, var(--red) 38%, transparent); color:var(--text); }
 .myth-explain, .quiz-reveal .myth-explain-txt{ font-size:13.5px; line-height:1.7; }
 .myth-explain b, .myth-explain-txt b{ font-weight:800; color:var(--text); }
+
+/* Scenes: a soft fade-in on a new page, a little dimmer in dark mode */
+.dua-scene:not(.same) svg{ animation:sceneIn .45s ease both; }
+@keyframes sceneIn{ from{ opacity:0; transform:scale(1.03); } to{ opacity:1; transform:none; } }
+body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
+@media (prefers-reduced-motion: reduce){ .dua-scene svg{ animation:none; } }
+:root[data-theme="dark"] .dua-scene svg, :root[data-theme="dark"] .bm-thumb svg{ filter:brightness(.86) saturate(.92); }
+/* Bookmarks: a picture thumbnail on each card */
+.bm-card .bm-thumb{ flex:0 0 auto; width:56px; height:56px; border-radius:14px; overflow:hidden; }
+.bm-card .bm-thumb svg{ display:block; width:100%; height:100%; }

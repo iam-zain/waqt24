@@ -20,19 +20,26 @@ const DUA_SCENES = (function(){
   S['Istighfar'] = wrap('#16233f','#2f5a78',`<g fill="#fff" opacity=".75">${[[30,18],[78,38],[130,14],[190,30],[240,16],[296,40],[160,52]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1.3"/>`).join('')}</g><path d="M262 22a15 15 0 1 0 14 22a12 12 0 0 1 -14 -22z" fill="#fff3c4"/><path d="M0 98 Q60 80 120 94 T240 90 T320 96 V104 H0z" fill="#16304a"/><rect y="100" width="320" height="50" fill="#1c3b56"/><g fill="none" stroke="#8fc3e0" stroke-width="1.4" opacity=".7"><ellipse cx="90" cy="120" rx="24" ry="5.5"/><ellipse cx="90" cy="120" rx="13" ry="2.8"/><ellipse cx="205" cy="130" rx="28" ry="6"/><ellipse cx="205" cy="130" rx="15" ry="3.2"/><ellipse cx="272" cy="112" rx="17" ry="4"/></g><g fill="#bfe3f5" opacity=".9"><path d="M90 84 q5 9 0 13 q-5 -4 0 -13z"/><path d="M205 76 q5 9 0 13 q-5 -4 0 -13z"/><path d="M150 56 q5 9 0 13 q-5 -4 0 -13z"/><path d="M40 70 q4 8 0 11 q-4 -3 0 -11z"/></g>`,'i');
   return S;
 })();
+/* a scene fades in when you move to a new page, but not when the same page re-renders (e.g. tapping Yaad) */
+let __lastSceneKey = '';
+function sceneBox(sc){
+  const k = sc.length + ':' + sc.slice(0, 160) + sc.slice(-60);
+  const same = k === __lastSceneKey; __lastSceneKey = k;
+  return `<div class="dua-scene${same ? ' same' : ''}" aria-hidden="true">${sc}</div>`;
+}
 function duaSceneHtml(d){
   const sc = (typeof duaSceneSvg === 'function') ? duaSceneSvg(d) : (d.cat === 'Anbiya (Mushkil Waqt)' ? (d.ord && DUA_SCENES[d.ord]) : DUA_SCENES[d.cat]);
-  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+  return sc ? sceneBox(sc) : '';
 }
 function hadeesSceneHtml(h){
   const sc = (typeof hadeesSceneSvg === 'function') ? hadeesSceneSvg(h) : '';
-  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+  return sc ? sceneBox(sc) : '';
 }
 function aadaabSceneHtml(t){
   const sc = (typeof aadaabSceneSvg === 'function') ? aadaabSceneSvg(t) : '';
-  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+  return sc ? sceneBox(sc) : '';
 }
 function shabdSceneHtml(w){
   const sc = (typeof shabdSceneSvg === 'function') ? shabdSceneSvg(w) : '';
-  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+  return sc ? sceneBox(sc) : '';
 }

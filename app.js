@@ -1837,13 +1837,13 @@ document.getElementById('detailBody').addEventListener('click', (e)=>{
 }, true);
 function bmResolve(k){
   const i = k.indexOf(':'); const t = k.slice(0,i), id = k.slice(i+1);
-  if(t==='dua'){ const d = DUAS.find(x=>x.title===id); return d && { type:"Du'a", ar:'', title:d.title, sub:d.cat, open:()=>{ __navCtx=null; openDuaDetail(d); } }; }
-  if(t==='hadees'){ const h = HADEES.find(x=>x.txt.slice(0,40)===id); return h && { type:'Hadees', ar:'', title:h.txt.length>70?h.txt.slice(0,70)+'…':h.txt, sub:h.src, open:()=>{ __navCtx=null; openHadeesDetail(h); } }; }
+  if(t==='dua'){ const d = DUAS.find(x=>x.title===id); return d && { type:"Du'a", ar:'', scene:duaSceneSvg(d), title:d.title, sub:d.cat, open:()=>{ __navCtx=null; openDuaDetail(d); } }; }
+  if(t==='hadees'){ const h = HADEES.find(x=>x.txt.slice(0,40)===id); return h && { type:'Hadees', ar:'', scene:hadeesSceneSvg(h), title:h.txt.length>70?h.txt.slice(0,70)+'…':h.txt, sub:h.src, open:()=>{ __navCtx=null; openHadeesDetail(h); } }; }
   if(t==='asma'){ const x = ASMA_UL_HUSNA.findIndex(n=>n.tr===id); return x>=0 && { type:'Asma-ul-Husna', ar:ASMA_UL_HUSNA[x].ar, title:id, sub:ASMA_UL_HUSNA[x].m, open:()=>renderNameDetail('asma', x) }; }
   if(t==='prophet'){ const x = PROPHET_NAMES.findIndex(n=>n.tr===id); return x>=0 && { type:'Asma-ul-Nabi', ar:PROPHET_NAMES[x].ar, title:id, sub:PROPHET_NAMES[x].m, open:()=>renderNameDetail('prophet', x) }; }
-  if(t==='word'){ const x = KHAAS_SHABD.findIndex(n=>n.tr===id); return x>=0 && { type:'Khaas Shabd', ar:KHAAS_SHABD[x].ar, title:id, sub:KHAAS_SHABD[x].m, open:()=>{ __navCtx=null; renderShabdDetail(x, renderBookmarks); } }; }
+  if(t==='word'){ const x = KHAAS_SHABD.findIndex(n=>n.tr===id); return x>=0 && { type:'Khaas Shabd', ar:KHAAS_SHABD[x].ar, scene:shabdSceneSvg(KHAAS_SHABD[x]), title:id, sub:KHAAS_SHABD[x].m, open:()=>{ __navCtx=null; renderShabdDetail(x, renderBookmarks); } }; }
   if(t==='qword'){ const w = QURAN_WORDS.find(n=>n.tr===id); return w && { type:'Qur’ani Alfaaz', ar:w.ar, title:id, sub:w.m, open:()=>{ __navCtx=null; openQuranWordDetail(w); } }; }
-  if(t==='aadaab'){ const a = AADAAB_TOPICS.find(n=>n.id===id); return a && { type:'Aadaab-e-Zindagi', ar:'', title:a.title, sub:aadaabCatInfo(a.cat).label, open:()=>{ __navCtx=null; openAadaabDetail(a); } }; }
+  if(t==='aadaab'){ const a = AADAAB_TOPICS.find(n=>n.id===id); return a && { type:'Aadaab-e-Zindagi', ar:'', scene:aadaabSceneSvg(a), title:a.title, sub:aadaabCatInfo(a.cat).label, open:()=>{ __navCtx=null; openAadaabDetail(a); } }; }
   return null;
 }
 function renderBookmarks(){
@@ -1854,8 +1854,8 @@ function renderBookmarks(){
   body.innerHTML = notesSectionHtml() + (!items.length ? `<div class="empty-state">Abhi tak kuch pasandeeda nahi.<br>Kisi bhi dua, hadees, naam ya lafz par ☆ dabayein.</div>` : types.map(t=>`
     <div class="dw-section">
       <div class="dw-section-title"><span>${t}</span><span class="dw-count">${items.filter(x=>x.r.type===t).length}</span></div>
-      ${items.filter(x=>x.r.type===t).map(x=>{ const nn = notesForBm(x.k); return `<div class="dw-row" data-k="${x.k.replace(/"/g,'&quot;')}">
-        ${x.r.ar ? `<div class="ar">${x.r.ar}</div>` : ''}
+      ${items.filter(x=>x.r.type===t).map(x=>{ const nn = notesForBm(x.k); return `<div class="dw-row bm-card" data-k="${x.k.replace(/"/g,'&quot;')}">
+        ${x.r.scene ? `<div class="bm-thumb" aria-hidden="true">${x.r.scene}</div>` : x.r.ar ? `<div class="ar">${x.r.ar}</div>` : ''}
         <div class="info"><div class="tr">${x.r.title}</div><div class="m">${x.r.sub}</div>${nn.length ? `<div class="bm-note">📝 ${noteEsc(nn[0].text).slice(0, 90)}${nn.length > 1 ? ' (+' + (nn.length - 1) + ')' : ''}</div>` : ''}</div>
         <button type="button" class="bm-btn bm-note-btn ${nn.length ? 'on' : ''}" data-nt="${x.k.replace(/"/g,'&quot;')}" title="Note">📝</button>
         ${bmBtn(x.k, 'data-refresh="1"')}
@@ -1901,7 +1901,18 @@ async function shareCard(cfg){
   if(cfg.sub) blocks.push({ lines:wrap(cfg.sub, `italic 36px ${SANS}`), font:`italic 36px ${SANS}`, color:'#7a6d5a', lh:52, gap:22 });
   if(cfg.body) blocks.push({ lines:wrap(cfg.body, `500 42px ${SANS}`), font:`500 42px ${SANS}`, color:'#2a2117', lh:64, gap:22 });
   if(cfg.foot) blocks.push({ lines:wrap(cfg.foot, `500 30px ${SANS}`), font:`500 30px ${SANS}`, color:'#7a6d5a', lh:44, gap:10 });
-  let H = PAD*2 + 90;
+  /* the dua / hadees / word picture, when the card has one, sits on top of the card */
+  let sceneImg = null;
+  if(cfg.scene){
+    try{
+      const svg = cfg.scene.replace('<svg ', '<svg width="960" height="450" ');
+      const url = URL.createObjectURL(new Blob([svg], { type:'image/svg+xml;charset=utf-8' }));
+      sceneImg = await new Promise((res, rej)=>{ const im = new Image(); im.onload = ()=> res(im); im.onerror = rej; im.src = url; });
+      setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    }catch(e){ sceneImg = null; }
+  }
+  const SH = sceneImg ? Math.round(MAXW * 150 / 320) : 0;
+  let H = PAD*2 + 90 + (sceneImg ? SH + 46 : 0);
   blocks.forEach(b=>{ H += b.lines.length*b.lh + b.gap; });
   H = Math.max(H, 1080);
   const c = document.createElement('canvas'); c.width = W; c.height = H;
@@ -1913,6 +1924,16 @@ async function shareCard(cfg){
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   const contentH = blocks.reduce((a,b)=> a + b.lines.length*b.lh + b.gap, 0);
   let y = Math.max(PAD + 30, Math.round((H - contentH)/2) - 20);
+  if(sceneImg){
+    const sx = PAD, sy = PAD - 4, r = 30;
+    ctx.save(); ctx.beginPath();
+    ctx.moveTo(sx + r, sy); ctx.lineTo(sx + MAXW - r, sy); ctx.quadraticCurveTo(sx + MAXW, sy, sx + MAXW, sy + r);
+    ctx.lineTo(sx + MAXW, sy + SH - r); ctx.quadraticCurveTo(sx + MAXW, sy + SH, sx + MAXW - r, sy + SH);
+    ctx.lineTo(sx + r, sy + SH); ctx.quadraticCurveTo(sx, sy + SH, sx, sy + SH - r);
+    ctx.lineTo(sx, sy + r); ctx.quadraticCurveTo(sx, sy, sx + r, sy); ctx.closePath(); ctx.clip();
+    ctx.drawImage(sceneImg, sx, sy, MAXW, SH); ctx.restore();
+    y = sy + SH + 46 + Math.max(0, Math.round((H - (sy + SH + 46) - PAD - 60 - contentH) / 2));
+  }
   blocks.forEach(b=>{
     ctx.font = b.font; ctx.fillStyle = b.color; ctx.direction = b.dir || 'ltr';
     b.lines.forEach(l=>{ ctx.fillText(l, W/2, y + b.lh/2); y += b.lh; });
@@ -2145,7 +2166,7 @@ function openDuaDetail(d){
   document.getElementById('duaTasbeehBtn').onclick = ()=> malaStartWith({ n:d.title, ar:d.arabic, tr:d.translit, m:d.meaning, en:d.enm, t:d.rep || 3 }, ()=>openDuaDetail(d), dTitle(d));
   document.getElementById('duaSochBtn').onclick = ()=>{ setDuaStatus(d.title, 'soch'); openDuaDetail(d); };
   document.getElementById('duaAmalBtn').onclick = ()=>{ setDuaStatus(d.title, 'amal'); openDuaDetail(d); };
-  document.getElementById('duaImgBtn').onclick = ()=> openCardShareChooser({ kind:"Du'a", arabic:d.arabic, title:dTitle(d), sub:d.translit, body:dMean(d), foot:'Hawala: '+d.ref });
+  document.getElementById('duaImgBtn').onclick = ()=> openCardShareChooser({ scene:duaSceneSvg(d), kind:"Du'a", arabic:d.arabic, title:dTitle(d), sub:d.translit, body:dMean(d), foot:'Hawala: '+d.ref });
   wirePnBar();
 }
 
@@ -3553,7 +3574,7 @@ function openAadaabDetail(t0){
     </div>
     ${pnBarHtml()}
   `;
-  document.getElementById('aadaabImgBtn').onclick = ()=> openCardShareChooser({ kind:'Aadaab-e-Zindagi', title:t.title, sub:c.label, body:t.guide ? t.closing : t.tabdeeli, });
+  document.getElementById('aadaabImgBtn').onclick = ()=> openCardShareChooser({ scene:aadaabSceneSvg(t0), kind:'Aadaab-e-Zindagi', title:t.title, sub:c.label, body:t.guide ? t.closing : t.tabdeeli, });
   document.getElementById('aadaabSochBtn').onclick = ()=>{ setAadaabStatus(t.id, 'soch'); openAadaabDetail(t); };
   document.getElementById('aadaabAmalBtn').onclick = ()=>{ setAadaabStatus(t.id, 'amal'); openAadaabDetail(t); };
   wirePnBar();
@@ -3664,7 +3685,7 @@ function openHadeesDetail(h){
   `;
   document.getElementById('hadeesSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openHadeesDetail(h); };
   document.getElementById('hadeesAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openHadeesDetail(h); };
-  document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ kind:'Hadees', title:h.cat, body:h.txt, foot:'Hawala: '+h.src });
+  document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ scene:hadeesSceneSvg(h), kind:'Hadees', title:h.cat, body:h.txt, foot:'Hawala: '+h.src });
   wirePnBar();
 }
 /* ============================================================
@@ -4013,7 +4034,7 @@ function renderShabdDetail(idx, backFn){
   `;
   document.getElementById('shabdSochBtn').onclick = ()=>{ setDuaStatus(shabdKey, 'soch'); markLearnDay(); renderShabdDetail(idx, backFn); };
   document.getElementById('shabdAmalBtn').onclick = ()=>{ setDuaStatus(shabdKey, 'amal'); markLearnDay(); renderShabdDetail(idx, backFn); };
-  document.getElementById('shabdImgBtn').onclick = ()=> openCardShareChooser({ kind:'Khaas Shabd', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
+  document.getElementById('shabdImgBtn').onclick = ()=> openCardShareChooser({ scene:shabdSceneSvg(w), kind:'Khaas Shabd', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
   wirePnBar();
 }
 
@@ -4183,7 +4204,7 @@ function renderDailyWord(){
   `;
   const rvBtn = document.getElementById('wordReviewBtn');
   if(rvBtn) rvBtn.onclick = startWordReview;
-  document.getElementById('wordImgBtn').onclick = ()=> openCardShareChooser({ kind:'Aaj Ka Lafz', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
+  document.getElementById('wordImgBtn').onclick = ()=> openCardShareChooser({ scene:shabdSceneSvg(w), kind:'Aaj Ka Lafz', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
   document.getElementById('wordKnownBtn').onclick = ()=>{ setWordStatus(w.tr, st==='known'?null:'known'); renderDailyWord(); };
   document.getElementById('wordLearningBtn').onclick = ()=>{ setWordStatus(w.tr, st==='learning'?null:'learning'); renderDailyWord(); };
   document.getElementById('wordPrevBtn').onclick = ()=>{ dailyWordPin = null; dailyWordOffset--; renderDailyWord(); };
@@ -9453,8 +9474,8 @@ function renderDailyCatchup(){
       <div class="dcu-btns"><button type="button" id="dcuMoreHad">🔄 ${L({rur:'Doosri', en:'Another'})}</button><button type="button" id="dcuShareHad">📤 ${L({rur:'Share', en:'Share'})}</button></div></div>`;
   document.getElementById('dcuMoreDua').onclick = ()=>{ dailyShift.dua++; dailyDrawnKey = ''; renderDailyCard(); renderDailyCatchup(); };
   document.getElementById('dcuMoreHad').onclick = ()=>{ dailyShift.hadees++; dailyDrawnKey = ''; renderDailyCard(); renderDailyCatchup(); };
-  document.getElementById('dcuShareDua').onclick = ()=> openCardShareChooser({ kind:L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'}), arabic:d.arabic, title:en && d.ent ? d.ent : d.title, sub:d.translit, body:en && d.enm ? d.enm : d.meaning, foot:(d.ref || '') + ' · Waqt24' });
-  document.getElementById('dcuShareHad').onclick = ()=> openCardShareChooser({ kind:L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'}), body:en && h.en ? h.en : h.txt, foot:h.src + ' · Waqt24' });
+  document.getElementById('dcuShareDua').onclick = ()=> openCardShareChooser({ scene:duaSceneSvg(d), kind:L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'}), arabic:d.arabic, title:en && d.ent ? d.ent : d.title, sub:d.translit, body:en && d.enm ? d.enm : d.meaning, foot:(d.ref || '') + ' · Waqt24' });
+  document.getElementById('dcuShareHad').onclick = ()=> openCardShareChooser({ scene:hadeesSceneSvg(h), kind:L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'}), body:en && h.en ? h.en : h.txt, foot:h.src + ' · Waqt24' });
   const sc = document.getElementById('detailBody').scrollTop;
   [['dcuDuaSoch', dk, 'soch'], ['dcuDuaAmal', dk, 'amal'], ['dcuHadSoch', hk, 'soch'], ['dcuHadAmal', hk, 'amal']].forEach(([id, key, v])=>{ document.getElementById(id).onclick = ()=>{ setDuaStatus(key, v); renderDailyCatchup(); document.getElementById('detailBody').scrollTop = sc; }; });
   if(typeof markReadDay === 'function') markReadDay();
@@ -10180,21 +10201,28 @@ const DUA_SCENES = (function(){
   S['Istighfar'] = wrap('#16233f','#2f5a78',`<g fill="#fff" opacity=".75">${[[30,18],[78,38],[130,14],[190,30],[240,16],[296,40],[160,52]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1.3"/>`).join('')}</g><path d="M262 22a15 15 0 1 0 14 22a12 12 0 0 1 -14 -22z" fill="#fff3c4"/><path d="M0 98 Q60 80 120 94 T240 90 T320 96 V104 H0z" fill="#16304a"/><rect y="100" width="320" height="50" fill="#1c3b56"/><g fill="none" stroke="#8fc3e0" stroke-width="1.4" opacity=".7"><ellipse cx="90" cy="120" rx="24" ry="5.5"/><ellipse cx="90" cy="120" rx="13" ry="2.8"/><ellipse cx="205" cy="130" rx="28" ry="6"/><ellipse cx="205" cy="130" rx="15" ry="3.2"/><ellipse cx="272" cy="112" rx="17" ry="4"/></g><g fill="#bfe3f5" opacity=".9"><path d="M90 84 q5 9 0 13 q-5 -4 0 -13z"/><path d="M205 76 q5 9 0 13 q-5 -4 0 -13z"/><path d="M150 56 q5 9 0 13 q-5 -4 0 -13z"/><path d="M40 70 q4 8 0 11 q-4 -3 0 -11z"/></g>`,'i');
   return S;
 })();
+/* a scene fades in when you move to a new page, but not when the same page re-renders (e.g. tapping Yaad) */
+let __lastSceneKey = '';
+function sceneBox(sc){
+  const k = sc.length + ':' + sc.slice(0, 160) + sc.slice(-60);
+  const same = k === __lastSceneKey; __lastSceneKey = k;
+  return `<div class="dua-scene${same ? ' same' : ''}" aria-hidden="true">${sc}</div>`;
+}
 function duaSceneHtml(d){
   const sc = (typeof duaSceneSvg === 'function') ? duaSceneSvg(d) : (d.cat === 'Anbiya (Mushkil Waqt)' ? (d.ord && DUA_SCENES[d.ord]) : DUA_SCENES[d.cat]);
-  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+  return sc ? sceneBox(sc) : '';
 }
 function hadeesSceneHtml(h){
   const sc = (typeof hadeesSceneSvg === 'function') ? hadeesSceneSvg(h) : '';
-  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+  return sc ? sceneBox(sc) : '';
 }
 function aadaabSceneHtml(t){
   const sc = (typeof aadaabSceneSvg === 'function') ? aadaabSceneSvg(t) : '';
-  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+  return sc ? sceneBox(sc) : '';
 }
 function shabdSceneHtml(w){
   const sc = (typeof shabdSceneSvg === 'function') ? shabdSceneSvg(w) : '';
-  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+  return sc ? sceneBox(sc) : '';
 }
 /* More original SVG scenes: one quiet motif per dua (a bowl for the meal duas, a lit window for the home dua, a gate of light for acceptance…).
    Several close duas share a motif. Minimal on purpose: two soft colours, a few shapes. Drawn for Waqt24. */

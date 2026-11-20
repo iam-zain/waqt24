@@ -119,7 +119,7 @@ function openAadaabDetail(t0){
     </div>
     ${pnBarHtml()}
   `;
-  document.getElementById('aadaabImgBtn').onclick = ()=> openCardShareChooser({ kind:'Aadaab-e-Zindagi', title:t.title, sub:c.label, body:t.guide ? t.closing : t.tabdeeli, });
+  document.getElementById('aadaabImgBtn').onclick = ()=> openCardShareChooser({ scene:aadaabSceneSvg(t0), kind:'Aadaab-e-Zindagi', title:t.title, sub:c.label, body:t.guide ? t.closing : t.tabdeeli, });
   document.getElementById('aadaabSochBtn').onclick = ()=>{ setAadaabStatus(t.id, 'soch'); openAadaabDetail(t); };
   document.getElementById('aadaabAmalBtn').onclick = ()=>{ setAadaabStatus(t.id, 'amal'); openAadaabDetail(t); };
   wirePnBar();
@@ -230,7 +230,7 @@ function openHadeesDetail(h){
   `;
   document.getElementById('hadeesSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openHadeesDetail(h); };
   document.getElementById('hadeesAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openHadeesDetail(h); };
-  document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ kind:'Hadees', title:h.cat, body:h.txt, foot:'Hawala: '+h.src });
+  document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ scene:hadeesSceneSvg(h), kind:'Hadees', title:h.cat, body:h.txt, foot:'Hawala: '+h.src });
   wirePnBar();
 }
 /* ============================================================
@@ -579,7 +579,7 @@ function renderShabdDetail(idx, backFn){
   `;
   document.getElementById('shabdSochBtn').onclick = ()=>{ setDuaStatus(shabdKey, 'soch'); markLearnDay(); renderShabdDetail(idx, backFn); };
   document.getElementById('shabdAmalBtn').onclick = ()=>{ setDuaStatus(shabdKey, 'amal'); markLearnDay(); renderShabdDetail(idx, backFn); };
-  document.getElementById('shabdImgBtn').onclick = ()=> openCardShareChooser({ kind:'Khaas Shabd', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
+  document.getElementById('shabdImgBtn').onclick = ()=> openCardShareChooser({ scene:shabdSceneSvg(w), kind:'Khaas Shabd', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
   wirePnBar();
 }
 
@@ -749,7 +749,7 @@ function renderDailyWord(){
   `;
   const rvBtn = document.getElementById('wordReviewBtn');
   if(rvBtn) rvBtn.onclick = startWordReview;
-  document.getElementById('wordImgBtn').onclick = ()=> openCardShareChooser({ kind:'Aaj Ka Lafz', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
+  document.getElementById('wordImgBtn').onclick = ()=> openCardShareChooser({ scene:shabdSceneSvg(w), kind:'Aaj Ka Lafz', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
   document.getElementById('wordKnownBtn').onclick = ()=>{ setWordStatus(w.tr, st==='known'?null:'known'); renderDailyWord(); };
   document.getElementById('wordLearningBtn').onclick = ()=>{ setWordStatus(w.tr, st==='learning'?null:'learning'); renderDailyWord(); };
   document.getElementById('wordPrevBtn').onclick = ()=>{ dailyWordPin = null; dailyWordOffset--; renderDailyWord(); };

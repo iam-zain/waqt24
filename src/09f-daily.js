@@ -89,8 +89,8 @@ function renderDailyCatchup(){
       <div class="dcu-btns"><button type="button" id="dcuMoreHad">🔄 ${L({rur:'Doosri', en:'Another'})}</button><button type="button" id="dcuShareHad">📤 ${L({rur:'Share', en:'Share'})}</button></div></div>`;
   document.getElementById('dcuMoreDua').onclick = ()=>{ dailyShift.dua++; dailyDrawnKey = ''; renderDailyCard(); renderDailyCatchup(); };
   document.getElementById('dcuMoreHad').onclick = ()=>{ dailyShift.hadees++; dailyDrawnKey = ''; renderDailyCard(); renderDailyCatchup(); };
-  document.getElementById('dcuShareDua').onclick = ()=> openCardShareChooser({ kind:L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'}), arabic:d.arabic, title:en && d.ent ? d.ent : d.title, sub:d.translit, body:en && d.enm ? d.enm : d.meaning, foot:(d.ref || '') + ' · Waqt24' });
-  document.getElementById('dcuShareHad').onclick = ()=> openCardShareChooser({ kind:L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'}), body:en && h.en ? h.en : h.txt, foot:h.src + ' · Waqt24' });
+  document.getElementById('dcuShareDua').onclick = ()=> openCardShareChooser({ scene:duaSceneSvg(d), kind:L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'}), arabic:d.arabic, title:en && d.ent ? d.ent : d.title, sub:d.translit, body:en && d.enm ? d.enm : d.meaning, foot:(d.ref || '') + ' · Waqt24' });
+  document.getElementById('dcuShareHad').onclick = ()=> openCardShareChooser({ scene:hadeesSceneSvg(h), kind:L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'}), body:en && h.en ? h.en : h.txt, foot:h.src + ' · Waqt24' });
   const sc = document.getElementById('detailBody').scrollTop;
   [['dcuDuaSoch', dk, 'soch'], ['dcuDuaAmal', dk, 'amal'], ['dcuHadSoch', hk, 'soch'], ['dcuHadAmal', hk, 'amal']].forEach(([id, key, v])=>{ document.getElementById(id).onclick = ()=>{ setDuaStatus(key, v); renderDailyCatchup(); document.getElementById('detailBody').scrollTop = sc; }; });
   if(typeof markReadDay === 'function') markReadDay();
