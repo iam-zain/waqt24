@@ -208,6 +208,7 @@ function openHadeesDetail(h){
       ${bmBtn('hadees:'+h.txt.slice(0,40))}
       <button class="act-btn" id="hadeesImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
+    ${hadeesSceneHtml(h)}
     <div class="aad-head status-${st||'none'}" style="--aad-c:${hadeesMeta(h.cat)[1]};">
       <div class="aad-head-ic">${hadeesMeta(h.cat)[0]}</div>
       <div class="aad-head-title">${h.cat}</div>
