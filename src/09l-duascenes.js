@@ -21,6 +21,6 @@ const DUA_SCENES = (function(){
   return S;
 })();
 function duaSceneHtml(d){
-  const sc = d.cat === 'Anbiya (Mushkil Waqt)' ? (d.ord && DUA_SCENES[d.ord]) : DUA_SCENES[d.cat];
+  const sc = (typeof duaSceneSvg === 'function') ? duaSceneSvg(d) : (d.cat === 'Anbiya (Mushkil Waqt)' ? (d.ord && DUA_SCENES[d.ord]) : DUA_SCENES[d.cat]);
   return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
 }
