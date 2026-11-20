@@ -664,9 +664,10 @@ function renderQuranWords(){
     <div class="view-toggle">
       <button id="qwordGridBtn" class="${qwordView==='grid'?'active':''}">Grid</button>
       <button id="qwordListBtn" class="${qwordView==='list'?'active':''}">List</button>
+      <button id="qwordColBtn" class="${qwordView==='cols'?'active':''}">${L({rur:'Column', en:'Columns'})}</button>
       <button id="qwordSortBtn" class="${qwordSortMode>0?'active':''} sort-m${qwordSortMode}" title="Zyada istemal hone wale alfaaz pehle">Taadaad ke Hisaab se</button>
     </div>
-    <div class="dua-grid ${qwordView==='list'?'list':''}" id="qwordGrid"></div>
+    <div class="${qwordView==='cols' ? 'qw-cols' : 'dua-grid' + (qwordView==='list' ? ' list' : '')}" id="qwordGrid"></div>
   `;
   /* Group tabs: All, then each grammatical group with its count */
   const groupRow = body.querySelector('#qwordGroupRow');
@@ -682,8 +683,10 @@ function renderQuranWords(){
   Object.keys(QWORD_GROUP_COLOR).forEach(g=> tab(g, g, countOf(g)));
   document.getElementById('qwordSearchInput').value = qwordSearch;
   wireLiveSearch('qwordSearchInput', 'qwordSearchClear', renderQwordGrid, v=>{ qwordSearch = v; });
-  body.querySelector('#qwordGridBtn').onclick = ()=>{ qwordView='grid'; renderQuranWords(); };
-  body.querySelector('#qwordListBtn').onclick = ()=>{ qwordView='list'; renderQuranWords(); };
+  const setQV = v=>{ qwordView = v; state.qwordView = v; saveState(); renderQuranWords(); };
+  body.querySelector('#qwordGridBtn').onclick = ()=> setQV('grid');
+  body.querySelector('#qwordListBtn').onclick = ()=> setQV('list');
+  body.querySelector('#qwordColBtn').onclick = ()=> setQV('cols');
   body.querySelector('#qwordSortBtn').onclick = ()=>{ qwordSortMode=(qwordSortMode+1)%3; renderQuranWords(); };
   renderQwordGrid();
 }
@@ -696,6 +699,19 @@ function renderQwordGrid(){
     .filter(w=> (qwordGroupFilter==='__all__' || qwordGroup(w)===qwordGroupFilter) && (w.tr+' '+w.m+' '+w.cat+' '+w.ar).toLowerCase().includes(q))
     .sort(qwordSortFn());
   if(!filtered.length){ grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Koi lafz nahi mila.</div>`; return; }
+  if(qwordView === 'cols'){
+    /* Column view: Arabic | word | meaning | count, one tidy row per word, easy to scan and learn */
+    grid.innerHTML = `<div class="qwc-row qwc-head"><span>${L({rur:'Arabi', en:'Arabic'})}</span><span>${L({rur:'Lafz', en:'Word'})}</span><span>${L({rur:'Matlab', en:'Meaning'})}</span><span title="${L({rur:'Qur’an mein kitni martaba', en:'Times in the Qur’an'})}">#</span></div>`;
+    filtered.forEach((w,i)=>{
+      const st = duaStatus(qwordKey(w));
+      const r = document.createElement('div');
+      r.className = 'qwc-row'; r.style.setProperty('--aad-c', qwordColor(w));
+      r.innerHTML = `<span class="qwc-ar" dir="rtl">${w.ar}</span><span class="qwc-tr">${w.tr}${st==='amal' ? ' ✅' : st==='soch' ? ' ⏳' : ''}</span><span class="qwc-m">${wMean(w)}</span><span class="qwc-n">${w.occ}</span>`;
+      r.onclick = ()=>{ setNavCtx(filtered, i, openQuranWordDetail, qwordNavCat()); openQuranWordDetail(w); };
+      grid.appendChild(r);
+    });
+    return;
+  }
   filtered.forEach((w,i)=>{
     const c = document.createElement('div');
     const st = duaStatus(qwordKey(w));

@@ -533,7 +533,7 @@ function openDuaDetail(d){
   wirePnBar();
 }
 
-let qwordView='grid', qwordSearch='', qwordGroupFilter='__all__', qwordSortMode=0;
+let qwordView=(state.qwordView==='list'||state.qwordView==='cols')?state.qwordView:'grid', qwordSearch='', qwordGroupFilter='__all__', qwordSortMode=0;
 /* Taadaad button cycles: 0 = A to Z, 1 = most used first, 2 = least used first */
 function qwordSortFn(){
   if(qwordSortMode===1) return (a,b)=>Number(b.occ)-Number(a.occ);
