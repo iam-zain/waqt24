@@ -2107,9 +2107,8 @@ function openDuaDetail(d){
       <div class="aad-head-title">${dTitle(d)}</div>
       <div class="ref" style="margin:-4px 0 8px;">Hawala: ${d.ref}</div>
       <div class="aad-tags center">${duaTagChips(d)}</div>
-      <div class="aad-cat-pill">${duaIcon(d)} ${d.cat}</div>
+      <div class="aad-pill-row"><div class="aad-cat-pill">${duaIcon(d)} ${d.cat}</div><button type="button" class="dua-tasbeeh-btn mini" id="duaTasbeehBtn">📿 ${L({ rur:'Tasbeeh ke saath padhein', en:'Read with Tasbeeh' })}</button></div>
     </div>
-    <button type="button" class="dua-tasbeeh-btn" id="duaTasbeehBtn">📿 ${L({ rur:'Tasbeeh ke saath padhein', en:'Read with Tasbeeh' })}</button>
     <div class="dua-detail">
       <div class="aad-guide-sec dua-sec-ar">
         <div class="aad-guide-head"><span class="aad-step-lbl">Dua (Arabic)</span></div>
