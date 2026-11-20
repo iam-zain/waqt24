@@ -294,6 +294,56 @@ const IBADAT_GUIDES = [
     ],
     closing:'Allah tauba karne walon ko pasand farmata hai. Gunah ke baad der na karein, aur Allah ki rehmat se kabhi naumeed na hon.' },
 
+  { id:'zabah', title:'Zabah Ka Tareeqa', ic:'🐑', color:'#8a6d3b', tags:['Zabah','Halal','Hanafi'], sub:'Janwar ko sahi tareeqe se halal karna',
+    intro:'Islam mein janwar ko zabah karna ek ibadat jaisa amal hai, jisme Allah ka naam lena aur janwar par raham karna zaroori hai. Nabi ﷺ ne farmaya: Allah ne har cheez mein ehsan (achhai) farz ki hai, to zabah karo to achhe tareeqe se karo, chhuri tez karo aur janwar ko aaram do (Sahih Muslim).',
+    sections:[
+      { h:'Zabah ki Shartein', ic:'📌', steps:[
+        { t:'Zabah karne wala', d:'Muslim (ya Ahl-e-Kitab), aqal wala ho. Bachcha jo samajhdar ho wo bhi kar sakta hai.' },
+        { t:'Allah ka naam', d:'Zabah ke waqt "Bismillahi Allahu Akbar" kehna zaroori hai. Jaan-boojh kar chhodne se janwar halal nahi hota. Bhool kar chhoot jaye to Hanafi mein halal hai.' },
+        { t:'Janwar halal ho', d:'Sirf halal janwar ka zabah jaiz hai. Murda ya Allah ke siwa kisi aur ke naam par zabah kiya hua janwar haram hai.' },
+        { t:'Tez chhuri', d:'Chhuri bohat tez ho taake janwar ko kam se kam takleef ho.' } ] },
+      { h:'Zabah ka Tareeqa', ic:'🔪', steps:[
+        { t:'Janwar ko aaram dein', d:'Zabah se pehle janwar ko pani pilayein. Chhuri janwar ke samne tez na karein, aur ek janwar ke samne doosre ko zabah na karein.' },
+        { t:'Qibla rukh litana', d:'Janwar ko baayen karwat par is tarah litayein ke uska munh qibla ki taraf ho. Ye mustahab hai.' },
+        { t:'Bismillah', d:'Chhuri chalane se pehle ye kehein.', ar:'بِسْمِ اللَّهِ وَاللَّهُ أَكْبَرُ', tr:'Bismillahi Allahu Akbar' },
+        { t:'Rag kaatna', d:'Gale par, jabde ke neeche, tezi se chhuri chalayein. Chaar ragon (saans ki naali, khane ki naali aur 2 moti ragein) mein se kam az kam 3 kat jani chahiye. Chhuri ek hi baar mein kheinch kar kaatein, baar-baar chhuri na uthayein.' },
+        { t:'Jaan nikalne tak ruk jayein', d:'Jab tak janwar poori tarah thanda na ho jaye, khaal na utarein aur gardan na todein.' } ] },
+      { h:'Zaroori Adab', ic:'🌿', steps:[
+        { t:'Raham', d:'Janwar ko takleef na dein. Use ghaseet kar na le jayein aur zabah ke qareeb tak pyaasa na rakhein.' },
+        { t:'Khoon ka khayal', d:'Behta hua khoon saaf karein, safai ka khayal rakhein.' },
+        { t:'Zabah ki dua', d:'Zabah ke waqt aur baad ki dua Dua list mein Zabah aur Qurbani ke tahat bhi maujood hai.' } ] }
+    ],
+    closing:'Zabah mein sab se zaroori cheez Allah ka naam aur janwar par raham hai. Bade janwar ka zabah karna seekhne ke liye kisi tajurbakar se pehle amali tareeqa dekh lein.' },
+
+  { id:'qurbani', title:'Qurbani Ke Masail', ic:'🕋', color:'#b5832b', tags:['Qurbani','Wajib','Hanafi'], sub:'Kis par wajib, kab, kaun sa janwar, aur dua',
+    intro:'Qurbani Hazrat Ibrahim (AS) ki sunnat hai, jo Eid-ul-Adha ke dinon mein ki jati hai. Qur’an mein hai ke Allah tak na unka gosht pahunchta hai na khoon, balke tumhara taqwa pahunchta hai (Surah Al-Hajj 22:37).',
+    sections:[
+      { h:'Qurbani Kis Par Wajib Hai', ic:'📌', steps:[
+        { t:'Hanafi mein wajib', d:'Har aqal wale, baaligh, muqeem (jo musafir na ho) Musalman par jiske paas nisab ke barabar maal ho (sadqa-e-fitr wala nisab, yaani saadhe 52 tola chandi ke barabar maal ya uski qeemat).' },
+        { t:'Saal guzarna zaroori nahi', d:'Zakat ke mukable mein yahan maal par poora saal guzarna shart nahi, Eid ke dinon mein nisab ka malik hona kaafi hai.' },
+        { t:'Apne aur doosron ki taraf se', d:'Wajib sirf apni taraf se hai. Biwi, bachchon ya walidain ki taraf se karna chahein to wo nafl hai.' } ] },
+      { h:'Waqt', ic:'⏰', steps:[
+        { t:'Qurbani ke 3 din', d:'10, 11 aur 12 Zil-Hijja. Pehla din sabse afzal hai.' },
+        { t:'Shehar mein', d:'Eid ki namaz ke baad. Namaz se pehle qurbani sahi nahi hoti.' },
+        { t:'Gaon mein jahan Eid ki namaz wajib nahi', d:'Subah sadiq ke baad se.' } ] },
+      { h:'Qurbani ke Janwar', ic:'🐑', steps:[
+        { t:'Bakri, bhed, dumba', d:'Kam az kam 1 saal ka. Dumba ya bhed agar itna mota ho ke saal bhar ka lage aur 6 mahine ka ho to bhi jaiz hai. Ismein 1 hissa hai.' },
+        { t:'Gaay, bhains', d:'Kam az kam 2 saal ki. Ismein 7 hisse tak ho sakte hain.' },
+        { t:'Oont', d:'Kam az kam 5 saal ka. Ismein bhi 7 hisse tak.' },
+        { t:'Ayb (nuqs) se paak', d:'Janwar andha, bohat langda, bohat bimar, kata hua kaan ya poori dum kata hua, ya bohat dubla na ho.' } ] },
+      { h:'Qurbani ka Tareeqa', ic:'🕋', steps:[
+        { t:'Pehle se tayyari', d:'Janwar ko achhi tarah khilayein-pilayein. Chhuri pehle se tez karke rakhein aur janwar ko dikhayen nahi.' },
+        { t:'Qibla rukh litana', d:'Janwar ko baayen karwat par qibla rukh litayein. Apna rukh bhi qibla ki taraf rakhein.' },
+        { t:'Dua padhein', d:'Zabah se pehle ye dua padhein (Sunan Abu Dawood).', ar:'إِنِّي وَجَّهْتُ وَجْهِيَ لِلَّذِي فَطَرَ السَّمَاوَاتِ وَالْأَرْضَ حَنِيفًا وَمَا أَنَا مِنَ الْمُشْرِكِينَ، إِنَّ صَلَاتِي وَنُسُكِي وَمَحْيَايَ وَمَمَاتِي لِلَّهِ رَبِّ الْعَالَمِينَ، لَا شَرِيكَ لَهُ وَبِذَلِكَ أُمِرْتُ وَأَنَا مِنَ الْمُسْلِمِينَ', tr:'Inni wajjahtu wajhiya lilladhi fataras-samawati wal-arda hanifan wa ma ana minal-mushrikeen. Inna salati wa nusuki wa mahyaya wa mamati lillahi Rabbil-aalameen, la shareeka lah, wa bidhalika umirtu wa ana minal-muslimeen' },
+        { t:'Bismillah', d:'Phir ye kehkar zabah karein.', ar:'بِسْمِ اللَّهِ اللَّهُ أَكْبَرُ، اللَّهُمَّ مِنْكَ وَلَكَ', tr:'Bismillahi Allahu Akbar, Allahumma minka wa laka' },
+        { t:'Zabah ke baad', d:'Ye dua padhein (Sahih Muslim, Nabi ﷺ se). Apni taraf se karein to "Muhammadin" ki jagah apna naam bhi le sakte hain.', ar:'اللَّهُمَّ تَقَبَّلْ مِنْ مُحَمَّدٍ وَآلِ مُحَمَّدٍ وَمِنْ أُمَّةِ مُحَمَّدٍ', tr:'Allahumma taqabbal min Muhammadin wa aali Muhammadin wa min ummati Muhammad' } ] },
+      { h:'Gosht aur Khaal', ic:'🍲', steps:[
+        { t:'Gosht ke 3 hisse', d:'Mustahab hai ke 3 hisse karein: ek apne ghar ke liye, ek rishtedaron aur doston ke liye, aur ek ghareebon ke liye.' },
+        { t:'Khaal', d:'Khaal sadqa kar dein ya kisi dini idare ko de dein. Qasai ya zabah karne wale ki mazdoori gosht ya khaal se na dein.' },
+        { t:'Mustahab: baal aur nakhun', d:'Zil-Hijja ka chaand dikhne ke baad qurbani karne tak baal aur nakhun na kaatna mustahab hai (Sahih Muslim).' } ] }
+    ],
+    closing:'Qurbani ka maqsad Allah ki raza aur taqwa hai, dikhawe ya gosht khane ka nahi. Maal aur janwar ki sharton mein shak ho to apne aalim se zaroor poochhein.' },
+
   { id:'tayammum', title:'Tayammum Ka Tareeqa', ic:'🏜️', color:'#d4a017', tags:['Taharat','Hanafi','Paani na ho'], sub:'Jab wuzu ya ghusl mumkin na ho',
     intro:'Jab paani na mile ya istemal se nuqsan ka khauf ho to wuzu aur ghusl ki jagah pak mitti se tayammum karna Allah ki ek aasani hai.',
     sections:[
@@ -317,7 +367,7 @@ const IBADAT_GUIDES = [
     ],
     closing:'Tayammum ek ruksat hai, jaise hi paani mile ya uzr khatam ho, wuzu ya ghusl kar lein.' }
 ];
-IBADAT_GUIDES.sort((a,b)=>['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw'].indexOf(a.id) - ['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw'].indexOf(b.id));
+IBADAT_GUIDES.sort((a,b)=>['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw','zabah','qurbani'].indexOf(a.id) - ['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw','zabah','qurbani'].indexOf(b.id));
 function ibadatNavCat(){
   return { sec:{ ur:'Namaz aur Taharat', en:'Prayer and Purity' }, cats:['all'], catOf:()=>'all', all:IBADAT_GUIDES, sortFn:(a,b)=>IBADAT_GUIDES.indexOf(a)-IBADAT_GUIDES.indexOf(b) };
 }
@@ -325,7 +375,7 @@ function ibadatTagChips(g){ return g.tags.map(t=>`<span class="aad-tag">${t}</sp
 function renderIbadat(){
   document.getElementById('detailTitle').textContent = L({ rur:'Namaz aur Taharat', en:'Prayer and Purity' });
   document.getElementById('detailBody').innerHTML = `
-    <div class="aad-intro">${L({ rur:'Wuzu, Ghusl, Tayammum, Namaz ka tareeqa, Safar, Janaza, Taraweeh, Eid, Tahajjud, Istikhara, Tauba aur Sajda-e-Sahw, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum and the prayer, step by step, following Hanafi fiqh.' })}</div>
+    <div class="aad-intro">${L({ rur:'Wuzu, Ghusl, Tayammum, Namaz ka tareeqa, Safar, Janaza, Taraweeh, Eid, Tahajjud, Istikhara, Tauba, Sajda-e-Sahw, Zabah aur Qurbani, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum and the prayer, step by step, following Hanafi fiqh.' })}</div>
     <div class="dua-grid list" id="ibadatList">${IBADAT_GUIDES.map((g,i)=>{
       const st = duaStatus('ibadat:' + g.id);
       return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${g.color};">
