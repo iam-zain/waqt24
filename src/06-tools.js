@@ -1091,11 +1091,7 @@ function renderMonthDetail(i){
     ${c.points.map(t=>`<div class="minfo-card">${t}</div>`).join('')}
     ${c.events && c.events.length ? `<div class="section-title">${L({rur:'Ahem Waqiat',en:'Notable Events'})}</div>${c.events.map(t=>`<div class="minfo-card ev">${t}</div>`).join('')}` : ''}
     <div class="backup-note">${L({rur:"Maloomat Qur’an, Sahih Ahadees aur mash'hoor tareekhi riwayat se hain. Jahan ulama ya muarrikhin mein ikhtilaf hai wahan wazahat ki gayi hai.", en:"Information is drawn from the Qur’an, authentic hadith and well-known historical accounts. Where scholars or historians differ, this is noted."})}</div>
-    <div class="pn-bar">
-      <button class="pn-btn" id="pnPrevBtn" ${i<=0?'disabled':''}>‹ ${L({rur:'Pichla',en:'Previous'})}</button>
-      <span class="pn-pos">${i+1} / 12</span>
-      <button class="pn-btn" id="pnNextBtn" ${i>=11?'disabled':''}>${L({rur:'Agla',en:'Next'})} ›</button>
-    </div>
+    ${pnBarCustom({ prevId:'pnPrevBtn', nextId:'pnNextBtn', pos:`${i+1} / 12`, prevOff:i<=0, nextOff:i>=11 })}
   `;
   document.getElementById('pnPrevBtn').onclick = ()=> i>0 && renderMonthDetail(i-1);
   document.getElementById('pnNextBtn').onclick = ()=> i<11 && renderMonthDetail(i+1);

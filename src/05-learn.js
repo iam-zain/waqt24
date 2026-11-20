@@ -725,10 +725,7 @@ function renderDailyWord(){
         <button id="wordKnownBtn" class="${st==='known'?'active-known':''}">✅ Yaad ho gaya</button>
         <button id="wordLearningBtn" class="${st==='learning'?'active-learning':''}">📖 Yaad karna baaki hai</button>
       </div>
-      <div class="daily-word-nav">
-        <button id="wordPrevBtn">‹ Pichla</button>
-        <button id="wordNextBtn">Agla ›</button>
-      </div>
+      ${pnBarCustom({ prevId:'wordPrevBtn', nextId:'wordNextBtn', pos:`${idx+1} / ${KHAAS_SHABD.length}` })}
       ${learning.length ? `<button id="wordReviewBtn" class="review-start-btn">🔁 Baaki Lafz ka Quiz (${learning.length})</button>` : ''}
       ${section('known', '✅ Yaad ho gaya', known, 'Abhi tak koi lafz "Yaad ho gaya" mark nahi hua.')}
       ${section('learning', '📖 Yaad karna baaki hai', learning, 'Abhi tak koi lafz "Yaad karna baaki hai" mark nahi hua.')}

@@ -38,6 +38,14 @@ function openNextCategory(){
   setNavCtx(items, 0, openFn, c);
   openFn(items[0]);
 }
+/* The same Pichla / position / Agla bar for screens that manage their own list (Aaj ka Lafz, Islamic months…) */
+function pnBarCustom(o){
+  return `<div class="pn-bar">
+    <button class="pn-btn pn-prev" id="${o.prevId}" ${o.prevOff?'disabled':''}><span class="pn-ic">⬅️</span>${isEn() ? 'Previous' : 'Pichla'}</button>
+    <span class="pn-pos">${o.pos}</span>
+    <button class="pn-btn pn-next" id="${o.nextId}" ${o.nextOff?'disabled':''}>${isEn() ? 'Next' : 'Agla'}<span class="pn-ic">➡️</span></button>
+  </div>`;
+}
 function pnBarHtml(){
   if(!__navCtx) return '';
   const { list, idx, cat } = __navCtx;
