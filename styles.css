@@ -2579,3 +2579,14 @@ body.bg-paused .time-row.current::after{ animation-play-state:paused; }
 .qwc-h i{ font-style:normal; font-size:9px; opacity:.45; }
 .qwc-h.on{ color:var(--accentInk, var(--accent)); }
 .qwc-h.on i{ opacity:1; }
+
+/* Ghalat Fehmi Ka Izala: small icon beside the question, soft green / red answers, a more readable explanation */
+.myth-qrow{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.myth-qrow .q, .myth-qrow .quiz-q{ margin:0; flex:1; min-width:0; }
+.myth-qrow.quiz{ margin:4px 0 14px; }
+.myth-ic{ flex:0 0 auto; width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; color:var(--c, var(--accent)); background:color-mix(in srgb, var(--c, var(--accent)) 13%, transparent); }
+.myth-ic svg{ width:25px; height:25px; }
+.myth-opt-btn.correct{ background:color-mix(in srgb, var(--green) 20%, var(--card)); border-color:color-mix(in srgb, var(--green) 55%, transparent); color:var(--text); }
+.myth-opt-btn.wrong{ background:color-mix(in srgb, var(--red) 15%, var(--card)); border-color:color-mix(in srgb, var(--red) 38%, transparent); color:var(--text); }
+.myth-explain, .quiz-reveal .myth-explain-txt{ font-size:13.5px; line-height:1.7; }
+.myth-explain b, .myth-explain-txt b{ font-weight:800; color:var(--text); }

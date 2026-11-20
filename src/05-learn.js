@@ -814,7 +814,7 @@ function renderMythQuizQuestion(){
   const body = document.getElementById('detailBody');
   body.innerHTML = `
     <div class="quiz-progress"><div class="quiz-progress-fill" style="width:${(qs.idx/qs.questions.length)*100}%"></div></div>
-    <div class="quiz-q">${mL(m).q}</div>
+    <div class="myth-qrow quiz">${mythIconHtml(m)}<div class="quiz-q">${mL(m).q}</div></div>
     <div class="quiz-opts" id="mythQuizOpts">
       <button class="quiz-opt" data-i="0"><b class="opt-letter">A</b> ${mL(m).optA}</button>
       <button class="quiz-opt" data-i="1"><b class="opt-letter">B</b> ${mL(m).optB}</button>
@@ -834,7 +834,7 @@ function renderMythQuizQuestion(){
       });
       if(chosen===m.correctIdx) qs.score++;
       else qs.wrong.push({ q:m.q, chosenText:(chosen===0?'A. '+mL(m).optA:'B. '+mL(m).optB), correctText:(m.correctIdx===0?'A. '+mL(m).optA:'B. '+mL(m).optB), explain:mL(m).explain });
-      document.getElementById('mythQuizRevealWrap').innerHTML = `<div class="quiz-reveal"><b>✅ Sahi Jawab: Option ${m.correctIdx===0?'A':'B'}</b><div style="margin-top:6px;">${m.explain}</div></div>`;
+      document.getElementById('mythQuizRevealWrap').innerHTML = `<div class="quiz-reveal"><b>✅ Sahi Jawab: Option ${m.correctIdx===0?'A':'B'}</b><div class="myth-explain-txt" style="margin-top:6px;">${mythExplainHtml(mL(m).explain)}</div></div>`;
       const isLast = qs.idx===qs.questions.length-1;
       document.getElementById('mythQuizNextWrap').innerHTML = `<button id="mythQuizNextBtn" style="padding:12px 28px; border-radius:12px; border:none; background:var(--accent); color:var(--fardText); font-size:14px; font-weight:700; cursor:pointer;">${isLast?'Result Dekhiye':'Agla Sawal'}</button>`;
       document.getElementById('mythQuizNextBtn').onclick = ()=>{
@@ -874,13 +874,13 @@ function renderMythReadList(){
       const items = MYTH_BUSTERS.map((m,i)=>({...m,i})).filter(m=>m.level===level);
       return `<div class="myth-level-title">${isEn() && (MYTH_BUSTERS.find(x=>x.level===level)||{}).enLevel || level}</div>` + items.map(m=>{
         return `<div class="myth-card">
-          <div class="q">${m.i+1}. ${mL(m).q}</div>
+          <div class="myth-qrow">${mythIconHtml(MYTH_BUSTERS[m.i])}<div class="q">${m.i+1}. ${mL(m).q}</div></div>
           <div class="myth-opt-row">
-            <div class="myth-opt-btn ${m.correctIdx===0?'correct':''}"><b class="opt-letter">A</b> ${mL(m).optA}</div>
-            <div class="myth-opt-btn ${m.correctIdx===1?'correct':''}"><b class="opt-letter">B</b> ${mL(m).optB}</div>
+            <div class="myth-opt-btn ${m.correctIdx===0?'correct':'wrong'}"><b class="opt-letter">A</b> ${mL(m).optA}</div>
+            <div class="myth-opt-btn ${m.correctIdx===1?'correct':'wrong'}"><b class="opt-letter">B</b> ${mL(m).optB}</div>
           </div>
           <div class="myth-answer">✅ Sahi Jawab: Option ${m.correctIdx===0?'A':'B'}</div>
-          <div class="myth-explain" style="display:block;">${mL(m).explain}</div>
+          <div class="myth-explain" style="display:block;">${mythExplainHtml(mL(m).explain)}</div>
         </div>`;
       }).join('');
     }).join('');
