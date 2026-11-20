@@ -243,9 +243,8 @@ function renderStats(){
 
     ${(()=>{
       const total = KHAAS_SHABD.length;
-      const ws = state.wordStatus || {};
-      const yaad = KHAAS_SHABD.filter(w=>ws[w.tr]==='known').length;
-      const baki = KHAAS_SHABD.filter(w=>ws[w.tr]==='learning').length;
+      const yaad = KHAAS_SHABD.filter(w=>wordStatus(w.tr)==='known').length;
+      const baki = KHAAS_SHABD.filter(w=>wordStatus(w.tr)==='learning').length;
       const w = Math.round(yaad/total*100);
       return `<div class="ramzan-card" style="margin:0 0 14px;">
         <div class="cal-detail-row-title" style="font-size:12.5px; color:var(--sub); margin-bottom:10px;">📚 Lafz ka Jaiza (Khaas Shabd)</div>
@@ -292,8 +291,7 @@ function renderStats(){
     const right = logs.reduce((a,x)=>a+x.score,0);
     const acc = asked>0 ? Math.round(right/asked*100) : 0;
     const total = KHAAS_SHABD.length;
-    const ws = state.wordStatus || {};
-    const yaad = KHAAS_SHABD.filter(w=>ws[w.tr]==='known').length;
+    const yaad = KHAAS_SHABD.filter(w=>wordStatus(w.tr)==='known').length;
     const ns = computeStreak();
     const lines = [
       `Farz Namaz waqt par: ${pct}% (${totalGreen}/${totalPossible})`,

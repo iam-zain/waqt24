@@ -522,7 +522,7 @@ body{
 .qword-sec-m{ --sc:#5b8def; } .qword-sec-st{ --sc:#e0893f; } .qword-sec-ex{ --sc:#9b6fd6; }
 .qword-sec-m .aad-step-lbl{ color:#5b8def; } .qword-sec-st .aad-step-lbl{ color:#e0893f; } .qword-sec-ex .aad-step-lbl{ color:#9b6fd6; }
 .qword-m{ color:#5b8def; } .qword-exm{ color:#9b6fd6; }
-.hadees-sec{ --sc:#c79a2e; } .hadees-sec .aad-step-lbl{ color:#c79a2e; } .hadees-txt{ font-size:15px; line-height:1.7; }
+.hadees-sec{ --sc:#c79a2e; } .hadees-sec .aad-step-lbl{ color:#c79a2e; } .hadees-txt{ font-size:17px; line-height:1.85; }
 .dua-detail .dua-sec-info .aad-step-lbl{ color:#9b6fd6; } .dua-detail .dua-info{ font-size:14px; line-height:1.65; color:var(--text); }
 .dua-detail .dua-sec-ar .aad-step-lbl{ color:#e0a33a; } .dua-detail .dua-sec-tr .aad-step-lbl{ color:#5b8def; } .dua-detail .dua-sec-ur .aad-step-lbl{ color:#e0709f; }
 .dua-detail .aad-step-lbl{ font-size:12.5px; font-weight:800; }

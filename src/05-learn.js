@@ -453,13 +453,15 @@ function wireLiveSearch(inputId, clearBtnId, onChange, setVal){
 /* A word card in the same family as the Dua / Hadees / Aadaab cards: Arabic tile, word, meaning, category */
 function shabdCardHtml(w){
   const col = (typeof shabdColor === 'function') ? shabdColor(w) : 'var(--accent)';
-  return `<div class="aad-card status-none" data-idx="${w.i}" style="--aad-c:${col};">
+  const st = duaStatus('word:' + w.tr);
+  return `<div class="aad-card status-${st||'none'}" data-idx="${w.i}" style="--aad-c:${col};">
       <div class="aad-ic qw-ic" dir="rtl"><span>${w.ar}</span></div>
       <div class="aad-info">
         <div class="aad-title">${w.tr}</div>
         <div class="aad-tags"><span class="aad-tag">${sMean(w)}</span></div>
         <div class="aad-cat-lbl">${w.cat}</div>
       </div>
+      ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
       <div class="chev">›</div>
     </div>`;
 }
@@ -519,14 +521,12 @@ function renderShabdCategory(cat){
   shabdCatSearch = '';
   const body = document.getElementById('detailBody');
   body.innerHTML = `
-    <button id="shabdCatBackBtn" style="margin:0 14px 14px; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer;">‹ Khaas Shabd</button>
     <div class="search-bar-wrap">
       <input id="shabdCatSearchInput" placeholder="${isAll?'Sabhi mein dhoondhiye...':'Isi category mein dhoondhiye...'}">
       <button id="shabdCatSearchClear" class="search-clear-btn">✕</button>
     </div>
     <div class="dua-grid list" id="shabdCatList"></div>
   `;
-  document.getElementById('shabdCatBackBtn').onclick = renderKhaasShabd;
   const renderList = ()=>{
     const wrap = document.getElementById('shabdCatList');
     const q = shabdCatSearch.trim().toLowerCase();
@@ -550,12 +550,12 @@ function renderShabdCategory(cat){
 function renderShabdDetail(idx, backFn){
   markDayFlag('shabdDays');
   const w = KHAAS_SHABD[idx];
+  const shabdKey = 'word:' + w.tr, shabdSt = duaStatus(shabdKey);
   document.getElementById('detailTitle').textContent = w.cat;
   document.getElementById('detailBody').innerHTML = `
-    <div style="margin:0 0 10px;"><button id="shabdBackBtn" class="back-pill">‹ Wapas</button></div>
     <div class="detail-actions">${bmBtn('word:'+w.tr)}<button class="act-btn" id="shabdImgBtn" title="Share karein">${SHARE_SVG}</button></div>
     ${shabdSceneHtml(w)}
-    <div class="aad-head" style="--aad-c:${(typeof shabdColor === 'function') ? shabdColor(w) : 'var(--accent)'};">
+    <div class="aad-head status-${shabdSt||'none'}" style="--aad-c:${(typeof shabdColor === 'function') ? shabdColor(w) : 'var(--accent)'};">
       <div class="aad-head-ic">${SHABD_CAT_ICON[w.cat] || '📚'}</div>
       <div class="aad-head-title">${w.tr}</div>
       <div class="arabic qword-ar">${w.ar}</div>
@@ -571,9 +571,14 @@ function renderShabdDetail(idx, backFn){
         <div class="meaning qword-m">${sEx(w)}</div>
       </div>` : ''}
     </div>
+    <div class="aad-status-row">
+      <button class="aad-status-btn soch ${shabdSt==='soch'?'on':''}" id="shabdSochBtn">⏳ Yaad karna baaki hai</button>
+      <button class="aad-status-btn amal ${shabdSt==='amal'?'on':''}" id="shabdAmalBtn">✅ Yaad ho chuka hai</button>
+    </div>
     ${pnBarHtml()}
   `;
-  document.getElementById('shabdBackBtn').onclick = backFn || renderKhaasShabd;
+  document.getElementById('shabdSochBtn').onclick = ()=>{ setDuaStatus(shabdKey, 'soch'); markLearnDay(); renderShabdDetail(idx, backFn); };
+  document.getElementById('shabdAmalBtn').onclick = ()=>{ setDuaStatus(shabdKey, 'amal'); markLearnDay(); renderShabdDetail(idx, backFn); };
   document.getElementById('shabdImgBtn').onclick = ()=> openCardShareChooser({ kind:'Khaas Shabd', arabic:w.ar, title:w.tr, body:w.m, foot:w.ex });
   wirePnBar();
 }
@@ -605,9 +610,19 @@ function dailyWordIndex(offset){
   const pick = seededOrder(idxs.length, catIdx*1000 + 7);
   return idxs[pick[((cycle % idxs.length) + idxs.length) % idxs.length]];
 }
+/* Khaas Shabd now shares one "Yaad" store (state.duaStatus) with Dua, Hadees, Aadaab and Alfaaz: known = amal, learning = soch */
 function wordStatus(tr){
-  return (state.wordStatus && state.wordStatus[tr]) || null;
+  const v = duaStatus('word:' + tr);
+  return v === 'amal' ? 'known' : v === 'soch' ? 'learning' : null;
 }
+(function migrateWordStatus(){
+  try{
+    const old = state.wordStatus; if(!old || state.wordStatusV2) return;
+    if(!state.duaStatus) state.duaStatus = {};
+    Object.keys(old).forEach(tr=>{ const k = 'word:' + tr; if(!state.duaStatus[k] && (old[tr]==='known' || old[tr]==='learning')) state.duaStatus[k] = old[tr]==='known' ? 'amal' : 'soch'; });
+    state.wordStatusV2 = true; saveState();
+  }catch(e){}
+})();
 function markLearnDay(){
   if(!state.learnDays) state.learnDays = {};
   state.learnDays[dayKey(new Date())] = true;
@@ -658,8 +673,9 @@ function learnStreak(){
   return { cur, best };
 }
 function setWordStatus(tr, status){
-  if(!state.wordStatus) state.wordStatus = {};
-  state.wordStatus[tr] = status;
+  if(!state.duaStatus) state.duaStatus = {};
+  const k = 'word:' + tr;
+  if(status) state.duaStatus[k] = status === 'known' ? 'amal' : 'soch'; else delete state.duaStatus[k];
   if(status) markLearnDay();
   saveState();
 }
@@ -865,7 +881,6 @@ function renderMythReadList(){
   const body = document.getElementById('detailBody');
   const levels = [...new Set(MYTH_BUSTERS.map(m=>m.level))];
   body.innerHTML = `
-    <button id="mythReadBackBtn" style="margin:12px 14px; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card2); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer;">‹ Wapas</button>
     ` +
     levels.map(level=>{
       const items = MYTH_BUSTERS.map((m,i)=>({...m,i})).filter(m=>m.level===level);
@@ -881,7 +896,6 @@ function renderMythReadList(){
         </div>`;
       }).join('');
     }).join('');
-  document.getElementById('mythReadBackBtn').onclick = renderMythBusters;
 }
 
 function renderReviewList(items, backFn){
