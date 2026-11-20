@@ -1212,7 +1212,13 @@ function renderMoreSettings(){
       <button data-hm="strip" class="${m==='strip'?'active':''}">${L({rur:'Patli patti', en:'Slim strip'})}</button>
       <button data-hm="off" class="${m==='off'?'active':''}">${L({rur:'Band', en:'Off'})}</button>
     </div>
+    <div class="ts-lbl">${L({rur:'Card ka aana aur chhota hona', en:'Card intro'})}</div>
+    <div class="theme-row" style="padding:0 0 12px;">
+      <button data-ha="1" class="${state.heroAuto!==false?'active':''}">${L({rur:'Chalu (4 sec baad aaye, 12 sec baad chhota)', en:'On (appears after 4 s, shrinks after 12 s)'})}</button>
+      <button data-ha="0" class="${state.heroAuto===false?'active':''}">${L({rur:'Band', en:'Off'})}</button>
+    </div>
     <div class="backup-note">${L({rur:'Home par abhi ki namaz aur agli namaz ka card. Card ko left/right swipe ya ✕ se sirf is baar ke liye chhota ya band kar sakte hain; app dobara kholne par wapas aa jata hai. Hamesha ke liye chhota ya band rakhna ho to yahan se chunein.', en:'The card on Home showing the current and next prayer. Swiping it away or tapping ✕ only hides it for this visit; it returns when you reopen the app. Choose here to keep it slim or off permanently.'})}</div>`;
+    pane.querySelectorAll('[data-ha]').forEach(b=>{ b.onclick = ()=>{ state.heroAuto = b.dataset.ha === '1'; saveState(); renderHomeCardPane(); }; });
     pane.querySelectorAll('[data-hm]').forEach(b=>{ b.onclick = ()=>{ setHeroMode(b.dataset.hm); renderHomeCardPane(); }; });
   }
   function renderLangPane(){

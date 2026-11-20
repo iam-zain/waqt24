@@ -4613,7 +4613,13 @@ function renderMoreSettings(){
       <button data-hm="strip" class="${m==='strip'?'active':''}">${L({rur:'Patli patti', en:'Slim strip'})}</button>
       <button data-hm="off" class="${m==='off'?'active':''}">${L({rur:'Band', en:'Off'})}</button>
     </div>
+    <div class="ts-lbl">${L({rur:'Card ka aana aur chhota hona', en:'Card intro'})}</div>
+    <div class="theme-row" style="padding:0 0 12px;">
+      <button data-ha="1" class="${state.heroAuto!==false?'active':''}">${L({rur:'Chalu (4 sec baad aaye, 12 sec baad chhota)', en:'On (appears after 4 s, shrinks after 12 s)'})}</button>
+      <button data-ha="0" class="${state.heroAuto===false?'active':''}">${L({rur:'Band', en:'Off'})}</button>
+    </div>
     <div class="backup-note">${L({rur:'Home par abhi ki namaz aur agli namaz ka card. Card ko left/right swipe ya ✕ se sirf is baar ke liye chhota ya band kar sakte hain; app dobara kholne par wapas aa jata hai. Hamesha ke liye chhota ya band rakhna ho to yahan se chunein.', en:'The card on Home showing the current and next prayer. Swiping it away or tapping ✕ only hides it for this visit; it returns when you reopen the app. Choose here to keep it slim or off permanently.'})}</div>`;
+    pane.querySelectorAll('[data-ha]').forEach(b=>{ b.onclick = ()=>{ state.heroAuto = b.dataset.ha === '1'; saveState(); renderHomeCardPane(); }; });
     pane.querySelectorAll('[data-hm]').forEach(b=>{ b.onclick = ()=>{ setHeroMode(b.dataset.hm); renderHomeCardPane(); }; });
   }
   function renderLangPane(){
@@ -8117,6 +8123,33 @@ function reloadSmooth(backToSettings){
   const inTxt = ms => L({ rur: cd(ms) + ' mein', en: 'in ' + cd(ms) });
   let heroSession = null; /* closing/shrinking the card (✕ or swipe) lasts for this visit only; it returns on refresh or reopen */
   const heroMode = ()=>{ const m = heroSession || state.heroMode || 'full'; return (m === 'full' && window.matchMedia('(max-height:680px)').matches) ? 'strip' : m; };
+  /* Intro: on a fresh open the card glides in after 4 s, then (full card only) settles into the slim strip after 12 s unless the person closed or swiped it.
+     Settings -> Home Card can turn this off (then the card is simply there, as before). */
+  const heroReduced = ()=> document.body.classList.contains('calm') || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  let heroIntro = (state.heroAuto !== false && (state.heroMode || 'full') !== 'off') ? 'wait' : 'done';
+  function heroShrinkSoon(){
+    setTimeout(()=>{
+      const el = document.getElementById('homeHero');
+      if(state.heroAuto === false || heroSession || !el || el.classList.contains('hide') || el.classList.contains('dragging') || heroMode() !== 'full') return;
+      const h0 = el.offsetHeight;
+      heroSession = 'strip'; el.dataset.k = '';
+      try{ renderHero(); }catch(e){}
+      if(heroReduced() || !el.animate) return;
+      const h1 = el.offsetHeight, ov = el.style.overflow; el.style.overflow = 'hidden';
+      const an = el.animate([{ height:h0 + 'px', opacity:.55 }, { height:h1 + 'px', opacity:1 }], { duration:520, easing:'cubic-bezier(.3,.8,.3,1)' });
+      an.onfinish = an.oncancel = ()=>{ el.style.overflow = ov; };
+    }, 12000);
+  }
+  if(heroIntro === 'wait') setTimeout(()=>{
+    heroIntro = 'in';
+    const el = document.getElementById('homeHero'); if(el) el.dataset.k = '';
+    try{ renderHero(); }catch(e){}
+    if(el && !el.classList.contains('hide') && !heroReduced()){
+      el.classList.remove('intro'); void el.offsetWidth; el.classList.add('intro');
+      el.addEventListener('animationend', function f(e){ if(e.animationName === 'heroIntro'){ el.classList.remove('intro'); el.removeEventListener('animationend', f); } });
+    }
+    heroShrinkSoon();
+  }, 4000);
   const iconOf = k => (PRAYER_META[k] && PRAYER_META[k].icon) || '🕌';
   function heroData(){
     const now = Date.now(), base = operatingDate(new Date());
@@ -8139,6 +8172,7 @@ function reloadSmooth(backToSettings){
     const el = document.getElementById('homeHero'); if(!el) return;
     const vm = heroMode();
     if(vm === 'off' || !(homeFollowsToday || isSameDay(homeViewDate, new Date()))){ el.classList.add('hide'); el.dataset.k = ''; return; }
+    if(heroIntro === 'wait'){ el.classList.add('hide'); el.dataset.k = ''; return; }
     const d = heroData(); if(!d){ el.classList.add('hide'); return; }
     const { now, mode, p, after, prog, left } = d;
     const key = vm + mode + p.key + (+p.start) + (after ? after.key : '');

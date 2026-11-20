@@ -978,6 +978,33 @@ function reloadSmooth(backToSettings){
   const inTxt = ms => L({ rur: cd(ms) + ' mein', en: 'in ' + cd(ms) });
   let heroSession = null; /* closing/shrinking the card (✕ or swipe) lasts for this visit only; it returns on refresh or reopen */
   const heroMode = ()=>{ const m = heroSession || state.heroMode || 'full'; return (m === 'full' && window.matchMedia('(max-height:680px)').matches) ? 'strip' : m; };
+  /* Intro: on a fresh open the card glides in after 4 s, then (full card only) settles into the slim strip after 12 s unless the person closed or swiped it.
+     Settings -> Home Card can turn this off (then the card is simply there, as before). */
+  const heroReduced = ()=> document.body.classList.contains('calm') || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  let heroIntro = (state.heroAuto !== false && (state.heroMode || 'full') !== 'off') ? 'wait' : 'done';
+  function heroShrinkSoon(){
+    setTimeout(()=>{
+      const el = document.getElementById('homeHero');
+      if(state.heroAuto === false || heroSession || !el || el.classList.contains('hide') || el.classList.contains('dragging') || heroMode() !== 'full') return;
+      const h0 = el.offsetHeight;
+      heroSession = 'strip'; el.dataset.k = '';
+      try{ renderHero(); }catch(e){}
+      if(heroReduced() || !el.animate) return;
+      const h1 = el.offsetHeight, ov = el.style.overflow; el.style.overflow = 'hidden';
+      const an = el.animate([{ height:h0 + 'px', opacity:.55 }, { height:h1 + 'px', opacity:1 }], { duration:520, easing:'cubic-bezier(.3,.8,.3,1)' });
+      an.onfinish = an.oncancel = ()=>{ el.style.overflow = ov; };
+    }, 12000);
+  }
+  if(heroIntro === 'wait') setTimeout(()=>{
+    heroIntro = 'in';
+    const el = document.getElementById('homeHero'); if(el) el.dataset.k = '';
+    try{ renderHero(); }catch(e){}
+    if(el && !el.classList.contains('hide') && !heroReduced()){
+      el.classList.remove('intro'); void el.offsetWidth; el.classList.add('intro');
+      el.addEventListener('animationend', function f(e){ if(e.animationName === 'heroIntro'){ el.classList.remove('intro'); el.removeEventListener('animationend', f); } });
+    }
+    heroShrinkSoon();
+  }, 4000);
   const iconOf = k => (PRAYER_META[k] && PRAYER_META[k].icon) || '🕌';
   function heroData(){
     const now = Date.now(), base = operatingDate(new Date());
@@ -1000,6 +1027,7 @@ function reloadSmooth(backToSettings){
     const el = document.getElementById('homeHero'); if(!el) return;
     const vm = heroMode();
     if(vm === 'off' || !(homeFollowsToday || isSameDay(homeViewDate, new Date()))){ el.classList.add('hide'); el.dataset.k = ''; return; }
+    if(heroIntro === 'wait'){ el.classList.add('hide'); el.dataset.k = ''; return; }
     const d = heroData(); if(!d){ el.classList.add('hide'); return; }
     const { now, mode, p, after, prog, left } = d;
     const key = vm + mode + p.key + (+p.start) + (after ? after.key : '');
