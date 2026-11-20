@@ -105,6 +105,7 @@ function openAadaabDetail(t0){
       ${bmBtn('aadaab:'+t.id)}
       <button class="act-btn" id="aadaabImgBtn" title="Share karein">${SHARE_SVG}</button>
     </div>
+    ${aadaabSceneHtml(t0)}
     <div class="aad-head status-${st||'none'}" style="--aad-c:${t.color};">
       <div class="aad-head-ic">${t.ic}</div>
       <div class="aad-head-title">${t.title}</div>

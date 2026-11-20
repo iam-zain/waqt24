@@ -28,3 +28,7 @@ function hadeesSceneHtml(h){
   const sc = (typeof hadeesSceneSvg === 'function') ? hadeesSceneSvg(h) : '';
   return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
 }
+function aadaabSceneHtml(t){
+  const sc = (typeof aadaabSceneSvg === 'function') ? aadaabSceneSvg(t) : '';
+  return sc ? `<div class="dua-scene" aria-hidden="true">${sc}</div>` : '';
+}
