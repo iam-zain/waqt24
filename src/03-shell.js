@@ -623,9 +623,15 @@ function drawGlobalSearch(){
     { k:'asma', t:'Asma-ul-Husna', ic:'💚', items:ASMA_UL_HUSNA.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'prophet', t:'Asma-ul-Nabi', ic:'🌙', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
   ].filter(g=>g.items.length);
+  const SCF = {
+    dua:i=>duaSceneSvg(DUAS[i]), hadees:i=>hadeesSceneSvg(HADEES[i]), aadaab:i=>aadaabSceneSvg(AADAAB_TOPICS[i]),
+    ibadat:i=>ibadatSceneSvg(IBADAT_GUIDES[i]), qword:i=>qwordSceneSvg(QURAN_WORDS[i]), shabd:i=>shabdSceneSvg(KHAAS_SHABD[i]),
+    asma:i=>nameSceneSvg('asma', ASMA_UL_HUSNA[i]), prophet:i=>nameSceneSvg('prophet', PROPHET_NAMES[i])
+  };
+  const gsThumb = (k,i)=>{ try{ const f = SCF[k]; const sc = f ? f(i) : ''; return sc ? `<div class="gs-thumb" aria-hidden="true">${sc}</div>` : ''; }catch(e){ return ''; } };
   if(!groups.length){ out.innerHTML = `<div class="empty-state">${L({rur:'Kuch nahi mila', en:'Nothing found'})}</div>`; return; }
   out.innerHTML = groups.map(g=>`<div class="section-title" style="margin:6px 14px 8px;">${g.ic} ${g.t} <span class="gs-count">${g.items.length}</span></div>
-    <div class="more-list" style="padding-top:0;">${g.items.slice(0,15).map(x=>`<div class="more-item gs-item" data-g="${g.k}" data-i="${x.i}"><div class="lbl">${x.t}${x.s?`<span class="lblSub">${String(x.s).slice(0,90)}</span>`:''}</div><div class="chev">›</div></div>`).join('')}</div>`).join('');
+    <div class="more-list" style="padding-top:0;">${g.items.slice(0,15).map(x=>`<div class="more-item gs-item" data-g="${g.k}" data-i="${x.i}">${gsThumb(g.k, x.i)}<div class="lbl">${x.t}${x.s?`<span class="lblSub">${String(x.s).slice(0,90)}</span>`:''}</div><div class="chev">›</div></div>`).join('')}</div>`).join('');
   out.querySelectorAll('.gs-item').forEach(el=>{
     el.onclick = ()=>{
       const i = +el.dataset.i, g = el.dataset.g;

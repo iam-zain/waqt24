@@ -326,8 +326,10 @@ function openIbadatDetail(g){
   markReadDay();
   const key = 'ibadat:' + g.id, st = duaStatus(key);
   document.getElementById('detailTitle').textContent = g.title;
+  let stepNo = 0;
   const stepHtml = (s)=>`<div class="ib-step">
-      <div class="ib-b"><b>${s.t}</b>${s.d ? `<p>${s.d}</p>` : ''}
+      <div class="ib-n">${++stepNo}</div>
+      <div class="ib-b"><b>${s.t.replace(/^\d+\.\s*/, '')}</b>${s.d ? `<p>${s.d}</p>` : ''}
         ${s.ar ? `<div class="arabic dua-ar" dir="rtl">${s.ar}</div>` : ''}${s.tr ? `<div class="translit dua-tr">${s.tr}</div>` : ''}</div>
     </div>`;
   document.getElementById('detailBody').innerHTML = `
@@ -345,13 +347,13 @@ function openIbadatDetail(g){
     <div class="aad-intro">${g.intro}</div>
     ${g.sections.map((sec,i)=>`<div class="aad-guide-sec g${i%10}">
       <div class="aad-guide-head"><span class="aad-step-ic">${sec.ic}</span><span class="aad-step-lbl">${sec.h}</span></div>
-      <div class="ib-steps">${sec.steps.map(stepHtml).join('')}</div>
+      <div class="ib-steps">${(stepNo = 0, sec.steps.map(stepHtml).join(''))}</div>
     </div>`).join('')}
     <div class="aad-guide-closing">${g.closing}</div>
     <div class="backup-note" style="margin:10px 14px;">${IBADAT_NOTE}</div>
     <div class="aad-status-row">
-      <button class="aad-status-btn soch ${st==='soch'?'on':''}" id="ibadatSochBtn">⏳ Yaad karna baaki hai</button>
-      <button class="aad-status-btn amal ${st==='amal'?'on':''}" id="ibadatAmalBtn">✅ Yaad ho chuka hai</button>
+      <button class="aad-status-btn soch ${st==='soch'?'on':''}" id="ibadatSochBtn">⏳ Seekhna baaki hai</button>
+      <button class="aad-status-btn amal ${st==='amal'?'on':''}" id="ibadatAmalBtn">✅ Seekh liya</button>
     </div>
     ${pnBarHtml()}
   `;
