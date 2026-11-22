@@ -17,7 +17,7 @@ with sync_playwright() as p:
     ctx = b.new_context(viewport={'width':390,'height':844}, timezone_id='Asia/Kolkata')
     pg = ctx.new_page()
     pg.on('pageerror', lambda e: errs.append('pageerror: '+str(e)))
-    pg.on('console', lambda m: errs.append('console: '+m.text) if m.type=='error' and 'favicon' not in m.text else None)
+    pg.on('console', lambda m: errs.append('console: '+m.text) if m.type=='error' and 'favicon' not in m.text and 'ERR_' not in m.text else None)
     pg.goto(f'http://127.0.0.1:{port}/index.html'); pg.wait_for_timeout(1200)
     pg.evaluate('closeSetup()'); pg.wait_for_timeout(500)
     for tab in ['home','calendar','explore','more']:

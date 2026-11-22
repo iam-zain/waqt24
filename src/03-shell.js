@@ -368,10 +368,10 @@ function drawShareThemes(cfg){
   row.querySelectorAll('.st-chip').forEach(b=>{ b.onclick = ()=>{ state.shareTheme = b.dataset.t; saveState(); drawShareThemes(cfg); }; });
 }
 function openCardShareChooser(cfg){
-  const plain = [cfg.kind, cfg.arabic, cfg.title, cfg.sub, cfg.body, cfg.foot].filter(Boolean).join('\n\n');
+  const plain = cfg.plain || [cfg.kind, cfg.arabic, cfg.title, cfg.sub, cfg.body, cfg.foot].filter(Boolean).join('\n\n');
   drawShareThemes(cfg);
   document.getElementById('shareChooserImg').onclick = ()=>{ closeModal(); shareCard(cfg); };
-  document.getElementById('shareChooserTxt').onclick = ()=>{ closeModal(); shareText(plain + '\n\nWaqt24: iam-zain.github.io/waqt24'); };
+  document.getElementById('shareChooserTxt').onclick = ()=>{ closeModal(); shareText(cfg.plain ? plain : plain + '\n\nWaqt24: iam-zain.github.io/waqt24'); };
   document.getElementById('shareChooser').classList.add('active');
   pushModalState();
 }

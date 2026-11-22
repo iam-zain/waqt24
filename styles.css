@@ -2741,3 +2741,11 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 
 .zk-fab-wrap{ transition:opacity .2s, transform .2s; } .zk-fab-wrap.hide{ opacity:0; pointer-events:none; transform:translateY(16px); }
 .zk-act .backup-btn{ display:flex; align-items:center; justify-content:center; gap:6px; flex-direction:row; }
+
+.zk-seg button.dis{ opacity:.45; }
+.zk-seg button{ font-size:12px; line-height:1.25; }
+
+.zk-hij{ margin-top:8px; font-size:13px; color:var(--sub); } .zk-hij b{ color:var(--text); }
+.zk-recall{ margin-top:12px; padding:12px; border-radius:14px; background:var(--card2); } .zk-recall-t{ font-size:13px; font-weight:800; margin-bottom:8px; }
+.zk-chips{ display:flex; flex-wrap:wrap; gap:6px; } .zk-chips button{ padding:7px 10px; border-radius:999px; border:1.5px solid var(--line); background:var(--card); color:var(--text); font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; } .zk-chips button.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.zk-rctip{ display:none; margin-top:10px; padding:10px 12px; border-radius:12px; background:var(--card); font-size:12.5px; line-height:1.6; } .zk-rctip.show{ display:block; }
