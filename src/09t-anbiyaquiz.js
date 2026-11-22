@@ -5,8 +5,7 @@
     return { d, who:d.title.slice(0, i).replace('(AS)', 'AS'), when:d.title.slice(i + 2) };
   });
   if(list.length < 4) return;
-  const CAT = 'Anbiya ki Duain';
-  QUIZ_CATEGORIES.push(CAT); QUIZ_CAT_ICON[CAT] = '🌟';
+  const CAT = 'Ambiya-e-Kiram AS';   /* joins the existing Ambiya quiz category */
   const body = (head, d)=> `${head}\n\n${d.translit}\n\n${d.arabic}\n\nHawala: ${d.ref}`;
   const mk = (head, x, key)=>{
     const wrong = shuffleArr(list.filter(y=> y[key] !== x[key])).slice(0, 3).map(y=> y[key]);
