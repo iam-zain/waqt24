@@ -317,7 +317,8 @@ function renderZakat(keep){
   });
   fetchBtn.onclick = ()=> loadPrices(true);
   const anyHij = ()=>{ const zz = zkState(), el = document.getElementById('zkAnyHij'); el.innerHTML = zz.anyDate ? `🌙 Hijri: <b>${zkHijri(new Date(zz.anyDate + 'T00:00:00'))}</b>` : ''; };
-  document.getElementById('zkAnyDate').onchange = e=>{ const zz = zkState(); zz.anyDate = e.target.value; save(); anyHij(); drawNote(); if(zz.anyDate) loadPrices(false); };
+  const onAny = e=>{ const zz = zkState(); if(zz.anyDate === e.target.value) return; zz.anyDate = e.target.value; save(); anyHij(); drawNote(); if(zz.anyDate) loadPrices(false); };
+  ['input', 'change'].forEach(ev=> document.getElementById('zkAnyDate').addEventListener(ev, onAny));
   anyHij();
   document.querySelectorAll('#zkBasis button').forEach(b=>{
     b.onclick = ()=>{ zkState().basis = b.dataset.b; document.querySelectorAll('#zkBasis button').forEach(x=> x.classList.toggle('on', x === b)); save(); paint(); };
@@ -327,7 +328,8 @@ function renderZakat(keep){
     if(state.notif.zkRem !== false){ try{ if(window.Notification && Notification.permission === 'default') Notification.requestPermission(); }catch(x){} if(typeof nativeSchedule === 'function') nativeSchedule(true); if(typeof scheduleNotifs === 'function') scheduleNotifs(); }
     showToast(state.notif.zkRem !== false ? 'Yaad-dahani chalu' : 'Yaad-dahani band');
   };
-  document.getElementById('zkPaid').onchange = e=>{ const zz = zkState(); zz.nisabDate = e.target.value; const hb = document.querySelector('#zkMode [data-m="hawl"]'); hb.classList.toggle('dis', !zz.nisabDate);
+  const onPaid = e=>{
+    if((zkState().nisabDate || '') === e.target.value) return; const zz = zkState(); zz.nisabDate = e.target.value; const hb = document.querySelector('#zkMode [data-m="hawl"]'); hb.classList.toggle('dis', !zz.nisabDate);
     if(!zz.nisabDate && zz.mode === 'hawl'){ zz.mode = 'est'; document.querySelectorAll('#zkMode button').forEach(x=> x.classList.toggle('on', x.dataset.m === 'est')); }
     save(); dateNote(); hijNote(); if(zz.mode === 'hawl' || zz.mode === 'est') loadPrices(false); if(typeof nativeSchedule === 'function') nativeSchedule(true); };
   document.getElementById('zkSave').onclick = ()=>{ if(zkCalc().gross <= 0){ showToast('Pehle apna maal likhein'); return; } zkSaveSheet(()=>{ renderZakat(true); setTimeout(()=>{ const x = document.querySelector('.zk-logtot'); if(x) x.scrollIntoView({ behavior:'smooth', block:'center' }); }, 60); }); };
@@ -337,6 +339,7 @@ function renderZakat(keep){
     if(!(await appConfirm('Likha hua saara hisaab saaf kar dein?', 'Haan, saaf karein'))) return;
     zkState().f = {}; save(); renderZakat(true);
   };
+  ['input', 'change'].forEach(ev=> document.getElementById('zkPaid').addEventListener(ev, onPaid));
   drawNote(); dateNote(); hijNote(); paint();
   if(z.mode === 'est' || z.mode === 'hawl' || z.mode === 'any') loadPrices(false);
 }
