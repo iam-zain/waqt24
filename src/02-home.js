@@ -503,6 +503,10 @@ function scheduleNotifications(force){
     const delay = r.at - now; if(delay <= 0 || delay > 24*3600000) return;
     notifTimers.push(setTimeout(()=>{ try{ showNotif(r.title, { body:r.body, icon:'icons/icon-192.png', tag:'waqt24-' + r.key }); }catch(e){} }, delay));
   });
+  if(typeof zakatReminders === 'function') zakatReminders(operatingDate(now)).forEach(r=>{
+    const delay = r.at - now; if(delay <= 0 || delay > 24*3600000) return;
+    notifTimers.push(setTimeout(()=>{ try{ showNotif(r.title, { body:r.body, icon:'icons/icon-192.png', tag:'waqt24-' + r.key }); }catch(e){} }, delay));
+  });
   const iq = iqamahState();
   if(iq.on && iq.remind > 0){
     sched.filter(p=>FIVE.includes(p.key)).forEach(p=>{

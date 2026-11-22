@@ -159,6 +159,7 @@ function renderZakat(){
       <div class="zk-note" style="margin:0 0 8px;">Jis din aap pehli baar nisab ke barabar maal ke maalik bane, wo tareekh chunein. Zakat us din se poore ek chaand ke saal (Hijri) baad farz hoti hai.</div>
       <input type="date" class="zk-in zk-date" id="zkPaid" value="${z.nisabDate || ''}">
       <div class="zk-hawl" id="zkNext"></div>
+      <div class="tasbeeh-sound-toggle" style="margin-top:10px;">🔔 Yaad-dahani (30, 7, 1 din pehle aur us din)<div class="roza-mini ${(state.notif || {}).zkRem !== false ? 'on' : ''}" id="zkRemTg"><div class="roza-mini-knob"></div></div></div>
     </div>
 
     <div class="zk-card zk-info">
@@ -177,6 +178,7 @@ function renderZakat(){
     fab.innerHTML = c.gross <= 0 ? '🧮 Zakat ka hisaab dekhein ↓' : (c.due ? `🧮 Zakat ${zkFmt(c.zakat)} · hisaab dekhein ↓` : '🧮 Abhi Zakat farz nahi · hisaab dekhein ↓');
     fab.className = 'zk-fab' + (c.gross > 0 ? (c.due ? ' yes' : ' no') : '');
   };
+  try{ if(window.IntersectionObserver){ const fab = document.getElementById('zkFab'); const io = new IntersectionObserver(es=>{ if(!document.body.contains(fab)){ io.disconnect(); return; } fab.parentNode.classList.toggle('hide', es[0].isIntersecting); }, { threshold:0.15 }); io.observe(document.getElementById('zkResult')); } }catch(e){}
   document.getElementById('zkFab').onclick = ()=> document.getElementById('zkResult').scrollIntoView({ behavior:'smooth', block:'center' });
   const noteEl = document.getElementById('zkPriceNote');
   const fetchBtn = document.getElementById('zkFetch');
@@ -234,7 +236,12 @@ function renderZakat(){
   document.querySelectorAll('#zkBasis button').forEach(b=>{
     b.onclick = ()=>{ zkState().basis = b.dataset.b; document.querySelectorAll('#zkBasis button').forEach(x=> x.classList.toggle('on', x === b)); save(); paint(); };
   });
-  document.getElementById('zkPaid').onchange = e=>{ zkState().nisabDate = e.target.value; save(); dateNote(); };
+  document.getElementById('zkRemTg').onclick = e=>{
+    if(!state.notif) state.notif = {}; state.notif.zkRem = state.notif.zkRem === false; saveState(); e.currentTarget.classList.toggle('on', state.notif.zkRem !== false);
+    if(state.notif.zkRem !== false){ try{ if(window.Notification && Notification.permission === 'default') Notification.requestPermission(); }catch(x){} if(typeof nativeSchedule === 'function') nativeSchedule(true); if(typeof scheduleNotifs === 'function') scheduleNotifs(); }
+    showToast(state.notif.zkRem !== false ? 'Yaad-dahani chalu' : 'Yaad-dahani band');
+  };
+  document.getElementById('zkPaid').onchange = e=>{ zkState().nisabDate = e.target.value; save(); dateNote(); if(typeof nativeSchedule === 'function') nativeSchedule(true); };
   document.getElementById('zkSave').onclick = ()=>{ if(zkCalc().gross <= 0){ showToast('Pehle apna maal likhein'); return; } zkSaveSheet(()=>{ renderZakat(); setTimeout(()=>{ const x = document.querySelector('.zk-logtot'); if(x) x.scrollIntoView({ behavior:'smooth', block:'center' }); }, 60); }); };
   zkWireLog(renderZakat);
   document.getElementById('zkShare').onclick = ()=>{ const c = zkCalc(); if(c.gross <= 0){ showToast('Pehle apna maal likhein'); return; } shareText(zkShareText()); };
@@ -245,51 +252,208 @@ function renderZakat(){
   drawNote(); dateNote(); paint();
 }
 
-/* ---- Zakat record: save a calculation under a name (e.g. "Zakat 1447") with the date and amount actually paid ---- */
+/* ---- Zakat record: a saved calculation, its payments (qist), and a plan for the 8 masarif ---- */
+const ZK_MASARIF = [
+  { k:'faqeer', ic:'🍞', n:'Faqeer' }, { k:'miskeen', ic:'🥣', n:'Miskeen' }, { k:'amil', ic:'📋', n:'Zakat ke karkun' }, { k:'muallafa', ic:'💞', n:'Dil jodne wale' },
+  { k:'riqab', ic:'🔓', n:'Ghulam azad karna' }, { k:'gharim', ic:'🧾', n:'Qarzdar' }, { k:'sabil', ic:'🕌', n:'Allah ki raah mein' }, { k:'ibn', ic:'🧳', n:'Musafir' }
+];
+const zkMas = k => ZK_MASARIF.find(m=> m.k === k) || { ic:'🤲', n:'Zakat' };
 function zkLog(){ if(!Array.isArray(state.zakatLog)) state.zakatLog = []; return state.zakatLog; }
-function zkSaveSheet(onDone){
-  const c = zkCalc(), z = zkState(), today = new Date(), iso = d=> d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const zkPaidOf = r => Array.isArray(r.pays) ? r.pays.reduce((a, x)=> a + (x.amt || 0), 0) : (r.paid || 0);
+const zkISO = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const zkDateLbl = iso => { const d = new Date(iso + 'T00:00:00'); return isNaN(d) ? '' : zkHijri(d) + ' · ' + zkGreg(d); };
+let zkOpenRec = '';
+/* small sheet builder: fields = [{id,label,type,value,ph,money,options}] */
+function zkSheet(title, fields, okLabel, onOk, extraHtml){
   const w = document.createElement('div'); w.className = 'app-confirm';
-  w.innerHTML = `<div class="info-card"><div class="info-text"><b>💾 Zakat ka record save karein</b></div>
-    <label class="zk-sl">Naam</label><input class="bmf-in zk-sin" id="zkRName" maxlength="40" value="Zakat ${zkHP(today).y} AH">
-    <label class="zk-sl">Zakat kab di?</label><input type="date" class="bmf-in zk-sin" id="zkRDate" value="${iso(today)}">
-    <label class="zk-sl">Kitni Zakat di? (₹)</label><input class="bmf-in zk-sin" id="zkRPaid" inputmode="decimal" value="${c.due ? zkComma(Math.round(c.zakat)) : ''}" placeholder="0">
-    <label class="zk-sl">Note (zaroori nahi)</label><input class="bmf-in zk-sin" id="zkRNote" maxlength="120" placeholder="Jaise: masjid, madrasa, rishtedaar...">
-    <div class="ac-btns"><button class="ac-no">Rehne dein</button><button class="ac-yes">Save karein</button></div></div>`;
+  const f = fields.map(x=> `<label class="zk-sl">${x.label}</label>` + (x.options
+    ? `<select class="bmf-in zk-sin" id="${x.id}">${x.options.map(o=>`<option value="${o[0]}"${o[0] === x.value ? ' selected' : ''}>${o[1]}</option>`).join('')}</select>`
+    : `<input class="bmf-in zk-sin" id="${x.id}" ${x.type === 'date' ? 'type="date"' : 'inputmode="' + (x.money ? 'decimal' : 'text') + '"'} maxlength="60" value="${x.value == null ? '' : bmfEsc(x.value)}" placeholder="${x.ph || ''}">`)).join('');
+  w.innerHTML = `<div class="info-card zk-sheet"><div class="info-text"><b>${title}</b></div>${f}${extraHtml || ''}<div class="ac-btns"><button class="ac-no">Rehne dein</button><button class="ac-yes">${okLabel}</button></div></div>`;
   document.body.appendChild(w);
   const g = id=> w.querySelector('#' + id), close = ()=> w.remove();
-  g('zkRPaid').oninput = e=>{ e.target.value = zkComma(e.target.value); };
+  fields.filter(x=> x.money).forEach(x=>{ g(x.id).oninput = e=>{ e.target.value = zkComma(e.target.value); }; });
   w.querySelector('.ac-no').onclick = close; w.onclick = e=>{ if(e.target === w) close(); };
-  w.querySelector('.ac-yes').onclick = ()=>{
-    const name = g('zkRName').value.trim(); if(!name){ g('zkRName').focus(); return; }
-    zkLog().unshift({ id:'z' + Date.now().toString(36), name, date:g('zkRDate').value || iso(today), paid:zkNum(g('zkRPaid').value), note:g('zkRNote').value.trim(),
-      net:c.net, nisab:c.nisab, zakat:c.due ? c.zakat : 0, basis:z.basis, debts:c.debts, rows:c.rows.filter(r=> r.v > 0).map(r=>({ ic:r.ic, n:r.n, v:r.v })) });
-    saveState(); close(); showToast('Record save ho gaya'); onDone();
+  w.querySelector('.ac-yes').onclick = ()=>{ const v = {}; fields.forEach(x=>{ v[x.id] = g(x.id).value; }); if(onOk(v, w) !== false) close(); };
+  return w;
+}
+function zkSaveSheet(onDone){
+  const c = zkCalc(), z = zkState(), today = new Date();
+  zkSheet('💾 Zakat ka record save karein', [
+    { id:'rName', label:'Naam', value:'Zakat ' + zkHP(today).y + ' AH' },
+    { id:'rDate', label:'Hisaab ki tareekh', type:'date', value:zkISO(today) },
+    { id:'rPaid', label:'Abhi kitni Zakat di? (₹, baad mein qist jod sakte hain)', money:true, value:'', ph:'0' },
+    { id:'rNote', label:'Note (zaroori nahi)', value:'', ph:'Jaise: masjid, madrasa, rishtedaar...' }
+  ], 'Save karein', v=>{
+    const name = v.rName.trim(); if(!name) return false;
+    const paid = zkNum(v.rPaid), id = 'z' + Date.now().toString(36);
+    zkLog().unshift({ id, name, date:v.rDate || zkISO(today), note:v.rNote.trim(), net:c.net, nisab:c.nisab, zakat:c.due ? c.zakat : 0, basis:z.basis, debts:c.debts,
+      rows:c.rows.filter(r=> r.v > 0).map(r=>({ ic:r.ic, n:r.n, v:r.v })), pays:paid > 0 ? [{ id:'p' + Date.now().toString(36), date:v.rDate || zkISO(today), amt:paid, m:'', to:'', note:'' }] : [], plan:{} });
+    zkOpenRec = id; saveState(); showToast('Record save ho gaya'); onDone();
+  });
+}
+function zkPaySheet(r, onDone){
+  const left = Math.max(0, Math.round(r.zakat - zkPaidOf(r)));
+  zkSheet('➕ Qist / payment jodein', [
+    { id:'pAmt', label:'Kitni Zakat di? (₹)', money:true, value:left > 0 ? zkComma(left) : '', ph:'0' },
+    { id:'pDate', label:'Kab di?', type:'date', value:zkISO(new Date()) },
+    { id:'pM', label:'Kis madd mein?', value:'', options:[['', '🤲 Tay nahi']].concat(ZK_MASARIF.map(m=>[m.k, m.ic + ' ' + m.n])) },
+    { id:'pTo', label:'Kisko / kahan? (zaroori nahi)', value:'', ph:'Jaise: madrasa, kisi ka naam' }
+  ], 'Jodein', v=>{
+    const amt = zkNum(v.pAmt); if(!(amt > 0)) return false;
+    if(!Array.isArray(r.pays)) r.pays = r.paid > 0 ? [{ id:'p0', date:r.date, amt:r.paid, m:'', to:'', note:'' }] : [];
+    r.pays.push({ id:'p' + Date.now().toString(36), date:v.pDate || zkISO(new Date()), amt, m:v.pM, to:v.pTo.trim(), note:'' });
+    r.pays.sort((a, b)=> a.date < b.date ? -1 : 1); saveState(); showToast('Qist jud gayi'); onDone();
+  });
+}
+function zkPlanSheet(r, onDone){
+  const eq = Math.round(r.zakat / 2);
+  const rows = ZK_MASARIF.map(m=>`<div class="zk-pl"><label><input type="checkbox" data-pc="${m.k}" ${(r.plan && r.plan[m.k] > 0) ? 'checked' : ''}> ${m.ic} ${m.n}</label><input class="bmf-in zk-sin" data-pa="${m.k}" inputmode="decimal" placeholder="₹" value="${r.plan && r.plan[m.k] > 0 ? zkComma(r.plan[m.k]) : ''}"></div>`).join('');
+  const w = zkSheet('🗂️ Baantne ka plan', [], 'Plan save karein', (v, ww)=>{
+    const plan = {}; ww.querySelectorAll('[data-pa]').forEach(inp=>{ const n = zkNum(inp.value); if(n > 0) plan[inp.dataset.pa] = n; });
+    r.plan = plan; saveState(); onDone();
+  }, `<div class="zk-note" style="margin:6px 0 8px;">Zakat ${zkFmt(r.zakat)} ko kin kin mein baantna hai, tay kar lein.</div><div class="zk-pls">${rows}</div><button type="button" class="backup-btn secondary zk-eqb" id="zkEq">⚖️ Chune hue mein barabar baant dein</button>`);
+  w.querySelectorAll('[data-pc]').forEach(cb=> cb.onchange = ()=>{ const inp = w.querySelector('[data-pa="' + cb.dataset.pc + '"]'); if(!cb.checked) inp.value = ''; });
+  w.querySelector('#zkEq').onclick = ()=>{
+    let ch = [...w.querySelectorAll('[data-pc]')].filter(c=> c.checked);
+    if(!ch.length){ ['faqeer', 'miskeen'].forEach(k=>{ const c = w.querySelector('[data-pc="' + k + '"]'); c.checked = true; }); ch = [...w.querySelectorAll('[data-pc]')].filter(c=> c.checked); }
+    const each = Math.floor(r.zakat / ch.length);
+    ch.forEach((c, i)=>{ w.querySelector('[data-pa="' + c.dataset.pc + '"]').value = zkComma(i === ch.length - 1 ? Math.round(r.zakat - each * (ch.length - 1)) : each); });
   };
+  w.querySelectorAll('[data-pa]').forEach(inp=> inp.addEventListener('input', ()=>{ w.querySelector('[data-pc="' + inp.dataset.pa + '"]').checked = zkNum(inp.value) > 0; }));
+}
+function zkRecBody(r){
+  const paid = zkPaidOf(r), left = Math.max(0, r.zakat - paid), pct = r.zakat > 0 ? Math.min(100, Math.round(paid / r.zakat * 100)) : (paid > 0 ? 100 : 0);
+  const pays = Array.isArray(r.pays) ? r.pays : (r.paid > 0 ? [{ id:'p0', date:r.date, amt:r.paid, m:'', to:'' }] : []);
+  const plan = r.plan || {}, planKeys = ZK_MASARIF.filter(m=> plan[m.k] > 0), planTot = planKeys.reduce((a, m)=> a + plan[m.k], 0);
+  const paidBy = k => pays.filter(x=> x.m === k).reduce((a, x)=> a + x.amt, 0);
+  return `<div class="zk-recb">
+    <div class="zk-prog"><div class="zk-bar"><i style="width:${pct}%"></i></div>
+      <div class="zk-barlbl"><span>Di gayi ${zkFmt(paid)}</span><span>${left > 0.5 ? 'Baaqi ' + zkFmt(left) : (r.zakat > 0 ? '✅ Poori ada' : '')}</span></div></div>
+    <div class="zk-recsub">🤲 Qist / payments</div>
+    ${pays.length ? pays.map(x=>`<div class="zk-pay"><div><b>${zkFmt(x.amt)}</b><small>${zkMas(x.m).ic} ${x.m ? zkMas(x.m).n : 'Zakat'}${x.to ? ' · ' + bmfEsc(x.to) : ''}<br>${zkDateLbl(x.date)}</small></div><button type="button" data-pd="${r.id}|${x.id}" aria-label="Hatayein">✕</button></div>`).join('') : '<div class="zk-note" style="margin:0 0 6px;">Abhi koi payment nahi.</div>'}
+    <button type="button" class="zk-addbtn" data-pa-add="${r.id}">＋ Qist / payment jodein</button>
+    <div class="zk-recsub">🗂️ Baantne ka plan</div>
+    ${planKeys.length ? planKeys.map(m=>{ const pd = paidBy(m.k), pc = Math.min(100, Math.round(pd / plan[m.k] * 100)); return `<div class="zk-plrow"><div><span>${m.ic} ${m.n}</span><b>${zkFmt(pd)} / ${zkFmt(plan[m.k])}</b></div><div class="zk-bar sm"><i style="width:${pc}%"></i></div></div>`; }).join('')
+      + (planTot < r.zakat - 0.5 ? `<div class="zk-note" style="margin:4px 0;">Abhi ${zkFmt(r.zakat - planTot)} ka plan baaqi hai.</div>` : '') : '<div class="zk-note" style="margin:0 0 6px;">Zakat kin kin mein baantni hai, tay kar lein.</div>'}
+    <button type="button" class="zk-addbtn" data-plan="${r.id}">🗂️ ${planKeys.length ? 'Plan badlein' : 'Plan banayein'}</button>
+    <div class="zk-recsub">🧮 Hisaab</div>
+    ${(r.rows || []).map(x=>`<div class="zk-l"><span>${x.ic} ${x.n}</span><b>${zkFmt(x.v)}</b></div>`).join('')}
+    ${r.debts > 0 ? `<div class="zk-l zk-minus"><span>🧾 Qarz (minus)</span><b>− ${zkFmt(r.debts)}</b></div>` : ''}
+    <div class="zk-l zk-tot"><span>Zakat wala kul maal</span><b>${zkFmt(r.net)}</b></div>
+    <div class="zk-l"><span>📏 Nisab (${r.basis === 'gold' ? 'sona' : 'chandi'})</span><b>${zkFmt(r.nisab)}</b></div>
+    <div class="zk-l"><span>🧮 Hisaab se Zakat (2.5%)</span><b>${zkFmt(r.zakat)}</b></div>
+    ${r.note ? `<div class="zk-recn">📝 ${bmfEsc(r.note)}</div>` : ''}
+    <div class="zk-recbtn"><button type="button" data-rpdf="${r.id}">📄 PDF</button><button type="button" data-rs="${r.id}">${SHARE_SVG} Share</button><button type="button" data-rd="${r.id}">🗑️</button></div></div>`;
 }
 function zkLogHtml(){
-  const L0 = zkLog(), total = L0.reduce((a, r)=> a + (r.paid || 0), 0);
-  if(!L0.length) return `<div class="zk-card"><div class="zk-h"><span>📒</span> Zakat ka Record</div><div class="zk-note" style="margin:0;">Abhi koi record nahi. Hisaab karke "Record save karein" dabayein, har saal ki Zakat yahan jama rahegi.</div></div>`;
+  const L0 = zkLog(), total = L0.reduce((a, r)=> a + zkPaidOf(r), 0);
+  if(!L0.length) return `<div class="zk-card"><div class="zk-h"><span>📒</span> Zakat ka Record</div><div class="zk-note" style="margin:0;">Abhi koi record nahi. Hisaab karke "Record save karein" dabayein. Phir har saal ki Zakat, uski qiston aur baantne ka plan yahan jama rahega.</div></div>`;
   return `<div class="zk-card"><div class="zk-h"><span>📒</span> Zakat ka Record</div>
     <div class="zk-logtot"><small>Ab tak ada ki hui Zakat</small><b>${zkFmt(total)}</b><span>${L0.length} record</span></div>
-    ${L0.map(r=>{ const d = new Date(r.date + 'T00:00:00'), ok = !isNaN(d); return `<details class="zk-rec"><summary><div><b>${bmfEsc(r.name)}</b><small>${ok ? zkHijri(d) + ' · ' + zkGreg(d) : ''}</small></div><span>${zkFmt(r.paid || 0)}</span></summary>
-      <div class="zk-recb">${(r.rows || []).map(x=>`<div><span>${x.ic} ${x.n}</span><b>${zkFmt(x.v)}</b></div>`).join('')}
-        ${r.debts > 0 ? `<div class="zk-minus"><span>🧾 Qarz (minus)</span><b>− ${zkFmt(r.debts)}</b></div>` : ''}
-        <div class="zk-tot"><span>Zakat wala kul maal</span><b>${zkFmt(r.net)}</b></div>
-        <div><span>📏 Nisab (${r.basis === 'gold' ? 'sona' : 'chandi'})</span><b>${zkFmt(r.nisab)}</b></div>
-        <div><span>🧮 Hisaab se Zakat (2.5%)</span><b>${zkFmt(r.zakat)}</b></div>
-        <div><span>🤲 Asal mein di</span><b>${zkFmt(r.paid || 0)}</b></div>
-        ${r.note ? `<div class="zk-recn">📝 ${bmfEsc(r.note)}</div>` : ''}
-        <div class="zk-recbtn"><button type="button" data-rs="${r.id}">${SHARE_SVG} Share</button><button type="button" data-rd="${r.id}">🗑️ Hatayein</button></div></div></details>`; }).join('')}
+    <button type="button" class="zk-addbtn" id="zkPdfAll">📄 Poore record ka PDF</button>
+    ${L0.map(r=>{ const pd = zkPaidOf(r), left = Math.max(0, r.zakat - pd);
+      return `<details class="zk-rec" data-id="${r.id}" ${zkOpenRec === r.id ? 'open' : ''}><summary><div><b>${bmfEsc(r.name)}</b><small>${zkDateLbl(r.date)}</small></div><span class="${r.zakat > 0 && left > 0.5 ? 'part' : ''}">${zkFmt(pd)}${r.zakat > 0 && left > 0.5 ? `<em>baaqi ${zkFmt(left)}</em>` : ''}</span></summary>${zkRecBody(r)}</details>`; }).join('')}
   </div>`;
 }
 function zkWireLog(redraw){
+  const rec = id=> zkLog().find(x=> x.id === id);
+  document.querySelectorAll('.zk-rec').forEach(d=> d.addEventListener('toggle', ()=>{ if(d.open) zkOpenRec = d.dataset.id; else if(zkOpenRec === d.dataset.id) zkOpenRec = ''; }));
   document.querySelectorAll('[data-rd]').forEach(b=> b.onclick = async ()=>{
     if(!(await appConfirm('Ye record hata dein?', 'Haan, hatayein'))) return;
     state.zakatLog = zkLog().filter(r=> r.id !== b.dataset.rd); saveState(); redraw();
   });
-  document.querySelectorAll('[data-rs]').forEach(b=> b.onclick = ()=>{
-    const r = zkLog().find(x=> x.id === b.dataset.rs); if(!r) return;
-    shareText(`${r.name}\n\n` + (r.rows || []).map(x=>`• ${x.n}: ${zkFmt(x.v)}`).join('\n') + (r.debts > 0 ? `\n• Qarz (minus): ${zkFmt(r.debts)}` : '') + `\n\nZakat wala kul maal: ${zkFmt(r.net)}\nZakat (2.5%): ${zkFmt(r.zakat)}\nDi gayi Zakat: ${zkFmt(r.paid || 0)}\n\nWaqt24: iam-zain.github.io/waqt24`);
+  document.querySelectorAll('[data-pa-add]').forEach(b=> b.onclick = ()=>{ const r = rec(b.dataset.paAdd); if(r){ zkOpenRec = r.id; zkPaySheet(r, redraw); } });
+  document.querySelectorAll('[data-plan]').forEach(b=> b.onclick = ()=>{ const r = rec(b.dataset.plan); if(!r) return; if(!(r.zakat > 0)){ showToast('Is hisaab mein Zakat farz nahi thi'); return; } zkOpenRec = r.id; zkPlanSheet(r, redraw); });
+  document.querySelectorAll('[data-pd]').forEach(b=> b.onclick = async ()=>{
+    const [rid, pid] = b.dataset.pd.split('|'), r = rec(rid); if(!r) return;
+    if(!(await appConfirm('Ye payment hata dein?', 'Haan, hatayein'))) return;
+    if(!Array.isArray(r.pays)) r.pays = r.paid > 0 ? [{ id:'p0', date:r.date, amt:r.paid, m:'', to:'' }] : [];
+    r.pays = r.pays.filter(x=> x.id !== pid); zkOpenRec = r.id; saveState(); redraw();
   });
+  document.querySelectorAll('[data-rs]').forEach(b=> b.onclick = ()=>{
+    const r = rec(b.dataset.rs); if(!r) return;
+    const pays = Array.isArray(r.pays) ? r.pays : [];
+    shareText(`${r.name}\n\n` + (r.rows || []).map(x=>`• ${x.n}: ${zkFmt(x.v)}`).join('\n') + (r.debts > 0 ? `\n• Qarz (minus): ${zkFmt(r.debts)}` : '') + `\n\nZakat wala kul maal: ${zkFmt(r.net)}\nZakat (2.5%): ${zkFmt(r.zakat)}\nDi gayi Zakat: ${zkFmt(zkPaidOf(r))}` + (pays.length ? '\n\nQisten:\n' + pays.map(x=>`• ${zkDateLbl(x.date)}: ${zkFmt(x.amt)}${x.m ? ' (' + zkMas(x.m).n + ')' : ''}${x.to ? ', ' + x.to : ''}`).join('\n') : '') + `\n\nWaqt24: iam-zain.github.io/waqt24`);
+  });
+  document.querySelectorAll('[data-rpdf]').forEach(b=> b.onclick = ()=>{ const r = rec(b.dataset.rpdf); if(r) zkPdfShare([r], 'waqt24-' + String(r.name).replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() + '.pdf'); });
+  const all = document.getElementById('zkPdfAll'); if(all) all.onclick = ()=> zkPdfShare(zkLog().slice(), 'waqt24-zakat-record.pdf');
+}
+
+/* ---- PDF made in the browser (plain A4 pages, Helvetica, Latin text only: no library, nothing uploaded) ---- */
+function zkPdfBuild(recs){
+  const A = s=> String(s == null ? '' : s).replace(/₹/g, 'Rs. ').replace(/−/g, '-').replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-').replace(/·/g, '|').replace(/[^\x20-\x7E]/g, '').replace(/\s{2,}/g, ' ').trim();
+  const esc = s=> A(s).replace(/([\\()])/g, '\\$1');
+  const W = 595, H = 842, M = 48, pages = []; let cur = null, y = 0;
+  const wid = (s, size, bold)=> { let w = 0; for(const ch of A(s)) w += ('0123456789'.includes(ch) ? .556 : ',. '.includes(ch) ? .278 : ch === '-' ? .333 : /[A-Z]/.test(ch) ? .68 : ch === 'i' || ch === 'l' || ch === 'j' || ch === 't' || ch === 'f' ? .26 : ch === 'm' || ch === 'w' ? .8 : .53) * (bold ? 1.06 : 1); return w * size; };
+  const newPage = ()=>{ cur = []; pages.push(cur); y = H - M; };
+  const text = (x, yy, s, size, bold, col, right)=>{ const t = esc(s); if(!t) return; const xx = right ? x - wid(s, size, bold) : x; cur.push(`BT ${col || '0.1 0.1 0.1'} rg /${bold ? 'F2' : 'F1'} ${size} Tf ${xx.toFixed(1)} ${yy.toFixed(1)} Td (${t}) Tj ET`); };
+  const rect = (x, yy, w, h, col)=> cur.push(`${col} rg ${x.toFixed(1)} ${yy.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)} re f`);
+  const line = (yy)=> cur.push(`0.85 0.85 0.85 RG 0.5 w ${M} ${yy.toFixed(1)} m ${W - M} ${yy.toFixed(1)} l S`);
+  const need = h=>{ if(y - h < 56) newPage(); };
+  const row = (l, r, bold, col)=>{ need(16); text(M, y, l, 10, bold, col); text(W - M, y, r, 10, bold, col, true); y -= 15; };
+  const now = new Date();
+  newPage();
+  rect(0, H - 84, W, 84, '0.11 0.42 0.32'); text(M, H - 40, 'Waqt24  |  Zakat Record', 20, true, '1 1 1'); text(M, H - 62, 'Hanafi fiqh ke mutabiq hisaab  |  ' + zkGreg(now) + '  (' + zkHijri(now) + ')', 9.5, false, '0.85 0.95 0.9');
+  y = H - 112;
+  const tot = recs.reduce((a, r)=> a + zkPaidOf(r), 0), due = recs.reduce((a, r)=> a + r.zakat, 0);
+  row('Records', String(recs.length), true); row('Hisaab se kul Zakat', zkFmt(due), false); row('Ab tak di gayi Zakat', zkFmt(tot), true, '0.1 0.5 0.35'); y -= 6; line(y + 6); y -= 8;
+  recs.forEach((r, idx)=>{
+    need(120); if(idx > 0){ y -= 8; line(y + 6); y -= 10; }
+    text(M, y, r.name, 15, true, '0.11 0.42 0.32'); y -= 16;
+    text(M, y, 'Tareekh: ' + zkDateLbl(r.date), 9.5, false, '0.4 0.4 0.4'); y -= 18;
+    (r.rows || []).forEach(x=> row(x.n, zkFmt(x.v)));
+    if(r.debts > 0) row('Qarz / bills (minus)', '- ' + zkFmt(r.debts), false, '0.75 0.45 0.15');
+    row('Zakat wala kul maal', zkFmt(r.net), true); row('Nisab (' + (r.basis === 'gold' ? 'sona 87.48 g' : 'chandi 612.36 g') + ')', zkFmt(r.nisab));
+    row('Zakat (2.5%)', zkFmt(r.zakat), true);
+    const pays = Array.isArray(r.pays) ? r.pays : (r.paid > 0 ? [{ date:r.date, amt:r.paid, m:'', to:'' }] : []), pd = zkPaidOf(r), left = Math.max(0, r.zakat - pd);
+    y -= 4; need(40); text(M, y, 'Di gayi Zakat (qist / payments)', 11, true); y -= 16;
+    if(!pays.length){ text(M, y, 'Abhi koi payment darj nahi.', 9.5, false, '0.4 0.4 0.4'); y -= 15; }
+    pays.forEach(x=>{ need(16); text(M, y, zkDateLbl(x.date), 9.5); text(M + 250, y, (x.m ? zkMas(x.m).n : 'Zakat') + (x.to ? ' - ' + x.to : ''), 9.5, false, '0.35 0.35 0.35'); text(W - M, y, zkFmt(x.amt), 10, false, null, true); y -= 14; });
+    row('Kul di gayi', zkFmt(pd), true, '0.1 0.5 0.35'); row(left > 0.5 ? 'Baaqi' : 'Status', left > 0.5 ? zkFmt(left) : 'Poori ada', true, left > 0.5 ? '0.75 0.45 0.15' : '0.1 0.5 0.35');
+    const plan = r.plan || {}, pk = ZK_MASARIF.filter(m=> plan[m.k] > 0);
+    if(pk.length){ y -= 4; need(40); text(M, y, 'Baantne ka plan', 11, true); y -= 16; pk.forEach(m=>{ const pdm = pays.filter(x=> x.m === m.k).reduce((a, x)=> a + x.amt, 0); row(m.n, zkFmt(pdm) + ' / ' + zkFmt(plan[m.k])); }); }
+    if(r.note){ y -= 2; need(16); text(M, y, 'Note: ' + r.note, 9.5, false, '0.4 0.4 0.4'); y -= 14; }
+  });
+  pages.forEach((c, i)=>{ cur = c; text(M, 30, 'Waqt24 app se bana. Fiqh ke masle mein apne mustanad aalim se zaroor poochhein.', 8, false, '0.5 0.5 0.5'); text(W - M, 30, 'Page ' + (i + 1) + ' / ' + pages.length, 8, false, '0.5 0.5 0.5', true); });
+  const objs = [];
+  objs.push('<< /Type /Catalog /Pages 2 0 R >>');
+  objs.push('<< /Type /Pages /Kids [' + pages.map((_, i)=> (5 + i * 2) + ' 0 R').join(' ') + '] /Count ' + pages.length + ' >>');
+  objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+  objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+  pages.forEach((c, i)=>{
+    const body = c.join('\n');
+    objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${6 + i * 2} 0 R >>`);
+    objs.push(`<< /Length ${body.length} >>\nstream\n${body}\nendstream`);
+  });
+  let out = '%PDF-1.4\n'; const off = [];
+  objs.forEach((o, i)=>{ off.push(out.length); out += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+  const xr = out.length;
+  out += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n` + off.map(o=> String(o).padStart(10, '0') + ' 00000 n \n').join('') + `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;
+  const bytes = new Uint8Array(out.length); for(let i = 0; i < out.length; i++) bytes[i] = out.charCodeAt(i) & 255;
+  return new Blob([bytes], { type:'application/pdf' });
+}
+async function zkPdfShare(recs, name){
+  if(!recs.length){ showToast('Pehle koi record save karein'); return; }
+  let blob; try{ blob = zkPdfBuild(recs); }catch(e){ console.warn(e); showToast('PDF nahi ban payi'); return; }
+  const file = new File([blob], name, { type:'application/pdf' });
+  try{ if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], title:'Waqt24 Zakat Record' }); return; } }catch(e){ if(e && e.name === 'AbortError') return; }
+  const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=> URL.revokeObjectURL(url), 3000); showToast('PDF download ho gayi');
+}
+
+/* ---- Reminders: 30, 7 and 1 day before the hawl completes, and on the day (9 am). Used by the web timers and the Android app. ---- */
+function zkNextDue(){
+  const z = zkState(); if(!z.nisabDate) return null;
+  let d = zkHawlEnd(new Date(z.nisabDate + 'T00:00:00')); const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+  for(let i = 0; i < 60 && d < t0; i++) d = zkHawlEnd(d);
+  return d;
+}
+function zakatReminders(day){
+  const z = zkState(), n = state.notif || {}; if(!z.nisabDate || n.zkRem === false) return [];
+  const due = zkNextDue(); if(!due) return [];
+  const dd = new Date(day.getFullYear(), day.getMonth(), day.getDate()), diff = Math.round((due - dd) / 86400000);
+  const txt = { 30:'Zakat ka saal 30 din mein poora hoga. Hisaab ki taiyari shuru karein.', 7:'Zakat ka saal 7 din mein poora hoga. Maal ka hisaab kar lein.', 1:'Kal aapki Zakat ka saal poora ho raha hai. Hisaab karke Zakat ada karne ki taiyari kar lein.', 0:'Aaj aapki Zakat ka saal poora hua. Hisaab karke Zakat ada kar dein.' }[diff];
+  if(!txt) return [];
+  return [{ at:new Date(day.getFullYear(), day.getMonth(), day.getDate(), 9, 0, 0), title:'🌙 ' + (diff === 0 ? 'Zakat ka din' : diff === 1 ? 'Zakat kal farz hogi' : 'Zakat ki yaad-dahani'), body:txt, key:'zakat' + zkISO(dd) }];
 }

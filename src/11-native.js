@@ -28,6 +28,7 @@ function nativePlan(now){
   for(let d = 0; d < NATIVE_DAYS; d++){
     const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + d, 12, 0, 0);
     ramzanReminders(day).forEach(r=>{ if(r.at > now) out.push({ at:r.at, title:r.title, body:r.body, key:r.key, azan:null }); });
+    if(typeof zakatReminders === 'function') zakatReminders(day).forEach(r=>{ if(r.at > now) out.push({ at:r.at, title:r.title, body:r.body, key:r.key, azan:null }); });
   }
   return out.sort((a, b)=> a.at - b.at);
 }
