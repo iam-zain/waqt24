@@ -3689,7 +3689,7 @@ async function shareText(text){
   }catch(e){ showToast('Share/Copy nahi ho saka'); }
 }
 /* Colour and icon per hadees category */
-const HADEES_CAT_META = { 'Akhlaq':['🤝','#3f8fe0'], 'Ilm':['📚','#9b6fd6'], 'Namaz':['🕌','#2fb6b0'], 'Ramzan':['🌙','#c79a2e'], 'Sadqa':['💝','#e0893f'] };
+const HADEES_CAT_META = { 'Akhlaq':['🤝','#3f8fe0'], 'Ilm':['📚','#9b6fd6'], 'Namaz':['🕌','#2fb6b0'], 'Ramzan':['🌙','#c79a2e'], 'Sadqa':['💝','#e0893f'], 'Zikr':['📿','#2fb6b0'], 'Imaan':['💎','#5c7cfa'], 'Ibadat':['🕋','#b5832b'], 'Tauba':['💧','#4a8fd0'], 'Aadaab':['🪴','#d6708f'] };
 function hadeesMeta(cat){ return HADEES_CAT_META[cat] || ['📜','#5c7cfa']; }
 /* Yaad status key for a hadees (hadees have no title, so the start of the text identifies it) */
 function hadeesKey(h){ return 'hadees:' + h.txt.slice(0,60); }
@@ -3716,6 +3716,10 @@ function openHadeesDetail(h){
         <div class="aad-guide-head"><span class="aad-step-lbl">Hadees</span></div>
         <div class="meaning hadees-txt">${hTxt(h)}</div>
       </div>
+      ${h.exp ? `<div class="aad-guide-sec dua-sec-info hadees-exp">
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Explanation' : 'Samajhne ki Baat'}</span></div>
+        <div class="meaning dua-info">${isEn() && h.enexp ? h.enexp : h.exp}</div>
+      </div>` : ''}
     </div>
     <div class="aad-status-row">
       <button class="aad-status-btn soch ${st==='soch'?'on':''}" id="hadeesSochBtn">⏳ Yaad karna baaqi hai</button>
@@ -3725,7 +3729,7 @@ function openHadeesDetail(h){
   `;
   document.getElementById('hadeesSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openHadeesDetail(h); };
   document.getElementById('hadeesAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openHadeesDetail(h); };
-  document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ scene:hadeesSceneSvg(h), kind:'Hadees', title:h.cat, body:h.txt, foot:'Hawala: '+h.src });
+  document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ scene:hadeesSceneSvg(h), kind:'Hadees', title:h.cat, body:hTxt(h), foot:'Hawala: '+h.src });
   wirePnBar();
 }
 /* ============================================================
@@ -10440,9 +10444,10 @@ function nameSceneHtml(which, w){
     return k ? make(k) : '';
   };
   const HMAP = { 'Qayamat ke din mizaan':'scale', 'Tum mein sabse behtar wo hain':'flower', 'Nekki achhe akhlaq':'lamp', 'Jo Allah aur aakhirat ke din par':'speech', 'Insaan ke islam ki khoobi':'path', 'Ek shakhs ne Nabi ﷺ se naseehat':'storm', 'Tum mein se koi us waqt tak':'hands', 'Jo hamare chhoton par':'family', 'Ek shakhs ne poochha: meri achhi':'family', 'Kabeera gunahon':'family', 'Raham karne walon par':'heart', 'Jo logon par raham':'heart', 'Tum Jannat mein us waqt':'dove', 'Achhi baat bhi sadqa':'smile', 'Haya sirf':'light', 'Momin taana dene':'lock', 'Jo chahta hai ke uske rizq':'house', 'Ek doosre se hasad':'mercy', 'Allah ne shuru mein roz 50':'cosmos', 'Namaz isi tarah padho':'mat', 'Batao, agar tum mein se kisi ke darwaze':'tap', 'Poochha gaya: Allah ko sabse pyara':'clock', 'Jo hamari tarah namaz':'kaaba', 'Namaz mein safein seedhi':'pillars', 'Fajr ke baad sooraj nikalne':'dawn', 'Jamaat ki namaz akele':'masjidIn', 'Qayamat ke din bande se sabse pehle':'scale', 'Agar bande ke farz':'hands', 'Jo shakhs Isha ki namaz':'bookNight', 'Munafiqon par Fajr':'masjidIn', 'Nabi ﷺ se poochha gaya':'clock', 'Fajr se pehle ki do':'dawn', 'Jo shakhs pabandi se 12':'house', 'Jo shakhs Zuhr se pehle':'sprout', 'Jannat ki kunji':'gate', 'Insaan aur kufr':'mat', 'Beshak namaz be-hayai':'lamp', 'Yaqeenan wo momin':'flower', 'Ae imaan walo':'mountain', 'Namaz Deen ka sutoon':'pillars', 'Qayamat ke din banda':'scale', 'Tum mein sabse behtareen':'flower', 'Musalman woh hai jiski':'dove', 'Ilm haasil karna':'book', 'Muskuraana bhi sadqa':'smile', 'Jab Ramzan aata hai':'gateNight', 'Jisne Ramzan ke roze':'lanterns' };
-  const HCAT = { 'Namaz':'mat', 'Akhlaq':'flower', 'Ilm':'book', 'Sadqa':'smile', 'Ramzan':'lanterns' };
+  const HCAT = { 'Namaz':'mat', 'Akhlaq':'flower', 'Ilm':'book', 'Sadqa':'smile', 'Ramzan':'lanterns', 'Zikr':'beads', 'Imaan':'cosmos', 'Ibadat':'kaaba', 'Tauba':'rain', 'Aadaab':'plate' };
   Object.assign(HMAP, { 'Ek shakhs ne poochha: meri achhi':'nest', 'Kabeera gunahon':'nest', 'Jo chahta hai ke uske rizq':'kinship', 'Ek shakhs ne Nabi ﷺ se naseehat':'calm', 'Tum mein se koi us waqt tak':'twin', 'Jo hamare chhoton par':'support', 'Ek doosre se hasad':'bricks', 'Jamaat ki namaz akele':'rows', 'Namaz mein safein seedhi':'rows', 'Batao, agar tum mein se kisi ke darwaze':'river' });
   window.hadeesSceneSvg = function(h){
+    if(h.sc && T[h.sc]) return make(h.sc);
     const t = h.txt || '', hit = Object.keys(HMAP).find(k=> t.startsWith(k));
     const k = hit ? HMAP[hit] : HCAT[h.cat];
     return k ? make(k) : '';

@@ -194,7 +194,7 @@ async function shareText(text){
   }catch(e){ showToast('Share/Copy nahi ho saka'); }
 }
 /* Colour and icon per hadees category */
-const HADEES_CAT_META = { 'Akhlaq':['🤝','#3f8fe0'], 'Ilm':['📚','#9b6fd6'], 'Namaz':['🕌','#2fb6b0'], 'Ramzan':['🌙','#c79a2e'], 'Sadqa':['💝','#e0893f'] };
+const HADEES_CAT_META = { 'Akhlaq':['🤝','#3f8fe0'], 'Ilm':['📚','#9b6fd6'], 'Namaz':['🕌','#2fb6b0'], 'Ramzan':['🌙','#c79a2e'], 'Sadqa':['💝','#e0893f'], 'Zikr':['📿','#2fb6b0'], 'Imaan':['💎','#5c7cfa'], 'Ibadat':['🕋','#b5832b'], 'Tauba':['💧','#4a8fd0'], 'Aadaab':['🪴','#d6708f'] };
 function hadeesMeta(cat){ return HADEES_CAT_META[cat] || ['📜','#5c7cfa']; }
 /* Yaad status key for a hadees (hadees have no title, so the start of the text identifies it) */
 function hadeesKey(h){ return 'hadees:' + h.txt.slice(0,60); }
@@ -221,6 +221,10 @@ function openHadeesDetail(h){
         <div class="aad-guide-head"><span class="aad-step-lbl">Hadees</span></div>
         <div class="meaning hadees-txt">${hTxt(h)}</div>
       </div>
+      ${h.exp ? `<div class="aad-guide-sec dua-sec-info hadees-exp">
+        <div class="aad-guide-head"><span class="aad-step-lbl">${isEn() ? 'Explanation' : 'Samajhne ki Baat'}</span></div>
+        <div class="meaning dua-info">${isEn() && h.enexp ? h.enexp : h.exp}</div>
+      </div>` : ''}
     </div>
     <div class="aad-status-row">
       <button class="aad-status-btn soch ${st==='soch'?'on':''}" id="hadeesSochBtn">⏳ Yaad karna baaqi hai</button>
@@ -230,7 +234,7 @@ function openHadeesDetail(h){
   `;
   document.getElementById('hadeesSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openHadeesDetail(h); };
   document.getElementById('hadeesAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openHadeesDetail(h); };
-  document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ scene:hadeesSceneSvg(h), kind:'Hadees', title:h.cat, body:h.txt, foot:'Hawala: '+h.src });
+  document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ scene:hadeesSceneSvg(h), kind:'Hadees', title:h.cat, body:hTxt(h), foot:'Hawala: '+h.src });
   wirePnBar();
 }
 /* ============================================================
