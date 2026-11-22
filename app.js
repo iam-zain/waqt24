@@ -11277,7 +11277,9 @@ function renderZakat(keep){
         <button data-m="manual" class="${z.mode === 'manual' ? 'on' : ''}">✍️ Khud likhein</button>
         <button data-m="est" class="${z.mode === 'est' ? 'on' : ''}">📌 Andaaza</button>
         <button data-m="hawl" class="${z.mode === 'hawl' ? 'on' : ''}${z.nisabDate ? '' : ' dis'}">🌱 Maalik-e-Nisaab date</button>
+        <button data-m="any" class="${z.mode === 'any' ? 'on' : ''}">📅 Koi bhi date</button>
       </div>
+      <div class="zk-anybox" id="zkAnyBox" style="display:${z.mode === 'any' ? '' : 'none'};"><label>Kis date ka bhaav chahiye?</label><input type="date" class="zk-in zk-date" id="zkAnyDate" max="${zkISO(new Date())}" value="${z.anyDate || ''}"><div class="zk-hij" id="zkAnyHij"></div><div class="zk-note" style="margin:6px 0 0;">Purane saalon ki Zakat ada karni ho to us saal ke hawl ki date chunein, us din ka bhaav aa jayega.</div></div>
       <div class="zk-prices">
         <label><span>🥇 Sona (24K)</span><div class="zk-field"><i>₹</i><input class="zk-in" inputmode="decimal" id="zkGoldP" value="${Math.round(z.gold)}"></div></label>
         <label><span>🥈 Chandi (999)</span><div class="zk-field"><i>₹</i><input class="zk-in" inputmode="decimal" id="zkSilverP" value="${Math.round(z.silver * 100) / 100}"></div></label>
@@ -11351,7 +11353,7 @@ function renderZakat(keep){
   const fetchBtn = document.getElementById('zkFetch');
   const drawNote = ()=>{
     const zz = zkState(), shortD = iso=> zkGreg(new Date(iso + 'T00:00:00'));
-    fetchBtn.style.display = (zz.mode === 'est' || zz.mode === 'hawl') && zkBusy.k !== zz.mode ? '' : 'none';
+    fetchBtn.style.display = (zz.mode === 'est' || zz.mode === 'hawl' || (zz.mode === 'any' && zz.anyDate)) && zkBusy.k !== zz.mode ? '' : 'none';
     if(zz.mode === 'est'){
       noteEl.textContent = zkBusy.k === 'est' ? '⏳ Aaj/kal ka India bhaav aa raha hai...'
         : zz.latest && zz.latest.at ? `Aaj/kal ka India bhaav (₹ mein, ${zz.latest.day ? shortD(zz.latest.day) : new Date(zz.latest.at).toLocaleDateString('en-IN')} ka). Sonar ki dukaan ka bhaav duty ki wajah se thoda zyada ho sakta hai, chahein to upar badal lein.`
@@ -11361,6 +11363,10 @@ function renderZakat(keep){
       noteEl.textContent = zkBusy.k === 'hawl' ? '⏳ Us tareekh ka bhaav aa raha hai...'
         : zz.hawlP && zz.hawlP.date === rd ? `${shortD(rd)} (${zkHijri(new Date(rd + 'T00:00:00'))}) ka bhaav. Ye woh din hai jab aapka Zakat ka saal poora hua (ya Maalik-e-Nisaab bane). Sonar ki dukaan ka bhaav thoda zyada ho sakta hai.`
         : `${shortD(rd)} ka bhaav nahi aaya. Internet check karke "Bhaav dobara lein" dabayein, ya khud likhein.`;
+    } else if(zz.mode === 'any'){
+      noteEl.textContent = !zz.anyDate ? 'Upar date chunein, us din ka sone-chandi ka India bhaav aa jayega.' : zkBusy.k === 'any' ? '⏳ Us tareekh ka bhaav aa raha hai...'
+        : zz.anyP && zz.anyP.date === zz.anyDate ? `${shortD(zz.anyDate)} ka bhaav. Sonar ki dukaan ka bhaav thoda zyada ho sakta hai. Bahut purani tareekhon ka bhaav online kam milta hai, aisi surat mein khud likhein.`
+        : `${shortD(zz.anyDate)} ka bhaav nahi aaya. Internet check karke "Bhaav dobara lein" dabayein, ya khud likhein.`;
     } else noteEl.textContent = 'Apne shehar ka aaj ka bhaav likhein.';
   };
   const showPrices = ()=>{ const zz = zkState(); document.getElementById('zkGoldP').value = Math.round(zz.gold); document.getElementById('zkSilverP').value = Math.round(zz.silver * 100) / 100; };
@@ -11372,6 +11378,13 @@ function renderZakat(keep){
       try{ const p = await zkFetchLatestAny(); zz.latest = { gold:Math.round(p.gold), silver:Math.round(p.silver * 100) / 100, day:p.day, at:Date.now() }; if(zz.mode === 'est'){ zz.gold = zz.latest.gold; zz.silver = zz.latest.silver; } }
       catch(e){ if(zz.mode === 'est' && !(zz.latest && zz.latest.at)){ zz.gold = ZK.EST.gold; zz.silver = ZK.EST.silver; } if(force) showToast('Bhaav nahi mil paya. Khud likhein.'); }
       zkBusy.k = ''; if(!document.getElementById('zkGoldP')) return; if(zz.mode === 'est') showPrices(); save(); drawNote(); paint();
+    } else if(mode === 'any'){
+      const rd = zz.anyDate; if(!rd) return;
+      if(!force && zz.anyP && zz.anyP.date === rd){ zz.gold = zz.anyP.gold; zz.silver = zz.anyP.silver; showPrices(); save(); drawNote(); paint(); return; }
+      zkBusy.k = 'any'; drawNote();
+      try{ const p = await zkFetchMetal(rd); zz.anyP = { date:rd, gold:Math.round(p.gold), silver:Math.round(p.silver * 100) / 100 }; if(zz.mode === 'any' && zz.anyDate === rd){ zz.gold = zz.anyP.gold; zz.silver = zz.anyP.silver; } }
+      catch(e){ showToast('Us tareekh ka bhaav nahi mil paya.'); }
+      zkBusy.k = ''; if(!document.getElementById('zkGoldP')) return; if(zz.mode === 'any') showPrices(); save(); drawNote(); paint();
     } else if(mode === 'hawl'){
       const rd = zkHawlRefDate(); if(!rd) return;
       if(!force && zz.hawlP && zz.hawlP.date === rd){ zz.gold = zz.hawlP.gold; zz.silver = zz.hawlP.silver; showPrices(); save(); drawNote(); paint(); return; }
@@ -11411,18 +11424,21 @@ function renderZakat(keep){
   });
   const setPrice = ()=>{ const zz = zkState(); zz.gold = zkNum(document.getElementById('zkGoldP').value) || zz.gold; zz.silver = zkNum(document.getElementById('zkSilverP').value) || zz.silver; };
   ['zkGoldP', 'zkSilverP'].forEach(id=>{
-    document.getElementById(id).addEventListener('input', ()=>{ const zz = zkState(); if(zz.mode === 'est' || zz.mode === 'hawl'){ zz.mode = 'manual'; document.querySelectorAll('#zkMode button').forEach(b=> b.classList.toggle('on', b.dataset.m === 'manual')); } setPrice(); save(); drawNote(); paint(); });
+    document.getElementById(id).addEventListener('input', ()=>{ const zz = zkState(); if(zz.mode === 'est' || zz.mode === 'hawl' || zz.mode === 'any'){ zz.mode = 'manual'; document.getElementById('zkAnyBox').style.display = 'none'; document.querySelectorAll('#zkMode button').forEach(b=> b.classList.toggle('on', b.dataset.m === 'manual')); } setPrice(); save(); drawNote(); paint(); });
   });
   document.querySelectorAll('#zkMode button').forEach(b=>{
     b.onclick = ()=>{
       const zz = zkState();
       if(b.dataset.m === 'hawl' && !zz.nisabDate){ showToast('Pehle neeche "Hawl" mein Maalik-e-Nisaab ki date chunein'); return; }
-      zz.mode = b.dataset.m;
+      zz.mode = b.dataset.m; document.getElementById('zkAnyBox').style.display = zz.mode === 'any' ? '' : 'none';
       document.querySelectorAll('#zkMode button').forEach(x=> x.classList.toggle('on', x === b));
       save(); drawNote(); paint(); if(zz.mode !== 'manual') loadPrices(false);
     };
   });
   fetchBtn.onclick = ()=> loadPrices(true);
+  const anyHij = ()=>{ const zz = zkState(), el = document.getElementById('zkAnyHij'); el.innerHTML = zz.anyDate ? `🌙 Hijri: <b>${zkHijri(new Date(zz.anyDate + 'T00:00:00'))}</b>` : ''; };
+  document.getElementById('zkAnyDate').onchange = e=>{ const zz = zkState(); zz.anyDate = e.target.value; save(); anyHij(); drawNote(); if(zz.anyDate) loadPrices(false); };
+  anyHij();
   document.querySelectorAll('#zkBasis button').forEach(b=>{
     b.onclick = ()=>{ zkState().basis = b.dataset.b; document.querySelectorAll('#zkBasis button').forEach(x=> x.classList.toggle('on', x === b)); save(); paint(); };
   });
@@ -11442,7 +11458,7 @@ function renderZakat(keep){
     zkState().f = {}; save(); renderZakat(true);
   };
   drawNote(); dateNote(); hijNote(); paint();
-  if(z.mode === 'est' || z.mode === 'hawl') loadPrices(false);
+  if(z.mode === 'est' || z.mode === 'hawl' || z.mode === 'any') loadPrices(false);
 }
 
 /* ---- Zakat record: a saved calculation, its payments (qist), and a plan for the 8 masarif ---- */
