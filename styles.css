@@ -2793,3 +2793,4 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .backup-btn{ display:flex; align-items:center; justify-content:center; gap:8px; text-align:center; line-height:1.25; }
 .backup-btn svg{ width:16px; height:16px; flex:0 0 auto; margin:0; }
 .mb-share{ margin-bottom:0; }
+.cal-detail{ margin-bottom:0; }
