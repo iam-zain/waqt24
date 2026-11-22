@@ -10,6 +10,20 @@ const ZK = {
   OZ_G: 31.1035,
   EST: { gold: 13480, silver: 170, label: '17 November 2026' }
 };
+const ZK_W = ['', 'Ek','Do','Teen','Char','Paanch','Chhe','Saat','Aath','Nau','Das','Gyarah','Barah','Terah','Chaudah','Pandrah','Solah','Satrah','Atharah','Unnis','Bees','Ikkis','Baais','Teis','Chaubis','Pachchis','Chhabbis','Sattais','Atthais','Unattis','Tees','Ikattis','Battis','Taintis','Chauntis','Paintis','Chhattis','Saintis','Adtis','Untalis','Chalis','Iktalis','Bayalis','Taintalis','Chauwalis','Paitalis','Chhiyalis','Saintalis','Adtalis','Unchas','Pachas','Ikyawan','Baawan','Tirpan','Chauwan','Pachpan','Chhappan','Sattawan','Atthawan','Unsath','Saath','Iksath','Baasath','Tirsath','Chausath','Painsath','Chhiyasath','Sarsath','Arsath','Unhattar','Sattar','Ikhattar','Bahattar','Tihattar','Chauhattar','Pachhattar','Chhihattar','Satattar','Athattar','Unaasi','Assi','Ikyaasi','Bayaasi','Tiraasi','Chauraasi','Pachaasi','Chhiyaasi','Sattaasi','Atthaasi','Navaasi','Nabbe','Ikyaanave','Baanave','Tiraanave','Chauraanave','Pachaanave','Chhiyaanave','Sattaanave','Atthaanave','Ninyaanave'];
+function zkWords(n){
+  n = Math.floor(n); if(!(n > 0)) return '';
+  const parts = [], take = (div, name)=>{ const q = Math.floor(n / div); n -= q * div; if(q > 0) parts.push(zkWords(q) + ' ' + name); };
+  take(1e9, 'Arab'); take(1e7, 'Crore'); take(1e5, 'Lakh'); take(1e3, 'Hazar'); take(100, 'Sau');
+  if(n > 0) parts.push(ZK_W[n]);
+  return parts.join(' ');
+}
+function zkComma(raw){
+  const t = String(raw == null ? '' : raw).replace(/[^\d.]/g, ''), i = t.indexOf('.');
+  const ip = (i < 0 ? t : t.slice(0, i)).replace(/^0+(?=\d)/, ''), dp = i < 0 ? '' : '.' + t.slice(i + 1).replace(/\./g, '').slice(0, 2);
+  return (ip ? Number(ip).toLocaleString('en-IN') : (i < 0 ? '' : '0')) + dp;
+}
+const zkWordsLbl = v => { const n = zkNum(v); return n >= 1 ? zkWords(n) + ' rupay' : ''; };
 function zkState(){
   if(!state.zakat || typeof state.zakat !== 'object') state.zakat = {};
   const z = state.zakat;
@@ -91,7 +105,7 @@ function renderZakat(){
   document.getElementById('detailTitle').textContent = L({ rur:'Zakat Calculator', en:'Zakat Calculator' });
   const inp = (key, ph, extra)=> `<input class="zk-in" inputmode="decimal" data-k="${key}" placeholder="${ph}" value="${f[key] != null ? f[key] : ''}" ${extra || ''}>`;
   const sel = (key, opts)=> `<select class="zk-sel" data-k="${key}">${opts.map(o=>`<option value="${o[0]}"${String(f[key] || opts[0][0]) === String(o[0]) ? ' selected' : ''}>${o[1]}</option>`).join('')}</select>`;
-  const money = (key, ic, label, hint)=> `<div class="zk-row"><div class="zk-lbl"><span>${ic}</span><div><b>${label}</b>${hint ? `<small>${hint}</small>` : ''}</div></div><div class="zk-field"><i>₹</i>${inp(key, '0')}</div></div>`;
+  const money = (key, ic, label, hint)=> `<div class="zk-row"><div class="zk-lbl"><span>${ic}</span><div><b>${label}</b>${hint ? `<small>${hint}</small>` : ''}</div></div><div class="zk-field"><i>₹</i><input class="zk-in zk-money" inputmode="decimal" data-k="${key}" placeholder="0" value="${zkComma(f[key])}"></div><div class="zk-words" data-w="${key}">${zkWordsLbl(f[key])}</div></div>`;
   document.getElementById('detailBody').innerHTML = `
     <div class="zk-hero"><div class="zk-hero-ic">🌙</div><div><div class="zk-hero-t">Zakat Calculator</div><div class="zk-hero-s">Hanafi fiqh ke mutabiq · 2.5% · nisab ke saath</div></div></div>
 
@@ -180,7 +194,16 @@ function renderZakat(){
       <p>${days > 0 ? `Abhi ${days} din baaqi hain. Is se pehle Zakat farz nahi.` : `Saal poora ho chuka hai. Aaj ke maal ka hisaab karke Zakat ada kar dein.`}</p>`;
   };
   document.querySelectorAll('#detailBody [data-k]').forEach(el=>{
-    const h = ()=>{ f[el.dataset.k] = el.value; save(); paint(); };
+    const h = ()=>{
+      if(el.classList.contains('zk-money')){
+        const digitsBefore = el.value.slice(0, el.selectionStart || 0).replace(/[^\d.]/g, '').length, txt = zkComma(el.value);
+        el.value = txt; f[el.dataset.k] = txt.replace(/,/g, '');
+        let c = 0, pos = 0; while(pos < txt.length && c < digitsBefore){ if(/[\d.]/.test(txt[pos])) c++; pos++; }
+        try{ el.setSelectionRange(pos, pos); }catch(e){}
+        const w = document.querySelector('[data-w="' + el.dataset.k + '"]'); if(w) w.textContent = zkWordsLbl(f[el.dataset.k]);
+      } else f[el.dataset.k] = el.value;
+      save(); paint();
+    };
     el.addEventListener('input', h); el.addEventListener('change', h);
   });
   const setPrice = ()=>{ const zz = zkState(); zz.gold = zkNum(document.getElementById('zkGoldP').value) || zz.gold; zz.silver = zkNum(document.getElementById('zkSilverP').value) || zz.silver; };
