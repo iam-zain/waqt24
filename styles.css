@@ -2772,3 +2772,4 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .zk-yr{ margin:14px 0 2px; font-size:12px; font-weight:800; letter-spacing:.4px; color:var(--accent); }
 
 .zk-extra{ margin-top:8px; padding:8px 10px; border-radius:10px; background:color-mix(in srgb, #8a63d2 14%, transparent); color:var(--text); font-size:12px; font-weight:700; line-height:1.5; }
+.zk-yr{ color:var(--sub); } .zk-yr::before{ content:'📅 '; }
