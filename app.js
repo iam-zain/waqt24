@@ -492,7 +492,7 @@ const MIGRATIONS = {
     return s;
   }
 };
-const STATE_SHAPE = { status:'o', roza:'o', tarabih:'o', wordStatus:'o', wordCorrect:'o', learnDays:'o', notif:'o', tasbeeh:'o', location:'o', adjust:'o', quizLog:'a', bookmarks:'a', notes:'a', bmFolders:'a', bmMap:'o' };
+const STATE_SHAPE = { status:'o', roza:'o', tarabih:'o', wordStatus:'o', wordCorrect:'o', learnDays:'o', notif:'o', tasbeeh:'o', location:'o', adjust:'o', quizLog:'a', bookmarks:'a', notes:'a', bmFolders:'a', bmMap:'o', zakatLog:'a' };
 /* Returns a clean, current-version copy of any saved/imported state object (never throws). */
 function migrateState(raw){
   let s = (raw && typeof raw==='object' && !Array.isArray(raw)) ? Object.assign({}, raw) : {};
@@ -11276,6 +11276,8 @@ function renderZakat(){
       <button class="backup-btn" id="zkShare">${SHARE_SVG} Hisaab share karein</button>
       <button class="backup-btn secondary" id="zkReset">🔄 Saaf karein</button>
     </div>
+    <div class="zk-act"><button class="backup-btn" id="zkSave">💾 Record save karein</button></div>
+    ${zkLogHtml()}
 
     <div class="zk-card">
       <div class="zk-h"><span>📅</span> Hawl: Maalik-e-Nisaab kab bane?</div>
@@ -11359,12 +11361,63 @@ function renderZakat(){
     b.onclick = ()=>{ zkState().basis = b.dataset.b; document.querySelectorAll('#zkBasis button').forEach(x=> x.classList.toggle('on', x === b)); save(); paint(); };
   });
   document.getElementById('zkPaid').onchange = e=>{ zkState().nisabDate = e.target.value; save(); dateNote(); };
+  document.getElementById('zkSave').onclick = ()=>{ if(zkCalc().gross <= 0){ showToast('Pehle apna maal likhein'); return; } zkSaveSheet(()=>{ renderZakat(); setTimeout(()=>{ const x = document.querySelector('.zk-logtot'); if(x) x.scrollIntoView({ behavior:'smooth', block:'center' }); }, 60); }); };
+  zkWireLog(renderZakat);
   document.getElementById('zkShare').onclick = ()=>{ const c = zkCalc(); if(c.gross <= 0){ showToast('Pehle apna maal likhein'); return; } shareText(zkShareText()); };
   document.getElementById('zkReset').onclick = async ()=>{
     if(!(await appConfirm('Likha hua saara hisaab saaf kar dein?', 'Haan, saaf karein'))) return;
     zkState().f = {}; save(); renderZakat();
   };
   drawNote(); dateNote(); paint();
+}
+
+/* ---- Zakat record: save a calculation under a name (e.g. "Zakat 1447") with the date and amount actually paid ---- */
+function zkLog(){ if(!Array.isArray(state.zakatLog)) state.zakatLog = []; return state.zakatLog; }
+function zkSaveSheet(onDone){
+  const c = zkCalc(), z = zkState(), today = new Date(), iso = d=> d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const w = document.createElement('div'); w.className = 'app-confirm';
+  w.innerHTML = `<div class="info-card"><div class="info-text"><b>💾 Zakat ka record save karein</b></div>
+    <label class="zk-sl">Naam</label><input class="bmf-in zk-sin" id="zkRName" maxlength="40" value="Zakat ${zkHP(today).y} AH">
+    <label class="zk-sl">Zakat kab di?</label><input type="date" class="bmf-in zk-sin" id="zkRDate" value="${iso(today)}">
+    <label class="zk-sl">Kitni Zakat di? (₹)</label><input class="bmf-in zk-sin" id="zkRPaid" inputmode="decimal" value="${c.due ? zkComma(Math.round(c.zakat)) : ''}" placeholder="0">
+    <label class="zk-sl">Note (zaroori nahi)</label><input class="bmf-in zk-sin" id="zkRNote" maxlength="120" placeholder="Jaise: masjid, madrasa, rishtedaar...">
+    <div class="ac-btns"><button class="ac-no">Rehne dein</button><button class="ac-yes">Save karein</button></div></div>`;
+  document.body.appendChild(w);
+  const g = id=> w.querySelector('#' + id), close = ()=> w.remove();
+  g('zkRPaid').oninput = e=>{ e.target.value = zkComma(e.target.value); };
+  w.querySelector('.ac-no').onclick = close; w.onclick = e=>{ if(e.target === w) close(); };
+  w.querySelector('.ac-yes').onclick = ()=>{
+    const name = g('zkRName').value.trim(); if(!name){ g('zkRName').focus(); return; }
+    zkLog().unshift({ id:'z' + Date.now().toString(36), name, date:g('zkRDate').value || iso(today), paid:zkNum(g('zkRPaid').value), note:g('zkRNote').value.trim(),
+      net:c.net, nisab:c.nisab, zakat:c.due ? c.zakat : 0, basis:z.basis, debts:c.debts, rows:c.rows.filter(r=> r.v > 0).map(r=>({ ic:r.ic, n:r.n, v:r.v })) });
+    saveState(); close(); showToast('Record save ho gaya'); onDone();
+  };
+}
+function zkLogHtml(){
+  const L0 = zkLog(), total = L0.reduce((a, r)=> a + (r.paid || 0), 0);
+  if(!L0.length) return `<div class="zk-card"><div class="zk-h"><span>📒</span> Zakat ka Record</div><div class="zk-note" style="margin:0;">Abhi koi record nahi. Hisaab karke "Record save karein" dabayein, har saal ki Zakat yahan jama rahegi.</div></div>`;
+  return `<div class="zk-card"><div class="zk-h"><span>📒</span> Zakat ka Record</div>
+    <div class="zk-logtot"><small>Ab tak ada ki hui Zakat</small><b>${zkFmt(total)}</b><span>${L0.length} record</span></div>
+    ${L0.map(r=>{ const d = new Date(r.date + 'T00:00:00'), ok = !isNaN(d); return `<details class="zk-rec"><summary><div><b>${bmfEsc(r.name)}</b><small>${ok ? zkHijri(d) + ' · ' + zkGreg(d) : ''}</small></div><span>${zkFmt(r.paid || 0)}</span></summary>
+      <div class="zk-recb">${(r.rows || []).map(x=>`<div><span>${x.ic} ${x.n}</span><b>${zkFmt(x.v)}</b></div>`).join('')}
+        ${r.debts > 0 ? `<div class="zk-minus"><span>🧾 Qarz (minus)</span><b>− ${zkFmt(r.debts)}</b></div>` : ''}
+        <div class="zk-tot"><span>Zakat wala kul maal</span><b>${zkFmt(r.net)}</b></div>
+        <div><span>📏 Nisab (${r.basis === 'gold' ? 'sona' : 'chandi'})</span><b>${zkFmt(r.nisab)}</b></div>
+        <div><span>🧮 Hisaab se Zakat (2.5%)</span><b>${zkFmt(r.zakat)}</b></div>
+        <div><span>🤲 Asal mein di</span><b>${zkFmt(r.paid || 0)}</b></div>
+        ${r.note ? `<div class="zk-recn">📝 ${bmfEsc(r.note)}</div>` : ''}
+        <div class="zk-recbtn"><button type="button" data-rs="${r.id}">${SHARE_SVG} Share</button><button type="button" data-rd="${r.id}">🗑️ Hatayein</button></div></div></details>`; }).join('')}
+  </div>`;
+}
+function zkWireLog(redraw){
+  document.querySelectorAll('[data-rd]').forEach(b=> b.onclick = async ()=>{
+    if(!(await appConfirm('Ye record hata dein?', 'Haan, hatayein'))) return;
+    state.zakatLog = zkLog().filter(r=> r.id !== b.dataset.rd); saveState(); redraw();
+  });
+  document.querySelectorAll('[data-rs]').forEach(b=> b.onclick = ()=>{
+    const r = zkLog().find(x=> x.id === b.dataset.rs); if(!r) return;
+    shareText(`${r.name}\n\n` + (r.rows || []).map(x=>`• ${x.n}: ${zkFmt(x.v)}`).join('\n') + (r.debts > 0 ? `\n• Qarz (minus): ${zkFmt(r.debts)}` : '') + `\n\nZakat wala kul maal: ${zkFmt(r.net)}\nZakat (2.5%): ${zkFmt(r.zakat)}\nDi gayi Zakat: ${zkFmt(r.paid || 0)}\n\nWaqt24: iam-zain.github.io/waqt24`);
+  });
 }
 /* ============================================================
    BOOKMARK FOLDERS: group Pasandeeda items into folders (state.bmFolders = [{id,name,ic}], state.bmMap = { bookmarkKey: folderId }).
