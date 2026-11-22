@@ -11575,8 +11575,15 @@ function zkLogHtml(){
   return `<details class="zk-card zk-logcard" ${zkLogOpen ? 'open' : ''}><summary class="zk-h"><span>📒</span> Zakat ka Record<em>${L0.length} · ${zkFmt(total)}</em></summary>
     <div class="zk-logtot"><small>Ab tak ada ki hui Zakat</small><b>${zkFmt(total)}</b><span>${L0.length} record</span></div>
     <button type="button" class="zk-addbtn" id="zkPdfAll">📄 Poore record ka PDF</button>
-    ${L0.map(r=>{ const pd = zkPaidOf(r), left = Math.max(0, r.zakat - pd);
-      return `<details class="zk-rec" data-id="${r.id}" ${zkOpenRec === r.id ? 'open' : ''}><summary><div><b>${bmfEsc(r.name)}</b><small>${zkDateLbl(r.date)}</small></div><span class="${r.zakat > 0 && left > 0.5 ? 'part' : ''}">${zkFmt(pd)}${r.zakat > 0 && left > 0.5 ? `<em>baaqi ${zkFmt(left)}</em>` : ''}</span></summary>${zkRecBody(r)}</details>`; }).join('')}
+    ${(()=>{
+      const srt = L0.slice().sort((x, y)=> x.date < y.date ? -1 : x.date > y.date ? 1 : 0); let lastY = null;
+      return srt.map((r, i)=>{
+        const pd = zkPaidOf(r), left = Math.max(0, r.zakat - pd), d = new Date(r.date + 'T00:00:00'), hy = isNaN(d) ? '' : zkHP(d).y;
+        const st = r.zakat > 0 ? (left <= 0.5 ? 'ok' : pd > 0 ? 'part' : 'none') : (pd > 0 ? 'ok' : 'na');
+        const head = hy !== lastY ? `<div class="zk-yr">${hy ? hy + ' AH' : ''}</div>` : ''; lastY = hy;
+        return head + `<details class="zk-rec" data-id="${r.id}" ${zkOpenRec === r.id ? 'open' : ''}><summary><span class="zk-sn ${st}">${st === 'ok' ? '✓' : i + 1}</span><div class="zk-rn"><b>${bmfEsc(r.name)}</b><small>${zkDateLbl(r.date)}</small></div><span class="zk-ra ${st}">${zkFmt(pd)}<em>${st === 'ok' ? '✅ Poori ada' : st === 'part' ? '⏳ Baaqi ' + zkFmt(left) : st === 'none' ? '⭕ Baaqi ' + zkFmt(left) : '➖ Zakat farz nahi'}</em></span></summary>${zkRecBody(r)}</details>`;
+      }).join('');
+    })()}
   </details>`;
 }
 function zkWireLog(redraw){
@@ -11609,6 +11616,7 @@ function zkWireLog(redraw){
 
 /* ---- PDF made in the browser (plain A4 pages, Helvetica, Latin text only: no library, nothing uploaded) ---- */
 function zkPdfBuild(recs){
+  recs = recs.slice().sort((x, y)=> x.date < y.date ? -1 : x.date > y.date ? 1 : 0);
   const A = s=> String(s == null ? '' : s).replace(/₹/g, 'Rs. ').replace(/−/g, '-').replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-').replace(/·/g, '|').replace(/[^\x20-\x7E]/g, '').replace(/\s{2,}/g, ' ').trim();
   const esc = s=> A(s).replace(/([\\()])/g, '\\$1');
   const W = 595, H = 842, M = 48, pages = []; let cur = null, y = 0;
@@ -11627,7 +11635,7 @@ function zkPdfBuild(recs){
   row('Records', String(recs.length), true); row('Hisaab se kul Zakat', zkFmt(due), false); row('Ab tak di gayi Zakat', zkFmt(tot), true, '0.1 0.5 0.35'); y -= 6; line(y + 6); y -= 8;
   recs.forEach((r, idx)=>{
     need(120); if(idx > 0){ y -= 8; line(y + 6); y -= 10; }
-    text(M, y, r.name, 15, true, '0.11 0.42 0.32'); y -= 16;
+    text(M, y, (recs.length > 1 ? (idx + 1) + '. ' : '') + r.name, 15, true, '0.11 0.42 0.32'); y -= 16;
     text(M, y, 'Tareekh: ' + zkDateLbl(r.date), 9.5, false, '0.4 0.4 0.4'); y -= 18;
     (r.rows || []).forEach(x=> row(x.n, zkFmt(x.v)));
     if(r.debts > 0) row('Qarz / bills (minus)', '- ' + zkFmt(r.debts), false, '0.75 0.45 0.15');

@@ -2763,3 +2763,10 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .zk-recbtn button svg, .zk-act .backup-btn svg{ width:15px; height:15px; flex:0 0 auto; margin:0; vertical-align:baseline; }
 
 .zk-warn{ margin:2px 0 4px; font-size:12px; font-weight:700; color:#c0752f; min-height:0; }
+
+.zk-rec summary{ display:flex; align-items:center; gap:10px; } .zk-rn{ flex:1; min-width:0; }
+.zk-sn{ flex:0 0 auto; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; background:var(--card2); color:var(--sub); border:1.5px solid var(--line); }
+.zk-sn.ok{ background:#1c8a5c; border-color:#1c8a5c; color:#fff; font-size:15px; } .zk-sn.part{ border-color:#c0752f; color:#c0752f; } .zk-sn.none{ border-color:#c0752f; color:#c0752f; }
+.zk-ra{ text-align:right; font-weight:800; white-space:nowrap; } .zk-ra.ok{ color:#1c8a5c; } .zk-ra.part, .zk-ra.none{ color:var(--text); } .zk-ra.na{ color:var(--sub); }
+.zk-ra em{ display:block; font-style:normal; font-size:11px; font-weight:700; margin-top:2px; } .zk-ra.part em, .zk-ra.none em{ color:#c0752f; } .zk-ra.ok em{ color:#1c8a5c; } .zk-ra.na em{ color:var(--sub); }
+.zk-yr{ margin:14px 0 2px; font-size:12px; font-weight:800; letter-spacing:.4px; color:var(--accent); }
