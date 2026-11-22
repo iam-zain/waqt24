@@ -11346,8 +11346,18 @@ function renderZakat(keep){
     const c = zkCalc(), fab = document.getElementById('zkFab');
     fab.innerHTML = c.gross <= 0 ? '🧮 Zakat ka hisaab dekhein ↓' : (c.due ? `🧮 Zakat ${zkFmt(c.zakat)} · hisaab dekhein ↓` : '🧮 Abhi Zakat farz nahi · hisaab dekhein ↓');
     fab.className = 'zk-fab' + (c.gross > 0 ? (c.due ? ' yes' : ' no') : '');
+    if(window.zkFabWake) window.zkFabWake();
   };
-  try{ if(window.IntersectionObserver){ const fab = document.getElementById('zkFab'); const io = new IntersectionObserver(es=>{ if(!document.body.contains(fab)){ io.disconnect(); return; } fab.parentNode.classList.toggle('hide', es[0].isIntersecting); }, { threshold:0.15 }); io.observe(document.getElementById('zkResult')); } }catch(e){}
+  const fabSt = { inView:false, idle:false, t:0 };
+  const fabApply = ()=>{ const fab = document.getElementById('zkFab'); if(!fab) return; const has = zkCalc().gross > 0; fab.parentNode.classList.toggle('hide', !has || fabSt.inView || fabSt.idle); };
+  const fabWake = ()=>{ fabSt.idle = false; clearTimeout(fabSt.t); fabSt.t = setTimeout(()=>{ fabSt.idle = true; fabApply(); }, 3000); fabApply(); };
+  window.zkFabWake = fabWake;
+  try{
+    if(window.IntersectionObserver){ const fab0 = document.getElementById('zkFab'); const io = new IntersectionObserver(es=>{ if(!document.body.contains(fab0)){ io.disconnect(); return; } fabSt.inView = es[0].isIntersecting; fabApply(); }, { threshold:0.15 }); io.observe(document.getElementById('zkResult')); }
+    const onScroll = ()=>{ if(!document.getElementById('zkFab')){ document.removeEventListener('scroll', onScroll, true); clearTimeout(fabSt.t); return; } fabWake(); };
+    document.addEventListener('scroll', onScroll, true);
+  }catch(e){}
+  fabWake();
   document.getElementById('zkFab').onclick = ()=> document.getElementById('zkResult').scrollIntoView({ behavior:'smooth', block:'center' });
   const noteEl = document.getElementById('zkPriceNote');
   const fetchBtn = document.getElementById('zkFetch');
