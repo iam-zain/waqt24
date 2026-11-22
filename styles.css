@@ -2773,3 +2773,13 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 
 .zk-extra{ margin-top:8px; padding:8px 10px; border-radius:10px; background:color-mix(in srgb, #8a63d2 14%, transparent); color:var(--text); font-size:12px; font-weight:700; line-height:1.5; }
 .zk-yr{ color:var(--sub); } .zk-yr::before{ content:'📅 '; }
+
+.zk-rec{ border:1.5px solid var(--line); border-top:1.5px solid var(--line); border-radius:16px; padding:12px; margin-top:10px; background:var(--card); box-shadow:0 2px 8px rgba(0,0,0,.05); }
+.zk-rec[open]{ border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); background:color-mix(in srgb, var(--accent) 4%, var(--card)); }
+.zk-rec summary{ list-style:none; } .zk-rec summary::-webkit-details-marker{ display:none; }
+.zk-sn{ position:relative; width:32px; height:32px; font-size:14px; }
+.zk-sn.ok{ background:color-mix(in srgb, #1c8a5c 16%, var(--card)); color:#1c8a5c; border-color:#1c8a5c; font-size:14px; }
+.zk-sn.ok::after{ content:'✓'; position:absolute; right:-5px; bottom:-5px; width:16px; height:16px; border-radius:50%; background:#1c8a5c; color:#fff; font-size:10px; line-height:16px; text-align:center; border:2px solid var(--card); box-sizing:content-box; }
+.zk-chev{ flex:0 0 auto; width:28px; height:28px; border-radius:50%; background:var(--card2); color:var(--sub); display:flex; align-items:center; justify-content:center; font-size:14px; transition:transform .2s; }
+.zk-rec[open] .zk-chev{ transform:rotate(180deg); background:var(--accent); color:#fff; }
+.zk-yr{ margin:18px 0 0; padding-bottom:2px; }

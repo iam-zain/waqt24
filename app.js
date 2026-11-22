@@ -11596,7 +11596,7 @@ function zkLogHtml(){
         const pd = zkPaidOf(r), left = Math.max(0, r.zakat - pd), d = new Date(r.date + 'T00:00:00'), hy = isNaN(d) ? '' : zkHP(d).y;
         const st = r.zakat > 0 ? (left <= 0.5 ? 'ok' : pd > 0 ? 'part' : 'none') : (pd > 0 ? 'ok' : 'na');
         const head = hy !== lastY ? `<div class="zk-yr">${hy ? hy + ' AH' : ''}</div>` : ''; lastY = hy;
-        return head + `<details class="zk-rec" data-id="${r.id}" ${zkOpenRec === r.id ? 'open' : ''}><summary><span class="zk-sn ${st}">${st === 'ok' ? '✓' : i + 1}</span><div class="zk-rn"><b>${bmfEsc(r.name)}</b><small>${zkDateLbl(r.date)}</small></div><span class="zk-ra ${st}">${zkFmt(pd)}<em>${st === 'ok' ? '✅ Poori ada' + (zkExtraOf(r) > 0.5 ? ' · ' + zkFmt(zkExtraOf(r)) + ' zyada' : '') : st === 'part' ? '⏳ Baaqi ' + zkFmt(left) : st === 'none' ? '⭕ Baaqi ' + zkFmt(left) : '➖ Zakat farz nahi'}</em></span></summary>${zkRecBody(r)}</details>`;
+        return head + `<details class="zk-rec" data-id="${r.id}" ${zkOpenRec === r.id ? 'open' : ''}><summary><span class="zk-sn ${st}">${i + 1}</span><div class="zk-rn"><b>${bmfEsc(r.name)}</b><small>${zkDateLbl(r.date)}</small></div><span class="zk-ra ${st}">${zkFmt(pd)}<em>${st === 'ok' ? '✅ Poori ada' + (zkExtraOf(r) > 0.5 ? ' · ' + zkFmt(zkExtraOf(r)) + ' zyada' : '') : st === 'part' ? '⏳ Baaqi ' + zkFmt(left) : st === 'none' ? '⭕ Baaqi ' + zkFmt(left) : '➖ Zakat farz nahi'}</em></span><span class="zk-chev" aria-hidden="true">▾</span></summary>${zkRecBody(r)}</details>`;
       }).join('');
     })()}
   </details>`;
