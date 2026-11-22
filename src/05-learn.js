@@ -1443,7 +1443,7 @@ function renderRamzanCalendar(){
           <div class="rz-g">${dateStr(r.d)}</div>
           <div class="rz-h">${r.n} Ramzan-ul-Mubarak ${year} AH${r.qadr ? ' • ✨ Shab-e-Qadr ka Ehtimaal' : ''}</div>
         </div>
-        <div class="rz-t"><span>🌅 ${r.sehri}</span><span>🌇 ${r.iftar}</span></div>
+        <div class="rz-t"><span><i>🌅</i><b>${r.sehri}</b></span><span><i>🌇</i><b>${r.iftar}</b></span></div>
       </div>`).join('')}
     `).join('');
   document.getElementById('ramzanCal').innerHTML = `
