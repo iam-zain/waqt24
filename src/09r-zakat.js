@@ -46,6 +46,16 @@ function zkCalc(){
   const due = net >= nisab && net > 0;
   return { rows, gross, debts, net, nisab, nisabSilver, nisabGold, due, zakat: due ? net * 0.025 : 0, short: due ? 0 : Math.max(0, nisab - net) };
 }
+const zkScene = k => (window.sceneByKey ? (sceneByKey(k) || '') : '');
+const zkHF = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', { day:'numeric', month:'long', year:'numeric' });
+function zkHP(d){ const o = {}; zkHF.formatToParts(d).forEach(p=>{ o[p.type] = p.value; }); return { d:+o.day, m:o.month, y:parseInt(o.year, 10) }; }
+const zkHijri = d => { const h = zkHP(d); return `${h.d} ${h.m} ${h.y} AH`; };
+const zkGreg = d => d.toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+function zkHawlEnd(d0){ /* same Hijri day, one Hijri year later */
+  const h = zkHP(d0), t = new Date(d0); t.setDate(t.getDate() + 352);
+  for(let i = 0; i < 8; i++){ const x = zkHP(t); if(x.y === h.y + 1 && x.m === h.m && x.d === h.d) return t; if(x.y === h.y + 1 && x.m === h.m && x.d > h.d) break; t.setDate(t.getDate() + 1); }
+  const f = new Date(d0); f.setDate(f.getDate() + 354); return f;
+}
 function zkResultHtml(){
   const c = zkCalc(), z = zkState();
   const pct = c.nisab > 0 ? Math.min(100, Math.round(c.net / c.nisab * 100)) : 0;
@@ -128,17 +138,19 @@ function renderZakat(){
     </div>
 
     <div class="zk-card">
-      <div class="zk-h"><span>📅</span> Hawl (saal ka hisaab)</div>
-      <div class="zk-note" style="margin:0 0 8px;">Zakat tab farz hai jab nisab ke barabar maal par ek chaand ka poora saal (354 din) guzar jaye. Aakhri baar Zakat kab di?</div>
-      <input type="date" class="zk-in zk-date" id="zkPaid" value="${z.lastPaid || ''}">
-      <div class="zk-note" id="zkNext"></div>
+      <div class="zk-h"><span>📅</span> Hawl: Maalik-e-Nisaab kab bane?</div>
+      <div class="zk-sc">${zkScene('hourglass')}</div>
+      <div class="zk-note" style="margin:0 0 8px;">Jis din aap pehli baar nisab ke barabar maal ke maalik bane, wo tareekh chunein. Zakat us din se poore ek chaand ke saal (Hijri) baad farz hoti hai.</div>
+      <input type="date" class="zk-in zk-date" id="zkPaid" value="${z.nisabDate || ''}">
+      <div class="zk-hawl" id="zkNext"></div>
     </div>
 
     <div class="zk-card zk-info">
-      <details><summary>📖 Kin cheezon par Zakat hai?</summary><p>Nakdi, sona-chandi (zewar samet), tijarat ka maal, wapas milne wala udhaar, aur tijarat ke liye liye gaye shares. Maal par ek saal guzarna zaroori hai.</p></details>
-      <details><summary>🚫 Kin par Zakat nahi?</summary><p>Rehne ka ghar, zaati istemal ki gaadi, ghar ka saaman, kapde, aur pesha-war auzaar (tools). Qarz minus karke hi hisaab hota hai.</p></details>
-      <details><summary>🤲 Zakat kise de sakte hain? (8 masarif)</summary><p>Qur'an (9:60) ke mutabiq: faqeer, miskeen, zakat ke karkun, jinke dil jodne hon, ghulam azad karna, qarzdar, Allah ki raah mein, aur musafir. Zakat ada karte waqt <b>niyyat</b> zaroori hai aur maalik bana kar dena zaroori hai.</p></details>
-      <details><summary>🚷 Kise nahi de sakte?</summary><p>Apne walidain, dada-dadi, aulad, pota-pote, aur biwi ya shauhar ko Zakat nahi di ja sakti. Hanafi mein Sayyid (Bani Hashim) ko bhi nahi. Maaldaar (jo nisab ka maalik ho) ko nahi.</p></details>
+      <details class="zk-sec" open><summary>⏳ Zakat kab farz hoti hai?</summary><div class="zk-sc">${zkScene('calendar')}</div><ul class="zk-ul"><li><span>1️⃣</span><div>Pehle aap nisab ke barabar maal ke maalik banein (Maalik-e-Nisaab)</div></li><li><span>🌙</span><div>Us din se ek poora chaand ka saal (354 din ke aas-paas) guzre</div></li><li><span>✅</span><div>Saal ke aakhir mein bhi maal nisab ke barabar ho</div></li><li><span>🤲</span><div>Tab 2.5% Zakat farz hoti hai</div></li></ul><p>Saal ke beech maal kam-zyada hone se hawl nahi tootta, bas saal ke shuru aur aakhir mein nisab hona chahiye. Zakat farz hone se pehle ada karna theek nahi, aur farz hone ke baad deri karna gunah hai. Agar pehle Zakat de chuke hain to agla saal usi tareekh se ginein. Zakat ka saal Hijri (chaand) ke hisaab se hota hai, isliye tareekh Hijri aur English dono mein dikhayi gayi hai.</p></details>
+      <details class="zk-sec" open><summary>📖 Kin cheezon par Zakat hai?</summary><div class="zk-sc">${zkScene('coins')}</div><ul class="zk-ul"><li><span>💰</span><div>Nakdi: haath mein, bank, wallet, UPI</div></li><li><span>🥇</span><div>Sona aur zewar</div></li><li><span>🥈</span><div>Chandi aur zewar</div></li><li><span>🏪</span><div>Tijarat ka maal</div></li><li><span>🤝</span><div>Wapas milne wala udhaar</div></li><li><span>📈</span><div>Tijarat ke liye liye gaye shares</div></li></ul><p>Maal par ek chaand ka saal guzarna zaroori hai.</p></details>
+      <details class="zk-sec" open><summary>🚫 Kin par Zakat nahi?</summary><div class="zk-sc">${zkScene('house')}</div><ul class="zk-ul"><li><span>🏠</span><div>Rehne ka ghar</div></li><li><span>🚗</span><div>Zaati istemal ki gaadi</div></li><li><span>🛋️</span><div>Ghar ka saaman aur kapde</div></li><li><span>🛠️</span><div>Pesha-war auzaar (tools)</div></li></ul><p>Qarz minus karke hi hisaab hota hai.</p></details>
+      <details class="zk-sec" open><summary>🤲 Zakat kise de sakte hain? (8 masarif)</summary><div class="zk-sc">${zkScene('hands')}</div><ul class="zk-ul"><li><span>🍞</span><div>Faqeer</div></li><li><span>🥣</span><div>Miskeen</div></li><li><span>📋</span><div>Zakat ke karkun</div></li><li><span>💞</span><div>Jinke dil jodne hon</div></li><li><span>🔓</span><div>Ghulam azad karna</div></li><li><span>🧾</span><div>Qarzdar</div></li><li><span>🕌</span><div>Allah ki raah mein</div></li><li><span>🧳</span><div>Musafir</div></li></ul><p>Qur'an (9:60) ke mutabiq. Zakat ada karte waqt <b>niyyat</b> zaroori hai aur maalik bana kar dena zaroori hai.</p></details>
+      <details class="zk-sec" open><summary>🚷 Kise nahi de sakte?</summary><div class="zk-sc">${zkScene('family')}</div><ul class="zk-ul"><li><span>👪</span><div>Apne walidain aur dada-dadi</div></li><li><span>🧒</span><div>Aulad aur pota-pote</div></li><li><span>💍</span><div>Biwi ya shauhar</div></li><li><span>🌙</span><div>Sayyid (Bani Hashim), Hanafi mein</div></li><li><span>💼</span><div>Maaldaar jo nisab ka maalik ho</div></li></ul></details>
     </div>
     <div class="backup-note">Ye calculator ek madadgar andaaza hai. Sona-chandi ka bhaav aap ke shehar ke bazaar ke hisaab se thoda alag ho sakta hai. Kisi masle mein shak ho to apne mustanad aalim se zaroor poochhein.</div>
     <div style="height:30px;"></div>`;
@@ -155,10 +167,11 @@ function renderZakat(){
   };
   const dateNote = ()=>{
     const el = document.getElementById('zkNext'), zz = zkState();
-    if(!zz.lastPaid){ el.textContent = ''; return; }
-    const d = new Date(zz.lastPaid + 'T00:00:00'); d.setDate(d.getDate() + 354);
-    const days = Math.ceil((d - new Date()) / 86400000);
-    el.textContent = days > 0 ? `Agli Zakat ka saal ${d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })} ko poora hoga (${days} din baaqi).` : `Zakat ka saal poora ho chuka hai (${d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}). Hisaab karke Zakat ada kar dein.`;
+    if(!zz.nisabDate){ el.innerHTML = ''; return; }
+    const d0 = new Date(zz.nisabDate + 'T00:00:00'), end = zkHawlEnd(d0), days = Math.ceil((end - new Date()) / 86400000);
+    el.innerHTML = `<div><small>🌱 Maalik-e-Nisaab bane</small><b>${zkHijri(d0)}</b><span>${zkGreg(d0)}</span></div>
+      <div><small>🗓️ Zakat farz hogi (1 saal baad)</small><b>${zkHijri(end)}</b><span>${zkGreg(end)}</span></div>
+      <p>${days > 0 ? `Abhi ${days} din baaqi hain. Is se pehle Zakat farz nahi.` : `Saal poora ho chuka hai. Aaj ke maal ka hisaab karke Zakat ada kar dein.`}</p>`;
   };
   document.querySelectorAll('#detailBody [data-k]').forEach(el=>{
     const h = ()=>{ f[el.dataset.k] = el.value; save(); paint(); };
@@ -190,7 +203,7 @@ function renderZakat(){
   document.querySelectorAll('#zkBasis button').forEach(b=>{
     b.onclick = ()=>{ zkState().basis = b.dataset.b; document.querySelectorAll('#zkBasis button').forEach(x=> x.classList.toggle('on', x === b)); save(); paint(); };
   });
-  document.getElementById('zkPaid').onchange = e=>{ zkState().lastPaid = e.target.value; save(); dateNote(); };
+  document.getElementById('zkPaid').onchange = e=>{ zkState().nisabDate = e.target.value; save(); dateNote(); };
   document.getElementById('zkShare').onclick = ()=>{ const c = zkCalc(); if(c.gross <= 0){ showToast('Pehle apna maal likhein'); return; } shareText(zkShareText()); };
   document.getElementById('zkReset').onclick = async ()=>{
     if(!(await appConfirm('Likha hua saara hisaab saaf kar dein?', 'Haan, saaf karein'))) return;
