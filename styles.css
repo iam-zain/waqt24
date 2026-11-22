@@ -2761,3 +2761,5 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .zk-anybox{ margin-bottom:12px; padding:12px; border-radius:14px; background:var(--card2); } .zk-anybox label{ display:block; font-size:12.5px; font-weight:700; margin-bottom:6px; }
 .zk-recbtn button, .zk-addbtn, .zk-fab, .zk-act .backup-btn{ display:flex; align-items:center; justify-content:center; gap:6px; text-align:center; line-height:1.2; }
 .zk-recbtn button svg, .zk-act .backup-btn svg{ width:15px; height:15px; flex:0 0 auto; margin:0; vertical-align:baseline; }
+
+.zk-warn{ margin:2px 0 4px; font-size:12px; font-weight:700; color:#c0752f; min-height:0; }
