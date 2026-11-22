@@ -2659,3 +2659,5 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 
 .tab-end{ flex:0 0 auto; height:56px; min-height:56px; }
 #tab-explore{ padding-bottom:20px; }
+
+.more-search{ padding:8px 0 4px; }

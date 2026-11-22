@@ -598,6 +598,10 @@ function renderContinueCard(){
   const c = document.getElementById('contBtn'); if(c) c.onclick = openLastRead;
   document.getElementById('gsEntryBtn').onclick = ()=> openOverlay(()=>{ gsQuery = ''; renderGlobalSearch(); });
 }
+(function(){
+  const b = document.getElementById('gsEntryBtn2');
+  if(b) b.onclick = ()=> openOverlay(()=>{ gsQuery = ''; renderGlobalSearch(); });
+})();
 function openLastRead(){
   const r = state.lastRead; if(!r) return;
   if(r.k==='quran'){ if(r.ed) state.quranEd = r.ed; return openOverlay(()=> renderQuranReader(r.id)); }
