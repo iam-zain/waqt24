@@ -328,12 +328,13 @@ let zkOpenRec = '';
 /* small sheet builder: fields = [{id,label,type,value,ph,money,options}] */
 function zkSheet(title, fields, okLabel, onOk, extraHtml){
   const w = document.createElement('div'); w.className = 'app-confirm';
-  const f = fields.map(x=> `<label class="zk-sl">${x.label}</label>` + (x.options
+  const f = fields.map(x=> `<div class="zk-lrow"><label class="zk-sl">${x.label}</label>${x.chip ? `<button type="button" class="zk-fill" data-fill="${x.id}" data-v="${x.chip.val}">${x.chip.txt}</button>` : ''}</div>` + (x.options
     ? `<select class="bmf-in zk-sin" id="${x.id}">${x.options.map(o=>`<option value="${o[0]}"${o[0] === x.value ? ' selected' : ''}>${o[1]}</option>`).join('')}</select>`
     : `<input class="bmf-in zk-sin" id="${x.id}" ${x.type === 'date' ? 'type="date"' : 'inputmode="' + (x.money ? 'decimal' : 'text') + '"'} maxlength="60" value="${x.value == null ? '' : bmfEsc(x.value)}" placeholder="${x.ph || ''}">`)).join('');
   w.innerHTML = `<div class="info-card zk-sheet"><div class="info-text"><b>${title}</b></div>${f}${extraHtml || ''}<div class="ac-btns"><button class="ac-no">Rehne dein</button><button class="ac-yes">${okLabel}</button></div></div>`;
   document.body.appendChild(w);
   const g = id=> w.querySelector('#' + id), close = ()=> w.remove();
+  w.querySelectorAll('[data-fill]').forEach(b=> b.onclick = ()=>{ const i = g(b.dataset.fill); i.value = zkComma(b.dataset.v); i.dispatchEvent(new Event('input')); });
   fields.filter(x=> x.money).forEach(x=>{ g(x.id).oninput = e=>{ e.target.value = zkComma(e.target.value); }; });
   w.querySelector('.ac-no').onclick = close; w.onclick = e=>{ if(e.target === w) close(); };
   w.querySelector('.ac-yes').onclick = ()=>{ const v = {}; fields.forEach(x=>{ v[x.id] = g(x.id).value; }); if(onOk(v, w) !== false) close(); };
@@ -344,7 +345,7 @@ function zkSaveSheet(onDone){
   zkSheet('💾 Zakat ka record save karein', [
     { id:'rName', label:'Naam', value:'Zakat ' + zkHP(today).y + ' AH' },
     { id:'rDate', label:'Hisaab ki tareekh', type:'date', value:zkISO(today) },
-    { id:'rPaid', label:'Abhi kitni Zakat di? (₹, baad mein qist jod sakte hain)', money:true, value:'', ph:'0' },
+    { id:'rPaid', label:'Abhi kitni Zakat di? (₹)', money:true, value:'', ph:'0', chip:c.due ? { txt:'Farz ' + zkFmt(c.zakat), val:Math.round(c.zakat) } : null },
     { id:'rNote', label:'Note (zaroori nahi)', value:'', ph:'Jaise: masjid, madrasa, rishtedaar...' }
   ], 'Save karein', v=>{
     const name = v.rName.trim(); if(!name) return false;
@@ -357,7 +358,7 @@ function zkSaveSheet(onDone){
 function zkPaySheet(r, onDone){
   const left = Math.max(0, Math.round(r.zakat - zkPaidOf(r)));
   zkSheet('➕ Qist / payment jodein', [
-    { id:'pAmt', label:'Kitni Zakat di? (₹)', money:true, value:left > 0 ? zkComma(left) : '', ph:'0' },
+    { id:'pAmt', label:'Kitni Zakat di? (₹)', money:true, value:'', ph:'0', chip:left > 0 ? { txt:'Baaqi ' + zkFmt(left), val:left } : null },
     { id:'pDate', label:'Kab di?', type:'date', value:zkISO(new Date()) },
     { id:'pM', label:'Kis madd mein?', value:'', options:[['', '🤲 Tay nahi']].concat(ZK_MASARIF.map(m=>[m.k, m.ic + ' ' + m.n])) },
     { id:'pTo', label:'Kisko / kahan? (zaroori nahi)', value:'', ph:'Jaise: madrasa, kisi ka naam' }

@@ -2749,3 +2749,6 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .zk-recall{ margin-top:12px; padding:12px; border-radius:14px; background:var(--card2); } .zk-recall-t{ font-size:13px; font-weight:800; margin-bottom:8px; }
 .zk-chips{ display:flex; flex-wrap:wrap; gap:6px; } .zk-chips button{ padding:7px 10px; border-radius:999px; border:1.5px solid var(--line); background:var(--card); color:var(--text); font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; } .zk-chips button.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
 .zk-rctip{ display:none; margin-top:10px; padding:10px 12px; border-radius:12px; background:var(--card); font-size:12.5px; line-height:1.6; } .zk-rctip.show{ display:block; }
+
+.zk-lrow{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; } .zk-lrow .zk-sl{ margin-top:0; }
+.zk-fill{ flex:0 0 auto; border:0; border-radius:999px; padding:6px 11px; background:color-mix(in srgb, #1c8a5c 16%, transparent); color:#1c8a5c; font:inherit; font-size:12.5px; font-weight:800; cursor:pointer; }
