@@ -150,7 +150,7 @@
     const k = MAP[d.title] || ({ 'Rabbana':'hands', 'Roz Marra':'dawn', 'Khana':'bowl', 'Pareshani':'cloudBreak', 'Masjid':'masjidIn', 'Jannat Aur Jahannam':'garden' })[d.cat];
     return k ? make(k) : '';
   };
-  const HMAP = { 'Namaz Deen ka sutoon':'pillars', 'Qayamat ke din banda':'scale', 'Tum mein sabse behtareen':'flower', 'Musalman woh hai jiski':'dove', 'Ilm haasil karna':'book', 'Muskuraana bhi sadqa':'smile', 'Jab Ramzan aata hai':'gateNight', 'Jisne Ramzan ke roze':'lanterns' };
+  const HMAP = { 'Qayamat ke din bande se sabse pehle':'scale', 'Agar bande ke farz':'hands', 'Jo shakhs Isha ki namaz':'bookNight', 'Munafiqon par Fajr':'masjidIn', 'Nabi ﷺ se poochha gaya':'clock', 'Fajr se pehle ki do':'dawn', 'Jo shakhs pabandi se 12':'house', 'Jo shakhs Zuhr se pehle':'sprout', 'Jannat ki kunji':'gate', 'Insaan aur kufr':'mat', 'Beshak namaz be-hayai':'lamp', 'Yaqeenan wo momin':'flower', 'Ae imaan walo':'mountain', 'Namaz Deen ka sutoon':'pillars', 'Qayamat ke din banda':'scale', 'Tum mein sabse behtareen':'flower', 'Musalman woh hai jiski':'dove', 'Ilm haasil karna':'book', 'Muskuraana bhi sadqa':'smile', 'Jab Ramzan aata hai':'gateNight', 'Jisne Ramzan ke roze':'lanterns' };
   const HCAT = { 'Namaz':'mat', 'Akhlaq':'flower', 'Ilm':'book', 'Sadqa':'smile', 'Ramzan':'lanterns' };
   window.hadeesSceneSvg = function(h){
     const t = h.txt || '', hit = Object.keys(HMAP).find(k=> t.startsWith(k));
