@@ -2656,3 +2656,6 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .ib-kids .ib-b b{ font-size:16px; } .ib-kids .ib-b p{ font-size:15px; line-height:1.75; }
 .ib-kids .ib-n{ width:28px; height:28px; font-size:14px; }
 .ib-kids .aad-intro{ font-size:15px; line-height:1.75; }
+
+.tab-end{ flex:0 0 auto; height:56px; min-height:56px; }
+#tab-explore{ padding-bottom:20px; }
