@@ -11271,7 +11271,7 @@ function renderZakat(){
     const zz = zkState();
     fetchBtn.style.display = zz.mode === 'live' ? '' : 'none';
     noteEl.textContent = zz.mode === 'est' ? `Andaaza: India mein ${ZK.EST.label} ke aas-paas ka bhaav (24K sona ₹${ZK.EST.gold.toLocaleString('en-IN')}/g, chandi ₹${ZK.EST.silver}/g). Bhaav roz badalta hai, apne shehar ka bhaav dekh kar badlein.`
-      : zz.mode === 'live' ? (zz.pricesAt ? `Live bhaav (antarrashtriya spot) · ${new Date(zz.pricesAt).toLocaleString('en-IN')}. India ke bazaar ka bhaav duty ki wajah se thoda zyada hota hai.` : 'Neeche button dabakar abhi ka bhaav lein. Internet chahiye.')
+      : zz.mode === 'live' ? (zz.pricesAt ? `India ka live bhaav (₹ mein) · ${new Date(zz.pricesAt).toLocaleString('en-IN')}. Sonar ki dukaan ka bhaav duty ki wajah se thoda zyada ho sakta hai, chahein to upar badal lein.` : 'Neeche button dabakar abhi ka bhaav lein. Internet chahiye.')
       : 'Apne shehar ka aaj ka bhaav likhein.';
   };
   const dateNote = ()=>{
