@@ -10,7 +10,7 @@ function bmList(){ if(!Array.isArray(state.bookmarks)) state.bookmarks = []; ret
 function isBookmarked(k){ return bmList().includes(k); }
 function toggleBookmark(k){
   const l = bmList(); const i = l.indexOf(k);
-  if(i>=0) l.splice(i,1); else l.push(k);
+  if(i>=0){ l.splice(i,1); if(state.bmMap) delete state.bmMap[k]; } else l.push(k);
   saveState();
   return i<0;
 }
@@ -220,6 +220,7 @@ function wirePnBar(){
 document.getElementById('detailBody').addEventListener('click', (e)=>{
   const b = e.target.closest('.bm-btn');
   if(!b) return;
+  if(b.dataset.nt !== undefined || b.dataset.fp !== undefined) return;   /* the note and folder buttons have their own handlers */
   e.stopPropagation();
   const on = toggleBookmark(b.dataset.bm);
   b.classList.toggle('on', on);
@@ -241,19 +242,23 @@ function bmResolve(k){
 }
 function renderBookmarks(){
   document.getElementById('detailTitle').textContent = 'Mere Pasandeeda';
-  const items = bmList().map(k=>({k, r:bmResolve(k)})).filter(x=>x.r);
+  const all = bmList().map(k=>({k, r:bmResolve(k)})).filter(x=>x.r);
+  const items = bmfFilter(all);
   const body = document.getElementById('detailBody');
   const types = [...new Set(items.map(x=>x.r.type))];
-  body.innerHTML = notesSectionHtml() + (!items.length ? `<div class="empty-state">Abhi tak kuch pasandeeda nahi.<br>Kisi bhi dua, hadees, naam ya lafz par ☆ dabayein.</div>` : types.map(t=>`
+  const emptyMsg = !all.length ? `Abhi tak kuch pasandeeda nahi.<br>Kisi bhi dua, hadees, naam ya lafz par ☆ dabayein.` : `Is folder mein abhi kuch nahi.<br>Kisi pasandeeda par 📁 dabakar yahan rakhein.`;
+  body.innerHTML = bmfBarHtml(all) + notesSectionHtml() + (!items.length ? `<div class="empty-state">${emptyMsg}</div>` : types.map(t=>`
     <div class="dw-section">
       <div class="dw-section-title"><span>${t}</span><span class="dw-count">${items.filter(x=>x.r.type===t).length}</span></div>
-      ${items.filter(x=>x.r.type===t).map(x=>{ const nn = notesForBm(x.k); return `<div class="dw-row bm-card" data-k="${x.k.replace(/"/g,'&quot;')}">
+      ${items.filter(x=>x.r.type===t).map(x=>{ const nn = notesForBm(x.k), fo = bmfOf(x.k); return `<div class="dw-row bm-card" data-k="${x.k.replace(/"/g,'&quot;')}">
         ${x.r.scene ? `<div class="bm-thumb" aria-hidden="true">${x.r.scene}</div>` : x.r.ar ? `<div class="ar">${x.r.ar}</div>` : ''}
-        <div class="info"><div class="tr">${x.r.title}</div><div class="m">${x.r.sub}</div>${nn.length ? `<div class="bm-note">📝 ${noteEsc(nn[0].text).slice(0, 90)}${nn.length > 1 ? ' (+' + (nn.length - 1) + ')' : ''}</div>` : ''}</div>
+        <div class="info"><div class="tr">${x.r.title}</div><div class="m">${x.r.sub}</div>${fo && bmfSel === 'all' ? `<div class="bmf-tag">${fo.ic} ${bmfEsc(fo.name)}</div>` : ''}${nn.length ? `<div class="bm-note">📝 ${noteEsc(nn[0].text).slice(0, 90)}${nn.length > 1 ? ' (+' + (nn.length - 1) + ')' : ''}</div>` : ''}</div>
+        <button type="button" class="bm-btn bm-note-btn ${fo ? 'on' : ''}" data-fp="${x.k.replace(/"/g,'&quot;')}" title="Folder">📁</button>
         <button type="button" class="bm-btn bm-note-btn ${nn.length ? 'on' : ''}" data-nt="${x.k.replace(/"/g,'&quot;')}" title="Note">📝</button>
         ${bmBtn(x.k, 'data-refresh="1"')}
       </div>`; }).join('')}
     </div>`).join(''));
+  bmfWire(body, renderBookmarks);
   wireNotesSection(renderBookmarks);
   body.querySelectorAll('.dw-row[data-k]').forEach(el=>{
     el.onclick = ()=>{ const r = bmResolve(el.dataset.k); if(r) r.open(); };

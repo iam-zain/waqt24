@@ -153,9 +153,15 @@ function renderZakat(){
       <details class="zk-sec" open><summary>🚷 Kise nahi de sakte?</summary><div class="zk-sc">${zkScene('family')}</div><ul class="zk-ul"><li><span>👪</span><div>Apne walidain aur dada-dadi</div></li><li><span>🧒</span><div>Aulad aur pota-pote</div></li><li><span>💍</span><div>Biwi ya shauhar</div></li><li><span>🌙</span><div>Sayyid (Bani Hashim), Hanafi mein</div></li><li><span>💼</span><div>Maaldaar jo nisab ka maalik ho</div></li></ul></details>
     </div>
     <div class="backup-note">Ye calculator ek madadgar andaaza hai. Sona-chandi ka bhaav aap ke shehar ke bazaar ke hisaab se thoda alag ho sakta hai. Kisi masle mein shak ho to apne mustanad aalim se zaroor poochhein.</div>
-    <div style="height:30px;"></div>`;
+    <div class="zk-fab-wrap"><button type="button" class="zk-fab" id="zkFab"></button></div>`;
   const save = ()=> saveState();
-  const paint = ()=>{ document.getElementById('zkResult').innerHTML = zkResultHtml(); };
+  const paint = ()=>{
+    document.getElementById('zkResult').innerHTML = zkResultHtml();
+    const c = zkCalc(), fab = document.getElementById('zkFab');
+    fab.innerHTML = c.gross <= 0 ? '🧮 Zakat ka hisaab dekhein ↓' : (c.due ? `🧮 Zakat ${zkFmt(c.zakat)} · hisaab dekhein ↓` : '🧮 Abhi Zakat farz nahi · hisaab dekhein ↓');
+    fab.className = 'zk-fab' + (c.gross > 0 ? (c.due ? ' yes' : ' no') : '');
+  };
+  document.getElementById('zkFab').onclick = ()=> document.getElementById('zkResult').scrollIntoView({ behavior:'smooth', block:'center' });
   const noteEl = document.getElementById('zkPriceNote');
   const fetchBtn = document.getElementById('zkFetch');
   const drawNote = ()=>{

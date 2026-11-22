@@ -492,7 +492,7 @@ const MIGRATIONS = {
     return s;
   }
 };
-const STATE_SHAPE = { status:'o', roza:'o', tarabih:'o', wordStatus:'o', wordCorrect:'o', learnDays:'o', notif:'o', tasbeeh:'o', location:'o', adjust:'o', quizLog:'a', bookmarks:'a', notes:'a' };
+const STATE_SHAPE = { status:'o', roza:'o', tarabih:'o', wordStatus:'o', wordCorrect:'o', learnDays:'o', notif:'o', tasbeeh:'o', location:'o', adjust:'o', quizLog:'a', bookmarks:'a', notes:'a', bmFolders:'a', bmMap:'o' };
 /* Returns a clean, current-version copy of any saved/imported state object (never throws). */
 function migrateState(raw){
   let s = (raw && typeof raw==='object' && !Array.isArray(raw)) ? Object.assign({}, raw) : {};
@@ -1618,7 +1618,7 @@ function bmList(){ if(!Array.isArray(state.bookmarks)) state.bookmarks = []; ret
 function isBookmarked(k){ return bmList().includes(k); }
 function toggleBookmark(k){
   const l = bmList(); const i = l.indexOf(k);
-  if(i>=0) l.splice(i,1); else l.push(k);
+  if(i>=0){ l.splice(i,1); if(state.bmMap) delete state.bmMap[k]; } else l.push(k);
   saveState();
   return i<0;
 }
@@ -1828,6 +1828,7 @@ function wirePnBar(){
 document.getElementById('detailBody').addEventListener('click', (e)=>{
   const b = e.target.closest('.bm-btn');
   if(!b) return;
+  if(b.dataset.nt !== undefined || b.dataset.fp !== undefined) return;   /* the note and folder buttons have their own handlers */
   e.stopPropagation();
   const on = toggleBookmark(b.dataset.bm);
   b.classList.toggle('on', on);
@@ -1849,19 +1850,23 @@ function bmResolve(k){
 }
 function renderBookmarks(){
   document.getElementById('detailTitle').textContent = 'Mere Pasandeeda';
-  const items = bmList().map(k=>({k, r:bmResolve(k)})).filter(x=>x.r);
+  const all = bmList().map(k=>({k, r:bmResolve(k)})).filter(x=>x.r);
+  const items = bmfFilter(all);
   const body = document.getElementById('detailBody');
   const types = [...new Set(items.map(x=>x.r.type))];
-  body.innerHTML = notesSectionHtml() + (!items.length ? `<div class="empty-state">Abhi tak kuch pasandeeda nahi.<br>Kisi bhi dua, hadees, naam ya lafz par ☆ dabayein.</div>` : types.map(t=>`
+  const emptyMsg = !all.length ? `Abhi tak kuch pasandeeda nahi.<br>Kisi bhi dua, hadees, naam ya lafz par ☆ dabayein.` : `Is folder mein abhi kuch nahi.<br>Kisi pasandeeda par 📁 dabakar yahan rakhein.`;
+  body.innerHTML = bmfBarHtml(all) + notesSectionHtml() + (!items.length ? `<div class="empty-state">${emptyMsg}</div>` : types.map(t=>`
     <div class="dw-section">
       <div class="dw-section-title"><span>${t}</span><span class="dw-count">${items.filter(x=>x.r.type===t).length}</span></div>
-      ${items.filter(x=>x.r.type===t).map(x=>{ const nn = notesForBm(x.k); return `<div class="dw-row bm-card" data-k="${x.k.replace(/"/g,'&quot;')}">
+      ${items.filter(x=>x.r.type===t).map(x=>{ const nn = notesForBm(x.k), fo = bmfOf(x.k); return `<div class="dw-row bm-card" data-k="${x.k.replace(/"/g,'&quot;')}">
         ${x.r.scene ? `<div class="bm-thumb" aria-hidden="true">${x.r.scene}</div>` : x.r.ar ? `<div class="ar">${x.r.ar}</div>` : ''}
-        <div class="info"><div class="tr">${x.r.title}</div><div class="m">${x.r.sub}</div>${nn.length ? `<div class="bm-note">📝 ${noteEsc(nn[0].text).slice(0, 90)}${nn.length > 1 ? ' (+' + (nn.length - 1) + ')' : ''}</div>` : ''}</div>
+        <div class="info"><div class="tr">${x.r.title}</div><div class="m">${x.r.sub}</div>${fo && bmfSel === 'all' ? `<div class="bmf-tag">${fo.ic} ${bmfEsc(fo.name)}</div>` : ''}${nn.length ? `<div class="bm-note">📝 ${noteEsc(nn[0].text).slice(0, 90)}${nn.length > 1 ? ' (+' + (nn.length - 1) + ')' : ''}</div>` : ''}</div>
+        <button type="button" class="bm-btn bm-note-btn ${fo ? 'on' : ''}" data-fp="${x.k.replace(/"/g,'&quot;')}" title="Folder">📁</button>
         <button type="button" class="bm-btn bm-note-btn ${nn.length ? 'on' : ''}" data-nt="${x.k.replace(/"/g,'&quot;')}" title="Note">📝</button>
         ${bmBtn(x.k, 'data-refresh="1"')}
       </div>`; }).join('')}
     </div>`).join(''));
+  bmfWire(body, renderBookmarks);
   wireNotesSection(renderBookmarks);
   body.querySelectorAll('.dw-row[data-k]').forEach(el=>{
     el.onclick = ()=>{ const r = bmResolve(el.dataset.k); if(r) r.open(); };
@@ -11274,9 +11279,15 @@ function renderZakat(){
       <details class="zk-sec" open><summary>🚷 Kise nahi de sakte?</summary><div class="zk-sc">${zkScene('family')}</div><ul class="zk-ul"><li><span>👪</span><div>Apne walidain aur dada-dadi</div></li><li><span>🧒</span><div>Aulad aur pota-pote</div></li><li><span>💍</span><div>Biwi ya shauhar</div></li><li><span>🌙</span><div>Sayyid (Bani Hashim), Hanafi mein</div></li><li><span>💼</span><div>Maaldaar jo nisab ka maalik ho</div></li></ul></details>
     </div>
     <div class="backup-note">Ye calculator ek madadgar andaaza hai. Sona-chandi ka bhaav aap ke shehar ke bazaar ke hisaab se thoda alag ho sakta hai. Kisi masle mein shak ho to apne mustanad aalim se zaroor poochhein.</div>
-    <div style="height:30px;"></div>`;
+    <div class="zk-fab-wrap"><button type="button" class="zk-fab" id="zkFab"></button></div>`;
   const save = ()=> saveState();
-  const paint = ()=>{ document.getElementById('zkResult').innerHTML = zkResultHtml(); };
+  const paint = ()=>{
+    document.getElementById('zkResult').innerHTML = zkResultHtml();
+    const c = zkCalc(), fab = document.getElementById('zkFab');
+    fab.innerHTML = c.gross <= 0 ? '🧮 Zakat ka hisaab dekhein ↓' : (c.due ? `🧮 Zakat ${zkFmt(c.zakat)} · hisaab dekhein ↓` : '🧮 Abhi Zakat farz nahi · hisaab dekhein ↓');
+    fab.className = 'zk-fab' + (c.gross > 0 ? (c.due ? ' yes' : ' no') : '');
+  };
+  document.getElementById('zkFab').onclick = ()=> document.getElementById('zkResult').scrollIntoView({ behavior:'smooth', block:'center' });
   const noteEl = document.getElementById('zkPriceNote');
   const fetchBtn = document.getElementById('zkFetch');
   const drawNote = ()=>{
@@ -11331,6 +11342,83 @@ function renderZakat(){
     zkState().f = {}; save(); renderZakat();
   };
   drawNote(); dateNote(); paint();
+}
+/* ============================================================
+   BOOKMARK FOLDERS: group Pasandeeda items into folders (state.bmFolders = [{id,name,ic}], state.bmMap = { bookmarkKey: folderId }).
+   An item sits in at most one folder; no folder = "Bina folder". Removing a bookmark also clears its folder.
+   ============================================================ */
+const BMF_ICONS = ['📁','⭐','🌙','🕌','📖','🤲','💚','🎓','🌿','🕋'];
+let bmfSel = 'all';          /* 'all' | 'none' | folder id */
+function bmfList(){ if(!Array.isArray(state.bmFolders)) state.bmFolders = []; return state.bmFolders; }
+function bmfMap(){ if(!state.bmMap || typeof state.bmMap !== 'object' || Array.isArray(state.bmMap)) state.bmMap = {}; return state.bmMap; }
+function bmfOf(k){ const id = bmfMap()[k]; return bmfList().find(f=>f.id === id) || null; }
+function bmfCount(id, items){ return items.filter(x=> id === 'none' ? !bmfOf(x.k) : (bmfMap()[x.k] === id)).length; }
+const bmfEsc = t=> String(t).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function bmfFilter(items){
+  if(bmfSel === 'all' || (bmfSel !== 'none' && !bmfList().some(f=>f.id === bmfSel))){ bmfSel = 'all'; return items; }
+  return items.filter(x=> bmfSel === 'none' ? !bmfOf(x.k) : bmfMap()[x.k] === bmfSel);
+}
+function bmfBarHtml(items){
+  const fl = bmfList(); if(!fl.length && !items.length) return '';
+  const chip = (id, ic, n, c)=> `<button type="button" class="bmf-chip ${bmfSel === id ? 'on' : ''}" data-f="${id}">${ic} ${n}<i>${c}</i></button>`;
+  let h = `<div class="bmf-bar">${chip('all', '🔖', L({rur:'Sab', en:'All'}), items.length)}`;
+  fl.forEach(f=>{ h += chip(f.id, f.ic, bmfEsc(f.name), bmfCount(f.id, items)); });
+  if(fl.length && bmfCount('none', items)) h += chip('none', '📄', L({rur:'Bina folder', en:'No folder'}), bmfCount('none', items));
+  h += `<button type="button" class="bmf-chip bmf-new" id="bmfNew">＋ ${L({rur:'Naya folder', en:'New folder'})}</button></div>`;
+  const cur = fl.find(f=>f.id === bmfSel);
+  if(cur) h += `<div class="bmf-manage"><span>${cur.ic} ${bmfEsc(cur.name)}</span><button type="button" id="bmfRen">✏️ ${L({rur:'Naam badlein', en:'Rename'})}</button><button type="button" id="bmfDel">🗑️ ${L({rur:'Hatayein', en:'Delete'})}</button></div>`;
+  return h;
+}
+/* a small sheet: ask for a folder name (and an icon), optionally pre-filled for renaming */
+function bmfAsk(title, cur, done){
+  const w = document.createElement('div'); w.className = 'app-confirm';
+  let ic = cur ? cur.ic : BMF_ICONS[0];
+  w.innerHTML = `<div class="info-card"><div class="info-text"><b>${title}</b></div>
+    <input class="bmf-in" maxlength="24" placeholder="${L({rur:'Folder ka naam', en:'Folder name'})}" value="${cur ? bmfEsc(cur.name) : ''}">
+    <div class="bmf-ics">${BMF_ICONS.map(i=>`<button type="button" class="${i === ic ? 'on' : ''}" data-i="${i}">${i}</button>`).join('')}</div>
+    <div class="ac-btns"><button class="ac-no">${L({rur:'Rehne dein', en:'Cancel'})}</button><button class="ac-yes">${L({rur:'Save karein', en:'Save'})}</button></div></div>`;
+  document.body.appendChild(w);
+  const inp = w.querySelector('.bmf-in'); setTimeout(()=> inp.focus(), 50);
+  w.querySelectorAll('.bmf-ics button').forEach(b=> b.onclick = ()=>{ ic = b.dataset.i; w.querySelectorAll('.bmf-ics button').forEach(x=> x.classList.toggle('on', x === b)); });
+  const close = ()=> w.remove();
+  w.querySelector('.ac-no').onclick = close; w.onclick = e=>{ if(e.target === w) close(); };
+  const ok = ()=>{ const n = inp.value.trim(); if(!n){ inp.focus(); return; } close(); done(n, ic); };
+  w.querySelector('.ac-yes').onclick = ok; inp.onkeydown = e=>{ if(e.key === 'Enter') ok(); };
+}
+function bmfCreate(after){
+  bmfAsk(L({rur:'Naya folder', en:'New folder'}), null, (n, ic)=>{
+    const f = { id:'f' + Date.now().toString(36), name:n, ic }; bmfList().push(f); saveState(); bmfSel = f.id;
+    if(after) after(f); else renderBookmarks();
+  });
+}
+/* choose a folder for one bookmark */
+function bmfPick(k, redraw){
+  const w = document.createElement('div'); w.className = 'app-confirm';
+  const cur = bmfMap()[k] || '';
+  w.innerHTML = `<div class="info-card"><div class="info-text"><b>📁 ${L({rur:'Kis folder mein rakhein?', en:'Move to folder'})}</b></div>
+    <div class="bmf-pick">${bmfList().map(f=>`<button type="button" class="${cur === f.id ? 'on' : ''}" data-f="${f.id}">${f.ic} ${bmfEsc(f.name)}</button>`).join('')}
+    <button type="button" class="${cur ? '' : 'on'}" data-f="">📄 ${L({rur:'Bina folder', en:'No folder'})}</button>
+    <button type="button" class="bmf-add" data-f="+">＋ ${L({rur:'Naya folder banayein', en:'New folder'})}</button></div></div>`;
+  document.body.appendChild(w);
+  const close = ()=> w.remove(); w.onclick = e=>{ if(e.target === w) close(); };
+  w.querySelectorAll('[data-f]').forEach(b=> b.onclick = ()=>{
+    const v = b.dataset.f; close();
+    if(v === '+'){ bmfCreate(f=>{ bmfMap()[k] = f.id; saveState(); showToast(L({rur:'Folder mein rakh diya', en:'Moved'})); redraw(); }); return; }
+    if(v) bmfMap()[k] = v; else delete bmfMap()[k];
+    saveState(); showToast(v ? L({rur:'Folder mein rakh diya', en:'Moved'}) : L({rur:'Folder se nikal diya', en:'Removed from folder'})); redraw();
+  });
+}
+function bmfWire(body, redraw){
+  body.querySelectorAll('.bmf-chip[data-f]').forEach(b=> b.onclick = ()=>{ bmfSel = (bmfSel === b.dataset.f && b.dataset.f !== 'all') ? 'all' : b.dataset.f; redraw(); });
+  const nw = document.getElementById('bmfNew'); if(nw) nw.onclick = ()=> bmfCreate();
+  const rn = document.getElementById('bmfRen'); if(rn) rn.onclick = ()=>{ const f = bmfList().find(x=>x.id === bmfSel); if(f) bmfAsk(L({rur:'Folder ka naam badlein', en:'Rename folder'}), f, (n, ic)=>{ f.name = n; f.ic = ic; saveState(); redraw(); }); };
+  const dl = document.getElementById('bmfDel'); if(dl) dl.onclick = async ()=>{
+    const f = bmfList().find(x=>x.id === bmfSel); if(!f) return;
+    if(!(await appConfirm(L({rur:`"${bmfEsc(f.name)}" folder hata dein? Andar ke pasandeeda delete nahi honge, bas "Bina folder" mein aa jayenge.`, en:`Delete folder "${bmfEsc(f.name)}"? Items stay in Bookmarks as "No folder".`}), L({rur:'Haan, hatayein', en:'Delete'})))) return;
+    const m = bmfMap(); Object.keys(m).forEach(k=>{ if(m[k] === f.id) delete m[k]; });
+    state.bmFolders = bmfList().filter(x=>x.id !== f.id); bmfSel = 'all'; saveState(); redraw();
+  };
+  body.querySelectorAll('[data-fp]').forEach(b=> b.onclick = e=>{ e.stopPropagation(); bmfPick(b.dataset.fp, redraw); });
 }
 /* ===== Salutation after the name of Allah: "Allah ﷻ" everywhere =====
    Every text on screen is covered: the names, the Qur'an translations (Hinglish / English, Hindi अल्लाह, Urdu اللہ), the quiz and
