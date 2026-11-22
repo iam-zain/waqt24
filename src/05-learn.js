@@ -35,7 +35,7 @@ function renderAadaab(){
     const chip = document.createElement('div');
     chip.className = 'chip' + (aadaabCat===c.id ? ' prayed' : '');
     chip.textContent = `${c.ic} ${c.label} (${count})`;
-    chip.onclick = ()=>{ aadaabCat = c.id; renderAadaab(); };
+    chip.onclick = ()=>{ aadaabCat = (aadaabCat===c.id ? '__all__' : c.id); renderAadaab(); };
     catRow.appendChild(chip);
   });
   wireLiveSearch('aadaabSearchInput', 'aadaabSearchClear', renderAadaabList, v=>{ aadaabSearch = v; });
@@ -153,7 +153,7 @@ function renderMoreHadees(){
     const chip = document.createElement('div');
     chip.className = 'chip' + (hadeesFilter===c ? ' prayed' : '');
     chip.textContent = `${hadeesMeta(c)[0]} ${c} (${count})`;
-    chip.onclick = ()=>{ hadeesFilter=c; renderMoreHadees(); };
+    chip.onclick = ()=>{ hadeesFilter = (hadeesFilter===c ? 'All' : c); renderMoreHadees(); };
     catsEl.appendChild(chip);
   });
   renderHadeesList();

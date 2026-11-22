@@ -433,7 +433,7 @@ function renderMoreDua(){
     const chip = document.createElement('div');
     chip.className = 'chip' + (duaCat===c.key ? ' prayed' : '');
     chip.textContent = `${c.ic} ${c.name} (${c.count})`;
-    chip.onclick = ()=>{ duaCat = c.key; renderMoreDua(); };
+    chip.onclick = ()=>{ duaCat = (duaCat===c.key ? '__all__' : c.key); renderMoreDua(); };
     catRow.appendChild(chip);
   });
   document.getElementById('duaSearchInput').value = duaSearch;
@@ -616,7 +616,7 @@ const GS_BUCKET_OF = { surah:'quran', dua:'dua', hadees:'hadees', aadaab:'seekh'
 function drawGsChips(){
   const row = document.getElementById('gsChips'); if(!row) return;
   row.innerHTML = `<button type="button" class="chip${gsFav ? ' prayed' : ''}" data-fav="1">⭐ ${L({rur:'Pasandeeda', en:'Saved'})}</button>` + GS_BUCKETS.map(b=>`<button type="button" class="chip${gsFilter===b[0] ? ' prayed' : ''}" data-b="${b[0]}">${L({rur:b[1], en:b[2]})}</button>`).join('');
-  row.querySelectorAll('.chip').forEach(c=>{ c.onclick = ()=>{ if(c.dataset.fav) gsFav = !gsFav; else gsFilter = c.dataset.b; drawGsChips(); drawGlobalSearch(); }; });
+  row.querySelectorAll('.chip').forEach(c=>{ c.onclick = ()=>{ if(c.dataset.fav) gsFav = !gsFav; else gsFilter = (gsFilter===c.dataset.b ? 'all' : c.dataset.b); drawGsChips(); drawGlobalSearch(); }; });
 }
 function renderGlobalSearch(){
   document.getElementById('detailTitle').textContent = L({rur:'Sab mein dhoondhiye', en:'Search everything'});

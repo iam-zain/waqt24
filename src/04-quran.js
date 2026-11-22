@@ -676,7 +676,7 @@ function renderQuranWords(){
     const chip = document.createElement('div');
     chip.className = 'chip' + (qwordGroupFilter===key ? ' prayed' : '');
     chip.textContent = `${label} (${count})`;
-    chip.onclick = ()=>{ qwordGroupFilter = key; renderQuranWords(); };
+    chip.onclick = ()=>{ qwordGroupFilter = (qwordGroupFilter===key ? '__all__' : key); renderQuranWords(); };
     groupRow.appendChild(chip);
   };
   tab('__all__', '🌐 Sabhi', QURAN_WORDS.length);
