@@ -215,6 +215,7 @@ function openHadeesDetail(h){
       <div class="aad-head-title">${h.cat}</div>
       <div class="ref" style="margin:-4px 0 8px;">Hawala: ${h.src}</div>
       <div class="aad-cat-pill">${hadeesMeta(h.cat)[0]} Hadees</div>
+      ${qaListenBtn(h.src, 'hadeesListenBtn') ? `<div class="aad-pill-row" style="margin-top:8px;">${qaListenBtn(h.src, 'hadeesListenBtn')}</div>` : ''}
     </div>
     <div class="dua-detail">
       <div class="aad-guide-sec hadees-sec">
@@ -232,6 +233,7 @@ function openHadeesDetail(h){
     </div>
     ${pnBarHtml()}
   `;
+  { const lb = document.getElementById('hadeesListenBtn'); if(lb) lb.onclick = ()=> qaListenRef(h.src); }
   document.getElementById('hadeesSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openHadeesDetail(h); };
   document.getElementById('hadeesAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openHadeesDetail(h); };
   document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ scene:hadeesSceneSvg(h), kind:'Hadees', title:h.cat, body:hTxt(h), foot:'Hawala: '+h.src });

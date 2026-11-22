@@ -542,7 +542,7 @@ function openDuaDetail(d){
       <div class="aad-head-title">${dTitle(d)}</div>
       <div class="ref" style="margin:-4px 0 8px;">Hawala: ${d.ref}</div>
       <div class="aad-tags center">${duaTagChips(d)}</div>
-      <div class="aad-pill-row"><div class="aad-cat-pill">${duaIcon(d)} ${d.cat}</div><button type="button" class="dua-tasbeeh-btn mini" id="duaTasbeehBtn">📿 ${L({ rur:'Tasbeeh ke saath padhein', en:'Read with Tasbeeh' })}</button></div>
+      <div class="aad-pill-row"><div class="aad-cat-pill">${duaIcon(d)} ${d.cat}</div>${qaListenBtn(d.ref, 'duaListenBtn')}<button type="button" class="dua-tasbeeh-btn mini" id="duaTasbeehBtn">📿 ${L({ rur:'Tasbeeh ke saath padhein', en:'Read with Tasbeeh' })}</button></div>
     </div>
     <div class="dua-detail">
       <div class="aad-guide-sec dua-sec-ar">
@@ -570,6 +570,7 @@ function openDuaDetail(d){
     ${pnBarHtml()}
   `;
   document.getElementById('duaTasbeehBtn').onclick = ()=> malaStartWith({ n:d.title, ar:d.arabic, tr:d.translit, m:d.meaning, en:d.enm, t:d.rep || 3 }, ()=>openDuaDetail(d), dTitle(d));
+  { const lb = document.getElementById('duaListenBtn'); if(lb) lb.onclick = ()=> qaListenRef(d.ref); }
   document.getElementById('duaSochBtn').onclick = ()=>{ setDuaStatus(d.title, 'soch'); openDuaDetail(d); };
   document.getElementById('duaAmalBtn').onclick = ()=>{ setDuaStatus(d.title, 'amal'); openDuaDetail(d); };
   document.getElementById('duaImgBtn').onclick = ()=> openCardShareChooser({ scene:duaSceneSvg(d), kind:"Du'a", arabic:d.arabic, title:dTitle(d), sub:d.translit, body:dMean(d), foot:'Hawala: '+d.ref });

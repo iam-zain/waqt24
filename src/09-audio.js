@@ -90,7 +90,7 @@ function qaFollowPage(){
 }
 
 /* Player state. `bism` = currently on the Bismillah that opens a Surah (Al-Fatihah has it as ayah 1; At-Tawbah has none). */
-const qa = { voice:'ar', part:'a', store:{ ar:{ dur:{}, head:{} }, ur:{ dur:{ b:5.784 }, head:{} } }, rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
+const qa = { end:0, voice:'ar', part:'a', store:{ ar:{ dur:{}, head:{} }, ur:{ dur:{ b:5.784 }, head:{} } }, rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
 /* Surahs 2-114 except At-Tawbah open with a Bismillah step. Arabic: Alafasy's Bismillah. Urdu: the recorded Urdu translation of it (the Shamshad Ali Khan set has none). Arabic + Urdu: the Arabic, then the Urdu. */
 const qaHasBism = s => s !== 1 && s !== 9;
 const QA_UR_BISM = 'qaudio/bismillah-ur.mp3';
@@ -301,7 +301,7 @@ function qaAdvance(){
   }
   if(!midAyah) qa.repCount = 0;
   const n = qaNextStep(qa.abs, qa.bism, qa.part);
-  if(!n){ qaStop(); return; }
+  if(!n || (qa.end && !midAyah && qa.abs >= qa.end)){ qaStop(); return; }
   qa.abs = n.abs; qa.bism = n.bism; qa.part = n.part; qaFollowPage();
   const other = qa.cur === qa.A ? qa.B : qa.A, url = qaFile(qa.abs, qa.bism);
   if(other.src === url){ qa.cur = other; qa.cur.currentTime = 0; qa.err = false; qaUI(); qaMediaMeta(); const p = qa.cur.play(); if(p && p.catch) p.catch(()=>qaFail()); qaPreloadNext(); }
@@ -330,6 +330,7 @@ function qaStop(){
 }
 /* Start from the current Mushaf page */
 function quranListen(page){
+  qa.end = 0;
   const st = qaPageStart(page);
   qaEls(); qa.on = true; qa.syncPage = page; qa.abs = st.abs; qa.part = 'a'; qa.exact = st.exact;
   const r = qaSurahAyah(st.abs); qa.bism = r.a === 1 && qaHasBism(r.s);
@@ -337,6 +338,7 @@ function quranListen(page){
 }
 /* Play from a given ayah of the page that is open (used by the Tarjuma sheet and by tapping a line) */
 function qaPlayFrom(abs){
+  qa.end = 0;
   if(typeof trpJump === 'function') setTimeout(trpJump, 0);
   qaEls(); qa.on = true; qa.repCount = 0; qa.syncPage = state.quranPage || qa.syncPage; qa.part = 'a'; qa.abs = abs; qa.exact = true;
   const r = qaSurahAyah(abs); qa.bism = r.a === 1 && qaHasBism(r.s);
@@ -346,6 +348,7 @@ function qaPlayFrom(abs){
    a paused one just moves its position (and stays paused). Re-renders of the same page change nothing. */
 function qaSyncToPage(page){
   if(!qa.on || qa.syncPage === page) return;
+  qa.end = 0;
   const st = qaPageStart(page), was = qa.playing || qa.loading;
   qa.syncPage = page; qa.abs = st.abs; qa.part = 'a'; qa.exact = st.exact;
   const r = qaSurahAyah(st.abs); qa.bism = r.a === 1 && qaHasBism(r.s);
@@ -433,3 +436,21 @@ function qaUI(){
   if(ov) new MutationObserver(qaPlace).observe(ov, { attributes:true, attributeFilter:['class'] });
   window.addEventListener('resize', qaPlace);
 })();
+
+/* "Sunein" for a du'a or hadees that is a Qur'an verse: read the reference (Qur’an 2:255, 14:40, 25:65-66, or a whole Surah like 112)
+   and play exactly that range with the same recitation player and voice (Arabic / Urdu) the reader uses. */
+function qaRefRange(ref){
+  const m = /Qur’an\s+(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?/.exec(String(ref || ''));
+  if(!m) return null;
+  const sn = +m[1]; if(sn < 1 || sn > 114) return null;
+  const cnt = QA_COUNTS[sn-1], a1 = m[2] ? +m[2] : 1, a2 = m[3] ? +m[3] : (m[2] ? a1 : cnt);
+  if(a1 < 1 || a2 > cnt || a2 < a1) return null;
+  return { from: qaAbs(sn, a1), to: qaAbs(sn, a2) };
+}
+function qaListenRef(ref){
+  const r = qaRefRange(ref); if(!r) return;
+  qaEls(); qa.on = true; qa.repCount = 0; qa.syncPage = state.quranPage || qa.syncPage; qa.part = 'a'; qa.abs = r.from; qa.exact = true; qa.end = r.to;
+  const x = qaSurahAyah(r.from); qa.bism = x.a === 1 && qaHasBism(x.s);
+  qa.cur.pause(); qaPlayCurrent();
+}
+const qaListenBtn = (ref, id)=> qaRefRange(ref) ? `<button type="button" class="dua-tasbeeh-btn mini" id="${id}">🎧 ${L({ rur:'Sunein', en:'Listen' })}</button>` : '';

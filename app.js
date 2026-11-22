@@ -2150,7 +2150,7 @@ function openDuaDetail(d){
       <div class="aad-head-title">${dTitle(d)}</div>
       <div class="ref" style="margin:-4px 0 8px;">Hawala: ${d.ref}</div>
       <div class="aad-tags center">${duaTagChips(d)}</div>
-      <div class="aad-pill-row"><div class="aad-cat-pill">${duaIcon(d)} ${d.cat}</div><button type="button" class="dua-tasbeeh-btn mini" id="duaTasbeehBtn">📿 ${L({ rur:'Tasbeeh ke saath padhein', en:'Read with Tasbeeh' })}</button></div>
+      <div class="aad-pill-row"><div class="aad-cat-pill">${duaIcon(d)} ${d.cat}</div>${qaListenBtn(d.ref, 'duaListenBtn')}<button type="button" class="dua-tasbeeh-btn mini" id="duaTasbeehBtn">📿 ${L({ rur:'Tasbeeh ke saath padhein', en:'Read with Tasbeeh' })}</button></div>
     </div>
     <div class="dua-detail">
       <div class="aad-guide-sec dua-sec-ar">
@@ -2178,6 +2178,7 @@ function openDuaDetail(d){
     ${pnBarHtml()}
   `;
   document.getElementById('duaTasbeehBtn').onclick = ()=> malaStartWith({ n:d.title, ar:d.arabic, tr:d.translit, m:d.meaning, en:d.enm, t:d.rep || 3 }, ()=>openDuaDetail(d), dTitle(d));
+  { const lb = document.getElementById('duaListenBtn'); if(lb) lb.onclick = ()=> qaListenRef(d.ref); }
   document.getElementById('duaSochBtn').onclick = ()=>{ setDuaStatus(d.title, 'soch'); openDuaDetail(d); };
   document.getElementById('duaAmalBtn').onclick = ()=>{ setDuaStatus(d.title, 'amal'); openDuaDetail(d); };
   document.getElementById('duaImgBtn').onclick = ()=> openCardShareChooser({ scene:duaSceneSvg(d), kind:"Du'a", arabic:d.arabic, title:dTitle(d), sub:d.translit, body:dMean(d), foot:'Hawala: '+d.ref });
@@ -3714,6 +3715,7 @@ function openHadeesDetail(h){
       <div class="aad-head-title">${h.cat}</div>
       <div class="ref" style="margin:-4px 0 8px;">Hawala: ${h.src}</div>
       <div class="aad-cat-pill">${hadeesMeta(h.cat)[0]} Hadees</div>
+      ${qaListenBtn(h.src, 'hadeesListenBtn') ? `<div class="aad-pill-row" style="margin-top:8px;">${qaListenBtn(h.src, 'hadeesListenBtn')}</div>` : ''}
     </div>
     <div class="dua-detail">
       <div class="aad-guide-sec hadees-sec">
@@ -3731,6 +3733,7 @@ function openHadeesDetail(h){
     </div>
     ${pnBarHtml()}
   `;
+  { const lb = document.getElementById('hadeesListenBtn'); if(lb) lb.onclick = ()=> qaListenRef(h.src); }
   document.getElementById('hadeesSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openHadeesDetail(h); };
   document.getElementById('hadeesAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openHadeesDetail(h); };
   document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ scene:hadeesSceneSvg(h), kind:'Hadees', title:h.cat, body:hTxt(h), foot:'Hawala: '+h.src });
@@ -8627,7 +8630,7 @@ function qaFollowPage(){
 }
 
 /* Player state. `bism` = currently on the Bismillah that opens a Surah (Al-Fatihah has it as ayah 1; At-Tawbah has none). */
-const qa = { voice:'ar', part:'a', store:{ ar:{ dur:{}, head:{} }, ur:{ dur:{ b:5.784 }, head:{} } }, rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
+const qa = { end:0, voice:'ar', part:'a', store:{ ar:{ dur:{}, head:{} }, ur:{ dur:{ b:5.784 }, head:{} } }, rate:1, rep:0, repCount:0, sleepMin:0, sleepT:0, dur:{}, headDone:{}, syncPage:0, forceSync:false, on:false, abs:1, bism:false, exact:true, playing:false, A:null, B:null, cur:null, err:false, loading:false };
 /* Surahs 2-114 except At-Tawbah open with a Bismillah step. Arabic: Alafasy's Bismillah. Urdu: the recorded Urdu translation of it (the Shamshad Ali Khan set has none). Arabic + Urdu: the Arabic, then the Urdu. */
 const qaHasBism = s => s !== 1 && s !== 9;
 const QA_UR_BISM = 'qaudio/bismillah-ur.mp3';
@@ -8838,7 +8841,7 @@ function qaAdvance(){
   }
   if(!midAyah) qa.repCount = 0;
   const n = qaNextStep(qa.abs, qa.bism, qa.part);
-  if(!n){ qaStop(); return; }
+  if(!n || (qa.end && !midAyah && qa.abs >= qa.end)){ qaStop(); return; }
   qa.abs = n.abs; qa.bism = n.bism; qa.part = n.part; qaFollowPage();
   const other = qa.cur === qa.A ? qa.B : qa.A, url = qaFile(qa.abs, qa.bism);
   if(other.src === url){ qa.cur = other; qa.cur.currentTime = 0; qa.err = false; qaUI(); qaMediaMeta(); const p = qa.cur.play(); if(p && p.catch) p.catch(()=>qaFail()); qaPreloadNext(); }
@@ -8867,6 +8870,7 @@ function qaStop(){
 }
 /* Start from the current Mushaf page */
 function quranListen(page){
+  qa.end = 0;
   const st = qaPageStart(page);
   qaEls(); qa.on = true; qa.syncPage = page; qa.abs = st.abs; qa.part = 'a'; qa.exact = st.exact;
   const r = qaSurahAyah(st.abs); qa.bism = r.a === 1 && qaHasBism(r.s);
@@ -8874,6 +8878,7 @@ function quranListen(page){
 }
 /* Play from a given ayah of the page that is open (used by the Tarjuma sheet and by tapping a line) */
 function qaPlayFrom(abs){
+  qa.end = 0;
   if(typeof trpJump === 'function') setTimeout(trpJump, 0);
   qaEls(); qa.on = true; qa.repCount = 0; qa.syncPage = state.quranPage || qa.syncPage; qa.part = 'a'; qa.abs = abs; qa.exact = true;
   const r = qaSurahAyah(abs); qa.bism = r.a === 1 && qaHasBism(r.s);
@@ -8883,6 +8888,7 @@ function qaPlayFrom(abs){
    a paused one just moves its position (and stays paused). Re-renders of the same page change nothing. */
 function qaSyncToPage(page){
   if(!qa.on || qa.syncPage === page) return;
+  qa.end = 0;
   const st = qaPageStart(page), was = qa.playing || qa.loading;
   qa.syncPage = page; qa.abs = st.abs; qa.part = 'a'; qa.exact = st.exact;
   const r = qaSurahAyah(st.abs); qa.bism = r.a === 1 && qaHasBism(r.s);
@@ -8970,6 +8976,24 @@ function qaUI(){
   if(ov) new MutationObserver(qaPlace).observe(ov, { attributes:true, attributeFilter:['class'] });
   window.addEventListener('resize', qaPlace);
 })();
+
+/* "Sunein" for a du'a or hadees that is a Qur'an verse: read the reference (Qur’an 2:255, 14:40, 25:65-66, or a whole Surah like 112)
+   and play exactly that range with the same recitation player and voice (Arabic / Urdu) the reader uses. */
+function qaRefRange(ref){
+  const m = /Qur’an\s+(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?/.exec(String(ref || ''));
+  if(!m) return null;
+  const sn = +m[1]; if(sn < 1 || sn > 114) return null;
+  const cnt = QA_COUNTS[sn-1], a1 = m[2] ? +m[2] : 1, a2 = m[3] ? +m[3] : (m[2] ? a1 : cnt);
+  if(a1 < 1 || a2 > cnt || a2 < a1) return null;
+  return { from: qaAbs(sn, a1), to: qaAbs(sn, a2) };
+}
+function qaListenRef(ref){
+  const r = qaRefRange(ref); if(!r) return;
+  qaEls(); qa.on = true; qa.repCount = 0; qa.syncPage = state.quranPage || qa.syncPage; qa.part = 'a'; qa.abs = r.from; qa.exact = true; qa.end = r.to;
+  const x = qaSurahAyah(r.from); qa.bism = x.a === 1 && qaHasBism(x.s);
+  qa.cur.pause(); qaPlayCurrent();
+}
+const qaListenBtn = (ref, id)=> qaRefRange(ref) ? `<button type="button" class="dua-tasbeeh-btn mini" id="${id}">🎧 ${L({ rur:'Sunein', en:'Listen' })}</button>` : '';
 /* Exact layout of the 15-line Indo-Pak Mushaf used here (derived from QUL layout data). Generated; do not edit.
    QA_PAGE_FIRST[appPage-1] = first ayah (1..6236) starting on that page.
    QA_LINES = 2 hex digits per ayah: first line, last line (1..15) on its page. */
