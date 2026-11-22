@@ -338,6 +338,7 @@ const ZK_MASARIF = [
 ];
 const zkMas = k => ZK_MASARIF.find(m=> m.k === k) || { ic:'🤲', n:'Zakat' };
 function zkLog(){ if(!Array.isArray(state.zakatLog)) state.zakatLog = []; return state.zakatLog; }
+const zkExtraOf = r => r.zakat > 0 ? Math.max(0, zkPaidOf(r) - r.zakat) : 0;
 const zkPaidOf = r => Array.isArray(r.pays) ? r.pays.reduce((a, x)=> a + (x.amt || 0), 0) : (r.paid || 0);
 const zkISO = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const zkDateLbl = iso => { const d = new Date(iso + 'T00:00:00'); return isNaN(d) ? '' : zkHijri(d) + ' · ' + zkGreg(d); };
@@ -422,7 +423,8 @@ function zkRecBody(r){
   const paidBy = k => pays.filter(x=> x.m === k).reduce((a, x)=> a + x.amt, 0);
   return `<div class="zk-recb">
     <div class="zk-prog"><div class="zk-bar"><i style="width:${pct}%"></i></div>
-      <div class="zk-barlbl"><span>Di gayi ${zkFmt(paid)}</span><span>${left > 0.5 ? 'Baaqi ' + zkFmt(left) : (r.zakat > 0 ? '✅ Poori ada' : '')}</span></div></div>
+      <div class="zk-barlbl"><span>Di gayi ${zkFmt(paid)}</span><span>${left > 0.5 ? 'Baaqi ' + zkFmt(left) : (r.zakat > 0 ? '✅ Poori ada' : '')}</span></div>
+      ${zkExtraOf(r) > 0.5 ? `<div class="zk-extra">💝 Zakat se ${zkFmt(zkExtraOf(r))} zyada di gayi. Ye zyada raqam sadaqa ho jayegi.</div>` : ''}</div>
     <div class="zk-recsub">🤲 Qist / payments</div>
     ${pays.length ? pays.map(x=>`<div class="zk-pay"><div><b>${zkFmt(x.amt)}</b><small>${zkMas(x.m).ic} ${x.m ? zkMas(x.m).n : 'Zakat'}${x.to ? ' · ' + bmfEsc(x.to) : ''}<br>${zkDateLbl(x.date)}</small></div><span class="zk-payb"><button type="button" data-pe="${r.id}|${x.id}" aria-label="Badlein">✏️</button><button type="button" data-pd="${r.id}|${x.id}" aria-label="Hatayein">✕</button></span></div>`).join('') : '<div class="zk-note" style="margin:0 0 6px;">Abhi koi payment nahi.</div>'}
     <button type="button" class="zk-addbtn" data-pa-add="${r.id}">＋ Qist / payment jodein</button>
@@ -451,7 +453,7 @@ function zkLogHtml(){
         const pd = zkPaidOf(r), left = Math.max(0, r.zakat - pd), d = new Date(r.date + 'T00:00:00'), hy = isNaN(d) ? '' : zkHP(d).y;
         const st = r.zakat > 0 ? (left <= 0.5 ? 'ok' : pd > 0 ? 'part' : 'none') : (pd > 0 ? 'ok' : 'na');
         const head = hy !== lastY ? `<div class="zk-yr">${hy ? hy + ' AH' : ''}</div>` : ''; lastY = hy;
-        return head + `<details class="zk-rec" data-id="${r.id}" ${zkOpenRec === r.id ? 'open' : ''}><summary><span class="zk-sn ${st}">${st === 'ok' ? '✓' : i + 1}</span><div class="zk-rn"><b>${bmfEsc(r.name)}</b><small>${zkDateLbl(r.date)}</small></div><span class="zk-ra ${st}">${zkFmt(pd)}<em>${st === 'ok' ? '✅ Poori ada' : st === 'part' ? '⏳ Baaqi ' + zkFmt(left) : st === 'none' ? '⭕ Baaqi ' + zkFmt(left) : '➖ Zakat farz nahi'}</em></span></summary>${zkRecBody(r)}</details>`;
+        return head + `<details class="zk-rec" data-id="${r.id}" ${zkOpenRec === r.id ? 'open' : ''}><summary><span class="zk-sn ${st}">${st === 'ok' ? '✓' : i + 1}</span><div class="zk-rn"><b>${bmfEsc(r.name)}</b><small>${zkDateLbl(r.date)}</small></div><span class="zk-ra ${st}">${zkFmt(pd)}<em>${st === 'ok' ? '✅ Poori ada' + (zkExtraOf(r) > 0.5 ? ' · ' + zkFmt(zkExtraOf(r)) + ' zyada' : '') : st === 'part' ? '⏳ Baaqi ' + zkFmt(left) : st === 'none' ? '⭕ Baaqi ' + zkFmt(left) : '➖ Zakat farz nahi'}</em></span></summary>${zkRecBody(r)}</details>`;
       }).join('');
     })()}
   </details>`;
@@ -477,7 +479,7 @@ function zkWireLog(redraw){
   document.querySelectorAll('[data-rs]').forEach(b=> b.onclick = ()=>{
     const r = rec(b.dataset.rs); if(!r) return;
     const pays = Array.isArray(r.pays) ? r.pays : [];
-    const plain = `${r.name}\n\n` + (r.rows || []).map(x=>`• ${x.n}: ${zkFmt(x.v)}`).join('\n') + (r.debts > 0 ? `\n• Qarz (minus): ${zkFmt(r.debts)}` : '') + `\n\nZakat wala kul maal: ${zkFmt(r.net)}\nZakat (2.5%): ${zkFmt(r.zakat)}\nDi gayi Zakat: ${zkFmt(zkPaidOf(r))}` + (pays.length ? '\n\nQisten:\n' + pays.map(x=>`• ${zkDateLbl(x.date)}: ${zkFmt(x.amt)}${x.m ? ' (' + zkMas(x.m).n + ')' : ''}${x.to ? ', ' + x.to : ''}`).join('\n') : '') + `\n\nWaqt24: iam-zain.github.io/waqt24`;
+    const plain = `${r.name}\n\n` + (r.rows || []).map(x=>`• ${x.n}: ${zkFmt(x.v)}`).join('\n') + (r.debts > 0 ? `\n• Qarz (minus): ${zkFmt(r.debts)}` : '') + `\n\nZakat wala kul maal: ${zkFmt(r.net)}\nZakat (2.5%): ${zkFmt(r.zakat)}\nDi gayi Zakat: ${zkFmt(zkPaidOf(r))}` + (zkExtraOf(r) > 0.5 ? `\nZakat se zyada (sadaqa): ${zkFmt(zkExtraOf(r))}` : '') + (pays.length ? '\n\nQisten:\n' + pays.map(x=>`• ${zkDateLbl(x.date)}: ${zkFmt(x.amt)}${x.m ? ' (' + zkMas(x.m).n + ')' : ''}${x.to ? ', ' + x.to : ''}`).join('\n') : '') + `\n\nWaqt24: iam-zain.github.io/waqt24`;
     zkShareCard({ kind:'Zakat', title:r.name, sub:'Zakat ' + zkFmt(r.zakat) + ' · Di gayi ' + zkFmt(zkPaidOf(r)), body:'Zakat wala kul maal ' + zkFmt(r.net) + (r.zakat - zkPaidOf(r) > 0.5 ? ' · Baaqi ' + zkFmt(r.zakat - zkPaidOf(r)) : ' · Poori ada'), plain });
   });
   document.querySelectorAll('[data-rpdf]').forEach(b=> b.onclick = ()=>{ const r = rec(b.dataset.rpdf); if(r) zkPdfShare([r], 'waqt24-' + String(r.name).replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() + '.pdf'); });
@@ -515,7 +517,7 @@ function zkPdfBuild(recs){
     y -= 4; need(40); text(M, y, 'Di gayi Zakat (qist / payments)', 11, true); y -= 16;
     if(!pays.length){ text(M, y, 'Abhi koi payment darj nahi.', 9.5, false, '0.4 0.4 0.4'); y -= 15; }
     pays.forEach(x=>{ need(16); text(M, y, zkDateLbl(x.date), 9.5); text(M + 250, y, (x.m ? zkMas(x.m).n : 'Zakat') + (x.to ? ' - ' + x.to : ''), 9.5, false, '0.35 0.35 0.35'); text(W - M, y, zkFmt(x.amt), 10, false, null, true); y -= 14; });
-    row('Kul di gayi', zkFmt(pd), true, '0.1 0.5 0.35'); row(left > 0.5 ? 'Baaqi' : 'Status', left > 0.5 ? zkFmt(left) : 'Poori ada', true, left > 0.5 ? '0.75 0.45 0.15' : '0.1 0.5 0.35');
+    row('Kul di gayi', zkFmt(pd), true, '0.1 0.5 0.35'); if(zkExtraOf(r) > 0.5) row('Zakat se zyada di gayi (sadaqa)', zkFmt(zkExtraOf(r)), false, '0.4 0.3 0.6'); row(left > 0.5 ? 'Baaqi' : 'Status', left > 0.5 ? zkFmt(left) : (zkExtraOf(r) > 0.5 ? 'Poori ada (zyada sadaqa)' : 'Poori ada'), true, left > 0.5 ? '0.75 0.45 0.15' : '0.1 0.5 0.35');
     const plan = r.plan || {}, pk = ZK_MASARIF.filter(m=> plan[m.k] > 0);
     if(pk.length){ y -= 4; need(40); text(M, y, 'Baantne ka plan', 11, true); y -= 16; pk.forEach(m=>{ const pdm = pays.filter(x=> x.m === m.k).reduce((a, x)=> a + x.amt, 0); row(m.n, zkFmt(pdm) + ' / ' + zkFmt(plan[m.k])); }); }
     if(r.note){ y -= 2; need(16); text(M, y, 'Note: ' + r.note, 9.5, false, '0.4 0.4 0.4'); y -= 14; }

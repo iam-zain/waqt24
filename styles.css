@@ -2770,3 +2770,5 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .zk-ra{ text-align:right; font-weight:800; white-space:nowrap; } .zk-ra.ok{ color:#1c8a5c; } .zk-ra.part, .zk-ra.none{ color:var(--text); } .zk-ra.na{ color:var(--sub); }
 .zk-ra em{ display:block; font-style:normal; font-size:11px; font-weight:700; margin-top:2px; } .zk-ra.part em, .zk-ra.none em{ color:#c0752f; } .zk-ra.ok em{ color:#1c8a5c; } .zk-ra.na em{ color:var(--sub); }
 .zk-yr{ margin:14px 0 2px; font-size:12px; font-weight:800; letter-spacing:.4px; color:var(--accent); }
+
+.zk-extra{ margin-top:8px; padding:8px 10px; border-radius:10px; background:color-mix(in srgb, #8a63d2 14%, transparent); color:var(--text); font-size:12px; font-weight:700; line-height:1.5; }
