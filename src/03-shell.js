@@ -263,7 +263,14 @@ function renderBookmarks(){
   });
 }
 
+const SHARE_THEMES = {
+  noor: { n:'Noor', bg:['#f8f2e6','#efe4d0'], b1:'#c9a24f', b2:'#e2cf9f', kind:'#a9782f', title:'#a9782f', text:'#2a2117', sub:'#7a6d5a', foot:'#a9782f' },
+  raat: { n:'Raat', bg:['#14204a','#0a1230'], b1:'#d4b061', b2:'#4a5a8a', kind:'#e8c878', title:'#e8c878', text:'#f3eee0', sub:'#aeb7d2', foot:'#e8c878' },
+  sabz: { n:'Sabz', bg:['#eaf6ef','#d3ebdc'], b1:'#3f9a6a', b2:'#a6d4bb', kind:'#2f7d55', title:'#2f7d55', text:'#14291e', sub:'#4b6b59', foot:'#2f7d55' }
+};
+function shareThemeKey(){ return SHARE_THEMES[state.shareTheme] ? state.shareTheme : 'noor'; }
 async function shareCard(cfg){
+  const TH = SHARE_THEMES[cfg.theme || shareThemeKey()];
   try{ await document.fonts.load('700 60px "Scheherazade New"', cfg.arabic || 'ا'); }catch(e){}
   const W = 1080, PAD = 84, MAXW = W - PAD*2;
   const SANS = '"Segoe UI", system-ui, -apple-system, Roboto, sans-serif';
@@ -283,17 +290,17 @@ async function shareCard(cfg){
     return out;
   }
   const blocks = [];
-  if(cfg.kind) blocks.push({ lines:[cfg.kind.toUpperCase()], font:`700 30px ${SANS}`, color:'#a9782f', lh:44, gap:34 });
+  if(cfg.kind) blocks.push({ lines:[cfg.kind.toUpperCase()], font:`700 30px ${SANS}`, color:TH.kind, lh:44, gap:34 });
   if(cfg.arabic){
     let size = 84, lines;
     do{ lines = wrap(cfg.arabic, `700 ${size}px ${AR}`, 'rtl'); size -= 4; }while(lines.length>6 && size>40);
     size += 4;
-    blocks.push({ lines, font:`700 ${size}px ${AR}`, color:'#2a2117', lh:Math.round(size*1.7), gap:30, dir:'rtl' });
+    blocks.push({ lines, font:`700 ${size}px ${AR}`, color:TH.text, lh:Math.round(size*1.7), gap:30, dir:'rtl' });
   }
-  if(cfg.title) blocks.push({ lines:wrap(cfg.title, `800 54px ${SANS}`), font:`800 54px ${SANS}`, color:'#a9782f', lh:70, gap:22 });
-  if(cfg.sub) blocks.push({ lines:wrap(cfg.sub, `italic 36px ${SANS}`), font:`italic 36px ${SANS}`, color:'#7a6d5a', lh:52, gap:22 });
-  if(cfg.body) blocks.push({ lines:wrap(cfg.body, `500 42px ${SANS}`), font:`500 42px ${SANS}`, color:'#2a2117', lh:64, gap:22 });
-  if(cfg.foot) blocks.push({ lines:wrap(cfg.foot, `500 30px ${SANS}`), font:`500 30px ${SANS}`, color:'#7a6d5a', lh:44, gap:10 });
+  if(cfg.title) blocks.push({ lines:wrap(cfg.title, `800 54px ${SANS}`), font:`800 54px ${SANS}`, color:TH.title, lh:70, gap:22 });
+  if(cfg.sub) blocks.push({ lines:wrap(cfg.sub, `italic 36px ${SANS}`), font:`italic 36px ${SANS}`, color:TH.sub, lh:52, gap:22 });
+  if(cfg.body) blocks.push({ lines:wrap(cfg.body, `500 42px ${SANS}`), font:`500 42px ${SANS}`, color:TH.text, lh:64, gap:22 });
+  if(cfg.foot) blocks.push({ lines:wrap(cfg.foot, `500 30px ${SANS}`), font:`500 30px ${SANS}`, color:TH.sub, lh:44, gap:10 });
   /* the dua / hadees / word picture, when the card has one, sits on top of the card */
   let sceneImg = null;
   if(cfg.scene){
@@ -310,10 +317,10 @@ async function shareCard(cfg){
   H = Math.max(H, 1080);
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const ctx = c.getContext('2d');
-  const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#f8f2e6'); g.addColorStop(1,'#efe4d0');
+  const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,TH.bg[0]); g.addColorStop(1,TH.bg[1]);
   ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle = '#c9a24f'; ctx.lineWidth = 6; ctx.strokeRect(28,28,W-56,H-56);
-  ctx.strokeStyle = '#e2cf9f'; ctx.lineWidth = 2; ctx.strokeRect(44,44,W-88,H-88);
+  ctx.strokeStyle = TH.b1; ctx.lineWidth = 6; ctx.strokeRect(28,28,W-56,H-56);
+  ctx.strokeStyle = TH.b2; ctx.lineWidth = 2; ctx.strokeRect(44,44,W-88,H-88);
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   const contentH = blocks.reduce((a,b)=> a + b.lines.length*b.lh + b.gap, 0);
   let y = Math.max(PAD + 30, Math.round((H - contentH)/2) - 20);
@@ -332,7 +339,7 @@ async function shareCard(cfg){
     b.lines.forEach(l=>{ ctx.fillText(l, W/2, y + b.lh/2); y += b.lh; });
     y += b.gap;
   });
-  ctx.direction = 'ltr'; ctx.font = `700 30px ${SANS}`; ctx.fillStyle = '#a9782f';
+  ctx.direction = 'ltr'; ctx.font = `700 30px ${SANS}`; ctx.fillStyle = TH.foot;
   ctx.fillText('Waqt24  •  iam-zain.github.io/waqt24', W/2, H - PAD - 20);
   const blob = await new Promise(r=> c.toBlob(r, 'image/png'));
   if(!blob){ showToast('Image nahi ban saki'); return; }
@@ -350,8 +357,14 @@ async function shareCard(cfg){
   showToast('Image download ho gayi');
 }
 /* Every card share button asks first: Image (card picture) or Text (plain words) */
+function drawShareThemes(cfg){
+  const row = document.getElementById('shareThemeRow'); if(!row) return;
+  row.innerHTML = Object.keys(SHARE_THEMES).map(k=>`<button type="button" class="st-chip st-${k}${shareThemeKey()===k?' on':''}" data-t="${k}"><i></i>${SHARE_THEMES[k].n}</button>`).join('');
+  row.querySelectorAll('.st-chip').forEach(b=>{ b.onclick = ()=>{ state.shareTheme = b.dataset.t; saveState(); drawShareThemes(cfg); }; });
+}
 function openCardShareChooser(cfg){
   const plain = [cfg.kind, cfg.arabic, cfg.title, cfg.sub, cfg.body, cfg.foot].filter(Boolean).join('\n\n');
+  drawShareThemes(cfg);
   document.getElementById('shareChooserImg').onclick = ()=>{ closeModal(); shareCard(cfg); };
   document.getElementById('shareChooserTxt').onclick = ()=>{ closeModal(); shareText(plain + '\n\nWaqt24: iam-zain.github.io/waqt24'); };
   document.getElementById('shareChooser').classList.add('active');
@@ -597,11 +610,21 @@ function openLastRead(){
 }
 let gsQuery = '';
 function gsNorm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f'’ʿʾ`]/g,'').replace(/[\s-]+/g,''); } // spaces and hyphens ignored: "yasin" finds Ya-Sin
+let gsFilter = 'all', gsFav = false;
+const GS_BUCKETS = [['all','Sab','All'],['dua','Duain','Duas'],['hadees','Hadees','Hadith'],['ibadat','Namaz Guide','Prayer guides'],['lafz','Alfaaz','Words'],['naam','Naam','Names'],['seekh','Aadaab','Manners'],['quran','Surah','Surahs']];
+const GS_BUCKET_OF = { surah:'quran', dua:'dua', hadees:'hadees', aadaab:'seekh', ibadat:'ibadat', qword:'lafz', shabd:'lafz', asma:'naam', prophet:'naam' };
+function drawGsChips(){
+  const row = document.getElementById('gsChips'); if(!row) return;
+  row.innerHTML = `<button type="button" class="chip${gsFav ? ' prayed' : ''}" data-fav="1">⭐ ${L({rur:'Pasandeeda', en:'Saved'})}</button>` + GS_BUCKETS.map(b=>`<button type="button" class="chip${gsFilter===b[0] ? ' prayed' : ''}" data-b="${b[0]}">${L({rur:b[1], en:b[2]})}</button>`).join('');
+  row.querySelectorAll('.chip').forEach(c=>{ c.onclick = ()=>{ if(c.dataset.fav) gsFav = !gsFav; else gsFilter = c.dataset.b; drawGsChips(); drawGlobalSearch(); }; });
+}
 function renderGlobalSearch(){
   document.getElementById('detailTitle').textContent = L({rur:'Sab mein dhoondhiye', en:'Search everything'});
   document.getElementById('detailBody').innerHTML = `
     <div class="search-bar" style="margin:0 14px 12px;"><input id="gsInput" type="search" placeholder="${L({rur:'Dua, hadees, lafz, naam, surah...', en:'Dua, hadith, word, name, surah...'})}" value="${gsQuery.replace(/"/g,'&quot;')}"></div>
+    <div class="gs-chips" id="gsChips"></div>
     <div id="gsResults"></div>`;
+  drawGsChips();
   const inp = document.getElementById('gsInput');
   inp.oninput = ()=>{ gsQuery = inp.value; drawGlobalSearch(); };
   drawGlobalSearch();
@@ -610,8 +633,8 @@ function renderGlobalSearch(){
 function drawGlobalSearch(){
   const out = document.getElementById('gsResults'); if(!out) return;
   const q = gsNorm(gsQuery.trim());
-  if(q.length < 2){ out.innerHTML = `<div class="empty-state">${L({rur:'Kam az kam 2 harf likhiye', en:'Type at least 2 letters'})}</div>`; return; }
-  const has = (...f)=> f.some(x=> gsNorm(x).includes(q));
+  if(q.length < 2 && !gsFav){ out.innerHTML = `<div class="empty-state">${L({rur:'Kam az kam 2 harf likhiye', en:'Type at least 2 letters'})}</div>`; return; }
+  const has = (...f)=> q.length < 2 ? true : f.some(x=> gsNorm(x).includes(q));
   const groups = [
     { k:'surah', t:L({rur:'Qur\'an: Surah', en:'Quran: Surahs'}), ic:'📖', items:QURAN_SURAHS.filter(x=>has(x.name, x.ar)).map(x=>({ i:x.n, t:`${x.n}. ${x.name}`, s:`${x.ar} · Page ${x.page}` })) },
     { k:'dua', t:L({rur:'Duain', en:'Duas'}), ic:'🤲', items:DUAS.map((d,i)=>({d,i})).filter(({d})=>has(d.title, dTitle(d), d.translit, d.meaning, dMean(d))).map(({d,i})=>({ i, t:dTitle(d), s:d.cat })) },
@@ -622,7 +645,14 @@ function drawGlobalSearch(){
     { k:'shabd', t:L({rur:'Khaas Shabd', en:'Special Words'}), ic:'📚', items:KHAAS_SHABD.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'asma', t:'Asma-ul-Husna', ic:'💚', items:ASMA_UL_HUSNA.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'prophet', t:'Asma-ul-Nabi', ic:'🌙', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
-  ].filter(g=>g.items.length);
+  ].filter(g=> gsFilter === 'all' || GS_BUCKET_OF[g.k] === gsFilter);
+  const BK = {
+    dua:i=>'dua:'+DUAS[i].title, hadees:i=>'hadees:'+HADEES[i].txt.slice(0,40), aadaab:i=>'aadaab:'+AADAAB_TOPICS[i].id, ibadat:i=>'ibadat:'+IBADAT_GUIDES[i].id,
+    qword:i=>'qword:'+QURAN_WORDS[i].tr, shabd:i=>'word:'+KHAAS_SHABD[i].tr, asma:i=>'asma:'+ASMA_UL_HUSNA[i].tr, prophet:i=>'prophet:'+PROPHET_NAMES[i].tr
+  };
+  groups.forEach(g=>{ if(gsFav) g.items = g.items.filter(x=> BK[g.k] && isBookmarked(BK[g.k](x.i))); });
+  const groups2 = groups.filter(g=>g.items.length);
+  groups.length = 0; groups.push(...groups2);
   const SCF = {
     dua:i=>duaSceneSvg(DUAS[i]), hadees:i=>hadeesSceneSvg(HADEES[i]), aadaab:i=>aadaabSceneSvg(AADAAB_TOPICS[i]),
     ibadat:i=>ibadatSceneSvg(IBADAT_GUIDES[i]), qword:i=>qwordSceneSvg(QURAN_WORDS[i]), shabd:i=>shabdSceneSvg(KHAAS_SHABD[i]),

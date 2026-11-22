@@ -930,6 +930,7 @@ function renderMoreQuiz(){
       <div style="font-size:15px; font-weight:700; margin-bottom:4px;">Islami Malumat Ka Quiz</div>
       <div style="font-size:13px; color:var(--sub); margin-bottom:14px;">Category chuniye</div>
     </div>
+    ${quizProfileHtml()}
     <button class="quiz-cat-btn" data-cat="__all__" style="border-color:var(--accent);">
       <span class="quiz-cat-ic">🌐</span>
       <span class="quiz-cat-name">Sab Categories (Mix)</span>

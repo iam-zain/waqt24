@@ -1871,7 +1871,14 @@ function renderBookmarks(){
   });
 }
 
+const SHARE_THEMES = {
+  noor: { n:'Noor', bg:['#f8f2e6','#efe4d0'], b1:'#c9a24f', b2:'#e2cf9f', kind:'#a9782f', title:'#a9782f', text:'#2a2117', sub:'#7a6d5a', foot:'#a9782f' },
+  raat: { n:'Raat', bg:['#14204a','#0a1230'], b1:'#d4b061', b2:'#4a5a8a', kind:'#e8c878', title:'#e8c878', text:'#f3eee0', sub:'#aeb7d2', foot:'#e8c878' },
+  sabz: { n:'Sabz', bg:['#eaf6ef','#d3ebdc'], b1:'#3f9a6a', b2:'#a6d4bb', kind:'#2f7d55', title:'#2f7d55', text:'#14291e', sub:'#4b6b59', foot:'#2f7d55' }
+};
+function shareThemeKey(){ return SHARE_THEMES[state.shareTheme] ? state.shareTheme : 'noor'; }
 async function shareCard(cfg){
+  const TH = SHARE_THEMES[cfg.theme || shareThemeKey()];
   try{ await document.fonts.load('700 60px "Scheherazade New"', cfg.arabic || 'ا'); }catch(e){}
   const W = 1080, PAD = 84, MAXW = W - PAD*2;
   const SANS = '"Segoe UI", system-ui, -apple-system, Roboto, sans-serif';
@@ -1891,17 +1898,17 @@ async function shareCard(cfg){
     return out;
   }
   const blocks = [];
-  if(cfg.kind) blocks.push({ lines:[cfg.kind.toUpperCase()], font:`700 30px ${SANS}`, color:'#a9782f', lh:44, gap:34 });
+  if(cfg.kind) blocks.push({ lines:[cfg.kind.toUpperCase()], font:`700 30px ${SANS}`, color:TH.kind, lh:44, gap:34 });
   if(cfg.arabic){
     let size = 84, lines;
     do{ lines = wrap(cfg.arabic, `700 ${size}px ${AR}`, 'rtl'); size -= 4; }while(lines.length>6 && size>40);
     size += 4;
-    blocks.push({ lines, font:`700 ${size}px ${AR}`, color:'#2a2117', lh:Math.round(size*1.7), gap:30, dir:'rtl' });
+    blocks.push({ lines, font:`700 ${size}px ${AR}`, color:TH.text, lh:Math.round(size*1.7), gap:30, dir:'rtl' });
   }
-  if(cfg.title) blocks.push({ lines:wrap(cfg.title, `800 54px ${SANS}`), font:`800 54px ${SANS}`, color:'#a9782f', lh:70, gap:22 });
-  if(cfg.sub) blocks.push({ lines:wrap(cfg.sub, `italic 36px ${SANS}`), font:`italic 36px ${SANS}`, color:'#7a6d5a', lh:52, gap:22 });
-  if(cfg.body) blocks.push({ lines:wrap(cfg.body, `500 42px ${SANS}`), font:`500 42px ${SANS}`, color:'#2a2117', lh:64, gap:22 });
-  if(cfg.foot) blocks.push({ lines:wrap(cfg.foot, `500 30px ${SANS}`), font:`500 30px ${SANS}`, color:'#7a6d5a', lh:44, gap:10 });
+  if(cfg.title) blocks.push({ lines:wrap(cfg.title, `800 54px ${SANS}`), font:`800 54px ${SANS}`, color:TH.title, lh:70, gap:22 });
+  if(cfg.sub) blocks.push({ lines:wrap(cfg.sub, `italic 36px ${SANS}`), font:`italic 36px ${SANS}`, color:TH.sub, lh:52, gap:22 });
+  if(cfg.body) blocks.push({ lines:wrap(cfg.body, `500 42px ${SANS}`), font:`500 42px ${SANS}`, color:TH.text, lh:64, gap:22 });
+  if(cfg.foot) blocks.push({ lines:wrap(cfg.foot, `500 30px ${SANS}`), font:`500 30px ${SANS}`, color:TH.sub, lh:44, gap:10 });
   /* the dua / hadees / word picture, when the card has one, sits on top of the card */
   let sceneImg = null;
   if(cfg.scene){
@@ -1918,10 +1925,10 @@ async function shareCard(cfg){
   H = Math.max(H, 1080);
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const ctx = c.getContext('2d');
-  const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#f8f2e6'); g.addColorStop(1,'#efe4d0');
+  const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,TH.bg[0]); g.addColorStop(1,TH.bg[1]);
   ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle = '#c9a24f'; ctx.lineWidth = 6; ctx.strokeRect(28,28,W-56,H-56);
-  ctx.strokeStyle = '#e2cf9f'; ctx.lineWidth = 2; ctx.strokeRect(44,44,W-88,H-88);
+  ctx.strokeStyle = TH.b1; ctx.lineWidth = 6; ctx.strokeRect(28,28,W-56,H-56);
+  ctx.strokeStyle = TH.b2; ctx.lineWidth = 2; ctx.strokeRect(44,44,W-88,H-88);
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   const contentH = blocks.reduce((a,b)=> a + b.lines.length*b.lh + b.gap, 0);
   let y = Math.max(PAD + 30, Math.round((H - contentH)/2) - 20);
@@ -1940,7 +1947,7 @@ async function shareCard(cfg){
     b.lines.forEach(l=>{ ctx.fillText(l, W/2, y + b.lh/2); y += b.lh; });
     y += b.gap;
   });
-  ctx.direction = 'ltr'; ctx.font = `700 30px ${SANS}`; ctx.fillStyle = '#a9782f';
+  ctx.direction = 'ltr'; ctx.font = `700 30px ${SANS}`; ctx.fillStyle = TH.foot;
   ctx.fillText('Waqt24  •  iam-zain.github.io/waqt24', W/2, H - PAD - 20);
   const blob = await new Promise(r=> c.toBlob(r, 'image/png'));
   if(!blob){ showToast('Image nahi ban saki'); return; }
@@ -1958,8 +1965,14 @@ async function shareCard(cfg){
   showToast('Image download ho gayi');
 }
 /* Every card share button asks first: Image (card picture) or Text (plain words) */
+function drawShareThemes(cfg){
+  const row = document.getElementById('shareThemeRow'); if(!row) return;
+  row.innerHTML = Object.keys(SHARE_THEMES).map(k=>`<button type="button" class="st-chip st-${k}${shareThemeKey()===k?' on':''}" data-t="${k}"><i></i>${SHARE_THEMES[k].n}</button>`).join('');
+  row.querySelectorAll('.st-chip').forEach(b=>{ b.onclick = ()=>{ state.shareTheme = b.dataset.t; saveState(); drawShareThemes(cfg); }; });
+}
 function openCardShareChooser(cfg){
   const plain = [cfg.kind, cfg.arabic, cfg.title, cfg.sub, cfg.body, cfg.foot].filter(Boolean).join('\n\n');
+  drawShareThemes(cfg);
   document.getElementById('shareChooserImg').onclick = ()=>{ closeModal(); shareCard(cfg); };
   document.getElementById('shareChooserTxt').onclick = ()=>{ closeModal(); shareText(plain + '\n\nWaqt24: iam-zain.github.io/waqt24'); };
   document.getElementById('shareChooser').classList.add('active');
@@ -2205,11 +2218,21 @@ function openLastRead(){
 }
 let gsQuery = '';
 function gsNorm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f'’ʿʾ`]/g,'').replace(/[\s-]+/g,''); } // spaces and hyphens ignored: "yasin" finds Ya-Sin
+let gsFilter = 'all', gsFav = false;
+const GS_BUCKETS = [['all','Sab','All'],['dua','Duain','Duas'],['hadees','Hadees','Hadith'],['ibadat','Namaz Guide','Prayer guides'],['lafz','Alfaaz','Words'],['naam','Naam','Names'],['seekh','Aadaab','Manners'],['quran','Surah','Surahs']];
+const GS_BUCKET_OF = { surah:'quran', dua:'dua', hadees:'hadees', aadaab:'seekh', ibadat:'ibadat', qword:'lafz', shabd:'lafz', asma:'naam', prophet:'naam' };
+function drawGsChips(){
+  const row = document.getElementById('gsChips'); if(!row) return;
+  row.innerHTML = `<button type="button" class="chip${gsFav ? ' prayed' : ''}" data-fav="1">⭐ ${L({rur:'Pasandeeda', en:'Saved'})}</button>` + GS_BUCKETS.map(b=>`<button type="button" class="chip${gsFilter===b[0] ? ' prayed' : ''}" data-b="${b[0]}">${L({rur:b[1], en:b[2]})}</button>`).join('');
+  row.querySelectorAll('.chip').forEach(c=>{ c.onclick = ()=>{ if(c.dataset.fav) gsFav = !gsFav; else gsFilter = c.dataset.b; drawGsChips(); drawGlobalSearch(); }; });
+}
 function renderGlobalSearch(){
   document.getElementById('detailTitle').textContent = L({rur:'Sab mein dhoondhiye', en:'Search everything'});
   document.getElementById('detailBody').innerHTML = `
     <div class="search-bar" style="margin:0 14px 12px;"><input id="gsInput" type="search" placeholder="${L({rur:'Dua, hadees, lafz, naam, surah...', en:'Dua, hadith, word, name, surah...'})}" value="${gsQuery.replace(/"/g,'&quot;')}"></div>
+    <div class="gs-chips" id="gsChips"></div>
     <div id="gsResults"></div>`;
+  drawGsChips();
   const inp = document.getElementById('gsInput');
   inp.oninput = ()=>{ gsQuery = inp.value; drawGlobalSearch(); };
   drawGlobalSearch();
@@ -2218,8 +2241,8 @@ function renderGlobalSearch(){
 function drawGlobalSearch(){
   const out = document.getElementById('gsResults'); if(!out) return;
   const q = gsNorm(gsQuery.trim());
-  if(q.length < 2){ out.innerHTML = `<div class="empty-state">${L({rur:'Kam az kam 2 harf likhiye', en:'Type at least 2 letters'})}</div>`; return; }
-  const has = (...f)=> f.some(x=> gsNorm(x).includes(q));
+  if(q.length < 2 && !gsFav){ out.innerHTML = `<div class="empty-state">${L({rur:'Kam az kam 2 harf likhiye', en:'Type at least 2 letters'})}</div>`; return; }
+  const has = (...f)=> q.length < 2 ? true : f.some(x=> gsNorm(x).includes(q));
   const groups = [
     { k:'surah', t:L({rur:'Qur\'an: Surah', en:'Quran: Surahs'}), ic:'📖', items:QURAN_SURAHS.filter(x=>has(x.name, x.ar)).map(x=>({ i:x.n, t:`${x.n}. ${x.name}`, s:`${x.ar} · Page ${x.page}` })) },
     { k:'dua', t:L({rur:'Duain', en:'Duas'}), ic:'🤲', items:DUAS.map((d,i)=>({d,i})).filter(({d})=>has(d.title, dTitle(d), d.translit, d.meaning, dMean(d))).map(({d,i})=>({ i, t:dTitle(d), s:d.cat })) },
@@ -2230,7 +2253,14 @@ function drawGlobalSearch(){
     { k:'shabd', t:L({rur:'Khaas Shabd', en:'Special Words'}), ic:'📚', items:KHAAS_SHABD.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'asma', t:'Asma-ul-Husna', ic:'💚', items:ASMA_UL_HUSNA.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'prophet', t:'Asma-ul-Nabi', ic:'🌙', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
-  ].filter(g=>g.items.length);
+  ].filter(g=> gsFilter === 'all' || GS_BUCKET_OF[g.k] === gsFilter);
+  const BK = {
+    dua:i=>'dua:'+DUAS[i].title, hadees:i=>'hadees:'+HADEES[i].txt.slice(0,40), aadaab:i=>'aadaab:'+AADAAB_TOPICS[i].id, ibadat:i=>'ibadat:'+IBADAT_GUIDES[i].id,
+    qword:i=>'qword:'+QURAN_WORDS[i].tr, shabd:i=>'word:'+KHAAS_SHABD[i].tr, asma:i=>'asma:'+ASMA_UL_HUSNA[i].tr, prophet:i=>'prophet:'+PROPHET_NAMES[i].tr
+  };
+  groups.forEach(g=>{ if(gsFav) g.items = g.items.filter(x=> BK[g.k] && isBookmarked(BK[g.k](x.i))); });
+  const groups2 = groups.filter(g=>g.items.length);
+  groups.length = 0; groups.push(...groups2);
   const SCF = {
     dua:i=>duaSceneSvg(DUAS[i]), hadees:i=>hadeesSceneSvg(HADEES[i]), aadaab:i=>aadaabSceneSvg(AADAAB_TOPICS[i]),
     ibadat:i=>ibadatSceneSvg(IBADAT_GUIDES[i]), qword:i=>qwordSceneSvg(QURAN_WORDS[i]), shabd:i=>shabdSceneSvg(KHAAS_SHABD[i]),
@@ -4395,6 +4425,7 @@ function renderMoreQuiz(){
       <div style="font-size:15px; font-weight:700; margin-bottom:4px;">Islami Malumat Ka Quiz</div>
       <div style="font-size:13px; color:var(--sub); margin-bottom:14px;">Category chuniye</div>
     </div>
+    ${quizProfileHtml()}
     <button class="quiz-cat-btn" data-cat="__all__" style="border-color:var(--accent);">
       <span class="quiz-cat-ic">🌐</span>
       <span class="quiz-cat-name">Sab Categories (Mix)</span>
@@ -7349,6 +7380,8 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='quranWords') renderQuranWords();
     else if(which==='aadaab') renderAadaab();
     else if(which==='ibadat') renderIbadat();
+    else if(which==='kids') renderKids();
+    else if(which==='mubarak') renderMubarak();
     else if(which==='quiz') renderMoreQuiz();
     else if(which==='ramzan') renderMoreRamzan();
     else if(which==='qibla') renderQibla();
@@ -7387,7 +7420,7 @@ document.getElementById('detailHome').onclick = ()=>{
   if(k){ suppressPops++; history.go(-k); }
   homeBtnSync();
 };
-['renderIbadat','renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
+['renderIbadat','renderKids','renderMubarak','renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
 ['openIbadatDetail','openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla',].forEach(n=>navWrap(n,1));
 navWrap('renderQuranHome',0);
 navWrap('renderTajweedMenu',1);
@@ -10362,7 +10395,7 @@ function nameSceneHtml(which, w){
   T.shower = ()=> wrap('#e4f3fa','#c6e3f0', `<rect y="124" width="320" height="26" fill="#b3d6e6"/><path d="M120 22 H196 a6 6 0 0 1 6 6 v6 H114 v-6 a6 6 0 0 1 6 -6z" fill="#8fa9c0"/><path d="M158 22 V10" stroke="#8fa9c0" stroke-width="6" stroke-linecap="round"/><path d="M112 34 H204 L214 54 H102z" fill="#9fb8cc"/><g stroke="#7fc0e8" stroke-width="2" stroke-linecap="round" opacity=".9">${Array.from({length:15},(_,i)=>{ const x = 112 + (i%5)*24 + (Math.floor(i/5)%2)*8, y = 66 + Math.floor(i/5)*20; return `<line x1="${x}" y1="${y}" x2="${x-3}" y2="${y+12}"/>`; }).join('')}</g><g fill="none" stroke="#fff" stroke-width="1.4" opacity=".7"><ellipse cx="150" cy="134" rx="24" ry="5"/><ellipse cx="190" cy="138" rx="16" ry="3.6"/></g>`, 'sw');
   T.dunes = ()=> wrap('#fdeccf','#f1cf92', sun(250, 40, 14, 'dn') + `<path d="M0 104 Q70 74 140 96 T320 88 V150 H0z" fill="#e8be7c"/><path d="M0 124 Q90 100 180 120 T320 112 V150 H0z" fill="#dcab63"/><path d="M0 138 Q110 124 220 136 T320 132 V150 H0z" fill="#cf9a52"/><g fill="none" stroke="#fff" stroke-width="1.2" opacity=".35"><path d="M30 118 q14 -4 28 0"/><path d="M200 130 q14 -4 28 0"/></g>`, 'dn');
   window.sceneByKey = k => make(k);
-  const IBMAP = { wuzu:'tap', ghusl:'shower', tayammum:'dunes', 'namaz-tareeqa':'mat', 'namaz-rakaat':'dawn', janaza:'dove', taraweeh:'bookNight', eid:'lanterns', tahajjud:'cosmos', 'ishraq-chasht':'smile', haajat:'hands', istikhara:'path', sahw:'clock', qasr:'road', tauba:'rain', zabah:'mercy', qurbani:'kaaba' };
+  const IBMAP = { wuzu:'tap', ghusl:'shower', tayammum:'dunes', 'namaz-tareeqa':'mat', 'namaz-rakaat':'dawn', janaza:'dove', taraweeh:'bookNight', eid:'lanterns', tahajjud:'cosmos', 'ishraq-chasht':'smile', haajat:'hands', istikhara:'path', sahw:'clock', qasr:'road', tauba:'rain', zabah:'mercy', qurbani:'kaaba', 'kids-namazein':'dawn', 'kids-wuzu':'tap', 'kids-namaz':'mat', 'kids-dua':'hands', 'kids-aadat':'flower' };
   window.ibadatSceneSvg = g => IBMAP[g.id] ? make(IBMAP[g.id]) : '';
   const QMAP = { 'Ism':'book', 'Sifat':'flower', 'Zameer':'hands', 'Harf':'path', "Fail (fe'l)":'boat', 'Ism-e-mausool':'gate', 'Ism-e-ishara':'lamp', 'Sawaliya lafz':'cosmos' };
   window.qwordSceneSvg = function(w){ const k = QMAP[qwordGroup(w)]; return k ? make(k) : ''; };
@@ -10794,6 +10827,79 @@ const IBADAT_GUIDES = [
     ],
     closing:'Qurbani ka maqsad Allah ki raza aur taqwa hai, dikhawe ya gosht khane ka nahi. Maal aur janwar ki sharton mein shak ho to apne aalim se zaroor poochhein.' },
 
+  { id:'kids-namazein', kids:true, title:'Paanch Namazein', ic:'🌅', color:'#2f9e6e', tags:['Bachche','Aasaan','Seekhein'], sub:'Kaun si namaz kab padhte hain',
+    intro:'Hum roz paanch baar Allah ko yaad karte hain. Chalo seekhte hain kaun si namaz kab padhi jati hai.',
+    sections:[
+      { h:'Paanch Namazein', ic:'🕌', steps:[
+        { t:'Fajr', d:'Subah, sooraj nikalne se pehle. 2 rakaat farz.' },
+        { t:'Zuhr', d:'Dopahar mein. 4 rakaat farz.' },
+        { t:'Asr', d:'Dopahar ke baad, sooraj doobne se pehle. 4 rakaat farz.' },
+        { t:'Maghrib', d:'Sooraj doobte hi. 3 rakaat farz.' },
+        { t:'Isha', d:'Raat ko. 4 rakaat farz.' } ] },
+      { h:'Yaad Rakhne Ki Tarkeeb', ic:'💡', steps:[
+        { t:'2, 4, 4, 3, 4', d:'Fajr 2, Zuhr 4, Asr 4, Maghrib 3, Isha 4. Ye gin kar yaad kar lein. Kul 17 rakaat farz.' },
+        { t:'Sab se pehle namaz', d:'Aap ke ammi-abbu ke saath masjid ya ghar mein namaz padhna sabse pyara hai.' } ] }
+    ],
+    closing:'Namaz Allah se baat karne ka sabse pyara tareeqa hai.' },
+
+  { id:'kids-wuzu', kids:true, title:'Wuzu Seekhein', ic:'💧', color:'#3f8fe0', tags:['Bachche','Aasaan','Seekhein'], sub:'Wuzu ke 9 aasaan qadam',
+    intro:'Namaz se pehle hum wuzu karte hain, taake saaf-suthre hokar Allah ke saamne khade ho. Bade ki madad se ye qadam seekhein.',
+    sections:[
+      { h:'Wuzu Ke Qadam', ic:'💧', steps:[
+        { t:'Bismillah kahein', d:'Wuzu shuru karne se pehle ye kahein.', ar:'بِسْمِ اللَّهِ', tr:'Bismillah' },
+        { t:'Haath dhoyein', d:'Dono haath 3 baar dhoyein.' },
+        { t:'Kulli karein', d:'Munh mein paani ghumakar thook dein. 3 baar.' },
+        { t:'Naak saaf karein', d:'Naak mein paani daal kar saaf karein. 3 baar.' },
+        { t:'Chehra dhoyein', d:'Poora chehra 3 baar dhoyein.' },
+        { t:'Haath kohni tak', d:'Pehle seedha, phir ulta haath, kohni tak dhoyein. 3-3 baar.' },
+        { t:'Sar ka masah', d:'Geele haath sar par pherein, phir kaan par.' },
+        { t:'Pair dhoyein', d:'Pehle seedha, phir ulta pair, takhnon tak dhoyein. 3-3 baar.' },
+        { t:'Dua padhein', d:'Wuzu ke baad ye padhein.', ar:'أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ', tr:'Ash-hadu an la ilaha illallahu wa ash-hadu anna Muhammadan abduhu wa rasuluh' } ] }
+    ],
+    closing:'Wuzu mein paani zaya na karein. Pehli baar bade ke saath saath karke seekhein.' },
+
+  { id:'kids-namaz', kids:true, title:'Namaz Seekhein', ic:'🕌', color:'#5c7cfa', tags:['Bachche','Aasaan','Seekhein'], sub:'Namaz ke aasaan qadam',
+    intro:'Namaz mein hum Allah ki badaai bayan karte hain. Pehle wuzu karein, phir qibla ki taraf munh karke khade ho jayein.',
+    sections:[
+      { h:'Namaz Ke Qadam', ic:'🕌', steps:[
+        { t:'Niyyat karein', d:'Dil mein soch lein: main Allah ke liye 2 rakaat namaz padh raha/rahi hoon.' },
+        { t:'Allahu Akbar', d:'Haath kaanon tak uthakar kahein, phir haath baandh lein.', ar:'اللَّهُ أَكْبَرُ', tr:'Allahu Akbar' },
+        { t:'Surah Fatiha aur koi Surah', d:'Surah Fatiha padhein, phir Surah Ikhlas ya koi chhoti Surah.' },
+        { t:'Ruku', d:'Jhukkar haath ghutnon par rakhein aur 3 baar kahein.', ar:'سُبْحَانَ رَبِّيَ الْعَظِيمِ', tr:'Subhana Rabbiyal Azeem' },
+        { t:'Sajda', d:'Zameen par peshani aur naak rakhein aur 3 baar kahein.', ar:'سُبْحَانَ رَبِّيَ الْأَعْلَى', tr:'Subhana Rabbiyal A-la' },
+        { t:'Do sajdon ke beech baithna', d:'Ek sajda karke seedhe baith jayein, phir doosra sajda karein.' },
+        { t:'Attahiyyat aur Salam', d:'Aakhir mein baith kar Attahiyyat, Durood aur dua padhein. Phir daayen aur baayen "As-salamu alaykum wa rahmatullah" kehkar salam pheren.' } ] }
+    ],
+    closing:'Namaz ka poora tareeqa "Namaz Ka Tareeqa" mein dekhein. Bade se seekhna sabse aasaan hai.' },
+
+  { id:'kids-dua', kids:true, title:'Chhoti Duain', ic:'🤲', color:'#d6708f', tags:['Bachche','Aasaan','Dua'], sub:'Roz ki 7 chhoti duain',
+    intro:'Allah ko har kaam mein yaad karna achhi baat hai. Ye chhoti duain roz yaad karke padhein.',
+    sections:[
+      { h:'Roz Ki Duain', ic:'🤲', steps:[
+        { t:'Khana shuru karte waqt', d:'Bismillah kehkar khana shuru karein.', ar:'بِسْمِ اللَّهِ', tr:'Bismillah' },
+        { t:'Khana khane ke baad', d:'Allah ka shukr karein jisne khilaya aur pilaya.', ar:'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ', tr:'Alhamdu lillahil-ladhi at-amana wa saqana wa ja-alana muslimeen' },
+        { t:'Sone se pehle', d:'Ae Allah, tere naam par main marta (sota) aur jeeta (jagta) hoon.', ar:'اللَّهُمَّ بِاسْمِكَ أَمُوتُ وَأَحْيَا', tr:'Allahumma bismika amutu wa ahya' },
+        { t:'Uthte hi', d:'Allah ka shukr jisne sone ke baad zinda kiya.', ar:'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ', tr:'Alhamdu lillahil-ladhi ahyana ba-da ma amatana wa ilayhin-nushoor' },
+        { t:'Ghar se nikalte waqt', d:'Allah ke naam se, Allah par bharosa.', ar:'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', tr:'Bismillahi tawakkaltu alallahi wa la hawla wa la quwwata illa billah' },
+        { t:'Chheenk aane par', d:'Chheenk aaye to kahein: Alhamdulillah. Sunne wala kahe: Yarhamukallah.', ar:'الْحَمْدُ لِلَّهِ', tr:'Alhamdulillah' },
+        { t:'Salam karna', d:'Milte hi salam karein. Jawab mein "Wa alaykumus-salam wa rahmatullah" kahein.', ar:'السَّلَامُ عَلَيْكُمْ', tr:'As-salamu alaykum' } ] }
+    ],
+    closing:'Dua yaad ho jaye to Dua list mein jakar "Yaad ho chuka hai" ka nishan lagayein.' },
+
+  { id:'kids-aadat', kids:true, title:'Achhi Aadatein', ic:'🌸', color:'#e0893f', tags:['Bachche','Aasaan','Akhlaq'], sub:'Nabi ﷺ ki pyari baatein',
+    intro:'Nabi ﷺ ne hamein achhe akhlaq ki taleem di. Chalo ye achhi aadatein apnate hain.',
+    sections:[
+      { h:'Meri Achhi Aadatein', ic:'🌸', steps:[
+        { t:'Salam karna', d:'Sabko pehle salam karein. Salam phailana Jannat ka raasta hai.' },
+        { t:'Sach bolna', d:'Hamesha sach bolein, chahe mushkil lage.' },
+        { t:'Maa-baap ki baat sunna', d:'Ammi-abbu se pyaar aur adab se baat karein. Unke saamne awaaz oonchi na karein.' },
+        { t:'Mil baant kar khana', d:'Apni cheez doosron ke saath baant lein.' },
+        { t:'Safai rakhna', d:'Nabi ﷺ ne farmaya: paaki aadha imaan hai (Sahih Muslim).' },
+        { t:'Shukriya kehna', d:'Koi achha kaam kare to uska shukriya adaa karein.', ar:'جَزَاكَ اللَّهُ خَيْرًا', tr:'Jazakallahu khayran' },
+        { t:'Chhoton par raham', d:'Apne se chhote bachchon se narmi se baat karein, unka khayal rakhein.' } ] }
+    ],
+    closing:'Achhe akhlaq wala bachcha Allah aur logon ko pyara lagta hai.' },
+
   { id:'tayammum', title:'Tayammum Ka Tareeqa', ic:'🏜️', color:'#d4a017', tags:['Taharat','Hanafi','Paani na ho'], sub:'Jab wuzu ya ghusl mumkin na ho',
     intro:'Jab paani na mile ya istemal se nuqsan ka khauf ho to wuzu aur ghusl ki jagah pak mitti se tayammum karna Allah ki ek aasani hai.',
     sections:[
@@ -10817,16 +10923,20 @@ const IBADAT_GUIDES = [
     ],
     closing:'Tayammum ek ruksat hai, jaise hi paani mile ya uzr khatam ho, wuzu ya ghusl kar lein.' }
 ];
-IBADAT_GUIDES.sort((a,b)=>['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw','zabah','qurbani'].indexOf(a.id) - ['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw','zabah','qurbani'].indexOf(b.id));
-function ibadatNavCat(){
-  return { sec:{ ur:'Namaz aur Taharat', en:'Prayer and Purity' }, cats:['all'], catOf:()=>'all', all:IBADAT_GUIDES, sortFn:(a,b)=>IBADAT_GUIDES.indexOf(a)-IBADAT_GUIDES.indexOf(b) };
+IBADAT_GUIDES.sort((a,b)=>['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw','zabah','qurbani','kids-namazein','kids-wuzu','kids-namaz','kids-dua','kids-aadat'].indexOf(a.id) - ['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw','zabah','qurbani','kids-namazein','kids-wuzu','kids-namaz','kids-dua','kids-aadat'].indexOf(b.id));
+function ibadatNavCat(list){
+  list = list || IBADAT_GUIDES.filter(g=>!g.kids);
+  const kids = !!(list[0] && list[0].kids);
+  return { sec: kids ? { ur:'Bachchon ke liye', en:'For Kids' } : { ur:'Namaz aur Taharat', en:'Prayer and Purity' }, cats:['all'], catOf:()=>'all', all:list, sortFn:(a,b)=>list.indexOf(a)-list.indexOf(b) };
 }
 function ibadatTagChips(g){ return g.tags.map(t=>`<span class="aad-tag">${t}</span>`).join(''); }
-function renderIbadat(){
-  document.getElementById('detailTitle').textContent = L({ rur:'Namaz aur Taharat', en:'Prayer and Purity' });
+function renderIbadat(){ renderGuideList(IBADAT_GUIDES.filter(g=>!g.kids), { rur:'Namaz aur Taharat', en:'Prayer and Purity' }, { rur:'Wuzu, Ghusl, Tayammum, Namaz ka tareeqa, Safar, Janaza, Taraweeh, Eid, Tahajjud, Istikhara, Tauba, Sajda-e-Sahw, Zabah aur Qurbani, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum, the prayer, travel, janaza, taraweeh, Eid, tahajjud, istikhara, tauba, sajda-e-sahw, zabah and qurbani, following Hanafi fiqh.' }); }
+function renderKids(){ renderGuideList(IBADAT_GUIDES.filter(g=>g.kids), { rur:'Bachchon ke liye', en:'For Kids' }, { rur:'Bachchon ke liye aasaan lafzon mein: wuzu, namaz, chhoti duain aur achhi aadatein. Bade ke saath baith kar seekhein.', en:'Simple lessons for children: wudu, prayer, short duas and good manners. Learn together with a grown-up.' }); }
+function renderGuideList(list, title, intro){
+  document.getElementById('detailTitle').textContent = L(title);
   document.getElementById('detailBody').innerHTML = `
-    <div class="aad-intro">${L({ rur:'Wuzu, Ghusl, Tayammum, Namaz ka tareeqa, Safar, Janaza, Taraweeh, Eid, Tahajjud, Istikhara, Tauba, Sajda-e-Sahw, Zabah aur Qurbani, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum and the prayer, step by step, following Hanafi fiqh.' })}</div>
-    <div class="dua-grid list" id="ibadatList">${IBADAT_GUIDES.map((g,i)=>{
+    <div class="aad-intro">${L(intro)}</div>
+    <div class="dua-grid list" id="ibadatList">${list.map((g,i)=>{
       const st = duaStatus('ibadat:' + g.id);
       return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${g.color};">
         <div class="aad-ic">${g.ic}</div>
@@ -10835,7 +10945,7 @@ function renderIbadat(){
         <div class="chev">›</div></div>`;
     }).join('')}</div>`;
   document.querySelectorAll('#ibadatList .aad-card').forEach(el=>{
-    el.onclick = ()=>{ const i = +el.dataset.i; setNavCtx(IBADAT_GUIDES, i, openIbadatDetail, ibadatNavCat()); openIbadatDetail(IBADAT_GUIDES[i]); };
+    el.onclick = ()=>{ const i = +el.dataset.i; setNavCtx(list, i, openIbadatDetail, ibadatNavCat(list)); openIbadatDetail(list[i]); };
   });
 }
 function openIbadatDetail(g){
@@ -10849,7 +10959,7 @@ function openIbadatDetail(g){
       <div class="ib-b"><b>${s.t.replace(/^\d+\.\s*/, '')}</b>${s.d ? `<p>${s.d}</p>` : ''}
         ${s.ar ? `<div class="arabic dua-ar" dir="rtl">${s.ar}</div>` : ''}${s.tr ? `<div class="translit dua-tr">${s.tr}</div>` : ''}</div>
     </div>`;
-  document.getElementById('detailBody').innerHTML = `
+  document.getElementById('detailBody').innerHTML = `<div class="${g.kids ? 'ib-kids' : ''}">
     <div class="detail-actions">
       ${bmBtn('ibadat:'+g.id)}
       <button class="act-btn" id="ibadatImgBtn" title="Share karein">${SHARE_SVG}</button>
@@ -10859,7 +10969,7 @@ function openIbadatDetail(g){
       <div class="aad-head-ic">${g.ic}</div>
       <div class="aad-head-title">${g.title}</div>
       <div class="aad-tags center">${ibadatTagChips(g)}</div>
-      <div class="aad-cat-pill">🕌 ${L({ rur:'Namaz aur Taharat', en:'Prayer and Purity' })}</div>
+      <div class="aad-cat-pill">${g.kids ? '🌟 ' + L({ rur:'Bachchon ke liye', en:'For Kids' }) : '🕌 ' + L({ rur:'Namaz aur Taharat', en:'Prayer and Purity' })}</div>
     </div>
     <div class="aad-intro">${g.intro}</div>
     ${g.sections.map((sec,i)=>`<div class="aad-guide-sec g${i%10}">
@@ -10873,11 +10983,96 @@ function openIbadatDetail(g){
       <button class="aad-status-btn amal ${st==='amal'?'on':''}" id="ibadatAmalBtn">✅ Seekh liya</button>
     </div>
     ${pnBarHtml()}
-  `;
+  </div>`;
   document.getElementById('ibadatSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openIbadatDetail(g); };
   document.getElementById('ibadatAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openIbadatDetail(g); };
-  document.getElementById('ibadatImgBtn').onclick = ()=> openCardShareChooser({ scene:ibadatSceneSvg(g), kind:'Namaz aur Taharat', title:g.title, sub:g.tags.join(' · '), body:g.intro, foot:'Hanafi fiqh ke mutabiq' });
+  document.getElementById('ibadatImgBtn').onclick = ()=> openCardShareChooser({ scene:ibadatSceneSvg(g), kind: g.kids ? 'Bachchon ke liye' : 'Namaz aur Taharat', title:g.title, sub:g.tags.join(' · '), body:g.intro, foot:'Hanafi fiqh ke mutabiq' });
   wirePnBar();
+}
+/* ============================================================
+   MUBARAK CARDS: Juma, Eid, Ramzan, Hijri saal, Nikah, naye bachche ki mubarakbad.
+   Pick a card, optionally add your name, share it as a picture in any card look (Noor / Raat / Sabz).
+   ============================================================ */
+const MUBARAK_CARDS = [
+  { id:'juma', ic:'🕌', title:'Juma Mubarak', scene:'masjidIn', ar:'جُمُعَةٌ مُبَارَكَةٌ', wish:'Allah is mubarak din ki barkatein aap aur aapke ghar walon par nazil farmaye aur aapki duain qabool farmaye.' },
+  { id:'fitr', ic:'🌙', title:'Eid-ul-Fitr Mubarak', scene:'lanterns', ar:'تَقَبَّلَ اللَّهُ مِنَّا وَمِنْكُمْ', wish:'Taqabbalallahu minna wa minkum. Allah hamare aur aapke roze aur ibadaat qabool farmaye. Eid Mubarak!' },
+  { id:'adha', ic:'🐑', title:'Eid-ul-Adha Mubarak', scene:'kaaba', ar:'عِيدٌ مُبَارَكٌ', wish:'Allah hamari qurbani aur ibadaat qabool farmaye aur is Eid ko khushiyon aur barkaton wali banaye. Eid Mubarak!' },
+  { id:'ramzan', ic:'☪️', title:'Ramzan Mubarak', scene:'bookNight', ar:'رَمَضَانُ مُبَارَكٌ', wish:'Allah is Ramzan ko aapke liye maghfirat, rehmat aur jahannam se nijaat ka zariya banaye.' },
+  { id:'hijri', ic:'📅', title:'Naya Hijri Saal Mubarak', scene:'calendar', ar:'كُلُّ عَامٍ وَأَنْتُمْ بِخَيْرٍ', wish:'Naya Islami saal aapke liye imaan, sukoon aur bhalai lekar aaye. Allah is saal ko behtar banaye.' },
+  { id:'nikah', ic:'💐', title:'Nikah Mubarak', scene:'flower', ar:'بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ', wish:'Allah aap dono ko barkat de, aap par barkat nazil kare aur aap dono ko bhalai mein jama rakhe.' },
+  { id:'baby', ic:'🌱', title:'Naye Mehmaan Ki Mubarakbad', scene:'sprout', ar:'بَارَكَ اللَّهُ لَكَ فِي الْمَوْهُوبِ لَكَ', wish:'Allah is naye mehmaan ko aapke liye barkat banaye, use nek aur lambi umr de aur aapko iska shukr karne ki taufeeq ata farmaye.' }
+];
+function mubarakNameVal(){ return (state.mubarakName || '').trim(); }
+function mubarakShare(c){
+  const nm = mubarakNameVal();
+  openCardShareChooser({ scene: (window.sceneByKey ? sceneByKey(c.scene) : ''), kind:'Mubarak', arabic:c.ar, title:c.title, body:c.wish, foot: nm ? ('— ' + nm) : '' });
+}
+function renderMubarak(){
+  document.getElementById('detailTitle').textContent = L({ rur:'Mubarak Cards', en:'Greeting Cards' });
+  document.getElementById('detailBody').innerHTML = `
+    <div class="aad-intro">${L({ rur:'Apne apnon ko mubarakbad bhejein. Card chuniye, chahein to apna naam likhein, phir Share dabayein. Card ka look (Noor, Raat, Sabz) share karte waqt badal sakte hain.', en:'Send greetings to your loved ones. Pick a card, add your name if you like, then tap Share. You can change the look when you share.' })}</div>
+    <div class="mb-name"><input id="mbName" type="text" maxlength="30" placeholder="${L({ rur:'Aapka naam (zaroori nahi)', en:'Your name (optional)' })}" value="${mubarakNameVal().replace(/"/g, '&quot;')}"></div>
+    <div class="mb-list">${MUBARAK_CARDS.map((c,i)=>`<div class="mb-card" data-i="${i}">
+      <div class="dua-scene">${sceneByKey(c.scene)}</div>
+      <div class="mb-body"><div class="mb-ar arabic">${c.ar}</div><div class="mb-t">${c.ic} ${c.title}</div><div class="mb-w">${c.wish}</div>
+      <button class="backup-btn mb-share" data-i="${i}">${SHARE_SVG} ${L({ rur:'Share karein', en:'Share' })}</button></div>
+    </div>`).join('')}</div>`;
+  const inp = document.getElementById('mbName');
+  inp.oninput = ()=>{ state.mubarakName = inp.value; saveState(); };
+  document.querySelectorAll('.mb-share').forEach(b=>{ b.onclick = ()=> mubarakShare(MUBARAK_CARDS[+b.dataset.i]); });
+}
+/* ============================================================
+   QUIZ LEVELS, BADGES and the weekly challenge, all worked out from state.quizLog
+   ============================================================ */
+const QUIZ_LEVELS = [
+  { at:0,   ic:'🌱', n:'Mubtadi' },
+  { at:25,  ic:'📘', n:'Talib-e-Ilm' },
+  { at:100, ic:'🧭', n:'Ilm Ka Musafir' },
+  { at:300, ic:'🌟', n:'Sahib-e-Ilm' },
+  { at:800, ic:'🏆', n:'Aalim-e-Quiz' }
+];
+function quizProfile(){
+  const log = Array.isArray(state.quizLog) ? state.quizLog : [];
+  const correct = log.reduce((a,x)=> a + (x.score||0), 0);
+  const days = new Set(log.map(x=> dayKey(new Date(x.t))));
+  let streak = 0; const d = new Date();
+  if(!days.has(dayKey(d))) d.setDate(d.getDate() - 1);
+  while(days.has(dayKey(d))){ streak++; d.setDate(d.getDate() - 1); }
+  const tried = new Set(log.map(x=>x.cat));
+  const weekAgo = Date.now() - 7*86400000;
+  const week = log.filter(x=> x.t >= weekAgo).length;
+  let li = 0; QUIZ_LEVELS.forEach((l,i)=>{ if(correct >= l.at) li = i; });
+  const next = QUIZ_LEVELS[li+1] || null;
+  const badges = [
+    { ic:'🎯', n:'Pehla Quiz', d:'Ek quiz poora karein', ok: log.length >= 1 },
+    { ic:'🔟', n:'10 Quiz', d:'10 quiz poore karein', ok: log.length >= 10 },
+    { ic:'💯', n:'Poore Number', d:'Kisi quiz mein sab jawab sahi', ok: log.some(x=> x.total >= 5 && x.score === x.total) },
+    { ic:'🔥', n:'3 Din Lagataar', d:'3 din lagataar quiz khelein', ok: streak >= 3 || maxQuizStreak(days) >= 3 },
+    { ic:'🗺️', n:'Har Category', d:'Har category ka quiz khelein', ok: QUIZ_CATEGORIES.every(c=> tried.has(c)) },
+    { ic:'📚', n:'100 Sahi Jawab', d:'Kul 100 sahi jawab', ok: correct >= 100 }
+  ];
+  return { correct, quizzes:log.length, streak, week, level:QUIZ_LEVELS[li], next, badges };
+}
+function maxQuizStreak(days){
+  const arr = [...days].map(k=>{ const p = k.split('-'); return new Date(+p[0], +p[1]-1, +p[2]).getTime(); }).sort((a,b)=>a-b); let best = 0, run = 0, prev = null;
+  arr.forEach(t=>{
+    run = (prev !== null && Math.round((t - prev)/86400000) === 1) ? run + 1 : 1;
+    prev = t; if(run > best) best = run;
+  });
+  return best;
+}
+function quizProfileHtml(){
+  const p = quizProfile();
+  const pct = p.next ? Math.min(100, Math.round((p.correct - p.level.at) / (p.next.at - p.level.at) * 100)) : 100;
+  const goal = 5, wk = Math.min(goal, p.week);
+  return `<div class="ql-card">
+    <div class="ql-top"><div class="ql-ic">${p.level.ic}</div><div class="ql-info"><div class="ql-n">${p.level.n}</div>
+      <div class="ql-s">${p.correct} sahi jawab${p.next ? ` · ${p.next.at - p.correct} aur sahi jawab par "${p.next.n}"` : ' · Sabse bada level'}</div></div></div>
+    <div class="ql-bar"><i style="width:${pct}%"></i></div>
+    <div class="ql-week"><span>🗓️ Is hafte ka challenge: ${goal} quiz</span><b>${wk} / ${goal}${wk >= goal ? ' ✅' : ''}</b></div>
+    ${p.streak ? `<div class="ql-streak">🔥 ${p.streak} din lagataar</div>` : ''}
+    <div class="ql-badges">${p.badges.map(b=>`<div class="ql-b${b.ok ? ' on' : ''}" title="${b.d}"><span>${b.ic}</span><em>${b.n}</em></div>`).join('')}</div>
+  </div>`;
 }
 /* ===== Salutation after the name of Allah: "Allah ﷻ" everywhere =====
    Every text on screen is covered: the names, the Qur'an translations (Hinglish / English, Hindi अल्लाह, Urdu اللہ), the quiz and
@@ -11056,6 +11251,7 @@ document.addEventListener('pointerdown', e=>{
 const TOUR = [
   { ic:'✓', t:{rur:'Namaz mark karein', en:'Mark your prayers'}, b:{rur:'Har namaz ke saamne ✓ (padh li), ~ (qaza padhi) ya ⏳ (baaki) dabayein. Waqt nikal jaye aur mark na ho to Home par yaad dilane wali patti aati hai, jahan se seedha Qaza mein jod sakte hain.', en:'Tap ✓ (prayed), ~ (made up) or ⏳ (pending) beside each prayer. If a time passes unmarked, a reminder bar on Home lets you add it straight to your Qaza.'} },
   { ic:'📖', t:{rur:'Qur\'an aur Tarjuma', en:'Quran and Translation'}, b:{rur:'Qur\'an mein Tilawat sunein, Tarjuma (Hinglish, Urdu, Hindi, English) kholen, kisi bhi page par Note likhein, aur Khatm ka plan banayein. "Aur" button mein baaki auzaar hain.', en:'In the Quran, listen to recitation, open the Translation, write a Note on any page and set a Khatm plan. More tools are under the "More" button.'} },
+  { ic:'🌟', t:{rur:'Namaz guide, Bachche aur Mubarak cards', en:'Prayer guides, kids and greeting cards'}, b:{rur:"Ma'rifat mein 'Namaz aur Taharat' hai (wuzu, ghusl, namaz, janaza, qurbani wagairah) aur 'Bachchon Ka Hissa' bhi. Dua, Hadees aur Aadaab ke saath tasveerein hain. Deegar mein 'Mubarak Cards' se Juma aur Eid ki mubarakbad share karein.", en:"Under Marifat you will find Prayer and Purity guides (wudu, ghusl, prayer, janaza, qurbani) and a section for kids. Duas, hadith and manners come with pictures. Under More, Greeting Cards lets you share Jumu'ah and Eid wishes."} },
   { ic:'🕌', t:{rur:'Aur kya hai', en:'What else'}, b:{rur:'Deegar mein Qaza, Tasbeeh, Ramzan, Qibla aur Azaan milenge. Band app mein bhi Azaan ke liye Android app install karein (Install wali screen mein link hai).', en:'Under More you will find Qaza, Tasbeeh, Ramzan, Qibla and Azan. For Azan while the app is closed, install the Android app (link on the Install screen).'} },
 ];
 function startTour(force){

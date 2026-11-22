@@ -344,6 +344,79 @@ const IBADAT_GUIDES = [
     ],
     closing:'Qurbani ka maqsad Allah ki raza aur taqwa hai, dikhawe ya gosht khane ka nahi. Maal aur janwar ki sharton mein shak ho to apne aalim se zaroor poochhein.' },
 
+  { id:'kids-namazein', kids:true, title:'Paanch Namazein', ic:'🌅', color:'#2f9e6e', tags:['Bachche','Aasaan','Seekhein'], sub:'Kaun si namaz kab padhte hain',
+    intro:'Hum roz paanch baar Allah ko yaad karte hain. Chalo seekhte hain kaun si namaz kab padhi jati hai.',
+    sections:[
+      { h:'Paanch Namazein', ic:'🕌', steps:[
+        { t:'Fajr', d:'Subah, sooraj nikalne se pehle. 2 rakaat farz.' },
+        { t:'Zuhr', d:'Dopahar mein. 4 rakaat farz.' },
+        { t:'Asr', d:'Dopahar ke baad, sooraj doobne se pehle. 4 rakaat farz.' },
+        { t:'Maghrib', d:'Sooraj doobte hi. 3 rakaat farz.' },
+        { t:'Isha', d:'Raat ko. 4 rakaat farz.' } ] },
+      { h:'Yaad Rakhne Ki Tarkeeb', ic:'💡', steps:[
+        { t:'2, 4, 4, 3, 4', d:'Fajr 2, Zuhr 4, Asr 4, Maghrib 3, Isha 4. Ye gin kar yaad kar lein. Kul 17 rakaat farz.' },
+        { t:'Sab se pehle namaz', d:'Aap ke ammi-abbu ke saath masjid ya ghar mein namaz padhna sabse pyara hai.' } ] }
+    ],
+    closing:'Namaz Allah se baat karne ka sabse pyara tareeqa hai.' },
+
+  { id:'kids-wuzu', kids:true, title:'Wuzu Seekhein', ic:'💧', color:'#3f8fe0', tags:['Bachche','Aasaan','Seekhein'], sub:'Wuzu ke 9 aasaan qadam',
+    intro:'Namaz se pehle hum wuzu karte hain, taake saaf-suthre hokar Allah ke saamne khade ho. Bade ki madad se ye qadam seekhein.',
+    sections:[
+      { h:'Wuzu Ke Qadam', ic:'💧', steps:[
+        { t:'Bismillah kahein', d:'Wuzu shuru karne se pehle ye kahein.', ar:'بِسْمِ اللَّهِ', tr:'Bismillah' },
+        { t:'Haath dhoyein', d:'Dono haath 3 baar dhoyein.' },
+        { t:'Kulli karein', d:'Munh mein paani ghumakar thook dein. 3 baar.' },
+        { t:'Naak saaf karein', d:'Naak mein paani daal kar saaf karein. 3 baar.' },
+        { t:'Chehra dhoyein', d:'Poora chehra 3 baar dhoyein.' },
+        { t:'Haath kohni tak', d:'Pehle seedha, phir ulta haath, kohni tak dhoyein. 3-3 baar.' },
+        { t:'Sar ka masah', d:'Geele haath sar par pherein, phir kaan par.' },
+        { t:'Pair dhoyein', d:'Pehle seedha, phir ulta pair, takhnon tak dhoyein. 3-3 baar.' },
+        { t:'Dua padhein', d:'Wuzu ke baad ye padhein.', ar:'أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ', tr:'Ash-hadu an la ilaha illallahu wa ash-hadu anna Muhammadan abduhu wa rasuluh' } ] }
+    ],
+    closing:'Wuzu mein paani zaya na karein. Pehli baar bade ke saath saath karke seekhein.' },
+
+  { id:'kids-namaz', kids:true, title:'Namaz Seekhein', ic:'🕌', color:'#5c7cfa', tags:['Bachche','Aasaan','Seekhein'], sub:'Namaz ke aasaan qadam',
+    intro:'Namaz mein hum Allah ki badaai bayan karte hain. Pehle wuzu karein, phir qibla ki taraf munh karke khade ho jayein.',
+    sections:[
+      { h:'Namaz Ke Qadam', ic:'🕌', steps:[
+        { t:'Niyyat karein', d:'Dil mein soch lein: main Allah ke liye 2 rakaat namaz padh raha/rahi hoon.' },
+        { t:'Allahu Akbar', d:'Haath kaanon tak uthakar kahein, phir haath baandh lein.', ar:'اللَّهُ أَكْبَرُ', tr:'Allahu Akbar' },
+        { t:'Surah Fatiha aur koi Surah', d:'Surah Fatiha padhein, phir Surah Ikhlas ya koi chhoti Surah.' },
+        { t:'Ruku', d:'Jhukkar haath ghutnon par rakhein aur 3 baar kahein.', ar:'سُبْحَانَ رَبِّيَ الْعَظِيمِ', tr:'Subhana Rabbiyal Azeem' },
+        { t:'Sajda', d:'Zameen par peshani aur naak rakhein aur 3 baar kahein.', ar:'سُبْحَانَ رَبِّيَ الْأَعْلَى', tr:'Subhana Rabbiyal A-la' },
+        { t:'Do sajdon ke beech baithna', d:'Ek sajda karke seedhe baith jayein, phir doosra sajda karein.' },
+        { t:'Attahiyyat aur Salam', d:'Aakhir mein baith kar Attahiyyat, Durood aur dua padhein. Phir daayen aur baayen "As-salamu alaykum wa rahmatullah" kehkar salam pheren.' } ] }
+    ],
+    closing:'Namaz ka poora tareeqa "Namaz Ka Tareeqa" mein dekhein. Bade se seekhna sabse aasaan hai.' },
+
+  { id:'kids-dua', kids:true, title:'Chhoti Duain', ic:'🤲', color:'#d6708f', tags:['Bachche','Aasaan','Dua'], sub:'Roz ki 7 chhoti duain',
+    intro:'Allah ko har kaam mein yaad karna achhi baat hai. Ye chhoti duain roz yaad karke padhein.',
+    sections:[
+      { h:'Roz Ki Duain', ic:'🤲', steps:[
+        { t:'Khana shuru karte waqt', d:'Bismillah kehkar khana shuru karein.', ar:'بِسْمِ اللَّهِ', tr:'Bismillah' },
+        { t:'Khana khane ke baad', d:'Allah ka shukr karein jisne khilaya aur pilaya.', ar:'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ', tr:'Alhamdu lillahil-ladhi at-amana wa saqana wa ja-alana muslimeen' },
+        { t:'Sone se pehle', d:'Ae Allah, tere naam par main marta (sota) aur jeeta (jagta) hoon.', ar:'اللَّهُمَّ بِاسْمِكَ أَمُوتُ وَأَحْيَا', tr:'Allahumma bismika amutu wa ahya' },
+        { t:'Uthte hi', d:'Allah ka shukr jisne sone ke baad zinda kiya.', ar:'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ', tr:'Alhamdu lillahil-ladhi ahyana ba-da ma amatana wa ilayhin-nushoor' },
+        { t:'Ghar se nikalte waqt', d:'Allah ke naam se, Allah par bharosa.', ar:'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', tr:'Bismillahi tawakkaltu alallahi wa la hawla wa la quwwata illa billah' },
+        { t:'Chheenk aane par', d:'Chheenk aaye to kahein: Alhamdulillah. Sunne wala kahe: Yarhamukallah.', ar:'الْحَمْدُ لِلَّهِ', tr:'Alhamdulillah' },
+        { t:'Salam karna', d:'Milte hi salam karein. Jawab mein "Wa alaykumus-salam wa rahmatullah" kahein.', ar:'السَّلَامُ عَلَيْكُمْ', tr:'As-salamu alaykum' } ] }
+    ],
+    closing:'Dua yaad ho jaye to Dua list mein jakar "Yaad ho chuka hai" ka nishan lagayein.' },
+
+  { id:'kids-aadat', kids:true, title:'Achhi Aadatein', ic:'🌸', color:'#e0893f', tags:['Bachche','Aasaan','Akhlaq'], sub:'Nabi ﷺ ki pyari baatein',
+    intro:'Nabi ﷺ ne hamein achhe akhlaq ki taleem di. Chalo ye achhi aadatein apnate hain.',
+    sections:[
+      { h:'Meri Achhi Aadatein', ic:'🌸', steps:[
+        { t:'Salam karna', d:'Sabko pehle salam karein. Salam phailana Jannat ka raasta hai.' },
+        { t:'Sach bolna', d:'Hamesha sach bolein, chahe mushkil lage.' },
+        { t:'Maa-baap ki baat sunna', d:'Ammi-abbu se pyaar aur adab se baat karein. Unke saamne awaaz oonchi na karein.' },
+        { t:'Mil baant kar khana', d:'Apni cheez doosron ke saath baant lein.' },
+        { t:'Safai rakhna', d:'Nabi ﷺ ne farmaya: paaki aadha imaan hai (Sahih Muslim).' },
+        { t:'Shukriya kehna', d:'Koi achha kaam kare to uska shukriya adaa karein.', ar:'جَزَاكَ اللَّهُ خَيْرًا', tr:'Jazakallahu khayran' },
+        { t:'Chhoton par raham', d:'Apne se chhote bachchon se narmi se baat karein, unka khayal rakhein.' } ] }
+    ],
+    closing:'Achhe akhlaq wala bachcha Allah aur logon ko pyara lagta hai.' },
+
   { id:'tayammum', title:'Tayammum Ka Tareeqa', ic:'🏜️', color:'#d4a017', tags:['Taharat','Hanafi','Paani na ho'], sub:'Jab wuzu ya ghusl mumkin na ho',
     intro:'Jab paani na mile ya istemal se nuqsan ka khauf ho to wuzu aur ghusl ki jagah pak mitti se tayammum karna Allah ki ek aasani hai.',
     sections:[
@@ -367,16 +440,20 @@ const IBADAT_GUIDES = [
     ],
     closing:'Tayammum ek ruksat hai, jaise hi paani mile ya uzr khatam ho, wuzu ya ghusl kar lein.' }
 ];
-IBADAT_GUIDES.sort((a,b)=>['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw','zabah','qurbani'].indexOf(a.id) - ['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw','zabah','qurbani'].indexOf(b.id));
-function ibadatNavCat(){
-  return { sec:{ ur:'Namaz aur Taharat', en:'Prayer and Purity' }, cats:['all'], catOf:()=>'all', all:IBADAT_GUIDES, sortFn:(a,b)=>IBADAT_GUIDES.indexOf(a)-IBADAT_GUIDES.indexOf(b) };
+IBADAT_GUIDES.sort((a,b)=>['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw','zabah','qurbani','kids-namazein','kids-wuzu','kids-namaz','kids-dua','kids-aadat'].indexOf(a.id) - ['wuzu','ghusl','tayammum','namaz-tareeqa','namaz-rakaat','qasr','janaza','taraweeh','eid','tahajjud','ishraq-chasht','haajat','istikhara','tauba','sahw','zabah','qurbani','kids-namazein','kids-wuzu','kids-namaz','kids-dua','kids-aadat'].indexOf(b.id));
+function ibadatNavCat(list){
+  list = list || IBADAT_GUIDES.filter(g=>!g.kids);
+  const kids = !!(list[0] && list[0].kids);
+  return { sec: kids ? { ur:'Bachchon ke liye', en:'For Kids' } : { ur:'Namaz aur Taharat', en:'Prayer and Purity' }, cats:['all'], catOf:()=>'all', all:list, sortFn:(a,b)=>list.indexOf(a)-list.indexOf(b) };
 }
 function ibadatTagChips(g){ return g.tags.map(t=>`<span class="aad-tag">${t}</span>`).join(''); }
-function renderIbadat(){
-  document.getElementById('detailTitle').textContent = L({ rur:'Namaz aur Taharat', en:'Prayer and Purity' });
+function renderIbadat(){ renderGuideList(IBADAT_GUIDES.filter(g=>!g.kids), { rur:'Namaz aur Taharat', en:'Prayer and Purity' }, { rur:'Wuzu, Ghusl, Tayammum, Namaz ka tareeqa, Safar, Janaza, Taraweeh, Eid, Tahajjud, Istikhara, Tauba, Sajda-e-Sahw, Zabah aur Qurbani, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum, the prayer, travel, janaza, taraweeh, Eid, tahajjud, istikhara, tauba, sajda-e-sahw, zabah and qurbani, following Hanafi fiqh.' }); }
+function renderKids(){ renderGuideList(IBADAT_GUIDES.filter(g=>g.kids), { rur:'Bachchon ke liye', en:'For Kids' }, { rur:'Bachchon ke liye aasaan lafzon mein: wuzu, namaz, chhoti duain aur achhi aadatein. Bade ke saath baith kar seekhein.', en:'Simple lessons for children: wudu, prayer, short duas and good manners. Learn together with a grown-up.' }); }
+function renderGuideList(list, title, intro){
+  document.getElementById('detailTitle').textContent = L(title);
   document.getElementById('detailBody').innerHTML = `
-    <div class="aad-intro">${L({ rur:'Wuzu, Ghusl, Tayammum, Namaz ka tareeqa, Safar, Janaza, Taraweeh, Eid, Tahajjud, Istikhara, Tauba, Sajda-e-Sahw, Zabah aur Qurbani, Hanafi fiqh ke mutabiq.', en:'Wudu, ghusl, tayammum and the prayer, step by step, following Hanafi fiqh.' })}</div>
-    <div class="dua-grid list" id="ibadatList">${IBADAT_GUIDES.map((g,i)=>{
+    <div class="aad-intro">${L(intro)}</div>
+    <div class="dua-grid list" id="ibadatList">${list.map((g,i)=>{
       const st = duaStatus('ibadat:' + g.id);
       return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${g.color};">
         <div class="aad-ic">${g.ic}</div>
@@ -385,7 +462,7 @@ function renderIbadat(){
         <div class="chev">›</div></div>`;
     }).join('')}</div>`;
   document.querySelectorAll('#ibadatList .aad-card').forEach(el=>{
-    el.onclick = ()=>{ const i = +el.dataset.i; setNavCtx(IBADAT_GUIDES, i, openIbadatDetail, ibadatNavCat()); openIbadatDetail(IBADAT_GUIDES[i]); };
+    el.onclick = ()=>{ const i = +el.dataset.i; setNavCtx(list, i, openIbadatDetail, ibadatNavCat(list)); openIbadatDetail(list[i]); };
   });
 }
 function openIbadatDetail(g){
@@ -399,7 +476,7 @@ function openIbadatDetail(g){
       <div class="ib-b"><b>${s.t.replace(/^\d+\.\s*/, '')}</b>${s.d ? `<p>${s.d}</p>` : ''}
         ${s.ar ? `<div class="arabic dua-ar" dir="rtl">${s.ar}</div>` : ''}${s.tr ? `<div class="translit dua-tr">${s.tr}</div>` : ''}</div>
     </div>`;
-  document.getElementById('detailBody').innerHTML = `
+  document.getElementById('detailBody').innerHTML = `<div class="${g.kids ? 'ib-kids' : ''}">
     <div class="detail-actions">
       ${bmBtn('ibadat:'+g.id)}
       <button class="act-btn" id="ibadatImgBtn" title="Share karein">${SHARE_SVG}</button>
@@ -409,7 +486,7 @@ function openIbadatDetail(g){
       <div class="aad-head-ic">${g.ic}</div>
       <div class="aad-head-title">${g.title}</div>
       <div class="aad-tags center">${ibadatTagChips(g)}</div>
-      <div class="aad-cat-pill">🕌 ${L({ rur:'Namaz aur Taharat', en:'Prayer and Purity' })}</div>
+      <div class="aad-cat-pill">${g.kids ? '🌟 ' + L({ rur:'Bachchon ke liye', en:'For Kids' }) : '🕌 ' + L({ rur:'Namaz aur Taharat', en:'Prayer and Purity' })}</div>
     </div>
     <div class="aad-intro">${g.intro}</div>
     ${g.sections.map((sec,i)=>`<div class="aad-guide-sec g${i%10}">
@@ -423,9 +500,9 @@ function openIbadatDetail(g){
       <button class="aad-status-btn amal ${st==='amal'?'on':''}" id="ibadatAmalBtn">✅ Seekh liya</button>
     </div>
     ${pnBarHtml()}
-  `;
+  </div>`;
   document.getElementById('ibadatSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openIbadatDetail(g); };
   document.getElementById('ibadatAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openIbadatDetail(g); };
-  document.getElementById('ibadatImgBtn').onclick = ()=> openCardShareChooser({ scene:ibadatSceneSvg(g), kind:'Namaz aur Taharat', title:g.title, sub:g.tags.join(' · '), body:g.intro, foot:'Hanafi fiqh ke mutabiq' });
+  document.getElementById('ibadatImgBtn').onclick = ()=> openCardShareChooser({ scene:ibadatSceneSvg(g), kind: g.kids ? 'Bachchon ke liye' : 'Namaz aur Taharat', title:g.title, sub:g.tags.join(' · '), body:g.intro, foot:'Hanafi fiqh ke mutabiq' });
   wirePnBar();
 }

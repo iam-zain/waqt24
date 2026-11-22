@@ -2620,3 +2620,39 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 
 .ib-n{ flex:0 0 auto; width:24px; height:24px; border-radius:50%; background:color-mix(in srgb, var(--sc, var(--accent)) 16%, transparent); color:var(--sc, var(--accent)); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:1px; }
 .ib-b{ flex:1; min-width:0; }
+
+/* Share card looks */
+.share-theme-row{ display:flex; gap:8px; justify-content:center; margin:0 0 12px; }
+.st-chip{ display:flex; align-items:center; gap:6px; padding:7px 12px; border-radius:999px; border:1.5px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; }
+.st-chip i{ width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,.15); }
+.st-chip.st-noor i{ background:linear-gradient(135deg,#f8f2e6,#c9a24f); }
+.st-chip.st-raat i{ background:linear-gradient(135deg,#14204a,#d4b061); }
+.st-chip.st-sabz i{ background:linear-gradient(135deg,#eaf6ef,#3f9a6a); }
+.st-chip.on{ border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); }
+
+/* Mubarak cards */
+.mb-name{ margin:0 14px 12px; } .mb-name input{ width:100%; padding:11px 14px; border-radius:14px; border:1px solid var(--line); background:var(--card); color:var(--text); font:inherit; font-size:14px; }
+.mb-list{ display:flex; flex-direction:column; gap:14px; padding:0 14px 20px; }
+.mb-card{ background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden; }
+.mb-card .dua-scene{ border-radius:0; margin:0; } .mb-body{ padding:12px 14px 14px; text-align:center; }
+.mb-ar{ font-size:24px; line-height:1.8; } .mb-t{ font-size:15px; font-weight:800; margin:4px 0 6px; } .mb-w{ font-size:13px; color:var(--sub); line-height:1.6; margin-bottom:10px; }
+.mb-share svg{ width:16px; height:16px; vertical-align:-3px; margin-right:4px; }
+
+/* Quiz level card */
+.ql-card{ margin:4px 14px 16px; padding:14px; border-radius:18px; background:var(--card); border:1px solid var(--line); }
+.ql-top{ display:flex; align-items:center; gap:12px; } .ql-ic{ font-size:34px; width:52px; height:52px; border-radius:16px; background:color-mix(in srgb, var(--accent) 14%, transparent); display:flex; align-items:center; justify-content:center; }
+.ql-n{ font-size:16px; font-weight:800; } .ql-s{ font-size:12px; color:var(--sub); margin-top:2px; line-height:1.45; }
+.ql-bar{ height:8px; border-radius:6px; background:color-mix(in srgb, var(--accent) 12%, transparent); margin:12px 0 10px; overflow:hidden; } .ql-bar i{ display:block; height:100%; border-radius:6px; background:var(--accent); transition:width .6s ease; }
+.ql-week{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--sub); } .ql-week b{ color:var(--text); }
+.ql-streak{ margin-top:6px; font-size:12.5px; font-weight:700; color:#d2691e; }
+.ql-badges{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+.ql-b{ text-align:center; padding:8px 4px; border-radius:12px; background:var(--card2); border:1px solid var(--line); opacity:.45; filter:grayscale(1); }
+.ql-b.on{ opacity:1; filter:none; border-color:color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.ql-b span{ display:block; font-size:22px; } .ql-b em{ display:block; font-style:normal; font-size:11px; font-weight:700; margin-top:2px; }
+
+.gs-chips{ display:flex; gap:8px; overflow-x:auto; padding:0 14px 10px; scrollbar-width:none; } .gs-chips::-webkit-scrollbar{ display:none; } .gs-chips .chip{ flex:0 0 auto; }
+
+/* Kids guides: bigger, friendlier text */
+.ib-kids .ib-b b{ font-size:16px; } .ib-kids .ib-b p{ font-size:15px; line-height:1.75; }
+.ib-kids .ib-n{ width:28px; height:28px; font-size:14px; }
+.ib-kids .aad-intro{ font-size:15px; line-height:1.75; }
