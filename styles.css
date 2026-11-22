@@ -2789,3 +2789,7 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 #tab-explore{ padding-bottom:0; }
 #tab-more{ padding-bottom:0; }
 .tab-end{ height:14px; min-height:14px; }
+/* Buttons with an icon: icon and text centred on one line everywhere */
+.backup-btn{ display:flex; align-items:center; justify-content:center; gap:8px; text-align:center; line-height:1.25; }
+.backup-btn svg{ width:16px; height:16px; flex:0 0 auto; margin:0; }
+.mb-share{ margin-bottom:0; }
