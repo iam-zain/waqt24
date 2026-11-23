@@ -11830,6 +11830,50 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'raheeq-makhtum-book', cat:'books', t:'Ar-Raheeq al-Makhtum', by:'Kitab · Safiur Rahman Mubarakpuri', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Nabi-e-Akram ﷺ ki seerat par mashhoor kitab, aasan aur tarteeb-war andaaz mein.',
+    tags:['Seerat','Tareekh'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Seerat ki mashhoor kitab jo Urdu aur English dono mein padhi jati hai.',
+      pts:[
+        'Mauzu: Nabi ﷺ ki seerat',
+        'Musannif: Safiur Rahman Mubarakpuri',
+        'Urdu aur English tarjume maujood hain'
+      ] },
+    note:'Is card mein link nahi hai. Kitab apni pasand ke mustanad zariye se haasil karein, aur zaroorat ho to ulema se mashwara kar lein.' },
+  { id:'seerat-un-nabi-book', cat:'books', t:'Seerat-un-Nabi', by:'Kitab · Allama Shibli Nomani aur Sulaiman Nadwi', lang:['ur'], level:'Sab ke liye', checked:'2026-11',
+    why:'Urdu ki ek bunyadi aur ilmi seerat ki kitab, jo kai jildon mein hai.',
+    tags:['Seerat','Tareekh','Urdu Adab'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Urdu mein seerat ki ilmi aur tahqeeqi kitab.',
+      pts:[
+        'Musannif: Allama Shibli Nomani, jinki kitab ko Sulaiman Nadwi ne aage badha kar mukammal kiya',
+        'Zubaan: Urdu',
+        'Kai jildon mein'
+      ] },
+    note:'Is card mein link nahi hai. Kitab apni pasand ke mustanad zariye se haasil karein, aur zaroorat ho to ulema se mashwara kar lein.' },
+  { id:'qasas-anbiya-book', cat:'books', t:'Qasas-ul-Anbiya', by:'Kitab · Imam Ibn Kathir', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Anbiya AS ke qisse Qur’an aur riwayaat ki roshni mein.',
+    tags:['Anbiya','Qasas','Qur’an'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Anbiya-e-Kiram AS ke halat par mabni kitab.',
+      pts:[
+        'Musannif: Imam Ibn Kathir',
+        'Asal Arabic mein hai, Urdu aur English tarjume milte hain',
+        'Mauzu: Anbiya AS ke qisse'
+      ] },
+    note:'Is card mein link nahi hai. Kitab apni pasand ke mustanad zariye se haasil karein, aur zaroorat ho to ulema se mashwara kar lein.' },
+  { id:'maariful-quran-book', cat:'books', t:'Ma’ariful Quran', by:'Kitab · Mufti Muhammad Shafi', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Urdu ki mashhoor tafseer, Qur’an ki aayaat ka aasan matlab aur masail ke saath.',
+    tags:['Tafseer','Qur’an','Masail'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Urdu zubaan ki mashhoor tafseer.',
+      pts:[
+        'Musannif: Mufti Muhammad Shafi',
+        'Zubaan: Urdu, English tarjuma bhi maujood',
+        'Poore Qur’an ki tafseer'
+      ] },
+    note:'Is card mein link nahi hai. Kitab apni pasand ke mustanad zariye se haasil karein, aur zaroorat ho to ulema se mashwara kar lein.' },
   { id:'islam-films-list-web', cat:'web', t:'List of Islam-related films', by:'Website · Wikipedia', lang:['en'], level:'Bade (ulema se mashwara)', checked:'2026-11', url:'https://en.wikipedia.org/wiki/List_of_Islam-related_films',
     why:'Islam se jude filmon ki ek lambi list, jisse pata chalta hai kaun si film kis mauzu par bani hai.',
     tags:['Films ki List', 'Movies', 'Tareekh'],
