@@ -3,7 +3,7 @@
    The tab and its sections are ready; ZARIYE_ITEMS is empty on purpose and is filled later from a reviewed list.
    An item looks like:
      { id:'unique-id', cat:'youtube', t:'Naam', why:'Ek line mein kyun dekhein', by:'Kis ka / channel', lang:['ur','hi'], level:'Beginner', url:'https://...', checked:'2026-11' }
-   Optional: tags:['Life Hero','Tareekh'] (shown as chips; tap one to filter), links:[{t:'Season 1 · Episode 1', url:'...'}] for several episodes/parts,
+   Optional: facts:['5 seasons', '150 episodes'] (big boxes at the top of the card), tags:['Life Hero','Tareekh'] (shown as chips; tap one to filter), links:[{t:'Season 1 · Episode 1', url:'...'}] for several episodes/parts,
    about:{ h:'Heading', p:'paragraph', pts:['bullet', ...] } for a short profile of the hero / author / topic, note:'a caution line'.
    cat: one of ZARIYE_CATS ids. lang: 'ur' | 'hi' | 'en'. level: 'Beginner' | 'Aage ka' | 'Sab ke liye'. checked: month the link was last verified.
    ============================================================ */
@@ -21,6 +21,23 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'ertugrul-series', cat:'series', t:'Ertugrul Ghazi', by:'Diriliş: Ertuğrul · Turkish series, Urdu dub (YouTube par)', lang:['ur'], level:'Sab ke liye', checked:'2026-11',
+    why:'Usmani saltanat ke bani Usman Ghazi ke walid Ertugrul Bey ki zindagi par bani mashhoor Turkish series. Himmat, imaan, wafadari aur qabeele ki qiyadat ka sabaq.',
+    facts:['5 seasons', '150 episodes (asli)', '2014 se 2019 tak'],
+    tags:['Tareekh', 'Usmani', 'Drama', 'Jung aur Fatah', 'Life Hero'],
+    links:[ { t:'Urdu · Season 1 · Episode 1', url:'https://www.youtube.com/watch?v=fa89NxhAKis' } ],
+    about:{ h:'Series ke baare mein',
+      p:'Ye series Turkey ke TRT 1 par 10 December 2014 se 29 May 2019 tak chali. Isme kul 5 season aur 150 episode hain, aur har episode lagbhag 2 ghante ka tha. Urdu dub mein episode chhote kaat kar dikhaye jate hain, isliye Urdu mein episodes ki ginti zyada (PTV Home par 470) hoti hai.',
+      pts:[
+        'Season 1: 26 episode (Dec 2014 se June 2015)',
+        'Season 2: 35 episode (Sept 2015 se June 2016)',
+        'Season 3: 30 episode (Oct 2016 se June 2017)',
+        'Season 4: 30 episode (Oct 2017 se June 2018)',
+        'Season 5: 29 episode (Nov 2018 se May 2019)',
+        'Kul: 150 episode asli, Netflix par 448, PTV Home (Urdu) par 470.',
+        'Baqi episodes aap YouTube par isi tarah "Ertugrul Ghazi Urdu" likh kar khud dhoond sakte hain.'
+      ] },
+    note:'Ertugrul Bey ke baare mein asal tareekhi maloomat bahut kam hain, isliye series ka bahut hissa drama aur qissa hai. Isse tareekh ki dastaavez na samjhein.' },
   { id:'kohistani-yt', cat:'youtube', t:'The Kohistani', by:'YouTube channel', lang:['ur'], level:'Sab ke liye', checked:'2026-11', url:'https://www.youtube.com/@Thekohistani',
     why:'Islami tareekh aur shakhsiyaat par lambi (lagbhag 20-25 minute ki) narration wali videos, jinmein series ke taur par bhi episodes aate hain, jaise Hazrat Umar RA ki series. Channel ka tarif-naama ek hadees se hai: achchi baat kaho ya khamosh raho.',
     tags:['Historical Narration', 'AI Video', 'Man Explaining', 'Tareekh', 'Sahaba'],
@@ -75,6 +92,7 @@ function zariyeCardHtml(x){
   const a = x.about;
   return `<div class="zr-card"><div class="zr-card-h"><b>${x.t}</b>${x.by ? `<small>${x.by}</small>` : ''}</div>
     ${x.why ? `<p>${x.why}</p>` : ''}
+    ${(x.facts || []).length ? `<div class="zr-facts">${x.facts.map(f=>`<div>${f}</div>`).join('')}</div>` : ''}
     ${(x.tags || []).length ? `<div class="zr-tags">${x.tags.map(t=>`<button type="button" class="zr-tag ${zrTag === t ? 'on' : ''}" data-t="${t}">#${t}</button>`).join('')}</div>` : ''}
     <div class="zr-meta">${lg ? `<span>🗣️ ${lg}</span>` : ''}${x.level ? `<span>🎯 ${x.level}</span>` : ''}${x.checked ? `<span>✔️ ${x.checked}</span>` : ''}</div>
     ${a ? `<details class="zr-about"><summary>📖 ${a.h || 'Taaruf'}</summary>${a.p ? `<p>${a.p}</p>` : ''}${(a.pts || []).length ? `<ul>${a.pts.map(t=>`<li>${t}</li>`).join('')}</ul>` : ''}</details>` : ''}
