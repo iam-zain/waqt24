@@ -11830,6 +11830,38 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'omar-series', cat:'series', t:'Omar (2012)', by:'Series · Arabic, Urdu dub bhi milta hai', lang:['ur'], level:'Sab ke liye', checked:'2026-11',
+    why:'Hazrat Umar RA ki zindagi par bani Arabic series, jiska Urdu dub bhi milta hai.',
+    facts:['2012', 'Arabic series'],
+    tags:['Tareekh','Sahaba','Drama','Life Hero'],
+    about:{ h:'Ke baare mein',
+      p:'Khulafa-e-Rashidin mein se ek, Hazrat Umar RA ki zindagi par mabni series.',
+      pts:[
+        'Mauzu: Hazrat Umar bin Khattab RA ki zindagi',
+        'Asal zubaan Arabic, Urdu dub alag se milta hai'
+      ] },
+    note:'Is card mein link nahi hai, apni pasand ke zariye se khud dhoondein. Ye sirf maloomat hai, sifarish nahi. Dekhne se pehle ulema se mashwara kar lein, kyunki is baare mein ulema ki raay mukhtalif ho sakti hai.' },
+  { id:'messenger-of-god-film', cat:'movies', t:'Muhammad: The Messenger of God (2015)', by:'Film · Iranian film · Director: Majid Majidi', lang:['en'], level:'Bade (ulema se mashwara)', checked:'2026-11',
+    why:'Nabi-e-Akram ﷺ ke bachpan aur shuruaati daur par bani Iranian film.',
+    facts:['2015', 'Iranian film'],
+    tags:['Seerat','Tareekh','Drama'],
+    about:{ h:'Ke baare mein',
+      p:'Seerat ke ek hisse par bani film.',
+      pts:[
+        'Mauzu: Nabi ﷺ ke bachpan aur shuruaati daur ki jhalak',
+        'Director: Majid Majidi'
+      ] },
+    note:'Is card mein link nahi hai, apni pasand ke zariye se khud dhoondein. Ye sirf maloomat hai, sifarish nahi. Dekhne se pehle ulema se mashwara kar lein, kyunki is baare mein ulema ki raay mukhtalif ho sakti hai.' },
+  { id:'omar-hana-kids', cat:'kids', t:'Omar & Hana', by:'Cartoon · Bachchon ke liye', lang:['en'], level:'Bachche', checked:'2026-11',
+    why:'Bachchon ke liye Islami cartoons aur nasheed, jo achhe akhlaq aur deeni batein sikhate hain.',
+    tags:['Cartoon','Nasheed','Akhlaq'],
+    about:{ h:'Ke baare mein',
+      p:'Islami cartoon aur nasheed ka silsila.',
+      pts:[
+        'Bachchon ke liye cartoons aur nasheed',
+        'YouTube par "Omar & Hana" likh kar dhoond sakte hain'
+      ] },
+    note:'Is card mein link nahi hai. Bachchon ko dikhane se pehle ek baar khud dekh lein.' },
   { id:'raheeq-makhtum-book', cat:'books', t:'Ar-Raheeq al-Makhtum', by:'Kitab · Safiur Rahman Mubarakpuri', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
     why:'Nabi-e-Akram ﷺ ki seerat par mashhoor kitab, aasan aur tarteeb-war andaaz mein.',
     tags:['Seerat','Tareekh'],
