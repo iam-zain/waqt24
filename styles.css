@@ -2794,3 +2794,18 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .backup-btn svg{ width:16px; height:16px; flex:0 0 auto; margin:0; }
 .mb-share{ margin-bottom:0; }
 .cal-detail{ margin-bottom:0; }
+
+/* Seekhne ke Zariye */
+.zr-hero{ margin:6px 14px 12px; padding:18px 16px; border-radius:20px; display:flex; align-items:center; gap:14px; color:#fff; background:linear-gradient(135deg,#3a4d8f,#5c7cfa 60%,#2fb6b0 140%); box-shadow:0 8px 22px rgba(58,77,143,.28); }
+.zr-hero-ic{ font-size:32px; width:54px; height:54px; border-radius:18px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; } .zr-hero-t{ font-size:19px; font-weight:800; } .zr-hero-s{ font-size:12.5px; opacity:.92; margin-top:2px; }
+.zr-langs{ display:flex; gap:8px; padding:0 14px 12px; overflow-x:auto; scrollbar-width:none; } .zr-langs::-webkit-scrollbar{ display:none; }
+.zr-lang{ flex:0 0 auto; padding:7px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--card); color:var(--text); font:inherit; font-size:13px; font-weight:700; cursor:pointer; } .zr-lang.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.zr-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 14px; }
+.zr-tile{ text-align:left; padding:14px; border-radius:18px; border:1.5px solid color-mix(in srgb, var(--zc) 35%, var(--line)); background:linear-gradient(160deg, var(--card), color-mix(in srgb, var(--zc) 10%, var(--card))); color:var(--text); font:inherit; cursor:pointer; display:flex; flex-direction:column; gap:3px; }
+.zr-tile-ic{ font-size:26px; width:46px; height:46px; border-radius:14px; background:color-mix(in srgb, var(--zc) 18%, transparent); display:flex; align-items:center; justify-content:center; margin-bottom:6px; }
+.zr-tile-t{ font-size:14px; font-weight:800; } .zr-tile-s{ font-size:11.5px; color:var(--sub); line-height:1.4; } .zr-tile-n{ margin-top:6px; font-size:11px; font-weight:800; color:var(--zc); }
+.zr-sechead{ display:flex; align-items:center; gap:12px; margin:6px 14px 12px; } .zr-sechead b{ display:block; font-size:17px; } .zr-sechead small{ display:block; font-size:12px; color:var(--sub); } .zr-sechead .zr-tile-ic{ margin:0; }
+.zr-list{ display:grid; gap:12px; padding:0 14px; }
+.zr-card{ padding:14px; border-radius:16px; border:1.5px solid var(--line); background:var(--card); } .zr-card-h b{ display:block; font-size:15px; } .zr-card-h small{ display:block; font-size:12px; color:var(--sub); margin-top:2px; } .zr-card p{ margin:8px 0; font-size:13px; line-height:1.6; color:var(--sub); }
+.zr-meta{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; } .zr-meta span{ font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--card2); }
+.zr-open{ display:flex; align-items:center; justify-content:center; padding:10px; border-radius:12px; background:var(--accent); color:#fff; font-size:13.5px; font-weight:800; text-decoration:none; }
