@@ -357,7 +357,7 @@ function zariyeItems(cat){
     .sort((a, b)=> (zariyeSeen(a.id) - zariyeSeen(b.id))
       || (so === 'az' ? a.t.localeCompare(b.t) : so === 'za' ? b.t.localeCompare(a.t) : rk(a) - rk(b)));
 }
-const zariyeSortBar = items=> `<div class="zr-sortbar"><div class="zr-sorts" id="zrSorts"><span>↕️ Tarteeb:</span>${ZARIYE_SORTS.map(([k, n])=>`<button type="button" class="zr-lang ${zariyeSort() === k ? 'on' : ''}" data-s="${k}">${n}</button>`).join('')}</div><small>✅ ${zariyeVerb(items[0] && items[0].cat)[1]}: ${items.filter(x=> zariyeSeen(x.id)).length}/${items.length}</small></div>`;
+const zariyeSortBar = items=> `<div class="zr-sortbar"><div class="zr-sorts" id="zrSorts"><span>↕️ Tarteeb:</span>${ZARIYE_SORTS.map(([k, n])=>`<button type="button" class="zr-lang ${zariyeSort() === k ? 'on' : ''}" data-s="${k}">${n}</button>`).join('')}</div><button type="button" class="zr-lang zr-toggleall">⇕ Sab kholein</button><small>✅ ${zariyeVerb(items[0] && items[0].cat)[1]}: ${items.filter(x=> zariyeSeen(x.id)).length}/${items.length}</small></div>`;
 const zariyeLangChips = ()=> `<div class="zr-langs" id="zrLangs">${ZARIYE_LANGS.map(([k, n])=>`<button type="button" class="zr-lang ${zariyeLang() === k ? 'on' : ''}" data-l="${k}">${n}</button>`).join('')}</div>`;
 function zariyeWireLangs(redraw){
   document.querySelectorAll('#zrLangs .zr-lang').forEach(b=> b.onclick = ()=>{ state.zariyeLang = b.dataset.l; saveState(); redraw(); });
@@ -377,14 +377,14 @@ function renderZariye(){
 function zariyeCardHtml(x, n){
   const lg = (x.lang || []).map(l=> (ZARIYE_LANGS.find(z=> z[0] === l) || [0, l])[1]).join(' · ');
   const a = x.about;
-  return `<div class="zr-card ${zariyeSeen(x.id) ? 'seen' : ''}"><div class="zr-card-top"><span class="zr-sn">${n}</span><div class="zr-card-h"><b>${x.t}</b>${x.by ? `<small>${x.by}</small>` : ''}</div><button type="button" class="zr-seen ${zariyeSeen(x.id) ? 'on' : ''}" data-id="${x.id}" aria-pressed="${zariyeSeen(x.id)}">${zariyeSeen(x.id) ? '✅ ' + zariyeVerb(x.cat)[0] : '⬜ ' + zariyeVerb(x.cat)[0] + '?'}</button></div>
-    ${x.why ? `<p>${x.why}</p>` : ''}
+  return `<div class="zr-card ${zariyeSeen(x.id) ? 'seen' : ''}"><div class="zr-card-top" role="button" tabindex="0" aria-expanded="false"><span class="zr-sn">${n}</span><div class="zr-card-h"><b>${x.t}</b>${x.by ? `<small>${x.by}</small>` : ''}</div>${zariyeSeen(x.id) ? '<span class="zr-tick" aria-label="Ho chuka">✅</span>' : ''}<span class="zr-chev" aria-hidden="true">▾</span></div>
+    <div class="zr-body"><div class="zr-seenrow"><button type="button" class="zr-seen ${zariyeSeen(x.id) ? 'on' : ''}" data-id="${x.id}" aria-pressed="${zariyeSeen(x.id)}">${zariyeSeen(x.id) ? '✅ ' + zariyeVerb(x.cat)[0] : '⬜ ' + zariyeVerb(x.cat)[0] + '?'}</button></div>${x.why ? `<p>${x.why}</p>` : ''}
     ${(x.facts || []).length ? `<div class="zr-facts">${x.facts.map(f=>`<div>${f}</div>`).join('')}</div>` : ''}
     ${(x.tags || []).length ? `<div class="zr-tags">${x.tags.map(t=>`<button type="button" class="zr-tag ${zrTag === t ? 'on' : ''}" data-t="${t}">#${t}</button>`).join('')}</div>` : ''}
     <div class="zr-meta">${lg ? `<span>🗣️ ${lg}</span>` : ''}${x.level ? `<span>🎯 ${x.level}</span>` : ''}${x.checked ? `<span>✔️ ${x.checked}</span>` : ''}</div>
     ${a ? `<details class="zr-about"><summary>📖 ${a.h || 'Taaruf'}</summary>${a.p ? `<p>${a.p}</p>` : ''}${(a.pts || []).length ? `<ul>${a.pts.map(t=>`<li>${t}</li>`).join('')}</ul>` : ''}</details>` : ''}
     ${x.note ? `<div class="zr-note">⚠️ ${x.note}</div>` : ''}
-    ${(x.links || (x.url ? [{ t:'Kholein', url:x.url }] : [])).map(l=>`<div class="zr-linkrow"><a class="zr-open" href="${l.url}" target="_blank" rel="noopener">▶ ${l.t}</a><button type="button" class="zr-copy" data-u="${l.url}" aria-label="Link copy karein">📋 Copy link</button></div>`).join('')}</div>`;
+    ${(x.links || (x.url ? [{ t:'Kholein', url:x.url }] : [])).map(l=>`<div class="zr-linkrow"><a class="zr-open" href="${l.url}" target="_blank" rel="noopener">▶ ${l.t}</a><button type="button" class="zr-copy" data-u="${l.url}" aria-label="Link copy karein">📋 Copy link</button></div>`).join('')}</div></div>`;
 }
 let zrTag = '';
 function renderZariyeList(catId){
@@ -415,3 +415,27 @@ function renderZariyeList(catId){
   });
   document.querySelectorAll('.zr-tag').forEach(b=> b.onclick = ()=>{ zrTag = (zrTag === b.dataset.t) ? '' : b.dataset.t; renderZariyeList(c.id); });
 }
+
+/* ===== Collapsible cards (Online Resources and Shakhsiyaat): only the name shows until opened ===== */
+function zrToggleCard(card){
+  const o = card.classList.toggle('open'), h = card.querySelector('.zr-card-top'); if(h) h.setAttribute('aria-expanded', o ? 'true' : 'false');
+}
+function zrSyncToggleAll(){
+  const b = document.querySelector('.zr-toggleall'); if(!b) return;
+  const cards = [...document.querySelectorAll('#detailBody .zr-card')];
+  b.textContent = cards.length && cards.every(c=> c.classList.contains('open')) ? '⇕ Sab band karein' : '⇕ Sab kholein';
+}
+document.addEventListener('click', e=>{
+  const all = e.target.closest && e.target.closest('.zr-toggleall');
+  if(all){
+    const cards = [...document.querySelectorAll('#detailBody .zr-card')], openAll = !cards.every(c=> c.classList.contains('open'));
+    cards.forEach(c=>{ c.classList.toggle('open', openAll); const h = c.querySelector('.zr-card-top'); if(h) h.setAttribute('aria-expanded', openAll ? 'true' : 'false'); });
+    zrSyncToggleAll(); return;
+  }
+  const top = e.target.closest && e.target.closest('.zr-card-top');
+  if(!top || e.target.closest('.zr-seen, a, button')) return;
+  zrToggleCard(top.parentElement); zrSyncToggleAll();
+});
+document.addEventListener('keydown', e=>{
+  if((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('zr-card-top')){ e.preventDefault(); zrToggleCard(e.target.parentElement); zrSyncToggleAll(); }
+});

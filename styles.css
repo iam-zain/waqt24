@@ -2856,3 +2856,15 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .sg-chips{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:0 10px; }
 .sg-chip{ padding:7px 13px; border-radius:999px; border:1.5px solid var(--line); background:var(--card); color:var(--text); font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
 .sg-chip:active{ transform:scale(.97); }
+
+.zr-card-top[role=button]{ cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.zr-chev{ flex:0 0 auto; align-self:center; font-size:15px; color:var(--sub); transition:transform .2s; margin-left:2px; }
+.zr-card.open .zr-chev{ transform:rotate(180deg); }
+.zr-card:not(.open) .zr-body{ display:none; }
+.zr-card:not(.open){ padding-top:12px; padding-bottom:12px; }
+.zr-card.open .zr-body{ margin-top:10px; }
+.zr-toggleall{ margin-left:auto; }
+.zr-sortbar .zr-toggleall{ flex:0 0 auto; }
+
+.zr-tick{ flex:0 0 auto; align-self:center; font-size:15px; }
+.zr-seenrow{ display:flex; margin:0 0 10px; }

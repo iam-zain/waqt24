@@ -224,14 +224,16 @@ function shkAv(x){
   return ((w[0] || '?')[0] + (w[1] ? w[1][0] : '')).toUpperCase();
 }
 function shkCardHtml(x, n){
-  return `<div class="zr-card shk-card"><div class="zr-card-top"><span class="shk-av" style="--zc:${x.g.color};">${shkAv(x)}</span><div class="zr-card-h"><b>${shkName(x)}</b><small>${x.t}</small>
-      <div class="shk-chips"><span>${x.g.ic} ${x.g.t}</span>${x.y ? `<span>🗓️ ${x.y}</span>` : ''}</div></div><span class="shk-no">${n}</span></div>
-    <p>${x.p}</p>
-    ${x.pts.length ? `<ul class="shk-pts">${x.pts.map(t=>`<li>${t}</li>`).join('')}</ul>` : ''}
-    <div class="zr-tags">${shkTags(x).map(t=>`<button type="button" class="zr-tag ${shkTag === t ? 'on' : ''}" data-t="${t}">#${t}</button>`).join('')}</div>
+  return `<div class="zr-card shk-card"><div class="zr-card-top" role="button" tabindex="0" aria-expanded="false"><span class="shk-av" style="--zc:${x.g.color};">${shkAv(x)}</span><div class="zr-card-h"><b>${shkName(x)}</b><small>${x.t}</small></div><span class="shk-no">${n}</span><span class="zr-chev" aria-hidden="true">▾</span></div>
+    <div class="zr-body">
+      <div class="shk-chips"><span>${x.g.ic} ${x.g.t}</span>${x.y ? `<span>🗓️ ${x.y}</span>` : ''}</div>
+      <p>${x.p}</p>
+      ${x.pts.length ? `<ul class="shk-pts">${x.pts.map(t=>`<li>${t}</li>`).join('')}</ul>` : ''}
+      <div class="zr-tags">${shkTags(x).map(t=>`<button type="button" class="zr-tag ${shkTag === t ? 'on' : ''}" data-t="${t}">#${t}</button>`).join('')}</div>
+    </div>
   </div>`;
 }
-const shkSortBar = ()=> `<div class="zr-sortbar"><div class="zr-sorts" id="shkSorts"><span>↕️ Tarteeb:</span>${SHK_SORTS.map(([k, n])=>`<button type="button" class="zr-lang ${shkSort() === k ? 'on' : ''}" data-s="${k}">${n}</button>`).join('')}</div></div>`;
+const shkSortBar = ()=> `<div class="zr-sortbar"><div class="zr-sorts" id="shkSorts"><span>↕️ Tarteeb:</span>${SHK_SORTS.map(([k, n])=>`<button type="button" class="zr-lang ${shkSort() === k ? 'on' : ''}" data-s="${k}">${n}</button>`).join('')}</div><button type="button" class="zr-lang zr-toggleall">⇕ Sab kholein</button></div>`;
 function shkWireList(redraw){
   document.querySelectorAll('#shkSorts .zr-lang').forEach(b=> b.onclick = ()=>{ state.shkSort = b.dataset.s; saveState(); redraw(); });
   document.querySelectorAll('#detailBody .shk-card .zr-tag, #shkTagbar .zr-tag').forEach(b=> b.onclick = ()=>{ shkTag = (shkTag === b.dataset.t) ? '' : b.dataset.t; redraw(); });
