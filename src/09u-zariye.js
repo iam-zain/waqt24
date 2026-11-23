@@ -21,6 +21,14 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'really-maktoob-yt', cat:'youtube', t:'Really Maktoob', by:'YouTube channel', lang:['ur'], level:'Sab ke liye', checked:'2026-11', url:'https://www.youtube.com/@ReallyMaktoob',
+    why:'Surah ki tafseeli wazahat aur seerat jaise mauzu aasan andaaz mein samjhane wala channel.',
+    tags:['Surah Explain', 'Seerat', 'Quran Fehmi', 'Tareekh'],
+    note:'Channel ki maloomat aapke bataye mutabiq hain. Deeni masail mein kisi mustanad aalim se bhi tasdeeq kar lein.' },
+  { id:'towards-eternity-yt', cat:'youtube', t:'Towards Eternity (Urdu)', by:'YouTube channel', lang:['ur'], level:'Sab ke liye', checked:'2026-11', url:'https://www.youtube.com/@TowardsEternityUrduHindi',
+    why:'Urdu mein Islami mauzuat par videos. Is channel ke Hindi aur English versions bhi maujood hain, YouTube par "Towards Eternity" likh kar dhoond sakte hain.',
+    tags:['Islamic Knowledge', 'Qur’an', 'Qasas', 'Tareekh'],
+    note:'Channel ki maloomat aapke bataye mutabiq hain. Deeni masail mein kisi mustanad aalim se bhi tasdeeq kar lein.' },
   { id:'osman-series', cat:'series', t:'Kurulus Osman', by:'Kuruluş: Osman · Turkish series, Urdu dub (YouTube par)', lang:['ur'], level:'Sab ke liye', checked:'2026-11',
     why:'Ertugrul Ghazi ke bete Osman Bey aur Usmani saltanat ki buniyad ki kahani. Ye Diriliş: Ertuğrul ka agla hissa hai.',
     facts:['6 seasons', 'lagbhag 194 episodes', '2019 se 2025 tak'],
