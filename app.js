@@ -12237,6 +12237,7 @@ const SHK_GROUPS = [
   { id:'ahlebait', ic:'🏡', t:'Sahabiyat aur Ahl-e-Bait', sub:'Nabi ﷺ ka ghar aur khawateen',     color:'#e0709f', s:'RA' },
   { id:'khulafa',  ic:'🕌', t:'Khulafa-e-Rashidin',    sub:'Nabi ﷺ ke baad ke 4 khalifa',        color:'#2e9e5b', s:'RA' },
   { id:'sahaba',   ic:'🤝', t:'Sahaba-e-Kiram',        sub:'Baaqi Ashara Mubashshara aur doosre', color:'#3f8fe0', s:'RA' },
+  { id:'ashara',   ic:'🌿', t:'Ashara Mubashshara',    sub:'Jannat ki basharat wale 10 sahaba',   color:'#d49a1a', s:'RA' },
   { id:'tabiin',   ic:'📿', t:'Tabi’een',              sub:'Sahaba ke baad ke buzurg',           color:'#8f6bd1', s:'rahimahullah' },
   { id:'imams',    ic:'📚', t:'Imam aur Muhaddithin',  sub:'Chaar Imam aur hadees ke Imam',      color:'#5c7cfa', s:'rahimahullah' },
   { id:'ulama',    ic:'🕯️', t:'Ulama aur Sufiya',      sub:'Ilm, tazkiya aur roohaniyat',        color:'#c79a2e', s:'rahimahullah' },
@@ -12485,12 +12486,10 @@ function renderShakhsiyat(){
       shkWireList(()=>{ shkSearch = shkTag || shkSearch; draw(); });
       return;
     }
-    box.innerHTML = `<button type="button" class="zr-tile shk-all" id="shkAshBtn" style="--zc:#d49a1a;"><div class="zr-tile-ic">🌿</div><div><div class="zr-tile-t">Ashara Mubashshara</div><div class="zr-tile-s">10 sahaba jinhein jannat ki basharat di gayi</div></div></button>
-      <button type="button" class="zr-tile shk-all" id="shkAllBtn" style="--zc:#2e9e5b;"><div class="zr-tile-ic">📜</div><div><div class="zr-tile-t">Sab naam ek saath</div><div class="zr-tile-s">Saal, naam ya tag ke hisaab se tarteeb aur filter</div></div></button>
-      <div class="zr-grid">${SHK_GROUPS.map((g, i)=>`<button type="button" class="zr-tile" data-g="${g.id}" style="--zc:${g.color};"><div class="zr-tile-ic">${g.ic}</div><div class="zr-tile-t">${i + 1}. ${g.t}</div><div class="zr-tile-s">${g.sub}</div><div class="zr-tile-n">${(SHK_DATA[g.id] || []).length} naam</div></button>`).join('')}</div>`;
+    const cnt = g=> g.id === 'ashara' ? SHK_ASHARA.length : (SHK_DATA[g.id] || []).length;
+    box.innerHTML = `<div class="zr-grid">${SHK_GROUPS.map((g, i)=>`<button type="button" class="zr-tile" data-g="${g.id}" style="--zc:${g.color};"><div class="zr-tile-ic">${g.ic}</div><div class="zr-tile-t">${i + 1}. ${g.t}</div><div class="zr-tile-s">${g.sub}</div><div class="zr-tile-n">${cnt(g)} naam</div></button>`).join('')}
+      <button type="button" class="zr-tile" data-g="all" style="--zc:#2e9e5b;"><div class="zr-tile-ic">📜</div><div class="zr-tile-t">Sab naam ek saath</div><div class="zr-tile-s">Saal, naam ya tag se tarteeb aur filter</div><div class="zr-tile-n">${shkAll().length} naam</div></button></div>`;
     box.querySelectorAll('.zr-grid .zr-tile').forEach(b=> b.onclick = ()=>{ shkTag = ''; renderShakhsiyatList(b.dataset.g); });
-    document.getElementById('shkAshBtn').onclick = ()=>{ shkTag = ''; renderShakhsiyatList('ashara'); };
-    document.getElementById('shkAllBtn').onclick = ()=>{ shkTag = ''; renderShakhsiyatList('all'); };
   };
   draw();
   document.getElementById('shkQ').oninput = e=>{ shkSearch = e.target.value; draw(); };
