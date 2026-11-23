@@ -620,13 +620,24 @@ function applyOnAccent(){
   const f = v=>{ v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }, L = .2126 * f(+m[0]) + .7152 * f(+m[1]) + .0722 * f(+m[2]);
   root.style.setProperty('--onAccent', (L + .05) / .05 > 1.05 / (L + .05) ? '#08131c' : '#ffffff'); // dark ink if it beats white
 }
+/* In Waqti mode the Original colour follows the prayer time (Zuhr gold, Asr brown, Maghrib orange): show that live colour on the swatch and say so */
+function syncPalSwatch(){
+  try{
+    const root = document.documentElement, sw = document.querySelector('#palRow .pal[data-k="default"]'), hint = document.getElementById('palHint');
+    const live = state.theme === 'waqti' && !root.getAttribute('data-palette');
+    if(sw) sw.style.setProperty('--sw', live ? (getComputedStyle(root).getPropertyValue('--accent').trim() || PALETTES[0].sw[0]) : PALETTES[0].sw[0]);
+    if(hint) hint.hidden = !live;
+  }catch(e){}
+}
+try{ new MutationObserver(syncPalSwatch).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme', 'data-palette'] }); }catch(e){}
 function applyPalette(name){
   const root = document.documentElement, pal = (PALETTES.find(p=>p.k===state.palette) || PALETTES[0]).k;
   if(pal === 'default') root.removeAttribute('data-palette'); else root.setAttribute('data-palette', pal);
   root.setAttribute('data-tone', LIGHT_THEMES.includes(name) ? 'light' : 'dark');
   root.setAttribute('data-mode', state.theme === 'waqti' ? 'ambient' : 'fixed');
   document.querySelectorAll('#palRow .pal').forEach(b=>b.classList.toggle('active', b.dataset.k === pal));
-  requestAnimationFrame(()=>{ try{ const m = document.querySelector('meta[name=theme-color]'); if(m) m.content = getComputedStyle(root).getPropertyValue('--bg').trim() || m.content; }catch(e){} try{ applyOnAccent(); }catch(e){} });
+  syncPalSwatch();
+  requestAnimationFrame(()=>{ try{ const m = document.querySelector('meta[name=theme-color]'); if(m) m.content = getComputedStyle(root).getPropertyValue('--bg').trim() || m.content; }catch(e){} try{ applyOnAccent(); }catch(e){} syncPalSwatch(); });
 }
 (function(){
   const row = document.getElementById('palRow'); if(!row) return;

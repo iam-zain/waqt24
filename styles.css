@@ -2868,3 +2868,6 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 
 .zr-tick{ flex:0 0 auto; align-self:center; font-size:15px; }
 .zr-seenrow{ display:flex; margin:0 0 10px; }
+
+.pal-hint{ margin:10px 8px 0; font-size:12px; line-height:1.5; color:var(--sub); }
+.pal-hint[hidden]{ display:none; }
