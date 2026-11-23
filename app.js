@@ -11830,6 +11830,21 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'bismillah-song-kids', cat:'kids', t:'Bismillah Song for Kids', by:'Nasheed · Deen Kids TV (English)', lang:['en'], level:'Bachche', checked:'2026-11',
+    why:'Bismillah aur achhe akhlaq ka chhota sa English nasheed. Bachchon ko khane peene aur rozmarra ke kaam Bismillah se shuru karna sikhata hai.',
+    tags:['Nasheed','Adab','Bismillah'],
+    links:[ { t:'▶ Bismillah Song dekhein', url:'https://www.youtube.com/watch?v=d9OV_youpfE' } ],
+    note:'Bachchon ko dikhane se pehle ek baar khud dekh lein. Deeni baat mein kisi aalim se tasdeeq kar lein.' },
+  { id:'abdullah-chiriya-kids', cat:'kids', t:'Abdullah Ne Chiriya Ko Paani Pilaya', by:'Cartoon · Amna & Abdullah (Urdu)', lang:['ur'], level:'Bachche', checked:'2026-11',
+    why:'Urdu mein Islami cartoon kahani. Jaanwaron par raham karne ka sabaq milta hai.',
+    tags:['Kahani','Akhlaq','Cartoon'],
+    links:[ { t:'▶ Kahani dekhein', url:'https://www.youtube.com/watch?v=XeqjmhBZWW0' } ],
+    note:'Bachchon ko dikhane se pehle ek baar khud dekh lein. Deeni baat mein kisi aalim se tasdeeq kar lein.' },
+  { id:'nuh-as-kids', cat:'kids', t:'Prophet Nuh (AS) ka Qissa', by:'Qasas-ul-Anbiya · Urdu Stories of the Prophets', lang:['ur'], level:'Bachche', checked:'2026-11',
+    why:'Hazrat Nuh AS ka qissa Urdu mein, bachchon ke liye aasan andaaz mein.',
+    tags:['Qasas-ul-Anbiya','Kahani','Anbiya'],
+    links:[ { t:'▶ Qissa dekhein', url:'https://www.youtube.com/watch?v=NgBkdtrrKLg' } ],
+    note:'Bachchon ko dikhane se pehle ek baar khud dekh lein. Deeni baat mein kisi aalim se tasdeeq kar lein.' },
   { id:'allahs-miracles-quran-book', cat:'books', t:'Allah’s Miracles in the Quran', by:'Book · Harun Yahya · Goodword Books', lang:['en'], level:'Sab ke liye', checked:'2026-11',
     why:'Qur’an mein maujood science se jude ishaaron par mabni kitab. Kainaat ki takhleeq, insani janin ka irtiqa, fiza aur zameen par zindagi ke asbab jaise mauzuat.',
     facts:['2005', '412 pages', 'English'],
