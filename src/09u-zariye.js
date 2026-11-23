@@ -199,7 +199,7 @@ const ZARIYE_ITEMS = [
     tags:['Kahani','Akhlaq','Cartoon'],
     links:[ { t:'▶ Kahani dekhein', url:'https://www.youtube.com/watch?v=XeqjmhBZWW0' } ],
     note:'Bachchon ko dikhane se pehle ek baar khud dekh lein. Deeni baat mein kisi aalim se tasdeeq kar lein.' },
-  { id:'nuh-as-kids', cat:'kids', t:'Prophet Nuh (AS) ka Qissa', by:'Qasas-ul-Anbiya · Urdu Stories of the Prophets', lang:['ur'], level:'Bachche', checked:'2026-11',
+  { id:'nuh-as-kids', cat:'kids', t:'Prophet Nuh عَلَيْهِ ٱلسَّلَامُ ka Qissa', by:'Qasas-ul-Anbiya · Urdu Stories of the Prophets', lang:['ur'], level:'Bachche', checked:'2026-11',
     why:'Hazrat Nuh AS ka qissa Urdu mein, bachchon ke liye aasan andaaz mein.',
     tags:['Qasas-ul-Anbiya','Kahani','Anbiya'],
     links:[ { t:'▶ Qissa dekhein', url:'https://www.youtube.com/watch?v=NgBkdtrrKLg' } ],
