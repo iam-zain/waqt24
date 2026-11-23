@@ -11897,17 +11897,17 @@ function renderZariye(){
   zariyeWireLangs(renderZariye);
   document.querySelectorAll('.zr-tile').forEach(b=> b.onclick = ()=> renderZariyeList(b.dataset.c));
 }
-function zariyeCardHtml(x){
+function zariyeCardHtml(x, n){
   const lg = (x.lang || []).map(l=> (ZARIYE_LANGS.find(z=> z[0] === l) || [0, l])[1]).join(' · ');
   const a = x.about;
-  return `<div class="zr-card"><div class="zr-card-h"><b>${x.t}</b>${x.by ? `<small>${x.by}</small>` : ''}</div>
+  return `<div class="zr-card"><div class="zr-card-top"><span class="zr-sn">${n}</span><div class="zr-card-h"><b>${x.t}</b>${x.by ? `<small>${x.by}</small>` : ''}</div></div>
     ${x.why ? `<p>${x.why}</p>` : ''}
     ${(x.facts || []).length ? `<div class="zr-facts">${x.facts.map(f=>`<div>${f}</div>`).join('')}</div>` : ''}
     ${(x.tags || []).length ? `<div class="zr-tags">${x.tags.map(t=>`<button type="button" class="zr-tag ${zrTag === t ? 'on' : ''}" data-t="${t}">#${t}</button>`).join('')}</div>` : ''}
     <div class="zr-meta">${lg ? `<span>🗣️ ${lg}</span>` : ''}${x.level ? `<span>🎯 ${x.level}</span>` : ''}${x.checked ? `<span>✔️ ${x.checked}</span>` : ''}</div>
     ${a ? `<details class="zr-about"><summary>📖 ${a.h || 'Taaruf'}</summary>${a.p ? `<p>${a.p}</p>` : ''}${(a.pts || []).length ? `<ul>${a.pts.map(t=>`<li>${t}</li>`).join('')}</ul>` : ''}</details>` : ''}
     ${x.note ? `<div class="zr-note">⚠️ ${x.note}</div>` : ''}
-    ${(x.links || []).length ? `<div class="zr-links">${x.links.map(l=>`<a class="zr-open" href="${l.url}" target="_blank" rel="noopener">▶ ${l.t}</a>`).join('')}</div>` : (x.url ? `<a class="zr-open" href="${x.url}" target="_blank" rel="noopener">Kholein ↗</a>` : '')}</div>`;
+    ${(x.links || (x.url ? [{ t:'Kholein', url:x.url }] : [])).map(l=>`<div class="zr-linkrow"><a class="zr-open" href="${l.url}" target="_blank" rel="noopener">▶ ${l.t}</a><button type="button" class="zr-copy" data-u="${l.url}" aria-label="Link copy karein">📋 Copy</button></div>`).join('')}</div>`;
 }
 let zrTag = '';
 function renderZariyeList(catId){
@@ -11919,10 +11919,16 @@ function renderZariyeList(catId){
     <div class="zr-sechead" style="--zc:${c.color};"><div class="zr-tile-ic">${c.ic}</div><div><b>${c.t}</b><small>${c.sub}</small></div></div>
     ${zariyeLangChips()}
     ${tags.length ? `<div class="zr-tagbar">${tags.map(t=>`<button type="button" class="zr-tag ${zrTag === t ? 'on' : ''}" data-t="${t}">#${t}</button>`).join('')}</div>` : ''}
-    ${items.length ? `<div class="zr-list">${items.map(zariyeCardHtml).join('')}</div>`
+    ${items.length ? `<div class="zr-list">${items.map((x, i)=> zariyeCardHtml(x, i + 1)).join('')}</div>`
       : `<div class="empty-state"><div style="font-size:42px;margin-bottom:8px;">${c.ic}</div>Is hisse mein abhi kuch nahi.<br>Jaldi hi chuni hui jaankari yahan aayegi.</div>`}
     <div class="tab-end"></div>`;
   zariyeWireLangs(()=> renderZariyeList(c.id));
+  document.querySelectorAll('.zr-copy').forEach(b=> b.onclick = async ()=>{
+    const u = b.dataset.u; let ok = false;
+    try{ if(navigator.clipboard && navigator.clipboard.writeText){ await navigator.clipboard.writeText(u); ok = true; } }catch(e){}
+    if(!ok){ try{ const t = document.createElement('textarea'); t.value = u; t.style.cssText = 'position:fixed;opacity:0;'; document.body.appendChild(t); t.select(); ok = document.execCommand('copy'); t.remove(); }catch(e){} }
+    showToast(ok ? 'Link copy ho gaya' : 'Copy nahi ho paya');
+  });
   document.querySelectorAll('.zr-tag').forEach(b=> b.onclick = ()=>{ zrTag = (zrTag === b.dataset.t) ? '' : b.dataset.t; renderZariyeList(c.id); });
 }
 /* ===== Salutation after the name of Allah: "Allah ﷻ" everywhere =====

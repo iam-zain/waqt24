@@ -2818,3 +2818,8 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .zr-links{ display:grid; gap:8px; } .zr-card > .zr-open{ margin-top:2px; }
 
 .zr-facts{ display:flex; gap:8px; margin:6px 0 8px; } .zr-facts div{ flex:1; text-align:center; padding:9px 6px; border-radius:12px; background:color-mix(in srgb, var(--accent) 10%, var(--card2)); font-size:12.5px; font-weight:800; line-height:1.3; }
+
+.zr-card-top{ display:flex; align-items:flex-start; gap:10px; } .zr-card-top .zr-card-h{ flex:1; min-width:0; }
+.zr-sn{ flex:0 0 auto; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; background:color-mix(in srgb, var(--accent) 14%, var(--card2)); color:var(--accent); border:1.5px solid color-mix(in srgb, var(--accent) 35%, var(--line)); }
+.zr-linkrow{ display:flex; gap:8px; margin-top:8px; } .zr-linkrow .zr-open{ flex:1; margin:0; }
+.zr-copy{ flex:0 0 auto; padding:0 14px; border-radius:12px; border:1.5px solid var(--accent); background:transparent; color:var(--accent); font:inherit; font-size:13px; font-weight:800; cursor:pointer; white-space:nowrap; }
