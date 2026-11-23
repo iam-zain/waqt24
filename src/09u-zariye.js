@@ -20,6 +20,10 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'mufti-shamail-yt', cat:'youtube', t:'Mufti Shamail Nadwi', by:'YouTube channel', lang:['ur'], level:'Sab ke liye', checked:'2026-11', url:'https://www.youtube.com/@muftishamail',
+    why:'Fiqh, Qur’an aur tafseer, hadees aur deeni sawalat ke jawab ("masail") wali videos, aur Islami yaad-dehaniyan.',
+    tags:['Fiqh', 'Masail', 'Qur’an aur Tafseer', 'Hadees', 'Q&A'],
+    note:'Zubaan (Urdu) maine channel page se confirm nahi ki, aapke mutabiq rakhi hai. Zaroorat ho to bad mein badal denge. Fiqh ke masail mein apne mustanad aalim se bhi rujoo karein.' },
   { id:'bismillah-song-kids', cat:'kids', t:'Bismillah Song for Kids', by:'Nasheed · Deen Kids TV (English)', lang:['en'], level:'Bachche', checked:'2026-11',
     why:'Bismillah aur achhe akhlaq ka chhota sa English nasheed. Bachchon ko khane peene aur rozmarra ke kaam Bismillah se shuru karna sikhata hai.',
     tags:['Nasheed','Adab','Bismillah'],
