@@ -48,7 +48,7 @@ function renderAadaabList(){
     (aadaabCat==='__all__' || t.cat===aadaabCat) &&
     (t.title+' '+t.tags.join(' ')+' '+aadaabCatInfo(t.cat).label).toLowerCase().includes(q)
   );
-  if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi unwan nahi mila.</div>`; return; }
+  if(!filtered.length){ wrap.innerHTML = sgEmpty(aadaabSearch, AADAAB_TOPICS.map(t=>t.title), 'aadaabSearchInput', 'Koi unwan nahi mila.'); return; }
   wrap.innerHTML = filtered.map((t0,i)=>{
     const t = aL(t0);
     const c = aadaabCatInfo(t.cat);
@@ -162,7 +162,7 @@ function renderHadeesList(){
   const wrap = document.getElementById('hList');
   const q = hadeesSearch.trim().toLowerCase();
   const items = HADEES.filter(h=> (hadeesFilter==='All'||h.cat===hadeesFilter) && (h.txt+' '+h.src+' '+h.cat).toLowerCase().includes(q)).sort((a,b)=>a.txt.localeCompare(b.txt));
-  if(!items.length){ wrap.innerHTML = `<div class="empty-state">Koi hadees nahi mili.</div>`; return; }
+  if(!items.length){ wrap.innerHTML = sgEmpty(hadeesSearch, HADEES.map(h=>h.txt.slice(0, 32)), 'hSearchInput', 'Koi hadees nahi mili.'); return; }
   wrap.innerHTML = items.map((h,i)=>{
     const st = duaStatus(hadeesKey(h));
     return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${hadeesMeta(h.cat)[1]};">
@@ -491,7 +491,7 @@ function renderShabdHubList(){
   if(q){
     const results = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> (w.tr+w.m+w.cat).toLowerCase().includes(q));
     wrap.className = 'dua-grid list';
-    wrap.innerHTML = results.map(w=>shabdCardHtml(w)).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
+    wrap.innerHTML = results.map(w=>shabdCardHtml(w)).join('') || sgEmpty(shabdSearch, KHAAS_SHABD.map(w=>w.tr), 'shabdSearchInput', 'Koi lafz nahi mila.');
     const idxList = results.map(w=>w.i);
     wrap.querySelectorAll('[data-idx]').forEach((el,i)=>{
       el.onclick = ()=>{
@@ -538,7 +538,7 @@ function renderShabdCategory(cat){
     const wrap = document.getElementById('shabdCatList');
     const q = shabdCatSearch.trim().toLowerCase();
     const items = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> (isAll || w.cat===cat) && (w.tr+w.m).toLowerCase().includes(q));
-    wrap.innerHTML = items.map(w=>shabdCardHtml(w)).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
+    wrap.innerHTML = items.map(w=>shabdCardHtml(w)).join('') || sgEmpty(shabdCatSearch, KHAAS_SHABD.map(w=>w.tr), 'shabdCatSearchInput', 'Koi lafz nahi mila.');
     const idxList = items.map(w=>w.i);
     wrap.querySelectorAll('[data-idx]').forEach((el,i)=>{
       el.onclick = ()=>{

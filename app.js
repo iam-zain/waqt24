@@ -2096,7 +2096,7 @@ function renderDuaList(){
     (duaCat==='__all__' || (duaCat==='__quran__' ? isQuranDua(d) : d.cat===duaCat)) &&
     (d.title+' '+d.cat+' '+(d.tags||[]).join(' ')+' '+d.translit+' '+d.meaning).toLowerCase().includes(q)
   ).sort((a,b)=>(a.ord&&b.ord) ? a.ord-b.ord : a.title.localeCompare(b.title));
-  if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi dua nahi mili.</div>`; return; }
+  if(!filtered.length){ wrap.innerHTML = sgEmpty(duaSearch, DUAS.map(d=>d.title), 'duaSearchInput', 'Koi dua nahi mili.'); return; }
   wrap.innerHTML = filtered.map((d,i)=>{
     const ic = duaIcon(d), color = duaMeta(d.cat)[1];
     const st = duaStatus(d.title);
@@ -2281,7 +2281,7 @@ function drawGlobalSearch(){
     asma:i=>nameSceneSvg('asma', ASMA_UL_HUSNA[i]), prophet:i=>nameSceneSvg('prophet', PROPHET_NAMES[i])
   };
   const gsThumb = (k,i)=>{ try{ const f = SCF[k]; const sc = f ? f(i) : ''; return sc ? `<div class="gs-thumb" aria-hidden="true">${sc}</div>` : ''; }catch(e){ return ''; } };
-  if(!groups.length){ out.innerHTML = `<div class="empty-state">${L({rur:'Kuch nahi mila', en:'Nothing found'})}</div>`; return; }
+  if(!groups.length){ out.innerHTML = sgEmpty(q, [...DUAS.map(d=>d.title), ...QURAN_WORDS.map(w=>w.tr), ...KHAAS_SHABD.map(w=>w.tr), ...AADAAB_TOPICS.map(t=>t.title), ...ASMA_UL_HUSNA.map(a=>a.tr), ...PROPHET_NAMES.map(a=>a.tr)], 'gsInput', L({rur:'Kuch nahi mila', en:'Nothing found'})); return; }
   out.innerHTML = groups.map(g=>`<div class="section-title" style="margin:6px 14px 8px;">${g.ic} ${g.t} <span class="gs-count">${g.items.length}</span></div>
     <div class="more-list" style="padding-top:0;">${g.items.slice(0,15).map(x=>`<div class="more-item gs-item" data-g="${g.k}" data-i="${x.i}">${gsThumb(g.k, x.i)}<div class="lbl">${x.t}${x.s?`<span class="lblSub">${String(x.s).slice(0,90)}</span>`:''}</div><div class="chev">›</div></div>`).join('')}</div>`).join('');
   out.querySelectorAll('.gs-item').forEach(el=>{
@@ -3405,7 +3405,7 @@ function renderQwordGrid(){
   const filtered = QURAN_WORDS
     .filter(w=> (qwordGroupFilter==='__all__' || qwordGroup(w)===qwordGroupFilter) && (w.tr+' '+w.m+' '+w.cat+' '+w.ar).toLowerCase().includes(q))
     .sort(qwordSortFn());
-  if(!filtered.length){ grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Koi lafz nahi mila.</div>`; return; }
+  if(!filtered.length){ grid.innerHTML = sgEmpty(qwordSearch, QURAN_WORDS.map(w=>w.tr), 'qwordSearchInput', 'Koi lafz nahi mila.', 'style="grid-column:1/-1;"'); return; }
   if(qwordView === 'cols'){
     /* Column view: Arabic | word | meaning | count, one tidy row per word, easy to scan and learn */
     const hd = (k, label, title)=> `<button type="button" class="qwc-h${qwcSort && qwcSort.k===k ? ' on' : ''}" data-k="${k}" ${title ? `title="${title}"` : ''}>${label}<i>${qwcSort && qwcSort.k===k ? (qwcSort.d>0 ? '▲' : '▼') : '↕'}</i></button>`;
@@ -3557,7 +3557,7 @@ function renderAadaabList(){
     (aadaabCat==='__all__' || t.cat===aadaabCat) &&
     (t.title+' '+t.tags.join(' ')+' '+aadaabCatInfo(t.cat).label).toLowerCase().includes(q)
   );
-  if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi unwan nahi mila.</div>`; return; }
+  if(!filtered.length){ wrap.innerHTML = sgEmpty(aadaabSearch, AADAAB_TOPICS.map(t=>t.title), 'aadaabSearchInput', 'Koi unwan nahi mila.'); return; }
   wrap.innerHTML = filtered.map((t0,i)=>{
     const t = aL(t0);
     const c = aadaabCatInfo(t.cat);
@@ -3671,7 +3671,7 @@ function renderHadeesList(){
   const wrap = document.getElementById('hList');
   const q = hadeesSearch.trim().toLowerCase();
   const items = HADEES.filter(h=> (hadeesFilter==='All'||h.cat===hadeesFilter) && (h.txt+' '+h.src+' '+h.cat).toLowerCase().includes(q)).sort((a,b)=>a.txt.localeCompare(b.txt));
-  if(!items.length){ wrap.innerHTML = `<div class="empty-state">Koi hadees nahi mili.</div>`; return; }
+  if(!items.length){ wrap.innerHTML = sgEmpty(hadeesSearch, HADEES.map(h=>h.txt.slice(0, 32)), 'hSearchInput', 'Koi hadees nahi mili.'); return; }
   wrap.innerHTML = items.map((h,i)=>{
     const st = duaStatus(hadeesKey(h));
     return `<div class="aad-card status-${st||'none'}" data-i="${i}" style="--aad-c:${hadeesMeta(h.cat)[1]};">
@@ -4000,7 +4000,7 @@ function renderShabdHubList(){
   if(q){
     const results = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> (w.tr+w.m+w.cat).toLowerCase().includes(q));
     wrap.className = 'dua-grid list';
-    wrap.innerHTML = results.map(w=>shabdCardHtml(w)).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
+    wrap.innerHTML = results.map(w=>shabdCardHtml(w)).join('') || sgEmpty(shabdSearch, KHAAS_SHABD.map(w=>w.tr), 'shabdSearchInput', 'Koi lafz nahi mila.');
     const idxList = results.map(w=>w.i);
     wrap.querySelectorAll('[data-idx]').forEach((el,i)=>{
       el.onclick = ()=>{
@@ -4047,7 +4047,7 @@ function renderShabdCategory(cat){
     const wrap = document.getElementById('shabdCatList');
     const q = shabdCatSearch.trim().toLowerCase();
     const items = KHAAS_SHABD.map((w,i)=>({...w,i})).filter(w=> (isAll || w.cat===cat) && (w.tr+w.m).toLowerCase().includes(q));
-    wrap.innerHTML = items.map(w=>shabdCardHtml(w)).join('') || `<div style="text-align:center; color:var(--sub); padding:30px 0; font-size:13px;">Koi lafz nahi mila.</div>`;
+    wrap.innerHTML = items.map(w=>shabdCardHtml(w)).join('') || sgEmpty(shabdCatSearch, KHAAS_SHABD.map(w=>w.tr), 'shabdCatSearchInput', 'Koi lafz nahi mila.');
     const idxList = items.map(w=>w.i);
     wrap.querySelectorAll('[data-idx]').forEach((el,i)=>{
       el.onclick = ()=>{
@@ -8253,7 +8253,13 @@ function reloadSmooth(backToSettings){
     moon:      'M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z',
     auto:      '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z"/>',
     leaf:      'M5 19c0-9 5-14 15-14 0 10-5 15-14 15M5 19c2-4 5-7 9-9',
-    compass:   '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z"/>'
+    compass:   '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z"/>',
+    ibadat:    '<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M12 8c-2 0-3 1.5-3 3.2V15h6v-3.8C15 9.5 14 8 12 8zM9 18h6"/>',
+    kids:      '<rect x="4" y="11.5" width="7" height="8" rx="1.5"/><rect x="13" y="11.5" width="7" height="8" rx="1.5"/><rect x="8.5" y="4" width="7" height="6.5" rx="1.5"/>',
+    zariye:    '<rect x="3.5" y="4.5" width="17" height="12" rx="2.5"/><path d="M10.2 8.4l4.2 2.1-4.2 2.1zM8 20h8M12 16.5V20"/>',
+    shakhsiyat:'<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 5.3a3 3 0 0 1 0 5.4M17.6 14.3A5.5 5.5 0 0 1 20.5 19"/>',
+    zakat:     'M12 4v16M6 20h12M5 8h14M7 8l-3 6a3 3 0 0 0 6 0zM17 8l-3 6a3 3 0 0 0 6 0z',
+    mubarak:   '<rect x="4" y="10.5" width="16" height="9.5" rx="2"/><path d="M3 7.5h18v3H3zM12 7.5V20M12 7.5C11 4.5 7.5 4 7.5 6c0 1.3 2 1.5 4.5 1.5zM12 7.5c1-3 4.5-3.5 4.5-1.5 0 1.3-2 1.5-4.5 1.5z"/>'
   };
   const body = d => S(d.startsWith('<') ? d : `<path d="${d}"/>`);
   window.__uiIcon = k => ICON[k] ? body(ICON[k]) : '';
@@ -11831,6 +11837,78 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'sahih-bukhari-book', cat:'books', t:'Sahih al-Bukhari', by:'Kitab · Imam Muhammad ibn Ismail al-Bukhari', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Hadees ki sabse mutabar kitabon mein pehle number par maani jati hai.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta','Sahih'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Imam Bukhari ki jama ki hui hadees ki kitab, jisme sirf sahih riwayaat lene ki koshish ki gayi hai.',
+      pts:[
+        'Musannif: Imam Bukhari (810 se 870 CE)',
+        'Asal naam: Al-Jami’ al-Sahih',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
+  { id:'sahih-muslim-book', cat:'books', t:'Sahih Muslim', by:'Kitab · Imam Muslim ibn al-Hajjaj', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Sahih Bukhari ke saath doosri sabse mutabar hadees ki kitab maani jati hai.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta','Sahih'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Imam Muslim ki sahih ahadees ki kitab, jo apni tarteeb ke liye mashhoor hai.',
+      pts:[
+        'Musannif: Imam Muslim (~815 se 875 CE)',
+        'Mauzu ke hisaab se tarteeb aur sanad ki wazahat ke liye mashhoor',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
+  { id:'sunan-abu-dawud-book', cat:'books', t:'Sunan Abi Dawud', by:'Kitab · Imam Abu Dawud as-Sijistani', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Ahkam (masail) se mutaalliq ahadees ka bada zakhira, jo fiqh mein bahut kaam aata hai.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta','Ahkam'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Ahkam aur masail se judi ahadees ki mashhoor kitab.',
+      pts:[
+        'Musannif: Imam Abu Dawud (wafat 889 CE)',
+        'Zyadatar ahadees ahkam aur fiqh se mutaalliq',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
+  { id:'jami-tirmidhi-book', cat:'books', t:'Jami’ at-Tirmidhi', by:'Kitab · Imam Muhammad ibn Isa at-Tirmidhi', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Har hadees ke saath uska darja aur fuqaha ki rayein bhi bayan karne wali kitab.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta','Fiqh'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Hadees ke saath uske darje aur ulema ki rayein dene wali kitab.',
+      pts:[
+        'Musannif: Imam Tirmidhi (wafat 892 CE)',
+        'Hadees ke saath uska darja (jaise sahih, hasan, gharib) aur fuqaha ki raay',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
+  { id:'sunan-nasai-book', cat:'books', t:'Sunan an-Nasa’i', by:'Kitab · Imam Ahmad ibn Shu’ayb an-Nasa’i', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Hadees ki parakh mein sakhti aur sanad ki jaanch ke liye jani jane wali kitab.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Hadees ki mashhoor kitab jo raaviyon ki jaanch mein sakhti ke liye mashhoor hai.',
+      pts:[
+        'Musannif: Imam Nasa’i (wafat 915 CE)',
+        'Kitab ka mashhoor naam: Al-Mujtaba (Al-Sunan as-Sughra)',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
+  { id:'sunan-ibn-majah-book', cat:'books', t:'Sunan Ibn Majah', by:'Kitab · Imam Muhammad ibn Yazid Ibn Majah', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Sihah Sitta ki chhathi kitab, jisme fiqh ke abwab ke hisaab se ahadees hain.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Hadees ki chhe mashhoor kitabon mein shamil ek kitab.',
+      pts:[
+        'Musannif: Imam Ibn Majah (wafat 887 CE)',
+        'Sihah Sitta mein chhathi kitab ke taur par shumar',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
   { id:'omar-series', cat:'series', t:'Omar (2012)', by:'Series · Arabic, Urdu dub bhi milta hai', lang:['ur'], level:'Sab ke liye', checked:'2026-11',
     why:'Hazrat Umar RA ki zindagi par bani Arabic series, jiska Urdu dub bhi milta hai.',
     facts:['2012', 'Arabic series'],
@@ -12403,7 +12481,7 @@ function renderShakhsiyat(){
     const q = shkSearch.trim().toLowerCase(), box = document.getElementById('shkBody');
     if(q){
       const hits = shkSorted(shkAll().filter(x=> (x.n + ' ' + x.t + ' ' + x.p + ' ' + shkTags(x).join(' ')).toLowerCase().includes(q)));
-      box.innerHTML = (hits.length ? shkSortBar() + `<div class="zr-list">${hits.map((x, i)=> shkCardHtml(x, i + 1)).join('')}</div>` : '<div class="empty-state">Is naam se koi nahi mila.</div>');
+      box.innerHTML = (hits.length ? shkSortBar() + `<div class="zr-list">${hits.map((x, i)=> shkCardHtml(x, i + 1)).join('')}</div>` : sgEmpty(shkSearch, shkAll().map(x=> x.n.replace(/\s*\(.*?\)/g, '')), 'shkQ', 'Is naam se koi nahi mila.'));
       shkWireList(()=>{ shkSearch = shkTag || shkSearch; draw(); });
       return;
     }
@@ -12432,6 +12510,28 @@ function renderShakhsiyatList(gid){
     <div class="tab-end"></div>`;
   shkWireList(()=> renderShakhsiyatList(gid));
 }
+/* ===== Search: when nothing matches, show names starting with the same letter(s) ===== */
+function sgNames(q, names, max){
+  const s = String(q || '').trim().toLowerCase().replace(/[^a-z0-9ऀ-ॿ؀-ۿ]/gi, '');
+  if(!s) return [];
+  const clean = [...new Set((names || []).map(n=> String(n || '').replace(/\s+/g, ' ').trim()).filter(Boolean))];
+  for(let l = Math.min(s.length, 6); l >= 1; l--){
+    const p = s.slice(0, l), m = clean.filter(n=> n.toLowerCase().replace(/^[^a-z0-9ऀ-ॿ؀-ۿ]+/i, '').startsWith(p));
+    if(m.length) return m.sort((a, b)=> a.localeCompare(b)).slice(0, max || 8);
+  }
+  return [];
+}
+function sgEmpty(q, names, inputId, msg, extra){
+  const m = sgNames(q, names), first = String(q || '').trim().charAt(0).toUpperCase();
+  const esc = t=> String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  return `<div class="empty-state" ${extra || ''}>${msg}${m.length ? `<div class="sg-lbl">"${esc(first)}" se shuru hone wale naam:</div><div class="sg-chips">${m.map(n=>`<button type="button" class="sg-chip" data-in="${inputId}" data-v="${esc(n)}">${esc(n)}</button>`).join('')}</div>` : ''}</div>`;
+}
+document.addEventListener('click', e=>{
+  const b = e.target.closest && e.target.closest('.sg-chip'); if(!b) return;
+  const inp = document.getElementById(b.dataset.in); if(!inp) return;
+  e.preventDefault(); e.stopPropagation();
+  inp.value = b.dataset.v; inp.dispatchEvent(new Event('input', { bubbles:true })); inp.dispatchEvent(new Event('change', { bubbles:true })); try{ inp.focus(); }catch(_){}
+}, true);
 /* ===== Salutation after the name of Allah: "Allah ﷻ" everywhere =====
    Every text on screen is covered: the names, the Qur'an translations (Hinglish / English, Hindi अल्लाह, Urdu اللہ), the quiz and
    all other screens. It is applied to the text of the page as it appears or changes, so nothing needs editing one by one.

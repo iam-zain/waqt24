@@ -248,7 +248,7 @@ function renderShakhsiyat(){
     const q = shkSearch.trim().toLowerCase(), box = document.getElementById('shkBody');
     if(q){
       const hits = shkSorted(shkAll().filter(x=> (x.n + ' ' + x.t + ' ' + x.p + ' ' + shkTags(x).join(' ')).toLowerCase().includes(q)));
-      box.innerHTML = (hits.length ? shkSortBar() + `<div class="zr-list">${hits.map((x, i)=> shkCardHtml(x, i + 1)).join('')}</div>` : '<div class="empty-state">Is naam se koi nahi mila.</div>');
+      box.innerHTML = (hits.length ? shkSortBar() + `<div class="zr-list">${hits.map((x, i)=> shkCardHtml(x, i + 1)).join('')}</div>` : sgEmpty(shkSearch, shkAll().map(x=> x.n.replace(/\s*\(.*?\)/g, '')), 'shkQ', 'Is naam se koi nahi mila.'));
       shkWireList(()=>{ shkSearch = shkTag || shkSearch; draw(); });
       return;
     }

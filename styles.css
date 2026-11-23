@@ -2851,3 +2851,8 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .shk-card .zr-card-h{ padding-right:4px; }
 
 .shk-intro{ margin:0 14px 12px; padding:12px 14px; border-radius:14px; font-size:13px; line-height:1.55; background:color-mix(in srgb, #d49a1a 12%, var(--card2)); border:1.5px solid color-mix(in srgb, #d49a1a 35%, var(--line)); }
+
+.sg-lbl{ margin:14px 0 8px; font-size:12.5px; font-weight:700; color:var(--sub); }
+.sg-chips{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:0 10px; }
+.sg-chip{ padding:7px 13px; border-radius:999px; border:1.5px solid var(--line); background:var(--card); color:var(--text); font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+.sg-chip:active{ transform:scale(.97); }

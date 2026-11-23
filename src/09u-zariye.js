@@ -20,6 +20,78 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'sahih-bukhari-book', cat:'books', t:'Sahih al-Bukhari', by:'Kitab · Imam Muhammad ibn Ismail al-Bukhari', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Hadees ki sabse mutabar kitabon mein pehle number par maani jati hai.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta','Sahih'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Imam Bukhari ki jama ki hui hadees ki kitab, jisme sirf sahih riwayaat lene ki koshish ki gayi hai.',
+      pts:[
+        'Musannif: Imam Bukhari (810 se 870 CE)',
+        'Asal naam: Al-Jami’ al-Sahih',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
+  { id:'sahih-muslim-book', cat:'books', t:'Sahih Muslim', by:'Kitab · Imam Muslim ibn al-Hajjaj', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Sahih Bukhari ke saath doosri sabse mutabar hadees ki kitab maani jati hai.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta','Sahih'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Imam Muslim ki sahih ahadees ki kitab, jo apni tarteeb ke liye mashhoor hai.',
+      pts:[
+        'Musannif: Imam Muslim (~815 se 875 CE)',
+        'Mauzu ke hisaab se tarteeb aur sanad ki wazahat ke liye mashhoor',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
+  { id:'sunan-abu-dawud-book', cat:'books', t:'Sunan Abi Dawud', by:'Kitab · Imam Abu Dawud as-Sijistani', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Ahkam (masail) se mutaalliq ahadees ka bada zakhira, jo fiqh mein bahut kaam aata hai.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta','Ahkam'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Ahkam aur masail se judi ahadees ki mashhoor kitab.',
+      pts:[
+        'Musannif: Imam Abu Dawud (wafat 889 CE)',
+        'Zyadatar ahadees ahkam aur fiqh se mutaalliq',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
+  { id:'jami-tirmidhi-book', cat:'books', t:'Jami’ at-Tirmidhi', by:'Kitab · Imam Muhammad ibn Isa at-Tirmidhi', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Har hadees ke saath uska darja aur fuqaha ki rayein bhi bayan karne wali kitab.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta','Fiqh'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Hadees ke saath uske darje aur ulema ki rayein dene wali kitab.',
+      pts:[
+        'Musannif: Imam Tirmidhi (wafat 892 CE)',
+        'Hadees ke saath uska darja (jaise sahih, hasan, gharib) aur fuqaha ki raay',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
+  { id:'sunan-nasai-book', cat:'books', t:'Sunan an-Nasa’i', by:'Kitab · Imam Ahmad ibn Shu’ayb an-Nasa’i', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Hadees ki parakh mein sakhti aur sanad ki jaanch ke liye jani jane wali kitab.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Hadees ki mashhoor kitab jo raaviyon ki jaanch mein sakhti ke liye mashhoor hai.',
+      pts:[
+        'Musannif: Imam Nasa’i (wafat 915 CE)',
+        'Kitab ka mashhoor naam: Al-Mujtaba (Al-Sunan as-Sughra)',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
+  { id:'sunan-ibn-majah-book', cat:'books', t:'Sunan Ibn Majah', by:'Kitab · Imam Muhammad ibn Yazid Ibn Majah', lang:['ur','en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Sihah Sitta ki chhathi kitab, jisme fiqh ke abwab ke hisaab se ahadees hain.',
+    facts:['Sihah Sitta', 'Hadees ki kitab', 'Urdu/English tarjuma'],
+    tags:['Hadees','Sihah Sitta'],
+    about:{ h:'Kitab ke baare mein',
+      p:'Hadees ki chhe mashhoor kitabon mein shamil ek kitab.',
+      pts:[
+        'Musannif: Imam Ibn Majah (wafat 887 CE)',
+        'Sihah Sitta mein chhathi kitab ke taur par shumar',
+        'Zubaan: Arabic, Urdu aur English tarjume maujood'
+      ] },
+    note:'Hadees ki kitab ko khud samajhne mein ghalti ho sakti hai. Mustanad sharah (tashreeh) ya kisi aalim ke saath padhna behtar hai. Is card mein link nahi hai, kitab apni pasand ke mustanad zariye se haasil karein.' },
   { id:'omar-series', cat:'series', t:'Omar (2012)', by:'Series · Arabic, Urdu dub bhi milta hai', lang:['ur'], level:'Sab ke liye', checked:'2026-11',
     why:'Hazrat Umar RA ki zindagi par bani Arabic series, jiska Urdu dub bhi milta hai.',
     facts:['2012', 'Arabic series'],

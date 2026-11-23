@@ -484,7 +484,7 @@ function renderDuaList(){
     (duaCat==='__all__' || (duaCat==='__quran__' ? isQuranDua(d) : d.cat===duaCat)) &&
     (d.title+' '+d.cat+' '+(d.tags||[]).join(' ')+' '+d.translit+' '+d.meaning).toLowerCase().includes(q)
   ).sort((a,b)=>(a.ord&&b.ord) ? a.ord-b.ord : a.title.localeCompare(b.title));
-  if(!filtered.length){ wrap.innerHTML = `<div class="empty-state">Koi dua nahi mili.</div>`; return; }
+  if(!filtered.length){ wrap.innerHTML = sgEmpty(duaSearch, DUAS.map(d=>d.title), 'duaSearchInput', 'Koi dua nahi mili.'); return; }
   wrap.innerHTML = filtered.map((d,i)=>{
     const ic = duaIcon(d), color = duaMeta(d.cat)[1];
     const st = duaStatus(d.title);
@@ -669,7 +669,7 @@ function drawGlobalSearch(){
     asma:i=>nameSceneSvg('asma', ASMA_UL_HUSNA[i]), prophet:i=>nameSceneSvg('prophet', PROPHET_NAMES[i])
   };
   const gsThumb = (k,i)=>{ try{ const f = SCF[k]; const sc = f ? f(i) : ''; return sc ? `<div class="gs-thumb" aria-hidden="true">${sc}</div>` : ''; }catch(e){ return ''; } };
-  if(!groups.length){ out.innerHTML = `<div class="empty-state">${L({rur:'Kuch nahi mila', en:'Nothing found'})}</div>`; return; }
+  if(!groups.length){ out.innerHTML = sgEmpty(q, [...DUAS.map(d=>d.title), ...QURAN_WORDS.map(w=>w.tr), ...KHAAS_SHABD.map(w=>w.tr), ...AADAAB_TOPICS.map(t=>t.title), ...ASMA_UL_HUSNA.map(a=>a.tr), ...PROPHET_NAMES.map(a=>a.tr)], 'gsInput', L({rur:'Kuch nahi mila', en:'Nothing found'})); return; }
   out.innerHTML = groups.map(g=>`<div class="section-title" style="margin:6px 14px 8px;">${g.ic} ${g.t} <span class="gs-count">${g.items.length}</span></div>
     <div class="more-list" style="padding-top:0;">${g.items.slice(0,15).map(x=>`<div class="more-item gs-item" data-g="${g.k}" data-i="${x.i}">${gsThumb(g.k, x.i)}<div class="lbl">${x.t}${x.s?`<span class="lblSub">${String(x.s).slice(0,90)}</span>`:''}</div><div class="chev">›</div></div>`).join('')}</div>`).join('');
   out.querySelectorAll('.gs-item').forEach(el=>{

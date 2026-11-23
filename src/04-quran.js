@@ -698,7 +698,7 @@ function renderQwordGrid(){
   const filtered = QURAN_WORDS
     .filter(w=> (qwordGroupFilter==='__all__' || qwordGroup(w)===qwordGroupFilter) && (w.tr+' '+w.m+' '+w.cat+' '+w.ar).toLowerCase().includes(q))
     .sort(qwordSortFn());
-  if(!filtered.length){ grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Koi lafz nahi mila.</div>`; return; }
+  if(!filtered.length){ grid.innerHTML = sgEmpty(qwordSearch, QURAN_WORDS.map(w=>w.tr), 'qwordSearchInput', 'Koi lafz nahi mila.', 'style="grid-column:1/-1;"'); return; }
   if(qwordView === 'cols'){
     /* Column view: Arabic | word | meaning | count, one tidy row per word, easy to scan and learn */
     const hd = (k, label, title)=> `<button type="button" class="qwc-h${qwcSort && qwcSort.k===k ? ' on' : ''}" data-k="${k}" ${title ? `title="${title}"` : ''}>${label}<i>${qwcSort && qwcSort.k===k ? (qwcSort.d>0 ? '▲' : '▼') : '↕'}</i></button>`;
