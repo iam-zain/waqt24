@@ -21,6 +21,21 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'kingdom-of-heaven', cat:'movies', t:'Kingdom of Heaven', by:'Film · Director: Ridley Scott · English', lang:['en'], level:'Sirf bade (violence)', checked:'2026-11',
+    why:'Salibi jungon ke daur mein Yerushalam ke difa ki kahani. Is mein Sultan Salahuddin Ayyubi ke daur aur 1187 ke muhasre ki jhalak milti hai.',
+    facts:['2005', '2h 24m', 'IMDb 7.3'],
+    tags:['Tareekh', 'Salibi Jung', 'Jung aur Fatah', 'Drama', 'Life Hero'],
+    links:[ { t:'IMDb par dekhein', url:'https://www.imdb.com/title/tt0320661/' } ],
+    about:{ h:'Film ke baare mein',
+      p:'12vin sadi ke Salibi jungon ke background par bani film. Balian of Ibelin Yerushalam pahunchta hai aur shehar aur logon ka muhafiz ban jata hai.',
+      pts:[
+        'Director: Ridley Scott',
+        'Stars: Orlando Bloom, Eva Green, Liam Neeson',
+        'Saal: 2005, lambai 2 ghante 24 minute',
+        'Rating: R (jung ke manazir), IMDb 7.3, Metascore 63',
+        'Ye link sirf film ki jankari ka hai. Film dekhne ke liye apni pasand ka platform khud dhoondein.'
+      ] },
+    note:'Ye film ek fictional drama hai. Kai kirdar aur waqiyat asal tareekh se alag hain, aur jung ke manazir bade logon ke liye hain. Asal tareekh ke liye mustanad kitabein dekhein.' },
   { id:'ertugrul-series', cat:'series', t:'Ertugrul Ghazi', by:'Diriliş: Ertuğrul · Turkish series, Urdu dub (YouTube par)', lang:['ur'], level:'Sab ke liye', checked:'2026-11',
     why:'Usmani saltanat ke bani Usman Ghazi ke walid Ertugrul Bey ki zindagi par bani mashhoor Turkish series. Himmat, imaan, wafadari aur qabeele ki qiyadat ka sabaq.',
     facts:['5 seasons', '150 episodes (asli)', '2014 se 2019 tak'],
