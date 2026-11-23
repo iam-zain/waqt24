@@ -21,6 +21,21 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'osman-series', cat:'series', t:'Kurulus Osman', by:'Kuruluş: Osman · Turkish series, Urdu dub (YouTube par)', lang:['ur'], level:'Sab ke liye', checked:'2026-11',
+    why:'Ertugrul Ghazi ke bete Osman Bey aur Usmani saltanat ki buniyad ki kahani. Ye Diriliş: Ertuğrul ka agla hissa hai.',
+    facts:['6 seasons', 'lagbhag 194 episodes', '2019 se 2025 tak'],
+    tags:['Tareekh', 'Usmani', 'Drama', 'Jung aur Fatah', 'Life Hero'],
+    links:[ { t:'Urdu · Season 1 · Episode 1', url:'https://www.youtube.com/watch?v=yzC6IWPLg78' } ],
+    about:{ h:'Series ke baare mein',
+      p:'Ye series Turkey ke ATV par 20 November 2019 se shuru hui aur 2025 mein khatam hui. Isme Osman Bey ki zindagi dikhayi gayi hai jo Ertugrul Ghazi ke bete aur Usmani saltanat ke bani the. Har episode lagbhag 2 ghante ka hota hai.',
+      pts:[
+        'Kul 6 seasons, lagbhag 194 episodes (alag websites par ginti thodi alag hai).',
+        'Pehla episode: 20 November 2019.',
+        'Ye Diriliş: Ertuğrul ki sequel hai, dono ke producer Mehmet Bozdağ hain.',
+        'Urdu dub mein episodes ki ginti alag ho sakti hai.',
+        'Baqi episodes aap YouTube par "Kurulus Osman Urdu" likh kar khud dhoond sakte hain.'
+      ] },
+    note:'Ye series historical fiction hai. Osman Bey ke baare mein asal tareekhi maloomat kam hain, isliye bahut sa hissa drama aur qissa hai. Isse tareekh ki dastaavez na samjhein.' },
   { id:'the-message-1976', cat:'movies', t:'The Message (1976)', by:'Film · Director: Moustapha Akkad · English / Arabic', lang:['en'], level:'Sab ke liye', checked:'2026-11',
     why:'Nabi-e-Akram ﷺ ke daur aur Islam ke shuruaati dino ki kahani. Film mein Nabi ﷺ aur khulafa-e-rashidin ko nahi dikhaya gaya.',
     facts:['1976', '2h 57m', 'IMDb 8.1'],
