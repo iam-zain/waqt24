@@ -2823,3 +2823,10 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .zr-sn{ flex:0 0 auto; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; background:color-mix(in srgb, var(--accent) 14%, var(--card2)); color:var(--accent); border:1.5px solid color-mix(in srgb, var(--accent) 35%, var(--line)); }
 .zr-linkrow{ display:flex; gap:8px; margin-top:8px; } .zr-linkrow .zr-open{ flex:1; margin:0; }
 .zr-copy{ flex:0 0 auto; padding:0 14px; border-radius:12px; border:1.5px solid var(--accent); background:transparent; color:var(--accent); font:inherit; font-size:13px; font-weight:800; cursor:pointer; white-space:nowrap; }
+
+.zr-sortbar{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 10px; margin:2px 0 8px; }
+.zr-sorts{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; } .zr-sorts>span{ font-size:12.5px; font-weight:700; color:var(--sub); }
+.zr-sortbar small{ font-size:12px; font-weight:700; color:var(--sub); }
+.zr-seen{ flex:0 0 auto; padding:6px 10px; border-radius:999px; border:1.5px solid var(--line); background:transparent; color:var(--sub); font:inherit; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap; }
+.zr-seen.on{ border-color:#2e9e5b; color:#2e9e5b; background:color-mix(in srgb, #2e9e5b 10%, transparent); }
+.zr-card.seen{ opacity:.68; }
