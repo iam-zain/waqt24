@@ -20,6 +20,19 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'darulifta-deoband-web', cat:'web', t:'Darul Ifta, Darul Uloom Deoband', by:'Website · darulifta-deoband.com', lang:['ur','hi','en'], level:'Sab ke liye', checked:'2026-11', url:'https://darulifta-deoband.com/en',
+    why:'Masail aur fatawa ki website. Sawal-jawab category ke hisaab se parhe ja sakte hain, aur apna sawal bhi bheja ja sakta hai.',
+    facts:['Urdu, English, Hindi', 'Ask Question', '9,000+ sawalat'],
+    tags:['Fatwa', 'Masail', 'Ilm', 'Q&A'],
+    about:{ h:'Website mein kya hai',
+      p:'Ye Darul Uloom Deoband (India) se jura fatawa ka Q&A platform hai. Website English aur Urdu mein hai, aur Hindi fatawa ka hissa bhi hai.',
+      pts:[
+        'Category ke hisaab se sawal: Aqaid, Namaz aur Ibadat, Muashrat, Len-den, aur mutafarriq.',
+        'Recent Posts, Special Fatwas aur Modern Issues ki list.',
+        '"Ask Question" se naya sawal bheja ja sakta hai.',
+        'Website par abhi lagbhag 9,181 sawalat dikhaye gaye (ginti badalti rehti hai).'
+      ] },
+    note:'Fatwa har shakhs ke haalat ke mutabiq badal sakta hai. Apne masle mein apne mustanad aalim se bhi rujoo karein.' },
   { id:'mufti-shamail-yt', cat:'youtube', t:'Mufti Shamail Nadwi', by:'YouTube channel', lang:['ur'], level:'Sab ke liye', checked:'2026-11', url:'https://www.youtube.com/@muftishamail',
     why:'Fiqh, Qur’an aur tafseer, hadees aur deeni sawalat ke jawab ("masail") wali videos, aur Islami yaad-dehaniyan.',
     tags:['Fiqh', 'Masail', 'Qur’an aur Tafseer', 'Hadees', 'Q&A'],
