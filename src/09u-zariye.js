@@ -21,6 +21,20 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'lost-islamic-history-book', cat:'books', t:'Lost Islamic History', by:'Book · Firas Alkhateeb · Reclaiming Muslim Civilisation from the Past', lang:['en','ur'], level:'Sab ke liye', checked:'2026-11',
+    why:'Islami tareekh aur Muslim tehzeeb ki ilmi, tahqeeqi jhalak. Muslim tehzeeb ki yaad dilane wali kitab.',
+    facts:['2014', 'Hurst Publishers (UK)', 'Urdu tarjuma maujood'],
+    tags:['Tareekh', 'Islami Tehzeeb', 'Research'],
+    links:[ { t:'Wikipedia par dekhein', url:'https://en.wikipedia.org/wiki/Lost_Islamic_History:_Reclaiming_Muslim_Civilisation_from_the_Past' } ],
+    about:{ h:'Kitab ke baare mein',
+      p:'Ye kitab Islami tareekh par hai. Iske musannif American mohaqqiq aur mauarrikh Firas Alkhateeb hain. Ye pehli baar 2014 mein Hurst Publishers (UK) se shaya hui.',
+      pts:[
+        'Musannif: Firas Alkhateeb',
+        'Pehli ishaat: 2014, Hurst Publishers, UK',
+        'Tarjume: Turkish, Bengali, Indonesian aur Urdu',
+        'Ye link sirf kitab ki jankari ka hai. Kitab apni pasand ke zariye se khud haasil karein.'
+      ] },
+    note:'Kisi bhi tareekhi kitab ko akeli na padhein. Doosri mustanad kitabon se bhi milaan karte rahein.' },
   { id:'abdulhamid-series', cat:'series', t:'Payitaht Sultan Abdulhamid', by:'Payitaht: Abdülhamid · Turkish series, Urdu dub (YouTube par)', lang:['ur'], level:'Sab ke liye', checked:'2026-11',
     why:'Usmani Sultan Abdul Hamid II ke daur, unke daur ki saazishon aur saltanat bachane ki jaddojahad par bani series.',
     facts:['5 seasons', '154 episodes', '2017 se 2021 tak'],
