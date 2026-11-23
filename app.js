@@ -11830,6 +11830,10 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'islam-films-list-web', cat:'web', t:'List of Islam-related films', by:'Website · Wikipedia', lang:['en'], level:'Bade (ulema se mashwara)', checked:'2026-11', url:'https://en.wikipedia.org/wiki/List_of_Islam-related_films',
+    why:'Islam se jude filmon ki ek lambi list, jisse pata chalta hai kaun si film kis mauzu par bani hai.',
+    tags:['Films ki List', 'Movies', 'Tareekh'],
+    note:'Ye sirf films ki list hai, sifarish nahi. Koi bhi film dekhne se pehle ulema se mashwara kar lein, kyunki kai filmon mein deeni ya tareekhi baatein sahi tarah pesh nahi ki gayi hotin.' },
   { id:'darulifta-deoband-web', cat:'web', t:'Darul Ifta, Darul Uloom Deoband', by:'Website · darulifta-deoband.com', lang:['ur','hi','en'], level:'Sab ke liye', checked:'2026-11', url:'https://darulifta-deoband.com/en',
     why:'Masail aur fatawa ki website. Sawal-jawab category ke hisaab se parhe ja sakte hain, aur apna sawal bhi bheja ja sakta hai.',
     facts:['Urdu, English, Hindi', 'Ask Question', '9,000+ sawalat'],
