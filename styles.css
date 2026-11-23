@@ -2838,3 +2838,16 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 
 .shk-no{ flex:0 0 auto; font-size:12px; font-weight:800; color:var(--sub); } .shk-pts{ margin:6px 0 8px; padding-left:18px; font-size:13px; line-height:1.5; }
 .shk-all{ display:flex !important; align-items:center; gap:12px; margin:0 14px 12px; width:calc(100% - 28px); } .shk-all .zr-tile-ic{ margin-bottom:0; }
+
+.shk-card .zr-card-top{ align-items:center; gap:12px; }
+.shk-card .zr-card-h b{ font-size:16px; line-height:1.25; } .shk-card .zr-card-h small{ margin-top:2px; line-height:1.35; }
+.shk-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:7px; }
+.shk-chips span{ display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700; line-height:1.2; background:var(--card2); color:var(--sub); }
+.shk-card > p{ margin:12px 0 8px; line-height:1.6; }
+.shk-card .shk-pts{ margin:8px 0 10px; } .shk-card .shk-pts li{ margin:2px 0; }
+.shk-card .zr-tags{ margin-top:8px; }
+.shk-av{ width:46px; height:46px; }
+.zr-sortbar{ padding:0 14px; } .zr-langs{ padding-left:14px; padding-right:14px; }
+.shk-card .zr-card-h{ padding-right:4px; }
+
+.shk-intro{ margin:0 14px 12px; padding:12px 14px; border-radius:14px; font-size:13px; line-height:1.55; background:color-mix(in srgb, #d49a1a 12%, var(--card2)); border:1.5px solid color-mix(in srgb, #d49a1a 35%, var(--line)); }

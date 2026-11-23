@@ -12342,12 +12342,14 @@ const SHK_KW = [
   ['Taleem', /taleem|madrasa|jamia|ustaad|school|university/i], ['Hukumat', /khalifa|khilafat|sultan|saltanat|hukmaran/i],
   ['Sabr', /sabr/i], ['Tasawwuf', /sufi|zuhd|zahid|tazkiya|ishq/i], ['Shayari', /shayar|shayari/i], ['Tijarat', /tajir|tijarat/i], ['Safar', /safar|sayyah|jughrafiya/i]
 ];
+const SHK_ASHARA = ['Abu Bakr as-Siddiq', 'Umar ibn al-Khattab', 'Uthman ibn Affan', 'Ali ibn Abi Talib', 'Talha ibn Ubaydullah', 'Zubayr ibn al-Awwam', 'Abdur Rahman ibn Auf', 'Sa’d ibn Abi Waqqas', 'Sa’id ibn Zayd', 'Abu Ubaidah ibn al-Jarrah'];
 function shkTags(x){
   if(x._tg) return x._tg;
   const t = [SHK_GTAG[x.g.id]], hay = x.n + ' ' + x.t + ' ' + x.p + ' ' + x.pts.join(' ');
   SHK_KW.forEach(([k, re])=>{ if(re.test(hay)) t.push(k); });
   if(/^(Khadijah|Aisha|Fatimah|Sumayyah|Asma|Rabia|Fatima|Begum|Abadi)/.test(x.n)) t.push('Khawateen');
   if(x.g.id === 'anbiya' && /Ulul-Azm/.test(hay)) t.push('Ulul-Azm');
+  if(SHK_ASHARA.includes(x.n)) t.push('Ashara Mubashshara');
   return x._tg = [...new Set(t)];
 }
 function shkYear(x){
@@ -12376,8 +12378,8 @@ function shkAv(x){
   return ((w[0] || '?')[0] + (w[1] ? w[1][0] : '')).toUpperCase();
 }
 function shkCardHtml(x, n){
-  return `<div class="zr-card shk-card"><div class="zr-card-top"><span class="shk-av" style="--zc:${x.g.color};">${shkAv(x)}</span><div class="zr-card-h"><b>${shkName(x)}</b><small>${x.t}</small></div><span class="shk-no">${n}</span></div>
-    <div class="zr-meta"><span>${x.g.ic} ${x.g.t}</span>${x.y ? `<span>🗓️ ${x.y}</span>` : ''}</div>
+  return `<div class="zr-card shk-card"><div class="zr-card-top"><span class="shk-av" style="--zc:${x.g.color};">${shkAv(x)}</span><div class="zr-card-h"><b>${shkName(x)}</b><small>${x.t}</small>
+      <div class="shk-chips"><span>${x.g.ic} ${x.g.t}</span>${x.y ? `<span>🗓️ ${x.y}</span>` : ''}</div></div><span class="shk-no">${n}</span></div>
     <p>${x.p}</p>
     ${x.pts.length ? `<ul class="shk-pts">${x.pts.map(t=>`<li>${t}</li>`).join('')}</ul>` : ''}
     <div class="zr-tags">${shkTags(x).map(t=>`<button type="button" class="zr-tag ${shkTag === t ? 'on' : ''}" data-t="${t}">#${t}</button>`).join('')}</div>
@@ -12405,22 +12407,25 @@ function renderShakhsiyat(){
       shkWireList(()=>{ shkSearch = shkTag || shkSearch; draw(); });
       return;
     }
-    box.innerHTML = `<button type="button" class="zr-tile shk-all" id="shkAllBtn" style="--zc:#2e9e5b;"><div class="zr-tile-ic">📜</div><div><div class="zr-tile-t">Sab naam ek saath</div><div class="zr-tile-s">Saal, naam ya tag ke hisaab se tarteeb aur filter</div></div></button>
+    box.innerHTML = `<button type="button" class="zr-tile shk-all" id="shkAshBtn" style="--zc:#d49a1a;"><div class="zr-tile-ic">🌿</div><div><div class="zr-tile-t">Ashara Mubashshara</div><div class="zr-tile-s">10 sahaba jinhein jannat ki basharat di gayi</div></div></button>
+      <button type="button" class="zr-tile shk-all" id="shkAllBtn" style="--zc:#2e9e5b;"><div class="zr-tile-ic">📜</div><div><div class="zr-tile-t">Sab naam ek saath</div><div class="zr-tile-s">Saal, naam ya tag ke hisaab se tarteeb aur filter</div></div></button>
       <div class="zr-grid">${SHK_GROUPS.map((g, i)=>`<button type="button" class="zr-tile" data-g="${g.id}" style="--zc:${g.color};"><div class="zr-tile-ic">${g.ic}</div><div class="zr-tile-t">${i + 1}. ${g.t}</div><div class="zr-tile-s">${g.sub}</div><div class="zr-tile-n">${(SHK_DATA[g.id] || []).length} naam</div></button>`).join('')}</div>`;
     box.querySelectorAll('.zr-grid .zr-tile').forEach(b=> b.onclick = ()=>{ shkTag = ''; renderShakhsiyatList(b.dataset.g); });
+    document.getElementById('shkAshBtn').onclick = ()=>{ shkTag = ''; renderShakhsiyatList('ashara'); };
     document.getElementById('shkAllBtn').onclick = ()=>{ shkTag = ''; renderShakhsiyatList('all'); };
   };
   draw();
   document.getElementById('shkQ').oninput = e=>{ shkSearch = e.target.value; draw(); };
 }
 function renderShakhsiyatList(gid){
-  const all = gid === 'all', g = all ? { id:'all', ic:'📜', t:'Sab naam ek saath', sub:'Anbiya se aaj tak', color:'#2e9e5b' } : (SHK_GROUPS.find(x=> x.id === gid) || SHK_GROUPS[0]);
-  const base = shkAll().filter(x=> all || x.g.id === g.id), tags = [...new Set(base.flatMap(shkTags))];
+  const all = gid === 'all', ash = gid === 'ashara', g = all ? { id:'all', ic:'📜', t:'Sab naam ek saath', sub:'Anbiya se aaj tak', color:'#2e9e5b' } : ash ? { id:'ashara', ic:'🌿', t:'Ashara Mubashshara', sub:'Jannat ki basharat wale 10 sahaba', color:'#d49a1a' } : (SHK_GROUPS.find(x=> x.id === gid) || SHK_GROUPS[0]);
+  const base = shkAll().filter(x=> all || (ash ? SHK_ASHARA.includes(x.n) : x.g.id === g.id)), tags = [...new Set(base.flatMap(shkTags))];
   if(shkTag && !tags.includes(shkTag)) shkTag = '';
   const rows = shkSorted(shkTag ? base.filter(x=> shkTags(x).includes(shkTag)) : base);
   document.getElementById('detailTitle').textContent = g.t;
   document.getElementById('detailBody').innerHTML = `
     <div class="zr-sechead" style="--zc:${g.color};"><div class="zr-tile-ic">${g.ic}</div><div><b>${g.t}</b><small>${g.sub} · ${rows.length} naam</small></div></div>
+    ${ash ? '<div class="shk-intro">Ek hadees mein Nabi ﷺ ne in 10 sahaba ke naam le kar unhein jannat ki khushkhabri di (Sunan Abi Dawud, Jami’ Tirmidhi). Is hadees ki wajah se ye "Ashara Mubashshara" kehlate hain. Doosre sahaba ko bhi jannat ki khushkhabri ke dusre mauqe aaye hain.</div>' : ''}
     ${shkSortBar()}
     <div class="zr-tagbar" id="shkTagbar">${tags.map(t=>`<button type="button" class="zr-tag ${shkTag === t ? 'on' : ''}" data-t="${t}">#${t}</button>`).join('')}</div>
     <div class="zr-list">${rows.map((x, i)=> shkCardHtml(x, i + 1)).join('')}</div>
