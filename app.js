@@ -11831,6 +11831,10 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'kohistani-yt', cat:'youtube', t:'The Kohistani', by:'YouTube channel', lang:['ur'], level:'Sab ke liye', checked:'2026-11', url:'https://www.youtube.com/@Thekohistani',
+    why:'Islami tareekh aur shakhsiyaat par lambi (lagbhag 20-25 minute ki) narration wali videos, jinmein series ke taur par bhi episodes aate hain, jaise Hazrat Umar RA ki series. Channel ka tarif-naama ek hadees se hai: achchi baat kaho ya khamosh raho.',
+    tags:['Historical Narration', 'AI Video', 'Man Explaining', 'Tareekh', 'Sahaba'],
+    note:'Channel ke video aksar tasveeron aur AI se bani visuals ke saath hote hain. Tareekhi baton ko doosri mustanad kitabon se bhi milakar dekhein.' },
   { id:'salahuddin-series', cat:'series', t:'Sultan Salahuddin Ayyubi', by:'Series (YouTube par Urdu mein)', lang:['ur'], level:'Sab ke liye', checked:'2026-11',
     why:'Ek bahadur, rahmdil aur insaaf-pasand hukmaran ki zindagi par bani series. Hero ki zindagi se himmat aur kirdar seekhne ke liye.',
     tags:['Life Hero', 'Tareekh', 'Jung aur Fatah', 'Drama'],
