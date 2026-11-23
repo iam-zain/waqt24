@@ -349,6 +349,7 @@ const ZARIYE_ITEMS = [
 function zariyeLang(){ return ['all', 'ur', 'hi', 'en'].includes(state.zariyeLang) ? state.zariyeLang : 'all'; }
 const ZARIYE_SORTS = [['def', 'Pasandida'], ['az', 'A → Z'], ['za', 'Z → A']];
 const zariyeSort = ()=> ZARIYE_SORTS.some(x=> x[0] === state.zariyeSort) ? state.zariyeSort : 'def';
+const zariyeVerb = cat=> cat === 'books' ? ['Padh liye', 'Padhe hue'] : cat === 'audio' ? ['Sun liye', 'Sune hue'] : ['Dekh liye', 'Dekhe hue'];
 const zariyeSeen = id=> !!(state.zariyeSeen && state.zariyeSeen[id]);
 function zariyeItems(cat){
   const lg = zariyeLang(), so = zariyeSort(), rk = x=> Math.min(...(x.lang || ['en']).map(l=> ZARIYE_LANG_RANK[l] ?? 3));
@@ -356,7 +357,7 @@ function zariyeItems(cat){
     .sort((a, b)=> (zariyeSeen(a.id) - zariyeSeen(b.id))
       || (so === 'az' ? a.t.localeCompare(b.t) : so === 'za' ? b.t.localeCompare(a.t) : rk(a) - rk(b)));
 }
-const zariyeSortBar = items=> `<div class="zr-sortbar"><div class="zr-sorts" id="zrSorts"><span>↕️ Tarteeb:</span>${ZARIYE_SORTS.map(([k, n])=>`<button type="button" class="zr-lang ${zariyeSort() === k ? 'on' : ''}" data-s="${k}">${n}</button>`).join('')}</div><small>✅ Dekhe hue: ${items.filter(x=> zariyeSeen(x.id)).length}/${items.length}</small></div>`;
+const zariyeSortBar = items=> `<div class="zr-sortbar"><div class="zr-sorts" id="zrSorts"><span>↕️ Tarteeb:</span>${ZARIYE_SORTS.map(([k, n])=>`<button type="button" class="zr-lang ${zariyeSort() === k ? 'on' : ''}" data-s="${k}">${n}</button>`).join('')}</div><small>✅ ${zariyeVerb(items[0] && items[0].cat)[1]}: ${items.filter(x=> zariyeSeen(x.id)).length}/${items.length}</small></div>`;
 const zariyeLangChips = ()=> `<div class="zr-langs" id="zrLangs">${ZARIYE_LANGS.map(([k, n])=>`<button type="button" class="zr-lang ${zariyeLang() === k ? 'on' : ''}" data-l="${k}">${n}</button>`).join('')}</div>`;
 function zariyeWireLangs(redraw){
   document.querySelectorAll('#zrLangs .zr-lang').forEach(b=> b.onclick = ()=>{ state.zariyeLang = b.dataset.l; saveState(); redraw(); });
@@ -376,7 +377,7 @@ function renderZariye(){
 function zariyeCardHtml(x, n){
   const lg = (x.lang || []).map(l=> (ZARIYE_LANGS.find(z=> z[0] === l) || [0, l])[1]).join(' · ');
   const a = x.about;
-  return `<div class="zr-card ${zariyeSeen(x.id) ? 'seen' : ''}"><div class="zr-card-top"><span class="zr-sn">${n}</span><div class="zr-card-h"><b>${x.t}</b>${x.by ? `<small>${x.by}</small>` : ''}</div><button type="button" class="zr-seen ${zariyeSeen(x.id) ? 'on' : ''}" data-id="${x.id}" aria-pressed="${zariyeSeen(x.id)}">${zariyeSeen(x.id) ? '✅ Dekh liya' : '⬜ Dekh liya?'}</button></div>
+  return `<div class="zr-card ${zariyeSeen(x.id) ? 'seen' : ''}"><div class="zr-card-top"><span class="zr-sn">${n}</span><div class="zr-card-h"><b>${x.t}</b>${x.by ? `<small>${x.by}</small>` : ''}</div><button type="button" class="zr-seen ${zariyeSeen(x.id) ? 'on' : ''}" data-id="${x.id}" aria-pressed="${zariyeSeen(x.id)}">${zariyeSeen(x.id) ? '✅ ' + zariyeVerb(x.cat)[0] : '⬜ ' + zariyeVerb(x.cat)[0] + '?'}</button></div>
     ${x.why ? `<p>${x.why}</p>` : ''}
     ${(x.facts || []).length ? `<div class="zr-facts">${x.facts.map(f=>`<div>${f}</div>`).join('')}</div>` : ''}
     ${(x.tags || []).length ? `<div class="zr-tags">${x.tags.map(t=>`<button type="button" class="zr-tag ${zrTag === t ? 'on' : ''}" data-t="${t}">#${t}</button>`).join('')}</div>` : ''}
