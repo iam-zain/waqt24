@@ -460,7 +460,7 @@ let IS_FIRST_RUN = false;
 try{ IS_FIRST_RUN = !localStorage.getItem('namazState'); }catch(e){}
 let state = {
   theme: 'waqti',
-  palette: 'default',
+  palette: 'ocean',
   timeFormat: '24',
   schema: 0,
   location: {name:'Delhi', lat:28.6139, lon:77.2090, source:'manual'},
@@ -604,14 +604,16 @@ function applyTheme(){
 
 /* ---- Colour palettes (accent + tinted surfaces). Styles live in styles.css; this only picks one. ---- */
 const PALETTES = [
+  { k:'ocean',   n:'Samundar', sw:['#2cb5c9','#0f242b'] },
   { k:'default', n:'Original', sw:['#3a9bd9','#16202f'] },
   { k:'emerald', n:'Zumurrud', sw:['#3fb97a','#12211b'] },
   { k:'rose',    n:'Gulaab',   sw:['#e0698d','#25151d'] },
   { k:'gold',    n:'Sunehri',  sw:['#d4a72c','#201a10'] },
   { k:'violet',  n:'Binafsha', sw:['#9b82e8','#1b1530'] },
-  { k:'ocean',   n:'Samundar', sw:['#2cb5c9','#0f242b'] },
   { k:'graphite',n:'Raakh',    sw:['#b8bfcc','#1b1b1b'] }
 ];
+/* Samundar is now the default colour: move everyone who was still on the old default once (they can pick Original again) */
+try{ if(!state.palMig){ state.palMig = 1; if(!state.palette || state.palette === 'default') state.palette = 'ocean'; saveState(); } }catch(e){}
 const LIGHT_THEMES = ['light','waqt-morning','waqt-bright','waqt-dim'];
 /* text colour that is readable on the current accent: dark or white, whichever has the higher contrast */
 function applyOnAccent(){
