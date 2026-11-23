@@ -21,6 +21,23 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'abdulhamid-series', cat:'series', t:'Payitaht Sultan Abdulhamid', by:'Payitaht: Abdülhamid · Turkish series, Urdu dub (YouTube par)', lang:['ur'], level:'Sab ke liye', checked:'2026-11',
+    why:'Usmani Sultan Abdul Hamid II ke daur, unke daur ki saazishon aur saltanat bachane ki jaddojahad par bani series.',
+    facts:['5 seasons', '154 episodes', '2017 se 2021 tak'],
+    tags:['Tareekh', 'Usmani', 'Drama', 'Siyasat', 'Life Hero'],
+    links:[ { t:'Urdu · Season 1 · Episode 1', url:'https://www.youtube.com/watch?v=GyqbUrT_7j8&t=1185s' } ],
+    about:{ h:'Series ke baare mein',
+      p:'Ye series Turkey ke TRT 1 par 24 February 2017 se 4 June 2021 tak chali. Isme Sultan Abdul Hamid II ke aakhri barson ki kahani dikhayi gayi hai. Har episode lagbhag 2 ghante ka hota hai.',
+      pts:[
+        'Season 1: 17 episode (2017)',
+        'Season 2: 37 episode (2017 se 2018)',
+        'Season 3: 34 episode (2018 se 2019)',
+        'Season 4: 31 episode (2019 se 2020)',
+        'Season 5: 35 episode (2020 se 2021)',
+        'Kul lagbhag 154 episode (websites par ginti thodi alag hai).',
+        'Baqi episodes aap YouTube par "Payitaht Abdulhamid Urdu" likh kar khud dhoond sakte hain.'
+      ] },
+    note:'Ye series historical drama hai. Kuch kirdar aur waqiyat drama ke liye badle ya banaye gaye ho sakte hain. Asal tareekh ke liye mustanad kitabein bhi dekhein.' },
   { id:'really-maktoob-yt', cat:'youtube', t:'Really Maktoob', by:'YouTube channel', lang:['ur'], level:'Sab ke liye', checked:'2026-11', url:'https://www.youtube.com/@ReallyMaktoob',
     why:'Surah ki tafseeli wazahat aur seerat jaise mauzu aasan andaaz mein samjhane wala channel.',
     tags:['Surah Explain', 'Seerat', 'Quran Fehmi', 'Tareekh'],
