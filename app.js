@@ -11831,6 +11831,20 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'allahs-miracles-quran-book', cat:'books', t:'Allah’s Miracles in the Quran', by:'Book · Harun Yahya · Goodword Books', lang:['en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Qur’an mein maujood science se jude ishaaron par mabni kitab. Kainaat ki takhleeq, insani janin ka irtiqa, fiza aur zameen par zindagi ke asbab jaise mauzuat.',
+    facts:['2005', '412 pages', 'English'],
+    tags:['Qur’an', 'Science', 'I‘jaz', 'Kainaat'],
+    links:[ { t:'Kitab ka page kholein', url:'https://islamicbookstore.com/b9947.html' } ],
+    about:{ h:'Kitab ke baare mein',
+      p:'Is kitab mein ye mauqif pesh kiya gaya hai ki Qur’an mein kuch aisi science se mutaalliq baatein hain jo 7vin sadi mein maloom na thin, aur ye Qur’an ke Allah ka kalam hone ki daleel hai. Kitab khud bhi maanti hai ki Qur’an asal mein hidayat ki kitab hai, science ki nahi.',
+      pts:[
+        'Musannif: Harun Yahya',
+        'Publisher: Goodword Books, 2005',
+        'Paperback, 412 pages, ISBN 8178985381',
+        'Mauzuat: kainaat ki takhleeq, insani janin ka irtiqa, fiza, zameen par zindagi ke asbab'
+      ] },
+    note:'Is musannif ke kuch khayalat (khaas kar irtiqa ke radd par) par bahut se ulama aur scientists ne aitraz kiya hai. Is kitab ko ehtiyat se padhein aur mustanad ulama ki tafaseer se bhi milaan karein.' },
   { id:'lost-islamic-history-book', cat:'books', t:'Lost Islamic History', by:'Book · Firas Alkhateeb · Reclaiming Muslim Civilisation from the Past', lang:['en','ur'], level:'Sab ke liye', checked:'2026-11',
     why:'Islami tareekh aur Muslim tehzeeb ki ilmi, tahqeeqi jhalak. Muslim tehzeeb ki yaad dilane wali kitab.',
     facts:['2014', 'Hurst Publishers (UK)', 'Urdu tarjuma maujood'],
