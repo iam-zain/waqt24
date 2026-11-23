@@ -214,9 +214,9 @@ function zariyeWireLangs(redraw){
   document.querySelectorAll('#zrLangs .zr-lang').forEach(b=> b.onclick = ()=>{ state.zariyeLang = b.dataset.l; saveState(); redraw(); });
 }
 function renderZariye(){
-  document.getElementById('detailTitle').textContent = 'Seekhne ke Zariye';
+  document.getElementById('detailTitle').textContent = 'Online aur Doosre Resources';
   document.getElementById('detailBody').innerHTML = `
-    <div class="zr-hero"><div class="zr-hero-ic">🧭</div><div><div class="zr-hero-t">Seekhne ke Zariye</div><div class="zr-hero-s">Online aur doosre resources ek jagah</div></div></div>
+    <div class="zr-hero"><div class="zr-hero-ic">🧭</div><div><div class="zr-hero-t">Online aur Doosre Resources</div><div class="zr-hero-s">Achche channels, series, movies aur kitabein ek jagah</div></div></div>
     ${zariyeLangChips()}
     <div class="zr-grid">${ZARIYE_CATS.map(c=>{ const n = zariyeItems(c.id).length;
       return `<button type="button" class="zr-tile" data-c="${c.id}" style="--zc:${c.color};"><div class="zr-tile-ic">${c.ic}</div><div class="zr-tile-t">${c.t}</div><div class="zr-tile-s">${c.sub}</div><div class="zr-tile-n">${n ? n + ' jaankari' : 'Jald aa raha hai'}</div></button>`; }).join('')}</div>
