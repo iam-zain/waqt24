@@ -11831,6 +11831,21 @@ const ZARIYE_CATS = [
 const ZARIYE_LANGS = [['all', 'Sab'], ['ur', 'Urdu'], ['hi', 'Hindi'], ['en', 'English']];
 const ZARIYE_LANG_RANK = { ur:0, hi:1, en:2 };   /* Urdu first, then Hindi, then English */
 const ZARIYE_ITEMS = [
+  { id:'the-message-1976', cat:'movies', t:'The Message (1976)', by:'Film · Director: Moustapha Akkad · English / Arabic', lang:['en'], level:'Sab ke liye', checked:'2026-11',
+    why:'Nabi-e-Akram ﷺ ke daur aur Islam ke shuruaati dino ki kahani. Film mein Nabi ﷺ aur khulafa-e-rashidin ko nahi dikhaya gaya.',
+    facts:['1976', '2h 57m', 'IMDb 8.1'],
+    tags:['Seerat', 'Tareekh', 'Islam ka Aaghaz', 'Drama'],
+    links:[ { t:'IMDb par dekhein', url:'https://www.imdb.com/title/tt0074896/' } ],
+    about:{ h:'Film ke baare mein',
+      p:'Ye film Nabi-e-Akram ﷺ ki zindagi aur Islam ke aaghaz ko pesh karti hai. Isko Moustapha Akkad ne banaya.',
+      pts:[
+        'Director: Moustapha Akkad',
+        'Stars: Anthony Quinn, Irene Papas, Michael Ansara',
+        'Saal: 1976, lambai 2 ghante 57 minute',
+        'Rating: PG, IMDb 8.1',
+        'Ye link sirf film ki jankari ka hai. Film dekhne ke liye apni pasand ka platform khud dhoond lein.'
+      ] },
+    note:'Ye film ek drama hai. Kuch kirdar aur scenes film ke liye banaye gaye ho sakte hain. Seerat ke liye mustanad kitabein (jaise Ar-Raheeq al-Makhtum) zaroor dekhein.' },
   { id:'kingdom-of-heaven', cat:'movies', t:'Kingdom of Heaven', by:'Film · Director: Ridley Scott · English', lang:['en'], level:'Sirf bade (violence)', checked:'2026-11',
     why:'Salibi jungon ke daur mein Yerushalam ke difa ki kahani. Is mein Sultan Salahuddin Ayyubi ke daur aur 1187 ke muhasre ki jhalak milti hai.',
     facts:['2005', '2h 24m', 'IMDb 7.3'],
