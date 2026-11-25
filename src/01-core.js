@@ -605,11 +605,14 @@ function applyTheme(){
 const PALETTES = [
   { k:'ocean',   n:'Samundar', sw:['#2cb5c9','#0f242b'] },
   { k:'default', n:'Original', sw:['#3a9bd9','#16202f'] },
+  { k:'violet',  n:'Binafsha', sw:['#9b82e8','#1b1530'] },
   { k:'emerald', n:'Zumurrud', sw:['#3fb97a','#12211b'] },
   { k:'rose',    n:'Gulaab',   sw:['#e0698d','#25151d'] },
   { k:'gold',    n:'Sunehri',  sw:['#d4a72c','#201a10'] },
-  { k:'violet',  n:'Binafsha', sw:['#9b82e8','#1b1530'] },
-  { k:'graphite',n:'Raakh',    sw:['#b8bfcc','#1b1b1b'] }
+  { k:'graphite',n:'Raakh',    sw:['#b8bfcc','#1b1b1b'] },
+  { k:'orange',  n:'Narangi',  sw:['#ee8a3a','#25170d'] },
+  { k:'crimson', n:'Laal',     sw:['#d9534f','#251211'] },
+  { k:'olive',   n:'Zaitooni', sw:['#9aa83c','#1b1e0e'] }
 ];
 /* Samundar is now the default colour: move everyone who was still on the old default once (they can pick Original again) */
 try{ if(!state.palMig){ state.palMig = 1; if(!state.palette || state.palette === 'default') state.palette = 'ocean'; saveState(); } }catch(e){}

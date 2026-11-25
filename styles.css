@@ -2946,3 +2946,16 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .fq-top{ position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; margin:0 14px 10px; padding:10px 14px; border-radius:14px; background:var(--card); border:1.5px solid var(--accent); box-shadow:0 4px 14px rgba(0,0,0,.08); }
 .fq-top span{ font-size:13px; font-weight:700; flex:1; } .fq-top b{ font-size:18px; font-weight:800; } .fq-top small{ font-size:10.5px; color:var(--sub); font-weight:700; }
 .fq-est{ font-size:10.5px; font-weight:600; color:var(--sub); }
+
+html[data-palette="orange"][data-tone="dark"]{ --accent:#ee8a3a; --fard:#ee8a3a; --accentInk:#f5a566; --fardText:#06131f; }
+html[data-palette="orange"][data-tone="light"]{ --accent:#c9661a; --fard:#c9661a; --accentInk:#a8520f; --fardText:#ffffff; }
+html[data-palette="orange"][data-tone="dark"][data-mode="fixed"]{ --bg:#150f0a; --bg2:#1c140d; --card:#25170d; --card2:#2e1e12; --line:#3d2a1a; --tabbar:#110b07; --meterBg:#2e1e12; }
+html[data-palette="orange"][data-tone="light"][data-mode="fixed"]{ --bg:#fbf5ef; --bg2:#ffffff; --card:#ffffff; --card2:#f8e9db; --line:#efd9c3; --tabbar:#ffffff; --meterBg:#f8e9db; }
+html[data-palette="crimson"][data-tone="dark"]{ --accent:#d9534f; --fard:#d9534f; --accentInk:#e8827e; --fardText:#06131f; }
+html[data-palette="crimson"][data-tone="light"]{ --accent:#b83532; --fard:#b83532; --accentInk:#962624; --fardText:#ffffff; }
+html[data-palette="crimson"][data-tone="dark"][data-mode="fixed"]{ --bg:#150b0b; --bg2:#1c1010; --card:#251211; --card2:#2e1818; --line:#3f2222; --tabbar:#110808; --meterBg:#2e1818; }
+html[data-palette="crimson"][data-tone="light"][data-mode="fixed"]{ --bg:#fbf1f0; --bg2:#ffffff; --card:#ffffff; --card2:#f8e1df; --line:#efcdca; --tabbar:#ffffff; --meterBg:#f8e1df; }
+html[data-palette="olive"][data-tone="dark"]{ --accent:#9aa83c; --fard:#9aa83c; --accentInk:#b8c45a; --fardText:#06131f; }
+html[data-palette="olive"][data-tone="light"]{ --accent:#6f7c1f; --fard:#6f7c1f; --accentInk:#566114; --fardText:#ffffff; }
+html[data-palette="olive"][data-tone="dark"][data-mode="fixed"]{ --bg:#10120a; --bg2:#161910; --card:#1b1e0e; --card2:#232714; --line:#313620; --tabbar:#0c0e07; --meterBg:#232714; }
+html[data-palette="olive"][data-tone="light"][data-mode="fixed"]{ --bg:#f7f8ee; --bg2:#ffffff; --card:#ffffff; --card2:#eceed8; --line:#dde0bd; --tabbar:#ffffff; --meterBg:#eceed8; }
