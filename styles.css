@@ -2963,3 +2963,5 @@ html[data-palette="olive"][data-tone="light"][data-mode="fixed"]{ --bg:#f7f8ee; 
 .wk-bar{ display:block; flex:1; height:6px; border-radius:3px; overflow:hidden; background:color-mix(in srgb, var(--accent) 14%, transparent); }
 .wk-bar span{ display:block; height:100%; border-radius:3px; background:var(--accent); transition:width .3s ease; }
 .wk-bar i{ display:none; }
+
+.wk-head .wk-ht{ flex:0 0 auto; } .wk-left{ flex:1; text-align:center; font-size:11px; font-weight:700; color:var(--sub); }
