@@ -396,7 +396,7 @@ function goalWeek(){
 /* Small summary of today's goal, shown in Deegar; tapping it opens the full card in Ma'rifat */
 function renderGoalMini(){
   const el = document.getElementById('goalMini');
-  if(!el) return;
+  if(!el) return; /* mini card removed from Ma'rifat; the full card lives in Deegar */
   const tasks = goalTasks();
   /* One line: the goal's icon, its title, then one icon per task (a tick when done, faded when not) */
   el.innerHTML = `<button class="goal-mini-card" id="goalMiniBtn">

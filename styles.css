@@ -257,7 +257,7 @@ body{
 .cal-detail .controlCol.bulkCol{ justify-content:space-between; }
 .cal-detail .row:last-child{ border-bottom:none; }
 .cal-detail .tag{ padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700; }
-.zikr-name-link{ cursor:pointer; text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:2px; }
+.zikr-name-link{ cursor:pointer; text-decoration:none; }
 
 /* ---------- RAMZAN TAB ---------- */
 .ramzan-card{ margin:0 14px 14px; padding:14px; background:var(--card); border-radius:14px; border:1px solid var(--line); }
@@ -2903,3 +2903,28 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .wk-in{ width:100%; margin-top:10px; padding:11px 12px; border-radius:12px; border:1.5px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:13px; box-sizing:border-box; }
 
 .zk-seg.zk-top{ margin:0 14px 12px; } .zk-seg.zk-top button{ flex:1; }
+
+/* weekly goal: same card shell as the daily goal, collapsed by default */
+#weekGoalCard{ margin-top:0; }
+#weekGoalCard .wk-card{ margin:8px 14px 4px; padding:0 14px; background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:none; }
+.wk-head{ width:100%; display:flex; align-items:center; gap:8px; padding:11px 0; margin:0; background:none; border:0; font:inherit; color:var(--text); cursor:pointer; text-align:left; }
+.wk-ht{ font-size:13px; font-weight:800; flex:1; } .wk-hi{ font-size:15px; } .wk-hc{ font-size:12px; font-weight:800; color:var(--sub); }
+.wk-car{ transition:transform .2s ease; } .wk-card.open .wk-car{ transform:rotate(90deg); }
+.wk-body{ display:none; padding-bottom:12px; } .wk-card.open .wk-body{ display:block; }
+.wk-item{ display:flex; align-items:center; gap:8px; padding:7px 0; border-top:1px solid var(--line); font-size:13px; }
+.wk-chk{ flex:0 0 20px; width:20px; height:20px; min-width:20px; padding:0; background:transparent; cursor:pointer; }
+.wk-item.done .wk-chk{ background:var(--green); border-color:var(--green); }
+.wk-txt{ display:flex; flex-direction:column; gap:0; line-height:1.35; }
+.wk-main{ font-size:13px; font-weight:500; color:var(--text); } .wk-item.done .wk-main{ text-decoration:none; color:var(--sub); opacity:1; }
+.wk-ty{ font-size:10.5px; font-weight:700; color:var(--sub); letter-spacing:0; }
+.wk-sm{ width:26px; height:26px; border-radius:8px; background:none; font-size:12px; color:var(--sub); display:flex; align-items:center; justify-content:center; padding:0; } .wk-sm svg{ width:15px; height:15px; }
+.wk-btns{ margin-top:8px; gap:8px; } .wk-btns button{ padding:7px 10px; border-radius:12px; font-size:12px; }
+
+/* display options: three switches in one row */
+.disp-trio{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:8px 0 4px; }
+.disp-cell{ display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:6px; padding:8px 4px; border-radius:12px; background:var(--card2); text-align:center; }
+.disp-cl{ display:flex; flex-direction:column; align-items:center; gap:2px; font-size:11.5px; font-weight:700; line-height:1.25; color:var(--text); }
+.disp-cl svg{ width:16px; height:16px; } .disp-cl em{ font-style:normal; }
+/* last list in Deegar: same bottom gap as the other tabs */
+#tab-more > .more-list:nth-last-child(2){ padding-bottom:0; }
+.zikr-name-link, .zikr-name-link:hover, .zikr-name-link:active{ text-decoration:none !important; }

@@ -31,25 +31,28 @@ function wkOpen(x){
   else if(x.t === 'surah'){ const s = QURAN_SURAHS[(+x.id || 1) - 1]; state.quranPage = s.page; saveState(); goTask({ tab:'more', open:'quran' }); }
 }
 function wkEsc(s){ return String(s).replace(/[&<>"]/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c])); }
-let wkAdding = null;
+let wkAdding = null, wkOpenCard = false;
 function renderWeekGoal(){
   const el = document.getElementById('weekGoalCard'); if(!el) return;
   const w = wkState(), n = w.items.filter(x=> x.done).length, tot = w.items.length;
-  el.innerHTML = `<div class="wk-card">
-    <div class="wk-head"><b>📅 Haftawar Hadaf</b><span>${tot ? `${n}/${tot}` : ''}</span></div>
+  el.innerHTML = `<div class="wk-card ${wkOpenCard ? 'open' : ''}">
+    <button class="wk-head" id="wkHead" aria-expanded="${wkOpenCard}"><span class="wk-hi">📅</span><span class="wk-ht">Haftawar Hadaf</span><span class="wk-hc">${tot ? `${n}/${tot}` : '0'}</span><b class="goal-arrow wk-car">›</b></button>
+    <div class="wk-body">
     ${tot ? w.items.map((x, i)=>{ const l = wkLabel(x), m = WK_TYPES[x.t]; return `<div class="wk-item ${x.done ? 'done' : ''}" data-i="${i}">
-      <button class="wk-chk" data-a="tick" aria-label="Mukammal">${x.done ? '✓' : ''}</button>
-      <button class="wk-txt" data-a="open"><span class="wk-ty">${m[0]} ${m[1]}</span><b>${wkEsc(l.main)}</b>${l.sub ? `<small>${wkEsc(l.sub)}</small>` : ''}</button>
-      ${x.t !== 'own' ? `<button class="wk-sm" data-a="swap" title="Badlein">🔄</button>` : ''}<button class="wk-sm" data-a="del" title="Hatayein">✕</button></div>`; }).join('') : `<div class="wk-empty">Is hafte ka koi hadaf nahi. Neeche se jodein.</div>`}
+      <button class="gi-check wk-chk" data-a="tick" aria-label="Mukammal">${x.done ? '✓' : ''}</button>
+      <button class="wk-txt" data-a="open"><span class="wk-ty">${m[0]} ${m[1]}</span><span class="wk-main">${wkEsc(l.main)}</span></button>
+      ${x.t !== 'own' ? `<button class="wk-sm" data-a="swap" aria-label="Badlein">${uiIcon('refresh')}</button>` : ''}<button class="wk-sm" data-a="del" aria-label="Hatayein">✕</button></div>`; }).join('') : `<div class="wk-empty">Is hafte ka koi hadaf nahi. Neeche se jodein.</div>`}
     ${n === tot && tot ? `<div class="goal-win">Mashallah! Is hafte ka hadaf mukammal 🎉</div>` : ''}
     ${wkAdding ? `<div class="wk-add"><div class="wk-types">${Object.keys(WK_TYPES).map(t=> `<button data-ty="${t}" class="${wkAdding.t === t ? 'on' : ''}">${WK_TYPES[t][0]} ${WK_TYPES[t][1]}</button>`).join('')}</div>
-      ${wkAdding.t === 'own' ? `<input class="wk-in" id="wkOwn" placeholder="Apna hadaf likhein, jaise Surah Yaseen ka tarjuma padhna" maxlength="200">`
+      ${wkAdding.t === 'own' ? `<input class="wk-in" id="wkOwn" placeholder="Apna hadaf likhein" maxlength="200">`
         : `<select class="wk-in" id="wkSel">${wkAdding.t === 'dua' ? DUAS.map(d=> `<option value="${wkEsc(d.title)}">${wkEsc(d.title)} (${wkEsc(d.cat)})</option>`).join('')
         : wkAdding.t === 'hadees' ? HADEES.map(h=> `<option value="${wkEsc(hadeesKey(h))}">${wkEsc(h.cat)}: ${wkEsc((hTxt(h) || '').slice(0, 50))}…</option>`).join('')
         : QURAN_SURAHS.map(s=> `<option value="${s.n}">${s.n}. ${wkEsc(s.name)}</option>`).join('')}</select>`}
       <div class="wk-btns"><button id="wkSave" class="wk-pri">Jodein</button><button id="wkCancel">Radd</button></div></div>`
-    : `<div class="wk-btns"><button id="wkAdd" class="wk-pri">＋ Hadaf jodein</button><button id="wkRand" title="Random">🎲 Random</button></div>`}
+    : `<div class="wk-btns"><button id="wkAdd" class="wk-pri">＋ Hadaf jodein</button><button id="wkRand">🎲 Random</button></div>`}
+    </div>
   </div>`;
+  document.getElementById('wkHead').onclick = ()=>{ wkOpenCard = !wkOpenCard; renderWeekGoal(); };
   el.querySelectorAll('.wk-item').forEach(row=>{
     const i = +row.dataset.i;
     row.querySelectorAll('[data-a]').forEach(b=> b.onclick = ()=>{

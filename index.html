@@ -27,7 +27,7 @@
 <meta name="twitter:description" content="Roz ki namaz, sehri, iftar aur nawafil ke auqaat ek nazar mein.">
 <meta name="twitter:image" content="https://iam-zain.github.io/waqt24/icons/icon-512.png">
 <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=3ce65d28">
+<link rel="stylesheet" href="styles.css?v=9ca548ad">
 </head>
 <body>
 <div id="app">
@@ -88,7 +88,6 @@
   <!-- RAMZAN TAB -->
   <!-- ILM TAB (Du'a / Hadees / Quiz) -->
   <div class="screen scrollable" id="tab-explore">
-    <div id="goalMini"></div>
     <div id="continueCard"></div>
     <!-- Qur'an: one wide card; everything else as two-column tiles under headings -->
     <div class="mf-sec">Qur'an</div>
@@ -127,26 +126,26 @@
     </div>
     <div class="pad" style="padding:0 0 4px;"><div id="goalCard"></div><div id="weekGoalCard"></div></div>
     <div class="more-list" style="padding-top:0;">
-      <div class="more-item" data-open="stats"><div class="ic">📊</div><div class="lbl">Safar-e-Taraqqi</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="stats"><div class="ic">📊</div><div class="lbl">Safar-e-Taraqqi<span class="lblSub">Namaz, Qur&#39;an aur hadaf ka hisaab</span></div><div class="chev">›</div></div>
     </div>
     <div class="pad" style="padding-bottom:0;">
       <div class="section-title">Khidmaat</div>
     </div>
     <div class="more-list" style="padding-top:0;">
-      <div class="more-item" data-open="tasbeeh"><div class="ic">📿</div><div class="lbl">Tasbeeh Counter</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="azaan"><div class="ic">🔊</div><div class="lbl">Azaan</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="tasbeeh"><div class="ic">📿</div><div class="lbl">Tasbeeh Counter<span class="lblSub">Zikr ginti, target aur history</span></div><div class="chev">›</div></div>
+      <div class="more-item" data-open="azaan"><div class="ic">🔊</div><div class="lbl">Azaan<span class="lblSub">Sunein, seekhein, matlab aur hadeesein</span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="qaza"><div class="ic">🧎</div><div class="lbl">Qaza Namaz<span class="lblSub" id="qazaSub"></span></div><div class="chev">›</div></div>
-      <div class="more-item" data-open="islamicMonths"><div class="ic">🔭</div><div class="lbl">Islami Mahine</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="islamicEvents"><div class="ic">🎉</div><div class="lbl">Khaas Din</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="monthTable"><div class="ic">📅</div><div class="lbl">Mahine ka Timetable</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="hijriConv"><div class="ic">🔁</div><div class="lbl">Tareekh Badlein (Hijri)</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="islamicMonths"><div class="ic">🔭</div><div class="lbl">Islami Mahine<span class="lblSub">12 mahine, unki ahmiyat aur tareekh</span></div><div class="chev">›</div></div>
+      <div class="more-item" data-open="islamicEvents"><div class="ic">🎉</div><div class="lbl">Khaas Din<span class="lblSub">Eid, Shab-e-Barat, Ashura aur doosre din</span></div><div class="chev">›</div></div>
+      <div class="more-item" data-open="monthTable"><div class="ic">📅</div><div class="lbl">Mahine ka Timetable<span class="lblSub">Poore mahine ke namaz ke auqaat</span></div><div class="chev">›</div></div>
+      <div class="more-item" data-open="hijriConv"><div class="ic">🔁</div><div class="lbl">Tareekh Badlein (Hijri)<span class="lblSub">Hijri aur English tareekh ek doosre mein</span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="zariye"><div class="ic">🧭</div><div class="lbl">Online aur Doosre Resources<span class="lblSub">Channels, series, movies, kitabein</span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="shakhsiyat"><div class="ic">🌙</div><div class="lbl">Mashhoor Shakhsiyaat<span class="lblSub">Anbiya, Sahaba, ulama, scientists aur mujahid</span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="ramzan" id="ramzanMoreItem"><div class="ic">☪️</div><div class="lbl">Roza<span class="lblSub" id="ramzanSub"></span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="zakat"><div class="ic">🌙</div><div class="lbl">Zakat, Fitrah aur Qurbani<span class="lblSub">Nisab, Sadaqa-e-Fitr, Qurbani ka hisaab</span></div><div class="chev">›</div></div>
-      <div class="more-item" data-open="masjid"><div class="ic">🕌</div><div class="lbl">Qareebi Masjid</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="masjid"><div class="ic">🕌</div><div class="lbl">Qareebi Masjid<span class="lblSub">Aas-paas ki masjid map par</span></div><div class="chev">›</div></div>
       <div class="more-item" data-open="mubarak"><div class="ic">💌</div><div class="lbl">Mubarak Cards<span class="lblSub">Juma, Eid, Ramzan, Nikah</span></div><div class="chev">›</div></div>
-      <div class="more-item" data-open="bookmarks"><div class="ic">⭐</div><div class="lbl">Mere Pasandeeda</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="bookmarks"><div class="ic">⭐</div><div class="lbl">Mere Pasandeeda<span class="lblSub">Aapke save kiye hue dua, hadees aur surah</span></div><div class="chev">›</div></div>
     </div>
     <div class="pad" style="padding-bottom:0;">
       <div class="section-title">Theme</div>
@@ -164,9 +163,9 @@
       <div class="section-title">Mazeed</div>
     </div>
     <div class="more-list" style="padding-top:0;">
-      <div class="more-item" data-open="settings"><div class="ic">⚙️</div><div class="lbl">Settings</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="install"><div class="ic">📲</div><div class="lbl">App Install Karein</div><div class="chev">›</div></div>
-      <div class="more-item" data-open="raabta"><div class="ic">📧</div><div class="lbl">Raabta</div><div class="chev">›</div></div>
+      <div class="more-item" data-open="settings"><div class="ic">⚙️</div><div class="lbl">Settings<span class="lblSub">Shehar, azaan, theme, rang aur zabaan</span></div><div class="chev">›</div></div>
+      <div class="more-item" data-open="install"><div class="ic">📲</div><div class="lbl">App Install Karein<span class="lblSub">Phone par app ki tarah install karein</span></div><div class="chev">›</div></div>
+      <div class="more-item" data-open="raabta"><div class="ic">📧</div><div class="lbl">Raabta<span class="lblSub">Sawal, mashwara aur galti batayein</span></div><div class="chev">›</div></div>
     </div>
     <div class="tab-end"></div>
   </div>
@@ -212,6 +211,6 @@
 
 <script defer src="data.js?v=213f3938"></script>
 <script defer src="i18n.js?v=d17dbf5f"></script>
-<script defer src="app.js?v=4f0709ed"></script>
+<script defer src="app.js?v=0f47bac1"></script>
 </body>
 </html>

@@ -624,9 +624,10 @@ function applyOnAccent(){
 /* In Waqti mode the Original colour follows the prayer time (Zuhr gold, Asr brown, Maghrib orange): show that live colour on the swatch and say so */
 function syncPalSwatch(){
   try{
+    const ORIG_SW = PALETTES.find(p=>p.k==='default').sw[0];
     const root = document.documentElement, sw = document.querySelector('#palRow .pal[data-k="default"]'), hint = document.getElementById('palHint');
     const live = state.theme === 'waqti' && !root.getAttribute('data-palette');
-    if(sw) sw.style.setProperty('--sw', live ? (getComputedStyle(root).getPropertyValue('--accent').trim() || PALETTES[0].sw[0]) : PALETTES[0].sw[0]);
+    if(sw) sw.style.setProperty('--sw', live ? (getComputedStyle(root).getPropertyValue('--accent').trim() || ORIG_SW) : ORIG_SW);
     if(hint) hint.hidden = !live;
   }catch(e){}
 }

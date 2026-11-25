@@ -625,9 +625,10 @@ function applyOnAccent(){
 /* In Waqti mode the Original colour follows the prayer time (Zuhr gold, Asr brown, Maghrib orange): show that live colour on the swatch and say so */
 function syncPalSwatch(){
   try{
+    const ORIG_SW = PALETTES.find(p=>p.k==='default').sw[0];
     const root = document.documentElement, sw = document.querySelector('#palRow .pal[data-k="default"]'), hint = document.getElementById('palHint');
     const live = state.theme === 'waqti' && !root.getAttribute('data-palette');
-    if(sw) sw.style.setProperty('--sw', live ? (getComputedStyle(root).getPropertyValue('--accent').trim() || PALETTES[0].sw[0]) : PALETTES[0].sw[0]);
+    if(sw) sw.style.setProperty('--sw', live ? (getComputedStyle(root).getPropertyValue('--accent').trim() || ORIG_SW) : ORIG_SW);
     if(hint) hint.hidden = !live;
   }catch(e){}
 }
@@ -7694,7 +7695,7 @@ function goalWeek(){
 /* Small summary of today's goal, shown in Deegar; tapping it opens the full card in Ma'rifat */
 function renderGoalMini(){
   const el = document.getElementById('goalMini');
-  if(!el) return;
+  if(!el) return; /* mini card removed from Ma'rifat; the full card lives in Deegar */
   const tasks = goalTasks();
   /* One line: the goal's icon, its title, then one icon per task (a tick when done, faded when not) */
   el.innerHTML = `<button class="goal-mini-card" id="goalMiniBtn">
@@ -12808,25 +12809,28 @@ function wkOpen(x){
   else if(x.t === 'surah'){ const s = QURAN_SURAHS[(+x.id || 1) - 1]; state.quranPage = s.page; saveState(); goTask({ tab:'more', open:'quran' }); }
 }
 function wkEsc(s){ return String(s).replace(/[&<>"]/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c])); }
-let wkAdding = null;
+let wkAdding = null, wkOpenCard = false;
 function renderWeekGoal(){
   const el = document.getElementById('weekGoalCard'); if(!el) return;
   const w = wkState(), n = w.items.filter(x=> x.done).length, tot = w.items.length;
-  el.innerHTML = `<div class="wk-card">
-    <div class="wk-head"><b>📅 Haftawar Hadaf</b><span>${tot ? `${n}/${tot}` : ''}</span></div>
+  el.innerHTML = `<div class="wk-card ${wkOpenCard ? 'open' : ''}">
+    <button class="wk-head" id="wkHead" aria-expanded="${wkOpenCard}"><span class="wk-hi">📅</span><span class="wk-ht">Haftawar Hadaf</span><span class="wk-hc">${tot ? `${n}/${tot}` : '0'}</span><b class="goal-arrow wk-car">›</b></button>
+    <div class="wk-body">
     ${tot ? w.items.map((x, i)=>{ const l = wkLabel(x), m = WK_TYPES[x.t]; return `<div class="wk-item ${x.done ? 'done' : ''}" data-i="${i}">
-      <button class="wk-chk" data-a="tick" aria-label="Mukammal">${x.done ? '✓' : ''}</button>
-      <button class="wk-txt" data-a="open"><span class="wk-ty">${m[0]} ${m[1]}</span><b>${wkEsc(l.main)}</b>${l.sub ? `<small>${wkEsc(l.sub)}</small>` : ''}</button>
-      ${x.t !== 'own' ? `<button class="wk-sm" data-a="swap" title="Badlein">🔄</button>` : ''}<button class="wk-sm" data-a="del" title="Hatayein">✕</button></div>`; }).join('') : `<div class="wk-empty">Is hafte ka koi hadaf nahi. Neeche se jodein.</div>`}
+      <button class="gi-check wk-chk" data-a="tick" aria-label="Mukammal">${x.done ? '✓' : ''}</button>
+      <button class="wk-txt" data-a="open"><span class="wk-ty">${m[0]} ${m[1]}</span><span class="wk-main">${wkEsc(l.main)}</span></button>
+      ${x.t !== 'own' ? `<button class="wk-sm" data-a="swap" aria-label="Badlein">${uiIcon('refresh')}</button>` : ''}<button class="wk-sm" data-a="del" aria-label="Hatayein">✕</button></div>`; }).join('') : `<div class="wk-empty">Is hafte ka koi hadaf nahi. Neeche se jodein.</div>`}
     ${n === tot && tot ? `<div class="goal-win">Mashallah! Is hafte ka hadaf mukammal 🎉</div>` : ''}
     ${wkAdding ? `<div class="wk-add"><div class="wk-types">${Object.keys(WK_TYPES).map(t=> `<button data-ty="${t}" class="${wkAdding.t === t ? 'on' : ''}">${WK_TYPES[t][0]} ${WK_TYPES[t][1]}</button>`).join('')}</div>
-      ${wkAdding.t === 'own' ? `<input class="wk-in" id="wkOwn" placeholder="Apna hadaf likhein, jaise Surah Yaseen ka tarjuma padhna" maxlength="200">`
+      ${wkAdding.t === 'own' ? `<input class="wk-in" id="wkOwn" placeholder="Apna hadaf likhein" maxlength="200">`
         : `<select class="wk-in" id="wkSel">${wkAdding.t === 'dua' ? DUAS.map(d=> `<option value="${wkEsc(d.title)}">${wkEsc(d.title)} (${wkEsc(d.cat)})</option>`).join('')
         : wkAdding.t === 'hadees' ? HADEES.map(h=> `<option value="${wkEsc(hadeesKey(h))}">${wkEsc(h.cat)}: ${wkEsc((hTxt(h) || '').slice(0, 50))}…</option>`).join('')
         : QURAN_SURAHS.map(s=> `<option value="${s.n}">${s.n}. ${wkEsc(s.name)}</option>`).join('')}</select>`}
       <div class="wk-btns"><button id="wkSave" class="wk-pri">Jodein</button><button id="wkCancel">Radd</button></div></div>`
-    : `<div class="wk-btns"><button id="wkAdd" class="wk-pri">＋ Hadaf jodein</button><button id="wkRand" title="Random">🎲 Random</button></div>`}
+    : `<div class="wk-btns"><button id="wkAdd" class="wk-pri">＋ Hadaf jodein</button><button id="wkRand">🎲 Random</button></div>`}
+    </div>
   </div>`;
+  document.getElementById('wkHead').onclick = ()=>{ wkOpenCard = !wkOpenCard; renderWeekGoal(); };
   el.querySelectorAll('.wk-item').forEach(row=>{
     const i = +row.dataset.i;
     row.querySelectorAll('[data-a]').forEach(b=> b.onclick = ()=>{
@@ -12972,12 +12976,12 @@ function applyDisplayPrefs(){
   const rows = [
     ['hc',  uiIcon('auto'), {rur:'Zyada contrast', en:'High contrast'}, ()=>!!state.hc],
     ['calm',uiIcon('leaf'), {rur:'Kam animation', en:'Calmer motion'}, ()=>!!state.calm],
-    ['daily',uiIcon('dua'), {rur:'Home par Aaj ki Du\'a / Hadees', en:'Daily Du\'a / Hadees on Home'}, ()=>!state.dailyOff],
+    ['daily',uiIcon('dua'), {rur:'Home par Du\'a/Hadees', en:'Daily Du\'a/Hadees'}, ()=>!state.dailyOff],
   ];
   const draw = ()=>{
     const tabs = [['home',uiIcon('home'),'Maskan'], ['calendar',uiIcon('calendar'),'Taareekh'], ['explore',uiIcon('explore'),"Ma'rifat"], ['more',uiIcon('more'),'Deegar']], cur = state.startTab || 'home';
     box.innerHTML = `<div class="disp-start"><div class="disp-start-t">${L({rur:'App kholne par pehle yeh tab dikhe', en:'Open this tab when the app starts'})}</div><div class="disp-start-row" role="radiogroup">${tabs.map(t=>`<button type="button" role="radio" aria-checked="${cur === t[0]}" class="${cur === t[0] ? 'on' : ''}" data-start="${t[0]}"><span>${t[1]}</span>${t[2]}</button>`).join('')}</div></div>`
-      + rows.map(r=>`<div class="tasbeeh-sound-toggle"><span>${r[1]} ${L(r[2])}</span><div class="roza-mini ${r[3]() ? 'on' : ''}" role="switch" aria-checked="${r[3]()}" tabindex="0" data-disp="${r[0]}"><div class="roza-mini-knob"></div></div></div>`).join('')
+      + `<div class="disp-trio">` + rows.map(r=>`<div class="disp-cell"><span class="disp-cl">${r[1]}<em>${L(r[2])}</em></span><div class="roza-mini ${r[3]() ? 'on' : ''}" role="switch" aria-checked="${r[3]()}" aria-label="${L(r[2])}" tabindex="0" data-disp="${r[0]}"><div class="roza-mini-knob"></div></div></div>`).join('') + `</div>`
       + `<button type="button" class="disp-tour" id="dispTour">${uiIcon('compass')} ${L({rur:'Tour dobara dekhein', en:'Show the tour again'})}</button>`;
     box.querySelectorAll('[data-disp]').forEach(b=>{
       const flip = ()=>{ const k = b.dataset.disp; if(k === 'hc') state.hc = !state.hc; else if(k === 'calm') state.calm = !state.calm; else state.dailyOff = !state.dailyOff; saveState(); applyDisplayPrefs(); draw(); };
