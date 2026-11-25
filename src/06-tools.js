@@ -1254,31 +1254,26 @@ function renderIslamicEvents(){
     </div>
     ${khaasDinTab === 'waqia' ? `<div class="kd-wnote"><b>📌 Zaroori baat</b>Ye waaqiat sirf tareekh jaanne, in buzurgon ki zindagi aur khidmat se seekhne aur himmat lene ke liye hain. Paidaish ya wafat ke dinon par jashn, urs ya koi khaas amal Islam ne muqarrar nahi kiya. Deeni amal mein Qur'an, sunnat aur apne mustanad ulema ki rehnumai lein.</div>` : ''}
     <div class="backup-note">Aane wale ahem Islami tareekhein (Hijri arithmetic hisaab se; chaand dikhne par 1 din aage-peeche ho sakta hai). ⚠️ wale din ki tareekh mein ikhtilaf ya ta'qreeb hai.</div>
-    ${events.map((e,i)=> e.nights ? `<div class="hevent-card tag-${e.tag}">
-      <div class="heIc">${e.ic}</div>
-      <div class="heName">${e.name}</div>
-      ${e.nights.map(n=>`<div class="heNightRow">
+    ${events.map((e,i)=> `<div class="hevent-card hec tag-${e.tag}">
+      <button type="button" class="hec-top" aria-expanded="false"><span class="hec-ic">${e.ic}</span><span class="heName">${e.name}</span><b class="hec-car">›</b></button>
+      <div class="hec-body">${e.nights ? e.nights.map(n=>`<div class="heNightRow">
         <span class="heNightLeft">
           <span class="heNightDay">${n.day} Ramzan</span>
           <span class="heHijri">${n.hijri}</span>
         </span>
         <span class="heGreg">📅 ${fmtG(n.greg)}</span>
-      </div>`).join('')}
-      <button class="he-share" data-i="${i}" title="Share karein">${SHARE_SVG}</button>
-    </div>` : `<div class="hevent-card tag-${e.tag}">
-      <div class="heIc">${e.ic}</div>
-      <div class="heName">${e.name}</div>
-      ${e.yr ? `<div class="heYr">${e.yr}</div>` : ''}
+      </div>`).join('') : `${e.yr ? `<div class="heYr">${e.yr}</div>` : ''}
       <div class="heHijri">${e.hijri}</div>
       <div class="heGreg">📅 ${fmtG(e.greg)}</div>
       ${e.note ? `<div class="heBadge">⚠️ ${e.note}</div>` : ''}
-      ${e.tag === 'waqia' && /^(Paidaish|Wafat)/.test(e.yr || '') ? `<div class="heLearn">ℹ️ Seekhne aur yaad rakhne ke liye, jashn ya khaas amal ke liye nahi</div>` : ''}
-      <button class="he-share" data-i="${i}" title="Share karein">${SHARE_SVG}</button>
+      ${e.tag === 'waqia' && /^(Paidaish|Wafat)/.test(e.yr || '') ? `<div class="heLearn">ℹ️ Seekhne aur yaad rakhne ke liye, jashn ya khaas amal ke liye nahi</div>` : ''}`}
+      <button class="he-share" data-i="${i}" title="Share karein">${SHARE_SVG}</button></div>
     </div>`).join('')}
   `;
   document.querySelectorAll('#heTabs [data-tab]').forEach(el=>{
     el.onclick = ()=>{ khaasDinTab = el.dataset.tab; renderIslamicEvents(); };
   });
+  document.querySelectorAll('#detailBody .hec-top').forEach(b=> b.onclick = ()=>{ const c = b.parentElement, o = !c.classList.contains('open'); c.classList.toggle('open', o); b.setAttribute('aria-expanded', o); });
   document.querySelectorAll('#detailBody .he-share').forEach(btn=>{
     btn.onclick = ()=>{
       const e = events[parseInt(btn.dataset.i)];

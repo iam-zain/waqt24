@@ -2999,3 +2999,13 @@ body.qp-on .to-top{ bottom:150px; }
 .kd-aaj-nx{ margin-top:8px; padding-top:8px; border-top:1px solid var(--line); font-size:12.5px; line-height:1.5; } .kd-aaj-nx span{ font-size:10.5px; font-weight:800; color:var(--sub); text-transform:uppercase; letter-spacing:.04em; margin-right:2px; }
 /* Khaas Din cards: icon in a fixed box so every glyph sits at the same spot, centred over the share button */
 .hevent-card .heIc{ top:12px; right:10px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:26px; line-height:1; }
+
+/* Khaas Din cards: collapsed by default, tap to open */
+.hevent-card.hec{ padding:0; }
+.hec-top{ width:100%; display:flex; align-items:center; gap:10px; padding:12px 14px; background:none; border:0; font:inherit; color:var(--text); text-align:left; cursor:pointer; }
+.hec-ic{ flex:0 0 30px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:22px; line-height:1; }
+.hec-top .heName{ flex:1; min-width:0; font-size:14.5px; font-weight:800; line-height:1.35; }
+.hec-car{ color:var(--sub); font-size:16px; transition:transform .2s ease; } .hec.open .hec-car{ transform:rotate(90deg); }
+.hec-body{ display:none; padding:0 14px 12px 54px; } .hec.open .hec-body{ display:block; }
+.hec .hec-body .he-share{ position:static; display:flex; margin:10px 0 0 auto; }
+.hec:has(.he-share){ padding-bottom:0; }
