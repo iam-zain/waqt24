@@ -7712,21 +7712,16 @@ function goTask(go){
   if(tab) tab.click();
   if(go.open){ const el = document.querySelector(`#tab-${go.tab} [data-open="${go.open}"]`); if(el) el.click(); }
 }
+let goalOpenCard = false;
 function renderGoalCard(){
   const el = document.getElementById('goalCard');
   if(!el) return;
   const tasks = goalTasks();
   const n = tasks.filter(t=>t.done).length;
   const week = goalWeek();
-  const R = 34, C = 2*Math.PI*R;
-  el.innerHTML = `<div class="goal-card">
-    <svg class="goal-ring" viewBox="0 0 84 84" role="img" aria-label="Rozana Hadaf ${n} / ${tasks.length}">
-      <circle cx="42" cy="42" r="${R}" class="goal-bg"></circle>
-      <circle cx="42" cy="42" r="${R}" class="goal-fg${n>0?' n'+n:''}" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${(C*(1-n/tasks.length)).toFixed(2)}" transform="rotate(-90 42 42)"></circle>
-      <text x="42" y="47" text-anchor="middle" class="goal-txt">${n}/${tasks.length}</text>
-    </svg>
-    <div class="goal-info">
-      <div class="goal-title">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</div>
+  el.innerHTML = `<div class="hd-card ${goalOpenCard ? 'open' : ''}">
+    <button class="wk-head" id="goalHead" aria-expanded="${goalOpenCard}"><span class="wk-hi">🎯</span><span class="wk-ht">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</span><span class="wk-hc">${n}/${tasks.length}</span><b class="goal-arrow wk-car">›</b></button>
+    <div class="wk-body">
       ${tasks.map((t,i)=>`<button class="goal-item ${t.done?'done':''}" data-go="${i}"><span class="gi-check">${t.done?'✓':''}</span><span class="gi-txt">${L(t.label)}</span><b class="goal-arrow">›</b></button>`).join('')}
       <button class="goal-item goal-daily" id="goalDailyBtn"><span class="gi-check gi-ic">${uiIcon('quran')}</span><span class="gi-txt">${L({rur:'Aaj ki Du\'a aur Hadees', en:'Today\'s Du\'a & Hadees'})}</span><b class="goal-arrow">›</b></button>
       <div class="goal-week">${week.map(w=>`<div class="goal-day ${w.ok?'ok':''} ${w.today?'today':''}" title="${dayKey(w.d)}"><i></i><small>${['S','M','T','W','T','F','S'][w.d.getDay()]}</small></div>`).join('')}</div>
@@ -7736,6 +7731,7 @@ function renderGoalCard(){
       ${n===tasks.length ? `<div class="goal-win">${L({rur:'Mashallah! Aaj ka hadaf mukammal 🎉', en:'Mashallah! Today’s goal is complete 🎉'})}</div>` : ''}
     </div>
   </div>`;
+  document.getElementById('goalHead').onclick = ()=>{ goalOpenCard = !goalOpenCard; renderGoalCard(); };
   el.querySelectorAll('[data-go]').forEach(btn=>{ btn.onclick = ()=> goTask(tasks[+btn.dataset.go].go); });
   const rr = document.getElementById('goalRerollBtn');
   if(rr) rr.onclick = changeTodayGoal;
@@ -7751,7 +7747,7 @@ function celebrate(el){
     if(localStorage.getItem('waqt24_confetti')===key) return;
     localStorage.setItem('waqt24_confetti', key);
   }catch(e){}
-  const box = el.querySelector('.goal-card');
+  const box = el.querySelector('.hd-card');
   if(!box) return;
   const colours = ['#d4af37','#3fae6a','#3a9bd9','#c85a4a','#8b7fd6'];
   for(let i=0;i<28;i++){
@@ -12591,11 +12587,13 @@ document.addEventListener('click', e=>{
 }, true);
 /* ===== Sadaqa-e-Fitr aur Qurbani calculator (Hanafi) ===== */
 const FQ_ITEMS = [
-  ['wheat',  '🌾 Gehun / atta',     1, 'Hanafi mein aadha saa’'],
+  ['wheat',  '🌾 Aata (gehun)',     1, 'Hanafi mein aadha saa’'],
   ['barley', '🌿 Jau',              2, 'poora saa’'],
   ['dates',  '🌴 Khajoor',          2, 'poora saa’'],
   ['raisin', '🍇 Kishmish',         2, 'ehtiyat se poora saa’ (is par ulema ki raay thodi alag hai)']
 ];
+/* rough per-kg estimates (₹) so the amount shows at once; the user can type their own city's price */
+const FQ_PRICE_EST = { wheat:55, barley:50, dates:300, raisin:400 };
 const FQ_WHEAT_KG = [[1.633, 'Aam (Al-Lubab)'], [1.625, 'Dar al-Ifta Misr'], [2.32, 'Ehtiyat wali raay']];
 const FQ_ANIMALS = [['Bakra / Bhed / Dumba', '1 saal ya zyada (bhed 6 mahine ki bhi, agar saal bhar ki lage)', '1 hissa'], ['Gaay / Bail / Bhains', '2 saal ya zyada', 'Ziyada se ziyada 7 hisse'], ['Oont', '5 saal ya zyada', 'Ziyada se ziyada 7 hisse']];
 
@@ -12646,17 +12644,17 @@ function fqWireNisab(){ const b = document.getElementById('fqNisab'); if(b) b.on
 
 /* ---------- Sadaqa-e-Fitr ---------- */
 function fqFitrCalc(){
-  const f = fqState(), it = FQ_ITEMS.find(x=> x[0] === f.item), wheat = fqNum(f.kg) || 1.633, per = wheat * it[2], n = (+f.me || 0) + (+f.kids || 0) + (+f.other || 0), price = fqNum(f.price);
-  return { f, it, per, n, price, totalKg:per * n, perAmt:per * price, total:per * price * n };
+  const f = fqState(), it = FQ_ITEMS.find(x=> x[0] === f.item), wheat = fqNum(f.kg) || 1.633, per = wheat * it[2], n = (+f.me || 0) + (+f.kids || 0) + (+f.other || 0), own = fqNum(f.price), est = !(own > 0), price = est ? FQ_PRICE_EST[it[0]] : own;
+  return { f, it, per, n, price, est, totalKg:per * n, perAmt:per * price, total:per * price * n };
 }
 function fqFitrResult(){
   const c = fqFitrCalc(), el = document.getElementById('fqRes'); if(!el) return;
   if(c.n <= 0){ el.innerHTML = `<div class="zk-st zk-idle">Upar kam se kam ek insaan chunein.</div>`; return; }
-  el.innerHTML = c.price > 0
-    ? `<div class="zk-st zk-yes">✅ ${c.n} logon ka Sadaqa-e-Fitr</div><div class="zk-amt"><small>Kul rakam</small>${zkFmt(c.total)}</div>
-       <div class="zk-brk"><div><span>👤 Ek insaan ka</span><b>${zkFmt(c.perAmt)}</b></div><div><span>⚖️ Ek insaan (${c.it[1].replace(/^\S+\s/, '')})</span><b>${fqKg(c.per)} kg</b></div><div class="zk-tot"><span>Kul wazan (${c.n} log)</span><b>${fqKg(c.totalKg)} kg</b></div></div>`
-    : `<div class="zk-st zk-idle">Ek insaan ka wazan <b>${fqKg(c.per)} kg</b>. Kul ${fqKg(c.totalKg)} kg. Rakam jaanne ke liye niche ${c.it[1].replace(/^\S+\s/, '').toLowerCase()} ka bhaav likhein.</div>`;
-  const sh = document.getElementById('fqShare'); if(sh) sh.style.display = c.price > 0 ? '' : 'none';
+  const tag = c.est ? ` <small class="fq-est">andaaza, ${zkFmt(c.price)}/kg ke hisaab se</small>` : '';
+  el.innerHTML = `<div class="zk-st zk-yes">✅ ${c.n} logon ka Sadaqa-e-Fitr</div><div class="zk-amt"><small>Kul rakam${tag}</small>${zkFmt(c.total)}</div>
+       <div class="zk-brk"><div><span>👤 Ek insaan ka</span><b>${zkFmt(c.perAmt)}</b></div><div><span>⚖️ Ek insaan (${c.it[1].replace(/^\S+\s/, '')})</span><b>${fqKg(c.per)} kg</b></div><div class="zk-tot"><span>Kul wazan (${c.n} log)</span><b>${fqKg(c.totalKg)} kg</b></div></div>`;
+  const top = document.getElementById('fqTop'); if(top) top.innerHTML = `<span>🌾 ${c.n} log</span><b>${zkFmt(c.total)}</b><small>${c.est ? 'andaaza' : 'aapke bhaav se'}</small>`;
+  const sh = document.getElementById('fqShare'); if(sh) sh.style.display = '';
 }
 function fqFitrText(){
   const c = fqFitrCalc(), ed = fqNextHijri(1, 10);
@@ -12666,6 +12664,7 @@ function fqDrawFitr(){
   const f = fqState(), eid = fqNextHijri(1, 10), c = fqFitrCalc();
   const itemLbl = c.it[1].replace(/^\S+\s/, '');
   document.getElementById('fqBody').innerHTML = `
+    <div class="fq-top" id="fqTop"></div>
     <div class="zk-card">
       <div class="zk-h"><span>1</span> Kin logon ki taraf se?</div>
       ${fqStepper('me', '👤', 'Aap khud', 'Sahib-e-nisab par wajib', f.me)}
@@ -12679,8 +12678,8 @@ function fqDrawFitr(){
       <select class="zk-sel" id="fqItem">${FQ_ITEMS.map(x=>`<option value="${x[0]}" ${f.item === x[0] ? 'selected' : ''}>${x[1]}</option>`).join('')}</select>
       <div class="zk-note" style="margin-top:8px;">Gehun ka aadha saa’ kitne kg hai, is par raayein thodi alag hain. Apne masjid ya mufti ka elaan ho to wohi likhein.</div>
       <div class="fq-chips" id="fqKgChips">${FQ_WHEAT_KG.map(([v, n])=>`<button type="button" data-v="${v}" class="${Math.abs(fqNum(f.kg) - v) < 0.001 ? 'on' : ''}">${v} kg<small>${n}</small></button>`).join('')}</div>
-      <div class="zk-row"><div class="zk-lbl"><span>⚖️</span><div><b>Gehun (aadha saa’) kg mein</b><small>Jau, khajoor, kishmish ke liye iska doguna</small></div></div><div class="zk-field"><input class="zk-in" inputmode="decimal" id="fqKg" value="${f.kg}" style="padding-left:12px;"></div></div>
-      <div class="zk-row"><div class="zk-lbl"><span>🏷️</span><div><b id="fqPriceLbl">${itemLbl} ka bhaav (per kg)</b><small>Apne shehar ka aaj ka bhaav</small></div></div><div class="zk-field"><i>₹</i><input class="zk-in" inputmode="decimal" id="fqPrice" placeholder="jaise 40" value="${f.price != null ? f.price : ''}"></div></div>
+      <div class="zk-row"><div class="zk-lbl"><span>⚖️</span><div><b>Aata/gehun (aadha saa’) kg mein</b><small>Jau, khajoor, kishmish ke liye iska doguna</small></div></div><div class="zk-field"><input class="zk-in" inputmode="decimal" id="fqKg" value="${f.kg}" style="padding-left:12px;"></div></div>
+      <div class="zk-row"><div class="zk-lbl"><span>🏷️</span><div><b id="fqPriceLbl">${itemLbl} ka bhaav (per kg)</b><small>Khali chhodein to andaaza lagega. Apne shehar ka bhaav likhein.</small></div></div><div class="zk-field"><i>₹</i><input class="zk-in" inputmode="decimal" id="fqPrice" placeholder="andaaza ${FQ_PRICE_EST[f.item]}" value="${f.price != null ? f.price : ''}"></div></div>
     </div>
     <div class="zk-card"><div class="zk-h"><span>3</span> Aapka Sadaqa-e-Fitr</div><div id="fqRes"></div>
       <button type="button" class="fq-link" id="fqShare">📤 Share karein</button></div>
@@ -12812,13 +12811,14 @@ function wkEsc(s){ return String(s).replace(/[&<>"]/g, c=> ({ '&':'&amp;', '<':'
 let wkAdding = null, wkOpenCard = false;
 function renderWeekGoal(){
   const el = document.getElementById('weekGoalCard'); if(!el) return;
-  const w = wkState(), n = w.items.filter(x=> x.done).length, tot = w.items.length;
-  el.innerHTML = `<div class="wk-card ${wkOpenCard ? 'open' : ''}">
+  const w = wkState(), n = w.items.filter(x=> x.done).length, tot = w.items.length, dayN = ((new Date().getDay() + 6) % 7) + 1;
+  el.innerHTML = `<div class="hd-card wk-card ${wkOpenCard ? 'open' : ''}">
     <button class="wk-head" id="wkHead" aria-expanded="${wkOpenCard}"><span class="wk-hi">📅</span><span class="wk-ht">Haftawar Hadaf</span><span class="wk-hc">${tot ? `${n}/${tot}` : '0'}</span><b class="goal-arrow wk-car">›</b></button>
+    <div class="wk-days" title="Hafte ke din"><div class="wk-bar">${[1,2,3,4,5,6,7].map(i=>`<i class="${i < dayN ? 'past' : i === dayN ? 'now' : ''}"></i>`).join('')}</div><small>Din ${dayN}/7</small></div>
     <div class="wk-body">
-    ${tot ? w.items.map((x, i)=>{ const l = wkLabel(x), m = WK_TYPES[x.t]; return `<div class="wk-item ${x.done ? 'done' : ''}" data-i="${i}">
+    ${tot ? w.items.map((x, i)=>{ const l = wkLabel(x), m = WK_TYPES[x.t]; return `<div class="wk-item goal-item ${x.done ? 'done' : ''}" data-i="${i}">
       <button class="gi-check wk-chk" data-a="tick" aria-label="Mukammal">${x.done ? '✓' : ''}</button>
-      <button class="wk-txt" data-a="open"><span class="wk-ty">${m[0]} ${m[1]}</span><span class="wk-main">${wkEsc(l.main)}</span></button>
+      <button class="wk-txt" data-a="open"><span class="wk-ty">${m[0]} ${m[1]}</span><span class="gi-txt wk-main">${wkEsc(l.main)}</span></button>
       ${x.t !== 'own' ? `<button class="wk-sm" data-a="swap" aria-label="Badlein">${uiIcon('refresh')}</button>` : ''}<button class="wk-sm" data-a="del" aria-label="Hatayein">✕</button></div>`; }).join('') : `<div class="wk-empty">Is hafte ka koi hadaf nahi. Neeche se jodein.</div>`}
     ${n === tot && tot ? `<div class="goal-win">Mashallah! Is hafte ka hadaf mukammal 🎉</div>` : ''}
     ${wkAdding ? `<div class="wk-add"><div class="wk-types">${Object.keys(WK_TYPES).map(t=> `<button data-ty="${t}" class="${wkAdding.t === t ? 'on' : ''}">${WK_TYPES[t][0]} ${WK_TYPES[t][1]}</button>`).join('')}</div>
@@ -12827,7 +12827,7 @@ function renderWeekGoal(){
         : wkAdding.t === 'hadees' ? HADEES.map(h=> `<option value="${wkEsc(hadeesKey(h))}">${wkEsc(h.cat)}: ${wkEsc((hTxt(h) || '').slice(0, 50))}…</option>`).join('')
         : QURAN_SURAHS.map(s=> `<option value="${s.n}">${s.n}. ${wkEsc(s.name)}</option>`).join('')}</select>`}
       <div class="wk-btns"><button id="wkSave" class="wk-pri">Jodein</button><button id="wkCancel">Radd</button></div></div>`
-    : `<div class="wk-btns"><button id="wkAdd" class="wk-pri">＋ Hadaf jodein</button><button id="wkRand">🎲 Random</button></div>`}
+    : `<div class="wk-btns"><button id="wkAdd" class="goal-reroll">＋ Hadaf jodein</button><button id="wkRand" class="goal-reroll">🎲 Random</button></div>`}
     </div>
   </div>`;
   document.getElementById('wkHead').onclick = ()=>{ wkOpenCard = !wkOpenCard; renderWeekGoal(); };

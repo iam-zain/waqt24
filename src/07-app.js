@@ -413,21 +413,16 @@ function goTask(go){
   if(tab) tab.click();
   if(go.open){ const el = document.querySelector(`#tab-${go.tab} [data-open="${go.open}"]`); if(el) el.click(); }
 }
+let goalOpenCard = false;
 function renderGoalCard(){
   const el = document.getElementById('goalCard');
   if(!el) return;
   const tasks = goalTasks();
   const n = tasks.filter(t=>t.done).length;
   const week = goalWeek();
-  const R = 34, C = 2*Math.PI*R;
-  el.innerHTML = `<div class="goal-card">
-    <svg class="goal-ring" viewBox="0 0 84 84" role="img" aria-label="Rozana Hadaf ${n} / ${tasks.length}">
-      <circle cx="42" cy="42" r="${R}" class="goal-bg"></circle>
-      <circle cx="42" cy="42" r="${R}" class="goal-fg${n>0?' n'+n:''}" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${(C*(1-n/tasks.length)).toFixed(2)}" transform="rotate(-90 42 42)"></circle>
-      <text x="42" y="47" text-anchor="middle" class="goal-txt">${n}/${tasks.length}</text>
-    </svg>
-    <div class="goal-info">
-      <div class="goal-title">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</div>
+  el.innerHTML = `<div class="hd-card ${goalOpenCard ? 'open' : ''}">
+    <button class="wk-head" id="goalHead" aria-expanded="${goalOpenCard}"><span class="wk-hi">🎯</span><span class="wk-ht">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</span><span class="wk-hc">${n}/${tasks.length}</span><b class="goal-arrow wk-car">›</b></button>
+    <div class="wk-body">
       ${tasks.map((t,i)=>`<button class="goal-item ${t.done?'done':''}" data-go="${i}"><span class="gi-check">${t.done?'✓':''}</span><span class="gi-txt">${L(t.label)}</span><b class="goal-arrow">›</b></button>`).join('')}
       <button class="goal-item goal-daily" id="goalDailyBtn"><span class="gi-check gi-ic">${uiIcon('quran')}</span><span class="gi-txt">${L({rur:'Aaj ki Du\'a aur Hadees', en:'Today\'s Du\'a & Hadees'})}</span><b class="goal-arrow">›</b></button>
       <div class="goal-week">${week.map(w=>`<div class="goal-day ${w.ok?'ok':''} ${w.today?'today':''}" title="${dayKey(w.d)}"><i></i><small>${['S','M','T','W','T','F','S'][w.d.getDay()]}</small></div>`).join('')}</div>
@@ -437,6 +432,7 @@ function renderGoalCard(){
       ${n===tasks.length ? `<div class="goal-win">${L({rur:'Mashallah! Aaj ka hadaf mukammal 🎉', en:'Mashallah! Today’s goal is complete 🎉'})}</div>` : ''}
     </div>
   </div>`;
+  document.getElementById('goalHead').onclick = ()=>{ goalOpenCard = !goalOpenCard; renderGoalCard(); };
   el.querySelectorAll('[data-go]').forEach(btn=>{ btn.onclick = ()=> goTask(tasks[+btn.dataset.go].go); });
   const rr = document.getElementById('goalRerollBtn');
   if(rr) rr.onclick = changeTodayGoal;
@@ -452,7 +448,7 @@ function celebrate(el){
     if(localStorage.getItem('waqt24_confetti')===key) return;
     localStorage.setItem('waqt24_confetti', key);
   }catch(e){}
-  const box = el.querySelector('.goal-card');
+  const box = el.querySelector('.hd-card');
   if(!box) return;
   const colours = ['#d4af37','#3fae6a','#3a9bd9','#c85a4a','#8b7fd6'];
   for(let i=0;i<28;i++){

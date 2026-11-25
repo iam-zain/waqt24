@@ -2928,3 +2928,21 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 /* last list in Deegar: same bottom gap as the other tabs */
 #tab-more > .more-list:nth-last-child(2){ padding-bottom:0; }
 .zikr-name-link, .zikr-name-link:hover, .zikr-name-link:active{ text-decoration:none !important; }
+
+/* daily + weekly goal share one card look */
+.hd-card{ position:relative; overflow:hidden; margin:8px 14px 4px; padding:0 14px; background:var(--card); border:1px solid var(--line); border-radius:16px; display:block; }
+#goalCard .hd-card{ margin-top:12px; } #weekGoalCard .wk-card{ margin:8px 14px 4px; padding:0 14px; }
+.hd-card .wk-body{ display:none; padding-bottom:12px; } .hd-card.open .wk-body{ display:block; } .hd-card.open .wk-car{ transform:rotate(90deg); }
+.hd-card .wk-head{ padding:11px 0; } .hd-card .wk-ht{ font-size:13px; font-weight:800; color:var(--text); } .hd-card .wk-hc{ font-size:12px; font-weight:800; color:var(--sub); }
+.hd-card .goal-item .gi-txt, .hd-card .wk-main{ font-size:13px; font-weight:400; color:var(--text); }
+.hd-card .goal-item.done .gi-txt{ color:var(--sub); }
+.hd-card .wk-item{ border-top:0; border-bottom:1px solid var(--line); padding:7px 0; }
+.hd-card .wk-txt{ flex:1; min-width:0; padding:0; background:none; border:0; text-align:left; font:inherit; color:var(--text); cursor:pointer; display:flex; flex-direction:column; }
+.hd-card .wk-ty{ font-size:10.5px; font-weight:700; color:var(--sub); }
+.hd-card .wk-btns{ display:flex; gap:8px; margin-top:8px; } .hd-card .wk-btns .goal-reroll{ margin-top:0; flex:0 0 auto; }
+.wk-days{ display:flex; align-items:center; gap:8px; padding:0 0 10px; } .wk-days small{ font-size:10.5px; font-weight:700; color:var(--sub); white-space:nowrap; }
+.wk-bar{ flex:1; display:flex; gap:3px; } .wk-bar i{ flex:1; height:5px; border-radius:3px; background:var(--line); } .wk-bar i.past{ background:var(--accent); opacity:.55; } .wk-bar i.now{ background:var(--accent); }
+
+.fq-top{ position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; margin:0 14px 10px; padding:10px 14px; border-radius:14px; background:var(--card); border:1.5px solid var(--accent); box-shadow:0 4px 14px rgba(0,0,0,.08); }
+.fq-top span{ font-size:13px; font-weight:700; flex:1; } .fq-top b{ font-size:18px; font-weight:800; } .fq-top small{ font-size:10.5px; color:var(--sub); font-weight:700; }
+.fq-est{ font-size:10.5px; font-weight:600; color:var(--sub); }
