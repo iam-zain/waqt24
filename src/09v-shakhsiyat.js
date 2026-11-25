@@ -177,7 +177,7 @@ modern:[
 ]
 };
 
-let shkSearch = '', shkTag = '';
+let shkSearch = '', shkTag = '', shkView = 'groups', shkTlMode = 'all';
 const SHK_SORTS = [['def', 'Tarteeb'], ['old', 'Purane pehle'], ['new', 'Naye pehle'], ['az', 'A → Z'], ['za', 'Z → A']];
 const shkSort = ()=> SHK_SORTS.some(x=> x[0] === state.shkSort) ? state.shkSort : 'def';
 const SHK_GTAG = { anbiya:'Nabi', ahlebait:'Ahl-e-Bait', khulafa:'Khalifa', sahaba:'Sahabi', tabiin:'Tabi’een', imams:'Imam', ulama:'Aalim', science:'Scientist', sipah:'Sipah-salar', rulers:'Hukmaran', azadi:'Azadi ka Mujahid', modern:'Jadeed Daur' };
@@ -238,6 +238,28 @@ function shkWireList(redraw){
   document.querySelectorAll('#shkSorts .zr-lang').forEach(b=> b.onclick = ()=>{ state.shkSort = b.dataset.s; saveState(); redraw(); });
   document.querySelectorAll('#detailBody .shk-card .zr-tag, #shkTagbar .zr-tag').forEach(b=> b.onclick = ()=>{ shkTag = (shkTag === b.dataset.t) ? '' : b.dataset.t; redraw(); });
 }
+/* ---- Timeline views: all / by century / by group ---- */
+const SHK_TL_MODES = [['all', 'Sab'], ['sadi', 'Sadi-wise'], ['group', 'Group-wise']];
+const shkCentury = y=> Math.floor((y - 1) / 100) + 1;
+function shkTlItem(x, i){ return `<div class="shk-tl-item" style="--zc:${x.g.color};">${x.y ? `<span class="shk-tl-yr">${x.y}</span>` : ''}${shkCardHtml(x, i + 1)}</div>`; }
+function shkTlByYear(rows){ return rows.slice().sort((a, b)=> shkYear(a) - shkYear(b) || SHK_GROUPS.indexOf(a.g) - SHK_GROUPS.indexOf(b.g) || a.i - b.i); }
+function shkTimelineHtml(mode){
+  const all = shkAll(), dated = all.filter(x=> shkYear(x) !== null), undated = all.filter(x=> shkYear(x) === null);
+  const qadeem = undated.filter(x=> x.g.id === 'anbiya'), baqi = undated.filter(x=> x.g.id !== 'anbiya');
+  const sec = (title, sub, rows, ic)=> rows.length ? `<div class="shk-tl-sec"><div class="shk-tl-h">${ic || ''} <b>${title}</b><small>${sub || ''}${sub ? ' · ' : ''}${rows.length} naam</small></div><div class="shk-tl">${rows.map(shkTlItem).join('')}</div></div>` : '';
+  let out = '';
+  if(mode === 'group'){
+    out = SHK_GROUPS.map(g=> sec(g.t, g.sub, shkTlByYear(all.filter(x=> x.g.id === g.id && shkYear(x) !== null)).concat(all.filter(x=> x.g.id === g.id && shkYear(x) === null)), g.ic)).join('');
+  }else if(mode === 'sadi'){
+    const by = {}; shkTlByYear(dated).forEach(x=>{ (by[shkCentury(shkYear(x))] = by[shkCentury(shkYear(x))] || []).push(x); });
+    out = sec('Qadeem daur', 'Anbiya-e-Kiram, saal ki tasreeh nahi', qadeem, '🌟')
+      + Object.keys(by).map(Number).sort((a, b)=> a - b).map(c=> sec(`${c}vin sadi`, `${(c - 1) * 100 + 1} se ${c * 100} CE`, by[c], '🕰️')).join('')
+      + sec('Saal ki maloomat nahi', '', baqi, '📌');
+  }else{
+    out = sec('Qadeem daur', 'Anbiya-e-Kiram, saal ki tasreeh nahi', qadeem, '🌟') + sec('Shuru se aakhir', 'Saal ke hisaab se', shkTlByYear(dated), '🕰️') + sec('Saal ki maloomat nahi', '', baqi, '📌');
+  }
+  return `<div class="shk-tlbar"><div class="zr-sorts">${SHK_TL_MODES.map(([k, n])=>`<button type="button" class="zr-lang ${mode === k ? 'on' : ''}" data-tm="${k}">${n}</button>`).join('')}</div><button type="button" class="zr-lang zr-toggleall">⇕ Sab kholein</button></div>${out}`;
+}
 function renderShakhsiyat(){
   document.getElementById('detailTitle').textContent = 'Mashhoor Shakhsiyaat';
   const total = shkAll().length;
@@ -255,9 +277,19 @@ function renderShakhsiyat(){
       shkWireList(()=>{ shkSearch = shkTag || shkSearch; draw(); });
       return;
     }
+    const vseg = `<div class="zk-seg shk-vseg" id="shkViews"><button data-v="groups" class="${shkView === 'groups' ? 'on' : ''}">🗂️ Groups</button><button data-v="tl" class="${shkView === 'tl' ? 'on' : ''}">🕰️ Timeline</button></div>`;
+    const wireV = ()=> box.querySelectorAll('#shkViews button').forEach(b=> b.onclick = ()=>{ shkView = b.dataset.v; draw(); });
+    if(shkView === 'tl'){
+      box.innerHTML = vseg + shkTimelineHtml(shkTlMode);
+      wireV();
+      box.querySelectorAll('[data-tm]').forEach(b=> b.onclick = ()=>{ shkTlMode = b.dataset.tm; draw(); });
+      shkWireList(()=>{ shkSearch = shkTag || shkSearch; draw(); });
+      return;
+    }
     const cnt = g=> g.id === 'ashara' ? SHK_ASHARA.length : (SHK_DATA[g.id] || []).length;
-    box.innerHTML = `<div class="zr-grid">${SHK_GROUPS.map((g, i)=>`<button type="button" class="zr-tile" data-g="${g.id}" style="--zc:${g.color};"><div class="zr-tile-ic">${g.ic}</div><div class="zr-tile-t">${i + 1}. ${g.t}</div><div class="zr-tile-s">${g.sub}</div><div class="zr-tile-n">${cnt(g)} naam</div></button>`).join('')}
+    box.innerHTML = vseg + `<div class="zr-grid">${SHK_GROUPS.map((g, i)=>`<button type="button" class="zr-tile" data-g="${g.id}" style="--zc:${g.color};"><div class="zr-tile-ic">${g.ic}</div><div class="zr-tile-t">${i + 1}. ${g.t}</div><div class="zr-tile-s">${g.sub}</div><div class="zr-tile-n">${cnt(g)} naam</div></button>`).join('')}
       <button type="button" class="zr-tile" data-g="all" style="--zc:#2e9e5b;"><div class="zr-tile-ic">📜</div><div class="zr-tile-t">Sab naam ek saath</div><div class="zr-tile-s">Saal, naam ya tag se tarteeb aur filter</div><div class="zr-tile-n">${shkAll().length} naam</div></button></div>`;
+    wireV();
     box.querySelectorAll('.zr-grid .zr-tile').forEach(b=> b.onclick = ()=>{ shkTag = ''; renderShakhsiyatList(b.dataset.g); });
   };
   draw();
