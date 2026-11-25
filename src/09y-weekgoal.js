@@ -49,7 +49,7 @@ function renderWeekGoal(){
         : wkAdding.t === 'hadees' ? HADEES.map(h=> `<option value="${wkEsc(hadeesKey(h))}">${wkEsc(h.cat)}: ${wkEsc((hTxt(h) || '').slice(0, 50))}…</option>`).join('')
         : QURAN_SURAHS.map(s=> `<option value="${s.n}">${s.n}. ${wkEsc(s.name)}</option>`).join('')}</select>`}
       <div class="wk-btns"><button id="wkSave" class="wk-pri">Jodein</button><button id="wkCancel">Radd</button></div></div>`
-    : `<div class="wk-btns"><button id="wkAdd" class="goal-reroll">＋ Hadaf jodein</button><button id="wkRand" class="goal-reroll">🎲 Random</button></div>`}
+    : `<div class="wk-btns"><button id="wkAdd" class="goal-reroll">＋ Hadaf jodein</button><button id="wkRand" class="goal-reroll">🎲 Random jodein</button></div>`}
     </div>
   </div>`;
   document.getElementById('wkHead').onclick = ()=>{ wkOpenCard = !wkOpenCard; renderWeekGoal(); };
