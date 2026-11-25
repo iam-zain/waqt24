@@ -2992,3 +2992,6 @@ body.qp-on .to-top{ bottom:150px; }
 #heTabs{ flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; } #heTabs::-webkit-scrollbar{ display:none; } #heTabs .chip{ flex:0 0 auto; }
 
 .pal-name{ margin-left:2px; color:var(--accentInk, var(--accent)); font-weight:800; }
+
+.kd-wnote{ margin:0 14px 12px; padding:11px 14px; border-radius:14px; background:color-mix(in srgb, var(--accent) 10%, var(--card)); border:1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); font-size:12.5px; line-height:1.55; } .kd-wnote b{ display:block; margin-bottom:3px; font-size:13px; }
+.heLearn{ margin-top:6px; font-size:11px; color:var(--sub); line-height:1.4; }

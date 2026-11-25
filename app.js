@@ -6264,6 +6264,7 @@ function renderIslamicEvents(){
     <div class="chip-row he-tabs" id="heTabs">
       ${KHAAS_DIN_TABS.map(([k,l])=>`<div class="chip ${khaasDinTab===k?'active':''}" data-tab="${k}">${l}</div>`).join('')}
     </div>
+    ${khaasDinTab === 'waqia' ? `<div class="kd-wnote"><b>📌 Zaroori baat</b>Ye waaqiat sirf tareekh jaanne, in buzurgon ki zindagi aur khidmat se seekhne aur himmat lene ke liye hain. Paidaish ya wafat ke dinon par jashn, urs ya koi khaas amal Islam ne muqarrar nahi kiya. Deeni amal mein Qur'an, sunnat aur apne mustanad ulema ki rehnumai lein.</div>` : ''}
     <div class="backup-note">Aane wale ahem Islami tareekhein (Hijri arithmetic hisaab se; chaand dikhne par 1 din aage-peeche ho sakta hai). ⚠️ wale din ki tareekh mein ikhtilaf ya ta'qreeb hai.</div>
     ${events.map((e,i)=> e.nights ? `<div class="hevent-card tag-${e.tag}">
       <div class="heIc">${e.ic}</div>
@@ -6283,6 +6284,7 @@ function renderIslamicEvents(){
       <div class="heHijri">${e.hijri}</div>
       <div class="heGreg">📅 ${fmtG(e.greg)}</div>
       ${e.note ? `<div class="heBadge">⚠️ ${e.note}</div>` : ''}
+      ${e.tag === 'waqia' && /^(Paidaish|Wafat)/.test(e.yr || '') ? `<div class="heLearn">ℹ️ Seekhne aur yaad rakhne ke liye, jashn ya khaas amal ke liye nahi</div>` : ''}
       <button class="he-share" data-i="${i}" title="Share karein">${SHARE_SVG}</button>
     </div>`).join('')}
   `;
