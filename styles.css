@@ -2995,3 +2995,7 @@ body.qp-on .to-top{ bottom:150px; }
 
 .kd-wnote{ margin:0 14px 12px; padding:11px 14px; border-radius:14px; background:color-mix(in srgb, var(--accent) 10%, var(--card)); border:1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); font-size:12.5px; line-height:1.55; } .kd-wnote b{ display:block; margin-bottom:3px; font-size:13px; }
 .heLearn{ margin-top:6px; font-size:11px; color:var(--sub); line-height:1.4; }
+
+.kd-aaj-nx{ margin-top:8px; padding-top:8px; border-top:1px solid var(--line); font-size:12.5px; line-height:1.5; } .kd-aaj-nx span{ font-size:10.5px; font-weight:800; color:var(--sub); text-transform:uppercase; letter-spacing:.04em; margin-right:2px; }
+/* Khaas Din cards: icon in a fixed box so every glyph sits at the same spot, centred over the share button */
+.hevent-card .heIc{ top:12px; right:10px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:26px; line-height:1; }

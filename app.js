@@ -6208,7 +6208,7 @@ function islamicEventsList(){
     { name:"Muharram-ul-Haraam ki 10 Tareekh", h:(y)=>hijriToGregorian(10,1,y), ic:"🖤", tag:"ashura" },
     { name:"Milad-un-Nabi ﷺ (12 Rabi-ul-Awwal)", h:(y)=>hijriToGregorian(12,3,y), ic:"🌹", tag:"milad" },
     { name:"Laylat-ul-Miraj (27 Rajab)", h:(y)=>hijriToGregorian(27,7,y), ic:"🌠", tag:"miraj", yr:"Safar-e-Miraj ki mash'hoor raat", note:"Tareekh mein ikhtilaf, mash'hoor riwayat 27 Rajab hai, qatai nahi" },
-    { name:"Ramzan Shuru (1 Ramzan)", h:(y)=>hijriToGregorian(1,9,y), ic:"🌛", tag:"ramzan" },
+    { name:"Ramzan Shuru (1 Ramzan)", h:(y)=>hijriToGregorian(1,9,y), ic:"🌙", tag:"ramzan" },
     { name:"Ghazwa-e-Badr (17 Ramzan)", h:(y)=>hijriToGregorian(17,9,y), ic:"⚔️", tag:"ghazwa", yr:"2 Hijri" },
     { name:"Shab-e-Qadr ka Ehtimaal", nights:[21,23,25,27,29].map(d=>({day:d, h:(y)=>hijriToGregorian(d,9,y)})), ic:"✨", tag:"qadr" },
     { name:"Jumat-ul-Vida (Ramzan ki aakhri Jumu'ah)", h:(y)=> findLastFridayInHijriMonth(9,y), ic:"🕊️", tag:"jumavida" },
@@ -6261,7 +6261,7 @@ function renderIslamicEvents(){
   const fmtG = g=> `${DOW[g.getDay()]}, ${g.getDate()} ${MON[g.getMonth()]} ${g.getFullYear()}`;
   const todayD = new Date(); todayD.setHours(0, 0, 0, 0);
   const allEv = islamicEventsList(), todayEv = allEv.filter(e=> !e.nights && e.greg.getTime() === todayD.getTime()), nextEv = allEv.find(e=> e.greg > todayD), th = gregorianToHijri(todayD);
-  const aaj = `<div class="kd-aaj"><div class="kd-aaj-d">📍 Aaj · ${th.day} ${th.monthName} ${th.year} AH · ${fmtG(todayD)}</div>${todayEv.length ? todayEv.map(e=>`<div class="kd-aaj-e">${e.ic} <b>${e.name}</b>${e.yr ? `<small>${e.yr}</small>` : ''}</div>`).join('') : `<div class="kd-aaj-n">Aaj koi darj khaas din nahi.${nextEv ? ` Agla: ${nextEv.ic} <b>${nextEv.name}</b>, ${Math.round((nextEv.greg - todayD) / 86400000)} din baad.` : ''}</div>`}</div>`;
+  const aaj = `<div class="kd-aaj"><div class="kd-aaj-d">📍 Aaj · ${th.day} ${th.monthName} ${th.year} AH · ${fmtG(todayD)}</div>${todayEv.length ? todayEv.map(e=>`<div class="kd-aaj-e">${e.ic} <b>${e.name}</b>${e.yr ? `<small>${e.yr}</small>` : ''}</div>`).join('') : `<div class="kd-aaj-n">Aaj koi darj khaas din nahi.</div>`}${nextEv ? `<div class="kd-aaj-nx"><span>Agla</span> ${nextEv.ic} <b>${nextEv.name}</b> · ${Math.round((nextEv.greg - todayD) / 86400000)} din baad</div>` : ''}</div>`;
   document.getElementById('detailBody').innerHTML = aaj + `
     <div class="chip-row he-tabs" id="heTabs">
       ${KHAAS_DIN_TABS.map(([k,l])=>`<div class="chip ${khaasDinTab===k?'active':''}" data-tab="${k}">${l}</div>`).join('')}
