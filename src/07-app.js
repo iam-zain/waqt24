@@ -120,6 +120,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='zakat') renderZakat();
     else if(which==='zariye') renderZariye();
     else if(which==='shakhsiyat') renderShakhsiyat();
+    else if(which==='fitrqurbani') renderFitrQurbani();
     else if(which==='quiz') renderMoreQuiz();
     else if(which==='ramzan') renderMoreRamzan();
     else if(which==='qibla') renderQibla();
@@ -158,7 +159,7 @@ document.getElementById('detailHome').onclick = ()=>{
   if(k){ suppressPops++; history.go(-k); }
   homeBtnSync();
 };
-['renderIbadat','renderZariye','renderShakhsiyat','renderZakat','renderKids','renderMubarak','renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
+['renderIbadat','renderZariye','renderShakhsiyat','renderFitrQurbani','renderZakat','renderKids','renderMubarak','renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
 ['openIbadatDetail','renderZariyeList','renderShakhsiyatList','openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla',].forEach(n=>navWrap(n,1));
 navWrap('renderQuranHome',0);
 navWrap('renderTajweedMenu',1);
@@ -971,6 +972,7 @@ function reloadSmooth(backToSettings){
     compass:   '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z"/>',
     ibadat:    '<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M12 8c-2 0-3 1.5-3 3.2V15h6v-3.8C15 9.5 14 8 12 8zM9 18h6"/>',
     kids:      '<rect x="4" y="11.5" width="7" height="8" rx="1.5"/><rect x="13" y="11.5" width="7" height="8" rx="1.5"/><rect x="8.5" y="4" width="7" height="6.5" rx="1.5"/>',
+    fitrqurbani:'<path d="M4 11h16a8 8 0 0 1-16 0zM8.5 7.5c0-1.4 1-1.9 1-3.3M12 7.5c0-1.4 1-1.9 1-3.3M15.5 7.5c0-1.4 1-1.9 1-3.3"/>',
     zariye:    '<rect x="3.5" y="4.5" width="17" height="12" rx="2.5"/><path d="M10.2 8.4l4.2 2.1-4.2 2.1zM8 20h8M12 16.5V20"/>',
     shakhsiyat:'<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 5.3a3 3 0 0 1 0 5.4M17.6 14.3A5.5 5.5 0 0 1 20.5 19"/>',
     zakat:     'M12 4v16M6 20h12M5 8h14M7 8l-3 6a3 3 0 0 0 6 0zM17 8l-3 6a3 3 0 0 0 6 0z',

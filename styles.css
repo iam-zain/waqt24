@@ -2871,3 +2871,19 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 
 .pal-hint{ margin:10px 8px 0; font-size:12px; line-height:1.5; color:var(--sub); }
 .pal-hint[hidden]{ display:none; }
+
+.fq-hero{ background:linear-gradient(135deg,#a3612f,#c79a2e 70%,#2d9c86 180%); }
+.fq-step{ display:flex; align-items:center; gap:4px; background:var(--card2); border-radius:12px; padding:3px; }
+.fq-step button{ width:34px; height:34px; border:0; border-radius:9px; background:var(--card); color:var(--text); font:inherit; font-size:18px; font-weight:800; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+.fq-step b{ min-width:34px; text-align:center; font-size:15px; }
+.fq-link{ display:block; width:100%; margin-top:10px; padding:11px 12px; border-radius:12px; border:1.5px solid var(--accent); background:transparent; color:var(--accentInk, var(--accent)); font:inherit; font-size:13px; font-weight:800; cursor:pointer; text-align:center; }
+.fq-chips{ display:flex; gap:8px; margin:8px 0 10px; flex-wrap:wrap; }
+.fq-chips button{ flex:1 1 96px; padding:8px 6px; border-radius:12px; border:1.5px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:13px; font-weight:800; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:1px; }
+.fq-chips button small{ font-size:10.5px; font-weight:600; color:var(--sub); }
+.fq-chips button.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, var(--card2)); }
+.fq-opt{ display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:2px 10px; padding:10px 12px; margin-top:8px; border-radius:14px; background:var(--card2); }
+.fq-opt b{ font-size:14px; } .fq-opt span{ flex:1 1 100%; font-size:12px; color:var(--sub); order:3; } .fq-opt em{ font-style:normal; font-weight:800; font-size:16px; margin-left:auto; } .fq-opt small{ flex:1 1 100%; order:4; font-size:11.5px; color:var(--sub); }
+.fq-info ul, .fq-info-ul{ margin:4px 0 0; padding-left:18px; font-size:13px; line-height:1.6; } .fq-info li, .fq-info-ul li{ margin:3px 0; }
+.fq-table{ display:flex; flex-direction:column; gap:8px; margin-bottom:8px; } .fq-table div{ padding:10px 12px; border-radius:12px; background:var(--card2); display:flex; flex-direction:column; gap:2px; } .fq-table span{ font-size:12.5px; } .fq-table small{ font-size:11.5px; color:var(--sub); }
+.zk-row.fq-row{ display:flex; flex-direction:row; align-items:center; justify-content:space-between; gap:10px; }
+.fq-row .zk-lbl{ flex:1 1 auto; min-width:0; } .fq-row .fq-step{ flex:0 0 auto; }
