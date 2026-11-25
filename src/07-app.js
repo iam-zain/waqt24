@@ -368,9 +368,20 @@ function goalTasksFor(d){
   const rnd = ()=>{ seed = (seed*1664525 + 1013904223) >>> 0; return seed/4294967296; };
   const others = GOAL_POOL.slice(1).filter(t=> t.id!=='tilawat' || d.getTime() >= GOAL_TILAWAT_FROM);
   for(let i=others.length-1; i>0; i--){ const j = Math.floor(rnd()*(i+1)); [others[i], others[j]] = [others[j], others[i]]; }
-  return [GOAL_POOL[0], ...others.slice(0,2)].map(t=>({ id:t.id, ic:t.ic, label:t.lbl, go:t.go, done:t.done(d) }));
+  const ov = (state.goalOver || {})[k] || [];
+  return [GOAL_POOL[0], ...others.slice(0,2)].map((t0, i)=>{ const t = (ov[i] && GOAL_POOL.find(x=> x.id === ov[i])) || t0; return t; }).map(t=>({ id:t.id, ic:t.ic, label:t.lbl, go:t.go, done:t.done(d) }));
 }
 function goalTasks(){ return goalTasksFor(new Date()); }
+/* Change one task of today's goal (no limit) */
+function swapGoalTask(i){
+  const d = new Date(), k = dayKey(d), cur = goalTasksFor(d).map(t=> t.id);
+  const pool = GOAL_POOL.filter(t=> !cur.includes(t.id) && (t.id !== 'tilawat' || d.getTime() >= GOAL_TILAWAT_FROM));
+  if(!pool.length) return;
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  if(!state.goalOver) state.goalOver = {};
+  const arr = state.goalOver[k] || [null, null, null]; arr[i] = pick.id; state.goalOver[k] = arr;
+  saveState(); renderGoalCard();
+}
 /* How many times the goal was changed on a day (0 to GOAL_MAX_CHANGES) */
 const GOAL_MAX_CHANGES = 3;
 function goalRound(d){ return ((state.goalRound || {})[dayKey(d)]) || 0; }
@@ -423,19 +434,15 @@ function renderGoalCard(){
   el.innerHTML = `<div class="hd-card ${goalOpenCard ? 'open' : ''}">
     <button class="wk-head" id="goalHead" aria-expanded="${goalOpenCard}"><span class="wk-hi">🎯</span><span class="wk-ht">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</span><span class="wk-hc">${n}/${tasks.length}</span><b class="goal-arrow wk-car">›</b></button>
     <div class="wk-body">
-      ${tasks.map((t,i)=>`<button class="goal-item ${t.done?'done':''}" data-go="${i}"><span class="gi-check">${t.done?'✓':''}</span><span class="gi-txt">${L(t.label)}</span><b class="goal-arrow">›</b></button>`).join('')}
+      ${tasks.map((t,i)=>`<div class="goal-row"><button class="goal-item ${t.done?'done':''}" data-go="${i}"><span class="gi-check">${t.done?'✓':''}</span><span class="gi-txt">${L(t.label)}</span><b class="goal-arrow">›</b></button><button class="wk-sm" data-sw="${i}" aria-label="Badlein">${uiIcon('refresh')}</button></div>`).join('')}
       <button class="goal-item goal-daily" id="goalDailyBtn"><span class="gi-check gi-ic">${uiIcon('quran')}</span><span class="gi-txt">${L({rur:'Aaj ki Du\'a aur Hadees', en:'Today\'s Du\'a & Hadees'})}</span><b class="goal-arrow">›</b></button>
       <div class="goal-week">${week.map(w=>`<div class="goal-day ${w.ok?'ok':''} ${w.today?'today':''}" title="${dayKey(w.d)}"><i></i><small>${['S','M','T','W','T','F','S'][w.d.getDay()]}</small></div>`).join('')}</div>
-      ${(()=>{ const left = GOAL_MAX_CHANGES - goalRound(new Date()); return left > 0
-        ? `<button class="goal-reroll" id="goalRerollBtn">${uiIcon('refresh')} ${L({rur:'Hadaf badlein', en:'Change goal'})} (${left} ${L({rur:'baaqi', en:'left'})})</button>`
-        : `<div class="goal-reroll-note">${L({rur:'Aaj ki hadaf teen dafa badal chuki hai', en:'Today’s goal has been changed 3 times'})}</div>`; })()}
       ${n===tasks.length ? `<div class="goal-win">${L({rur:'Mashallah! Aaj ka hadaf mukammal 🎉', en:'Mashallah! Today’s goal is complete 🎉'})}</div>` : ''}
     </div>
   </div>`;
   document.getElementById('goalHead').onclick = ()=>{ goalOpenCard = !goalOpenCard; renderGoalCard(); };
   el.querySelectorAll('[data-go]').forEach(btn=>{ btn.onclick = ()=> goTask(tasks[+btn.dataset.go].go); });
-  const rr = document.getElementById('goalRerollBtn');
-  if(rr) rr.onclick = changeTodayGoal;
+  el.querySelectorAll('[data-sw]').forEach(b=> b.onclick = ()=> swapGoalTask(+b.dataset.sw));
   const gd = document.getElementById('goalDailyBtn'); if(gd) gd.onclick = ()=> openOverlay(()=>renderDailyCatchup());
   if(n===tasks.length) celebrate(el);
   renderGoalMini();
