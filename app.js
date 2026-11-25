@@ -6227,6 +6227,8 @@ function islamicEventsList(){
     { name:"Jang-e-Plassey", gd:[6,23], ic:"⚔️", tag:"waqia", yr:"Jang · 23 June 1757" },
     { name:"Nawab Siraj-ud-Daulah ki shahadat", gd:[7,2], ic:"🕊️", tag:"waqia", yr:"Wafat · 2 July 1757" },
     { name:"Sultan Salahuddin Ayyubi ke haath Baitul Maqdis ki fatah", gd:[10,2], ic:"🕌", tag:"waqia", yr:"Fatah · 2 October 1187", note:"Hijri tareekh mein ikhtilaf (19/20 ya 27 Rajab 583), isliye English tareekh di gayi hai" },
+    { name:"Tipu Sultan رَحِمَهُ ٱللَّهُ ki paidaish", gd:[11,20], ic:"🌱", tag:"waqia", yr:"Paidaish · 20 November 1750", note:"Tareekh mein ikhtilaf: kuch sources mein 1 December 1751" },
+    { name:"Tipu Sultan رَحِمَهُ ٱللَّهُ ki shahadat (Srirangapatna)", gd:[5,4], ic:"🕊️", tag:"waqia", yr:"Wafat · 4 May 1799" },
     { name:"Bahadur Shah Zafar ki paidaish", gd:[10,24], ic:"🌱", tag:"waqia", yr:"Paidaish · 24 October 1775", note:"Ek hi source se tasdeeq" },
   ];
   return events.map(e=>{
