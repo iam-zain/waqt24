@@ -643,6 +643,7 @@ function applyPalette(name){
   root.setAttribute('data-tone', LIGHT_THEMES.includes(name) ? 'light' : 'dark');
   root.setAttribute('data-mode', state.theme === 'waqti' ? 'ambient' : 'fixed');
   document.querySelectorAll('#palRow .pal').forEach(b=>b.classList.toggle('active', b.dataset.k === pal));
+  { const pn = document.getElementById('palName'), cur = PALETTES.find(p=>p.k===pal); if(pn && cur) pn.textContent = '· ' + cur.n; }
   syncPalSwatch();
   requestAnimationFrame(()=>{ try{ const m = document.querySelector('meta[name=theme-color]'); if(m) m.content = getComputedStyle(root).getPropertyValue('--bg').trim() || m.content; }catch(e){} try{ applyOnAccent(); }catch(e){} syncPalSwatch(); });
 }
@@ -6218,6 +6219,15 @@ function islamicEventsList(){
     { name:"Sulah Hudaibiyah (1 Zul-Qa'dah)", h:(y)=>hijriToGregorian(1,11,y), ic:"🤝", tag:"ghazwa", yr:"6 Hijri", note:"Rawangi ki tareekh; muahida usi mahine mein hua, din ta'qreebi hai" },
     { name:"Ghazwa-e-Khandaq (8 Zul-Qa'dah)", h:(y)=>hijriToGregorian(8,11,y), ic:"⛏️", tag:"ghazwa", yr:"5 Hijri", note:"Tareekh ta'qreebi hai; ba'z riwayat mein Shawwal" },
     { name:"Eid-ul-Azha / Baqr-Eid (10 Zul-Hijjah)", h:(y)=>hijriToGregorian(10,12,y), ic:"🐐", tag:"eid" },
+    /* Tareekhi waaqiat (Waaqiat tab). Dates were checked against published sources; entries with a note are single-source or disputed. */
+    { name:"Qustuntunia ki Fatah (Sultan Muhammad Fatih)", h:(y)=>hijriToGregorian(20,5,y), ic:"🏰", tag:"waqia", yr:"Fatah · 20 Jamadi-ul-Awwal 857 Hijri (29 May 1453)" },
+    { name:"Jang-e-Ain Jalut", h:(y)=>hijriToGregorian(25,9,y), ic:"⚔️", tag:"waqia", yr:"Jang · 658 Hijri", note:"Ek hi source se tasdeeq, ulema ya mustanad tareekhi kitaab se mila lein" },
+    { name:"Hazrat Imam Hasan رَضِيَ ٱللَّهُ عَنْهُ ki paidaish", h:(y)=>hijriToGregorian(15,9,y), ic:"🌱", tag:"waqia", yr:"Paidaish · 3 Hijri", note:"Riwayati tareekh, ek source se" },
+    { name:"Shaikh Abdul Qadir Jilani رَحِمَهُ ٱللَّهُ ki paidaish", h:(y)=>hijriToGregorian(1,9,y), ic:"🌱", tag:"waqia", yr:"Paidaish · 471 Hijri", note:"Riwayati tareekh, ek source se" },
+    { name:"Jang-e-Plassey", gd:[6,23], ic:"⚔️", tag:"waqia", yr:"Jang · 23 June 1757" },
+    { name:"Nawab Siraj-ud-Daulah ki shahadat", gd:[7,2], ic:"🕊️", tag:"waqia", yr:"Wafat · 2 July 1757" },
+    { name:"Sultan Salahuddin Ayyubi ke haath Baitul Maqdis ki fatah", gd:[10,2], ic:"🕌", tag:"waqia", yr:"Fatah · 2 October 1187", note:"Hijri tareekh mein ikhtilaf (19/20 ya 27 Rajab 583), isliye English tareekh di gayi hai" },
+    { name:"Bahadur Shah Zafar ki paidaish", gd:[10,24], ic:"🌱", tag:"waqia", yr:"Paidaish · 24 October 1775", note:"Ek hi source se tasdeeq" },
   ];
   return events.map(e=>{
     if(e.nights){
@@ -6228,15 +6238,16 @@ function islamicEventsList(){
       });
       return { name:e.name, nights, greg:nights[0].greg, ic:e.ic, tag:e.tag };
     }
-    const g = nextOccurrence(e.h);
+    const g = e.gd ? (()=>{ const t = new Date(); t.setHours(0,0,0,0); let x = new Date(t.getFullYear(), e.gd[0] - 1, e.gd[1]); if(x < t) x = new Date(t.getFullYear() + 1, e.gd[0] - 1, e.gd[1]); return x; })() : nextOccurrence(e.h);
     const hd = gregorianToHijri(g);
     return { name:e.name, greg:g, hijri:`${hd.day} ${hd.monthName} ${hd.year} AH`, ic:e.ic, tag:e.tag, yr:e.yr, note:e.note };
   }).sort((a,b)=> a.greg - b.greg);
 }
 let khaasDinTab = 'all';
-const KHAAS_DIN_TABS = [['all','Sabhi'],['eid','Eid'],['ramzan','Ramzan'],['ghazwa','Ghazwa'],['misc','Mazeed']];
+const KHAAS_DIN_TABS = [['all','Sabhi'],['eid','Eid'],['ramzan','Ramzan'],['ghazwa','Ghazwa'],['waqia','Waaqiat'],['misc','Mazeed']];
 function eventInTab(e, tab){
-  if(tab==='all') return true;
+  if(tab==='all') return e.tag !== 'waqia';
+  if(tab==='waqia') return e.tag === 'waqia';
   if(tab==='eid') return e.tag==='eid';
   if(tab==='ramzan') return ['ramzan','qadr','jumavida'].includes(e.tag) || (e.tag==='ghazwa' && /Ramzan/.test(e.name));
   if(tab==='ghazwa') return e.tag==='ghazwa';
@@ -6246,7 +6257,10 @@ function renderIslamicEvents(){
   document.getElementById('detailTitle').textContent = 'Khaas Din';
   const events = islamicEventsList().filter(e=> eventInTab(e, khaasDinTab));
   const fmtG = g=> `${DOW[g.getDay()]}, ${g.getDate()} ${MON[g.getMonth()]} ${g.getFullYear()}`;
-  document.getElementById('detailBody').innerHTML = `
+  const todayD = new Date(); todayD.setHours(0, 0, 0, 0);
+  const allEv = islamicEventsList(), todayEv = allEv.filter(e=> !e.nights && e.greg.getTime() === todayD.getTime()), nextEv = allEv.find(e=> e.greg > todayD), th = gregorianToHijri(todayD);
+  const aaj = `<div class="kd-aaj"><div class="kd-aaj-d">📍 Aaj · ${th.day} ${th.monthName} ${th.year} AH · ${fmtG(todayD)}</div>${todayEv.length ? todayEv.map(e=>`<div class="kd-aaj-e">${e.ic} <b>${e.name}</b>${e.yr ? `<small>${e.yr}</small>` : ''}</div>`).join('') : `<div class="kd-aaj-n">Aaj koi darj khaas din nahi.${nextEv ? ` Agla: ${nextEv.ic} <b>${nextEv.name}</b>, ${Math.round((nextEv.greg - todayD) / 86400000)} din baad.` : ''}</div>`}</div>`;
+  document.getElementById('detailBody').innerHTML = aaj + `
     <div class="chip-row he-tabs" id="heTabs">
       ${KHAAS_DIN_TABS.map(([k,l])=>`<div class="chip ${khaasDinTab===k?'active':''}" data-tab="${k}">${l}</div>`).join('')}
     </div>

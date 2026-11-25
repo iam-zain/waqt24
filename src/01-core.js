@@ -642,6 +642,7 @@ function applyPalette(name){
   root.setAttribute('data-tone', LIGHT_THEMES.includes(name) ? 'light' : 'dark');
   root.setAttribute('data-mode', state.theme === 'waqti' ? 'ambient' : 'fixed');
   document.querySelectorAll('#palRow .pal').forEach(b=>b.classList.toggle('active', b.dataset.k === pal));
+  { const pn = document.getElementById('palName'), cur = PALETTES.find(p=>p.k===pal); if(pn && cur) pn.textContent = '· ' + cur.n; }
   syncPalSwatch();
   requestAnimationFrame(()=>{ try{ const m = document.querySelector('meta[name=theme-color]'); if(m) m.content = getComputedStyle(root).getPropertyValue('--bg').trim() || m.content; }catch(e){} try{ applyOnAccent(); }catch(e){} syncPalSwatch(); });
 }

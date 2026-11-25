@@ -2984,3 +2984,11 @@ body.qp-on .to-top{ bottom:150px; }
 .shk-tl-item::before{ content:''; position:absolute; left:-23px; top:6px; width:12px; height:12px; border-radius:50%; background:var(--zc, var(--accent)); border:2px solid var(--bg); box-shadow:0 0 0 1px var(--line); }
 .shk-tl-yr{ display:inline-block; margin:0 0 4px 2px; font-size:11px; font-weight:800; color:var(--zc, var(--accent)); }
 .shk-tl .shk-card{ margin:0; }
+
+/* Khaas Din: today banner + single scrollable tab row */
+.kd-aaj{ margin:0 14px 12px; padding:11px 14px; border-radius:16px; background:var(--card); border:1px solid var(--line); }
+.kd-aaj-d{ font-size:12px; font-weight:800; color:var(--sub); } .kd-aaj-e{ margin-top:6px; font-size:13.5px; display:flex; gap:6px; align-items:baseline; flex-wrap:wrap; } .kd-aaj-e small{ font-size:11px; color:var(--sub); }
+.kd-aaj-n{ margin-top:6px; font-size:12.5px; color:var(--text); line-height:1.5; }
+#heTabs{ flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; } #heTabs::-webkit-scrollbar{ display:none; } #heTabs .chip{ flex:0 0 auto; }
+
+.pal-name{ margin-left:2px; color:var(--accentInk, var(--accent)); font-weight:800; }
