@@ -605,16 +605,17 @@ function applyTheme(){
 /* ---- Colour palettes (accent + tinted surfaces). Styles live in styles.css; this only picks one. ---- */
 const PALETTES = [
   { k:'ocean',   n:'Samundar', sw:['#2cb5c9','#0f242b'] },
-  { k:'default', n:'Original', sw:['#3a9bd9','#16202f'] },
   { k:'violet',  n:'Binafsha', sw:['#9b82e8','#1b1530'] },
   { k:'emerald', n:'Zumurrud', sw:['#3fb97a','#12211b'] },
   { k:'rose',    n:'Gulaab',   sw:['#e0698d','#25151d'] },
-  { k:'gold',    n:'Sunehri',  sw:['#d4a72c','#201a10'] },
-  { k:'graphite',n:'Raakh',    sw:['#b8bfcc','#1b1b1b'] },
-  { k:'orange',  n:'Narangi',  sw:['#ee8a3a','#25170d'] },
   { k:'crimson', n:'Laal',     sw:['#d9534f','#251211'] },
-  { k:'olive',   n:'Zaitooni', sw:['#9aa83c','#1b1e0e'] }
+  { k:'orange',  n:'Narangi',  sw:['#ee8a3a','#25170d'] },
+  { k:'gold',    n:'Sunehri',  sw:['#d4a72c','#201a10'] },
+  { k:'olive',   n:'Zaitooni', sw:['#9aa83c','#1b1e0e'] },
+  { k:'graphite',n:'Raakh',    sw:['#b8bfcc','#1b1b1b'] }
 ];
+/* the old blue "Original" swatch was removed: anyone still on it moves to Samundar */
+try{ if(state.palette === 'default'){ state.palette = 'ocean'; saveState(); } }catch(e){}
 /* Samundar is now the default colour: move everyone who was still on the old default once (they can pick Original again) */
 try{ if(!state.palMig){ state.palMig = 1; if(!state.palette || state.palette === 'default') state.palette = 'ocean'; saveState(); } }catch(e){}
 const LIGHT_THEMES = ['light','waqt-morning','waqt-bright','waqt-dim'];
@@ -628,7 +629,7 @@ function applyOnAccent(){
 /* In Waqti mode the Original colour follows the prayer time (Zuhr gold, Asr brown, Maghrib orange): show that live colour on the swatch and say so */
 function syncPalSwatch(){
   try{
-    const ORIG_SW = PALETTES.find(p=>p.k==='default').sw[0];
+    const ORIG_SW = '#3a9bd9';
     const root = document.documentElement, sw = document.querySelector('#palRow .pal[data-k="default"]'), hint = document.getElementById('palHint');
     const live = state.theme === 'waqti' && !root.getAttribute('data-palette');
     if(sw) sw.style.setProperty('--sw', live ? (getComputedStyle(root).getPropertyValue('--accent').trim() || ORIG_SW) : ORIG_SW);
