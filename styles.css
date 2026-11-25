@@ -2901,3 +2901,5 @@ body.calm .dua-scene svg, .dua-scene.same svg{ animation:none; }
 .wk-btns{ display:flex; gap:8px; margin-top:10px; } .wk-btns button{ flex:1; padding:10px; border-radius:12px; border:1.5px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:13px; font-weight:800; cursor:pointer; } .wk-btns .wk-pri{ background:var(--accent); border-color:var(--accent); color:#fff; }
 .wk-types{ display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; } .wk-types button{ flex:1 1 70px; padding:8px 6px; border-radius:11px; border:1.5px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:12.5px; font-weight:800; cursor:pointer; } .wk-types button.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, var(--card2)); }
 .wk-in{ width:100%; margin-top:10px; padding:11px 12px; border-radius:12px; border:1.5px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:13px; box-sizing:border-box; }
+
+.zk-seg.zk-top{ margin:0 14px 12px; } .zk-seg.zk-top button{ flex:1; }

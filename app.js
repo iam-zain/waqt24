@@ -11285,7 +11285,7 @@ function zkHawlRefDate(){
   for(let i = 0; i < 60; i++){ const e = zkHawlEnd(d); if(e <= t){ last = e; d = e; } else break; }
   return zkISO(last > t ? t : last);
 }
-function renderZakat(keep){
+function renderZakatCalc(keep){
   if(!keep){ zkLogOpen = false; zkOpenRec = ''; }
   const z = zkState(), f = z.f;
   document.getElementById('detailTitle').textContent = L({ rur:'Zakat Calculator', en:'Zakat Calculator' });
@@ -11734,6 +11734,20 @@ function zakatReminders(day){
 
 function zkShareCard(cfg){
   openCardShareChooser(Object.assign({ scene:(window.sceneByKey ? sceneByKey('coins') : ''), foot:'Waqt24 · Zakat Calculator' }, cfg));
+}
+
+/* One screen, three tabs: Zakat | Fitrah | Qurbani */
+function zkTopBar(){
+  const t = (state.zkTab === 'fitr' || state.zkTab === 'qurbani') ? state.zkTab : 'zakat';
+  return `<div class="zk-seg zk-top" id="zkTop"><button data-t="zakat" class="${t === 'zakat' ? 'on' : ''}">🌙 Zakat</button><button data-t="fitr" class="${t === 'fitr' ? 'on' : ''}">🌾 Fitrah</button><button data-t="qurbani" class="${t === 'qurbani' ? 'on' : ''}">🐑 Qurbani</button></div>`;
+}
+function renderZakat(keep){
+  if(state.zkTab === 'fitr' || state.zkTab === 'qurbani') renderFitrQurbani();
+  else renderZakatCalc(keep);
+  const body = document.getElementById('detailBody'), hero = body.querySelector('.zk-hero');
+  if(hero) hero.insertAdjacentHTML('afterend', zkTopBar());
+  document.getElementById('detailTitle').textContent = 'Zakat, Fitrah aur Qurbani';
+  body.querySelectorAll('#zkTop button').forEach(b=> b.onclick = ()=>{ state.zkTab = b.dataset.t; saveState(); renderZakat(); body.parentElement && (body.scrollTop = 0); });
 }
 /* ============================================================
    BOOKMARK FOLDERS: group Pasandeeda items into folders (state.bmFolders = [{id,name,ic}], state.bmMap = { bookmarkKey: folderId }).
@@ -12586,7 +12600,7 @@ const FQ_ANIMALS = [['Bakra / Bhed / Dumba', '1 saal ya zyada (bhed 6 mahine ki 
 
 function fqState(){
   const f = state.fq = (state.fq && typeof state.fq === 'object') ? state.fq : {};
-  if(f.tab !== 'qurbani') f.tab = 'fitr';
+  f.tab = state.zkTab === 'qurbani' ? 'qurbani' : 'fitr';
   if(f.me == null) f.me = 1; if(f.kids == null) f.kids = 0; if(f.other == null) f.other = 0; if(f.people == null) f.people = 1;
   if(!FQ_ITEMS.some(x=> x[0] === f.item)) f.item = 'wheat';
   if(!(parseFloat(f.kg) > 0)) f.kg = 1.633;
@@ -12605,14 +12619,11 @@ const fqDateStr = g => g ? g.toLocaleDateString('en-IN', { weekday:'short', day:
 
 function renderFitrQurbani(){
   const f = fqState();
-  document.getElementById('detailTitle').textContent = 'Fitrah aur Qurbani';
-  document.getElementById('detailBody').innerHTML = `
+    document.getElementById('detailBody').innerHTML = `
     <div class="zk-hero fq-hero"><div class="zk-hero-ic">🐑</div><div><div class="zk-hero-t">Fitrah aur Qurbani</div><div class="zk-hero-s">Hanafi fiqh ke mutabiq · Eid ke do hisaab</div></div></div>
-    <div class="zk-seg fq-seg" id="fqTabs" style="margin:0 14px 12px;"><button data-t="fitr" class="${f.tab === 'fitr' ? 'on' : ''}">🌾 Sadaqa-e-Fitr</button><button data-t="qurbani" class="${f.tab === 'qurbani' ? 'on' : ''}">🐑 Qurbani</button></div>
     <div id="fqBody"></div>
     <div class="backup-note">Ye hisaab Hanafi fiqh ki aam maloomat par mabni hai. Wazan aur rakam ke baare mein apne masjid ke imam ya mufti ke elaan ko dekh lein. Ye mashwara nahi, sirf madad hai.</div>
     <div class="tab-end"></div>`;
-  document.querySelectorAll('#fqTabs button').forEach(b=> b.onclick = ()=>{ f.tab = b.dataset.t; saveState(); renderFitrQurbani(); });
   f.tab === 'fitr' ? fqDrawFitr() : fqDrawQurbani();
 }
 
@@ -12628,9 +12639,9 @@ function fqWireSteppers(redraw){
   });
 }
 function fqNisabBtn(){
-  return `<button type="button" class="fq-link" id="fqNisab">📏 Nisab kitna hai? Zakat Calculator mein dekhein</button>`;
+  return `<button type="button" class="fq-link" id="fqNisab">📏 Nisab kitna hai? Zakat tab mein dekhein</button>`;
 }
-function fqWireNisab(){ const b = document.getElementById('fqNisab'); if(b) b.onclick = ()=>{ try{ renderZakat(); }catch(e){ showToast('Zakat Calculator Deegar tab mein hai'); } }; }
+function fqWireNisab(){ const b = document.getElementById('fqNisab'); if(b) b.onclick = ()=>{ state.zkTab = 'zakat'; saveState(); renderZakat(); }; }
 
 /* ---------- Sadaqa-e-Fitr ---------- */
 function fqFitrCalc(){
@@ -12656,15 +12667,15 @@ function fqDrawFitr(){
   document.getElementById('fqBody').innerHTML = `
     <div class="zk-card">
       <div class="zk-h"><span>1</span> Kin logon ki taraf se?</div>
-      ${fqStepper('me', '🧑', 'Aap khud', 'Sahib-e-nisab par wajib', f.me)}
-      ${fqStepper('kids', '👶', 'Naabaalig bachche', 'Baap par unki taraf se wajib', f.kids)}
-      ${fqStepper('other', '👪', 'Doosre (apni khushi se)', 'Jaise biwi ya walidain, agar aap dena chahein', f.other)}
+      ${fqStepper('me', '👤', 'Aap khud', 'Sahib-e-nisab par wajib', f.me)}
+      ${fqStepper('kids', '🧸', 'Naabaalig bachche', 'Baap par unki taraf se wajib', f.kids)}
+      ${fqStepper('other', '🏠', 'Doosre (apni khushi se)', 'Jaise biwi ya walidain, agar aap dena chahein', f.other)}
       <div class="zk-note">Biwi aur baaligh bachche agar sahib-e-nisab hain to wo apna fitrah khud denge.</div>
       ${fqNisabBtn()}
     </div>
     <div class="zk-card">
       <div class="zk-h"><span>2</span> Kya dena hai aur kitna?</div>
-      <select class="zk-sel" id="fqItem">${FQ_ITEMS.map(x=>`<option value="${x[0]}" ${f.item === x[0] ? 'selected' : ''}>${x[1]} (${x[3].split(' (')[0]})</option>`).join('')}</select>
+      <select class="zk-sel" id="fqItem">${FQ_ITEMS.map(x=>`<option value="${x[0]}" ${f.item === x[0] ? 'selected' : ''}>${x[1]}</option>`).join('')}</select>
       <div class="zk-note" style="margin-top:8px;">Gehun ka aadha saa’ kitne kg hai, is par raayein thodi alag hain. Apne masjid ya mufti ka elaan ho to wohi likhein.</div>
       <div class="fq-chips" id="fqKgChips">${FQ_WHEAT_KG.map(([v, n])=>`<button type="button" data-v="${v}" class="${Math.abs(fqNum(f.kg) - v) < 0.001 ? 'on' : ''}">${v} kg<small>${n}</small></button>`).join('')}</div>
       <div class="zk-row"><div class="zk-lbl"><span>⚖️</span><div><b>Gehun (aadha saa’) kg mein</b><small>Jau, khajoor, kishmish ke liye iska doguna</small></div></div><div class="zk-field"><input class="zk-in" inputmode="decimal" id="fqKg" value="${f.kg}" style="padding-left:12px;"></div></div>

@@ -131,7 +131,7 @@ function zkHawlRefDate(){
   for(let i = 0; i < 60; i++){ const e = zkHawlEnd(d); if(e <= t){ last = e; d = e; } else break; }
   return zkISO(last > t ? t : last);
 }
-function renderZakat(keep){
+function renderZakatCalc(keep){
   if(!keep){ zkLogOpen = false; zkOpenRec = ''; }
   const z = zkState(), f = z.f;
   document.getElementById('detailTitle').textContent = L({ rur:'Zakat Calculator', en:'Zakat Calculator' });
@@ -580,4 +580,18 @@ function zakatReminders(day){
 
 function zkShareCard(cfg){
   openCardShareChooser(Object.assign({ scene:(window.sceneByKey ? sceneByKey('coins') : ''), foot:'Waqt24 · Zakat Calculator' }, cfg));
+}
+
+/* One screen, three tabs: Zakat | Fitrah | Qurbani */
+function zkTopBar(){
+  const t = (state.zkTab === 'fitr' || state.zkTab === 'qurbani') ? state.zkTab : 'zakat';
+  return `<div class="zk-seg zk-top" id="zkTop"><button data-t="zakat" class="${t === 'zakat' ? 'on' : ''}">🌙 Zakat</button><button data-t="fitr" class="${t === 'fitr' ? 'on' : ''}">🌾 Fitrah</button><button data-t="qurbani" class="${t === 'qurbani' ? 'on' : ''}">🐑 Qurbani</button></div>`;
+}
+function renderZakat(keep){
+  if(state.zkTab === 'fitr' || state.zkTab === 'qurbani') renderFitrQurbani();
+  else renderZakatCalc(keep);
+  const body = document.getElementById('detailBody'), hero = body.querySelector('.zk-hero');
+  if(hero) hero.insertAdjacentHTML('afterend', zkTopBar());
+  document.getElementById('detailTitle').textContent = 'Zakat, Fitrah aur Qurbani';
+  body.querySelectorAll('#zkTop button').forEach(b=> b.onclick = ()=>{ state.zkTab = b.dataset.t; saveState(); renderZakat(); body.parentElement && (body.scrollTop = 0); });
 }
