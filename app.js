@@ -12883,9 +12883,15 @@ function renderWeekGoal(){
     if(ov && ov.classList.contains('active')) return document.getElementById('detailBody');
     return document.querySelector('.screen.active.scrollable');
   };
-  const update = ()=>{ const s = scroller(); btn.classList.toggle('show', !!s && s.scrollTop > 320); };
+  let idle = 0;
+  const update = ()=>{
+    const s = scroller(), on = !!s && s.scrollTop > 320;
+    btn.classList.toggle('show', on);
+    clearTimeout(idle);
+    if(on) idle = setTimeout(()=> btn.classList.remove('show'), 2000); /* hide after 2 s without scrolling or touching */
+  };
   document.addEventListener('scroll', e=>{ const t = e.target; if(t && t.nodeType === 1 && (t.id === 'detailBody' || t.classList.contains('screen'))) update(); }, true);
-  document.addEventListener('click', ()=> setTimeout(update, 120), true);
+  document.addEventListener('click', e=>{ if(e.target.closest && e.target.closest('#toTopBtn')) return; setTimeout(update, 120); }, true);
   btn.onclick = e=>{ e.stopPropagation(); const s = scroller(); if(s) s.scrollTo({ top:0, behavior:'smooth' }); };
 })();
 /* ===== Salutation after the name of Allah: "Allah ﷻ" everywhere =====
