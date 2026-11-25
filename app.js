@@ -12817,7 +12817,7 @@ function renderWeekGoal(){
   const w = wkState(), n = w.items.filter(x=> x.done).length, tot = w.items.length, dayN = ((new Date().getDay() + 6) % 7) + 1;
   el.innerHTML = `<div class="hd-card wk-card ${wkOpenCard ? 'open' : ''}">
     <button class="wk-head" id="wkHead" aria-expanded="${wkOpenCard}"><span class="wk-hi">📅</span><span class="wk-ht">Haftawar Hadaf</span><span class="wk-hc">${tot ? `${n}/${tot}` : '0'}</span><b class="goal-arrow wk-car">›</b></button>
-    <div class="wk-days" title="Hafte ke din"><div class="wk-bar">${[1,2,3,4,5,6,7].map(i=>`<i class="${i < dayN ? 'past' : i === dayN ? 'now' : ''}"></i>`).join('')}</div><small>Din ${dayN}/7</small></div>
+    <div class="wk-days" title="Hafte ke din"><div class="wk-bar"><span style="width:${Math.round(dayN / 7 * 100)}%"></span></div><small>Din ${dayN}/7</small></div>
     <div class="wk-body">
     ${tot ? w.items.map((x, i)=>{ const l = wkLabel(x), m = WK_TYPES[x.t]; return `<div class="wk-item goal-item ${x.done ? 'done' : ''}" data-i="${i}">
       <button class="gi-check wk-chk" data-a="tick" aria-label="Mukammal">${x.done ? '✓' : ''}</button>

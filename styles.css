@@ -2959,3 +2959,7 @@ html[data-palette="olive"][data-tone="dark"]{ --accent:#9aa83c; --fard:#9aa83c; 
 html[data-palette="olive"][data-tone="light"]{ --accent:#6f7c1f; --fard:#6f7c1f; --accentInk:#566114; --fardText:#ffffff; }
 html[data-palette="olive"][data-tone="dark"][data-mode="fixed"]{ --bg:#10120a; --bg2:#161910; --card:#1b1e0e; --card2:#232714; --line:#313620; --tabbar:#0c0e07; --meterBg:#232714; }
 html[data-palette="olive"][data-tone="light"][data-mode="fixed"]{ --bg:#f7f8ee; --bg2:#ffffff; --card:#ffffff; --card2:#eceed8; --line:#dde0bd; --tabbar:#ffffff; --meterBg:#eceed8; }
+
+.wk-bar{ display:block; flex:1; height:6px; border-radius:3px; overflow:hidden; background:color-mix(in srgb, var(--accent) 14%, transparent); }
+.wk-bar span{ display:block; height:100%; border-radius:3px; background:var(--accent); transition:width .3s ease; }
+.wk-bar i{ display:none; }
