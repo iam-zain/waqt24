@@ -443,6 +443,7 @@ function renderGoalCard(){
   const gd = document.getElementById('goalDailyBtn'); if(gd) gd.onclick = ()=> openOverlay(()=>renderDailyCatchup());
   if(n===tasks.length) celebrate(el);
   renderGoalMini();
+  try{ renderWeekGoal(); }catch(e){}
 }
 /* Confetti once per day, when the daily goal is first completed */
 function celebrate(el){

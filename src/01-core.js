@@ -491,7 +491,7 @@ const MIGRATIONS = {
     return s;
   }
 };
-const STATE_SHAPE = { status:'o', roza:'o', tarabih:'o', wordStatus:'o', wordCorrect:'o', learnDays:'o', notif:'o', tasbeeh:'o', location:'o', adjust:'o', quizLog:'a', bookmarks:'a', notes:'a', bmFolders:'a', bmMap:'o', zakatLog:'a', zariyeSeen:'o', fq:'o' };
+const STATE_SHAPE = { status:'o', roza:'o', tarabih:'o', wordStatus:'o', wordCorrect:'o', learnDays:'o', notif:'o', tasbeeh:'o', location:'o', adjust:'o', quizLog:'a', bookmarks:'a', notes:'a', bmFolders:'a', bmMap:'o', zakatLog:'a', zariyeSeen:'o', fq:'o', wk:'o' };
 /* Returns a clean, current-version copy of any saved/imported state object (never throws). */
 function migrateState(raw){
   let s = (raw && typeof raw==='object' && !Array.isArray(raw)) ? Object.assign({}, raw) : {};
