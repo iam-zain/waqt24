@@ -68,13 +68,15 @@ setTimeout(()=>{ renderDailyCard(); }, 30100); // the card first appears 30 seco
    Aaj ki Du'a aur Hadees as a screen: reachable from Rozana Hadaf in Deegar, so it can be read later even after
    the card on Maskan was closed for the day. Opening it counts as reading a dua / hadith.
    ============================================================ */
+let dcuTab = 'dua';
 function renderDailyCatchup(){
   const en = isEn();
   document.getElementById('detailTitle').textContent = L({rur:'Aaj ki Du\'a aur Hadees', en:'Today\'s Du\'a & Hadees'});
   const d = dailyPick('dua'), h = dailyPick('hadees'), dk = d.title, hk = hadeesKey(h), ds = duaStatus(dk), hs = duaStatus(hk);
   const stRow = (id, st)=>`<div class="aad-status-row"><button type="button" class="aad-status-btn soch ${st === 'soch' ? 'on' : ''}" id="${id}Soch">⏳ Yaad karna baaqi hai</button><button type="button" class="aad-status-btn amal ${st === 'amal' ? 'on' : ''}" id="${id}Amal">✅ Yaad ho chuka hai</button></div>`;
   document.getElementById('detailBody').innerHTML = `
-    <div class="dcu-sec"><div class="dcu-h">🤲 ${L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'})}</div>
+    <div class="zk-seg dcu-tabs" id="dcuTabs"><button data-t="dua">🤲 ${L({rur:'Du\'a', en:'Du\'a'})}</button><button data-t="hadees">📜 ${L({rur:'Hadees', en:'Hadees'})}</button></div>
+    <div class="dcu-sec" data-t="dua"><div class="dcu-h">🤲 ${L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'})}</div>
       <div class="dcu-t">${en && d.ent ? d.ent : d.title}</div>
       <div class="arabic" dir="rtl">${d.arabic}</div>
       <div class="translit">${d.translit}</div>
@@ -82,11 +84,14 @@ function renderDailyCatchup(){
       <div class="dc-ref">${d.ref || ''}</div>
       ${stRow('dcuDua', ds)}
       <div class="dcu-btns"><button type="button" id="dcuMoreDua">🔄 ${L({rur:'Doosri', en:'Another'})}</button><button type="button" id="dcuShareDua">📤 ${L({rur:'Share', en:'Share'})}</button></div></div>
-    <div class="dcu-sec"><div class="dcu-h">📜 ${L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'})}</div>
+    <div class="dcu-sec" data-t="hadees"><div class="dcu-h">📜 ${L({rur:'Aaj ki Hadees', en:'Today\'s Hadees'})}</div>
       <div class="meaning dcu-hd">${en && h.en ? h.en : h.txt}</div>
       <div class="dc-ref">${h.src}</div>
       ${stRow('dcuHad', hs)}
       <div class="dcu-btns"><button type="button" id="dcuMoreHad">🔄 ${L({rur:'Doosri', en:'Another'})}</button><button type="button" id="dcuShareHad">📤 ${L({rur:'Share', en:'Share'})}</button></div></div>`;
+  const dcuShow = ()=>{ document.querySelectorAll('#dcuTabs button').forEach(b=> b.classList.toggle('on', b.dataset.t === dcuTab)); document.querySelectorAll('.dcu-sec[data-t]').forEach(x=> x.style.display = x.dataset.t === dcuTab ? '' : 'none'); };
+  document.querySelectorAll('#dcuTabs button').forEach(b=> b.onclick = ()=>{ dcuTab = b.dataset.t; dcuShow(); document.getElementById('detailBody').scrollTop = 0; });
+  dcuShow();
   document.getElementById('dcuMoreDua').onclick = ()=>{ dailyShift.dua++; dailyDrawnKey = ''; renderDailyCard(); renderDailyCatchup(); };
   document.getElementById('dcuMoreHad').onclick = ()=>{ dailyShift.hadees++; dailyDrawnKey = ''; renderDailyCard(); renderDailyCatchup(); };
   document.getElementById('dcuShareDua').onclick = ()=> openCardShareChooser({ scene:duaSceneSvg(d), kind:L({rur:'Aaj ki Du\'a', en:'Today\'s Du\'a'}), arabic:d.arabic, title:en && d.ent ? d.ent : d.title, sub:d.translit, body:en && d.enm ? d.enm : d.meaning, foot:(d.ref || '') + ' · Waqt24' });
