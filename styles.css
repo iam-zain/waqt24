@@ -2969,7 +2969,7 @@ html[data-palette="olive"][data-tone="light"][data-mode="fixed"]{ --bg:#f7f8ee; 
 .goal-row{ display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--line); } .goal-row .goal-item{ flex:1; border-bottom:0; min-width:0; }
 
 .dcu-tabs{ margin:0 0 12px; } .dcu-tabs button{ flex:1; }
-.to-top{ position:fixed; right:14px; bottom:86px; width:42px; height:42px; border-radius:50%; border:3px solid color-mix(in srgb, var(--accent) 28%, var(--card)); background:var(--accent); color:var(--fardText, #fff); display:flex; align-items:center; justify-content:center; padding:0; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.22); opacity:0; transform:translateY(10px) scale(.9); pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:60; }
+.to-top{ position:absolute; right:14px; bottom:86px; width:42px; height:42px; border-radius:50%; border:3px solid color-mix(in srgb, var(--accent) 28%, var(--card)); background:var(--accent); color:var(--fardText, #fff); display:flex; align-items:center; justify-content:center; padding:0; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.22); opacity:0; transform:translateY(10px) scale(.9); pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:60; }
 .to-top.show{ opacity:1; transform:none; pointer-events:auto; }
 .to-top svg{ width:22px; height:22px; fill:currentColor; }
 body.qp-on .to-top{ bottom:150px; }
