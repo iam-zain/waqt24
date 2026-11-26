@@ -1222,7 +1222,7 @@ function renderMoreSettings(){
       <div style="font-size:13px; line-height:1.8; color:var(--sub); padding-bottom:10px;">
         Fajr Angle: 18 darja &nbsp;|&nbsp; Isha Angle: 17 darja<br>
         Asr Hisaab: ${state.asrMethod==='shafi' ? "Shafi'i" : 'Hanafi'} · Hijri: ${hijriOffset()>0?'+':''}${hijriOffset()} din<br>
-        <span style="color:var(--text)">Settings › Namaz ka Hisaab</span> mein badal sakte hain.
+        <span style="color:var(--text)">${L({rur:'Settings › Namaz ka Hisaab', en:'Settings › Prayer Calculation'})}</span> ${L({rur:'mein badal sakte hain.', en:'to change these.'})}
       </div>
     `;
     setupLocationPane();

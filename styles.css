@@ -3060,3 +3060,34 @@ body.qp-on .to-top{ bottom:150px; }
 .az-xn{ font-size:.55em; color:var(--sub); font-weight:700; white-space:nowrap; }
 .az-sync .az-sr{ transition:background .25s, border-color .25s, transform .25s; } .az-sync .az-sr.now{ background:color-mix(in srgb, var(--accent) 18%, var(--card)); border-color:var(--accent); transform:scale(1.015); }
 #azSyncPlay{ margin:0 0 10px; }
+
+/* ===== Uniform controls (one size/shape per kind of button, in every screen) ===== */
+/* small icon actions: share, bookmark, note */
+.act-btn, .bm-btn, .nt-btn.nt-ico, .detail-actions .act-btn, .detail-actions .bm-btn{ width:32px; height:32px; min-width:32px; padding:0; border-radius:10px; font-size:15px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; }
+.act-btn svg, .bm-btn svg, .detail-actions .act-btn svg, .detail-actions .bm-btn svg{ width:16px; height:16px; }
+.nt-btn.nt-ico{ margin-left:0; }
+/* header icon buttons never squeeze */
+#detailBack, .detail-home, .detail-rang, .detail-top button{ flex:0 0 auto; min-width:34px; }
+/* wide primary buttons */
+.backup-btn, .masjid-btn, .asma-listen, .qz-btn, .note-add{ min-height:44px; border-radius:12px; font-size:14px; font-weight:700; box-sizing:border-box; }
+/* chips and pills */
+.chip, .zr-lang{ border-radius:999px; min-height:32px; box-sizing:border-box; }
+/* Grid / List switch */
+.view-toggle button{ min-height:32px; border-radius:10px; font-weight:600; }
+.view-toggle button.active{ color:var(--fardText,#fff); }
+
+/* ===== Motion polish: light, consistent, GPU-friendly (only transform/opacity) ===== */
+:root{ --ease-out:cubic-bezier(.2,.8,.2,1); --ease-spring:cubic-bezier(.34,1.4,.64,1); }
+button, .more-item, .aad-card, .hadees-item, .dua-card, .name-tile, .hec, .hec-top, .wk-head, .chip, .zr-lang, .kp-chip, .backup-btn, .act-btn, .bm-btn, .nt-btn{ -webkit-tap-highlight-color:transparent; transition:transform .16s var(--ease-out), background-color .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease, opacity .2s ease; }
+@media (hover:hover){ .more-item:hover, .aad-card:hover, .hadees-item:hover, .dua-card:hover, .name-tile:hover{ transform:translateY(-1px); } }
+button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:active, .dua-card:active, .name-tile:active, .hec-top:active, .wk-head:active{ transform:scale(.97); }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:inherit; }
+/* collapsible bodies open smoothly instead of popping */
+.hd-card .wk-body, .hec-body{ animation:dcGrow .24s var(--ease-out) both; transform-origin:top; }
+/* segmented tabs: the panel fades in when the tab changes */
+.az-sec, .fq-pane, .zk-pane{ animation:tbFade .22s ease both; }
+@media (prefers-reduced-motion:reduce){
+  *, *::before, *::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
+}
+/* very narrow phones (320px): the date and the bulk buttons share the row without spilling out */
+@media (max-width:360px){ .bulkCol{ min-width:0; } .bulkBtns{ flex-wrap:nowrap; gap:3px; } .bulk-btn{ transform-origin:center; } .controlCol{ min-width:0; } .bulkLabel{ font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } }

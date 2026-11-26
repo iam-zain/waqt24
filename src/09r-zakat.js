@@ -287,7 +287,7 @@ function renderZakatCalc(keep){
     const d0 = new Date(zz.nisabDate + 'T00:00:00'), end = zkHawlEnd(d0), days = Math.ceil((end - new Date()) / 86400000);
     el.innerHTML = `<div><small>🌱 Maalik-e-Nisaab bane</small><b>${zkHijri(d0)}</b><span>${zkGreg(d0)}</span></div>
       <div><small>🗓️ Zakat farz hogi (1 saal baad)</small><b>${zkHijri(end)}</b><span>${zkGreg(end)}</span></div>
-      <p>${days > 0 ? `Abhi ${days} din baaqi hain. Is se pehle Zakat farz nahi.` : `Saal poora ho chuka hai. Aaj ke maal ka hisaab karke Zakat ada kar dein.`}</p>`;
+      <p>${days > 0 ? L({rur:`Abhi ${days} din baaqi hain. Is se pehle Zakat farz nahi.`, en:`${days} days still left. Zakat is not due before then.`}) : L({rur:`Saal poora ho chuka hai. Aaj ke maal ka hisaab karke Zakat ada kar dein.`, en:`The year is complete. Calculate today's wealth and pay your Zakat.`})}</p>`;
   };
   document.querySelectorAll('#detailBody [data-k]').forEach(el=>{
     const h = ()=>{
