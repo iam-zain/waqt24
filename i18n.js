@@ -867,3 +867,5 @@ I18N_PATTERNS.push(
 );
 
 Object.assign(I18N_EN, { "Khawateen":"Women" });
+
+Object.assign(I18N_EN, { "Samaaj":"Society", "Jannat":"Paradise", "Parivaar":"Family" });

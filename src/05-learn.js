@@ -127,7 +127,7 @@ function openAadaabDetail(t0){
 
 function renderMoreHadees(){
   document.getElementById('detailTitle').textContent="Hadees";
-  const cats = [...new Set(HADEES.map(h=>h.cat))].sort((a,b)=>a.localeCompare(b));
+  const cats = [...new Set(HADEES.flatMap(hadeesCats))].sort((a,b)=>a.localeCompare(b));
   const body = document.getElementById('detailBody');
   body.innerHTML = `
     <div style="text-align:center; padding:10px 14px 6px;">
@@ -149,7 +149,7 @@ function renderMoreHadees(){
   allChip.onclick = ()=>{ hadeesFilter='All'; renderMoreHadees(); };
   catsEl.appendChild(allChip);
   cats.forEach(c=>{
-    const count = HADEES.filter(h=>h.cat===c).length;
+    const count = HADEES.filter(h=>hadeesCats(h).includes(c)).length;
     const chip = document.createElement('div');
     chip.className = 'chip' + (hadeesFilter===c ? ' prayed' : '');
     chip.textContent = `${hadeesMeta(c)[0]} ${c} (${count})`;
@@ -161,7 +161,7 @@ function renderMoreHadees(){
 function renderHadeesList(){
   const wrap = document.getElementById('hList');
   const q = hadeesSearch.trim().toLowerCase();
-  const items = HADEES.filter(h=> (hadeesFilter==='All'||h.cat===hadeesFilter) && (h.txt+' '+h.src+' '+h.cat).toLowerCase().includes(q)).sort((a,b)=>a.txt.localeCompare(b.txt));
+  const items = HADEES.filter(h=> (hadeesFilter==='All'||hadeesCats(h).includes(hadeesFilter)) && (h.txt+' '+h.src+' '+hadeesCats(h).join(' ')).toLowerCase().includes(q)).sort((a,b)=>a.txt.localeCompare(b.txt));
   if(!items.length){ wrap.innerHTML = sgEmpty(hadeesSearch, HADEES.map(h=>h.txt.slice(0, 32)), 'hSearchInput', 'Koi hadees nahi mili.'); return; }
   wrap.innerHTML = items.map((h,i)=>{
     const st = duaStatus(hadeesKey(h));
@@ -170,7 +170,7 @@ function renderHadeesList(){
       <div class="aad-info">
         <div class="aad-title">${hTxt(h).length>110 ? hTxt(h).slice(0,110).trimEnd()+'...' : hTxt(h)}</div>
         <div class="aad-tags"><span class="aad-tag">${h.src}</span></div>
-        <div class="aad-cat-lbl">${h.cat}</div>
+        <div class="aad-cat-lbl">${hadeesCats(h).join(' · ')}</div>
       </div>
       ${st==='amal' ? '<div class="aad-status-badge amal">✅</div>' : st==='soch' ? '<div class="aad-status-badge soch">⏳</div>' : ''}
       <div class="chev">›</div>
@@ -194,7 +194,9 @@ async function shareText(text){
   }catch(e){ showToast('Share/Copy nahi ho saka'); }
 }
 /* Colour and icon per hadees category */
-const HADEES_CAT_META = { 'Khawateen':['🌷','#d6708f'], 'Azaan':['🔊','#2fb6b0'], 'Akhlaq':['🤝','#3f8fe0'], 'Ilm':['📚','#9b6fd6'], 'Namaz':['🕌','#2fb6b0'], 'Ramzan':['🌙','#c79a2e'], 'Sadqa':['💝','#e0893f'], 'Zikr':['📿','#2fb6b0'], 'Imaan':['💎','#5c7cfa'], 'Ibadat':['🕋','#b5832b'], 'Tauba':['💧','#4a8fd0'], 'Aadaab':['🪴','#d6708f'] };
+const HADEES_CAT_META = { 'Samaaj':['🏘️','#3f9d6b'], 'Jannat':['🌿','#2f9e6b'], 'Parivaar':['🏠','#d28a3c'], 'Khawateen':['🌷','#d6708f'], 'Azaan':['🔊','#2fb6b0'], 'Akhlaq':['🤝','#3f8fe0'], 'Ilm':['📚','#9b6fd6'], 'Namaz':['🕌','#2fb6b0'], 'Ramzan':['🌙','#c79a2e'], 'Sadqa':['💝','#e0893f'], 'Zikr':['📿','#2fb6b0'], 'Imaan':['💎','#5c7cfa'], 'Ibadat':['🕋','#b5832b'], 'Tauba':['💧','#4a8fd0'], 'Aadaab':['🪴','#d6708f'] };
+/* a hadees has one main category and may carry extra topics (h.tags), e.g. Khawateen + Samaaj */
+function hadeesCats(h){ return [h.cat, ...(h.tags||[])]; }
 function hadeesMeta(cat){ return HADEES_CAT_META[cat] || ['📜','#5c7cfa']; }
 /* Yaad status key for a hadees (hadees have no title, so the start of the text identifies it) */
 function hadeesKey(h){ return 'hadees:' + h.txt.slice(0,60); }
@@ -215,6 +217,7 @@ function openHadeesDetail(h){
       <div class="aad-head-title">${h.cat}</div>
       <div class="ref" style="margin:-4px 0 8px;">Hawala: ${h.src}</div>
       <div class="aad-cat-pill">${hadeesMeta(h.cat)[0]} Hadees</div>
+      ${(h.tags||[]).length ? `<div class="aad-pill-row" style="margin-top:8px;flex-wrap:wrap;">${h.tags.map(t=>`<span class="aad-cat-pill" style="--aad-c:${hadeesMeta(t)[1]};">${hadeesMeta(t)[0]} ${t}</span>`).join('')}</div>` : ''}
       ${qaListenBtn(h.src, 'hadeesListenBtn') ? `<div class="aad-pill-row" style="margin-top:8px;">${qaListenBtn(h.src, 'hadeesListenBtn')}</div>` : ''}
     </div>
     <div class="dua-detail">
