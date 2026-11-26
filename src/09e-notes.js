@@ -54,6 +54,14 @@ document.addEventListener('click', e=>{
   openNoteBox(ctx, noteRefresh);
 }, true);
 /* Popup. ctx: { page } | { bm, title } | { ref, title } | {} (free note). Shows the notes already attached, plus a rich editor for a new one. */
+function noteDefTint(){
+  try{
+    const e = document.createElement('i'); e.style.color = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2e8b57'; document.body.appendChild(e);
+    const m = getComputedStyle(e).color.match(/\d+(\.\d+)?/g); e.remove();
+    const h = v=> Math.round(+v * 0.2 + 255 * 0.8).toString(16).padStart(2, '0');
+    return '#' + h(m[0]) + h(m[1]) + h(m[2]);
+  }catch(_){ return '#d3f0dc'; }
+}
 function openNoteBox(ctx, onClose){
   ctx = ctx || {};
   const old = document.getElementById('noteBox'); if(old) old.remove();
@@ -61,18 +69,17 @@ function openNoteBox(ctx, onClose){
   const title = ctx.page ? '📝 ' + noteSecName({ page:ctx.page, sec:ctx.sec, ayah:ctx.ayah }).replace(/^\S+\s/, '') + (ctx.ayah ? ` · ${L({rur:'Ayat', en:'Ayah'})} ${qaSurahAyah(ctx.ayah).s}:${qaSurahAyah(ctx.ayah).a}` : '') : (ctx.bm || ctx.ref) ? `📝 ${noteEsc(ctx.title || '')}` : `📝 ${L({rur:'Mere Notes', en:'My notes'})}`;
   const w = document.createElement('div'); w.id = 'noteBox'; w.className = 'note-ov';
   const close = ()=>{ w.remove(); if(onClose) onClose(); };
-  let editId = null, tint = '';
+  const defT = noteDefTint(); let editId = null, tint = defT;
   const draw = ()=>{
     const list = matches(), cur = editId ? notesList().find(x=>x.id === editId) : null;
     w.innerHTML = `<div class="note-sheet" role="dialog" aria-label="Note">
       <div class="note-head"><b>${title}</b><button type="button" class="note-x" aria-label="Band karein">✕</button></div>
       <div class="note-list">${list.length ? list.map(n=>`<div class="note-item" data-id="${n.id}" ${n.c ? `style="background:${n.c};color:#1d1d1d;border-color:transparent;"` : ''}><div class="note-text">${n.ayah ? `<span class="note-ay">📌 ${L({rur:'Ayat', en:'Ayah'})} ${qaSurahAyah(n.ayah).s}:${qaSurahAyah(n.ayah).a}</span> ` : ''}${noteBody(n)}</div><div class="note-meta"><span>${noteWhen(n.ts)}</span><span><button type="button" data-edit="${n.id}">✎ ${L({rur:'Badlein', en:'Edit'})}</button><button type="button" data-del="${n.id}">🗑</button></span></div></div>`).join('') : `<div class="note-empty">${L({rur:'Abhi koi note nahi. Neeche kuch bhi likhein.', en:'No notes yet. Write anything below.'})}</div>`}</div>
       <div class="ne-bar" id="neBar">
-        <button type="button" data-c="bold" title="Bold"><b>B</b></button><button type="button" data-c="italic" title="Italic"><i>I</i></button><button type="button" data-c="underline" title="Underline"><u>U</u></button><button type="button" data-c="strikeThrough" title="Strike"><s>S</s></button><button type="button" data-c="insertUnorderedList" title="List">• ≡</button><button type="button" data-c="removeFormat" title="Saaf karein">⌫</button>
+        <button type="button" data-c="bold" title="Bold"><b>B</b></button><button type="button" data-c="italic" title="Italic"><i>I</i></button><button type="button" data-c="underline" title="Underline"><u>U</u></button><button type="button" data-c="strikeThrough" title="Strike"><s>S</s></button><button type="button" data-c="insertUnorderedList" title="List">≡</button><button type="button" data-c="removeFormat" title="Saaf karein">⌫</button><span class="ne-sep"></span>${NOTE_COLORS.map(([c, n])=>`<button type="button" class="ne-dot ne-a" data-fg="${c}" title="${n}" style="background:${c};"></button>`).join('')}<span class="ne-sep"></span>${NOTE_HL.map(([c, n])=>`<button type="button" class="ne-dot" data-bg="${c}" title="${n}" style="background:${c};"></button>`).join('')}
       </div>
-      <div class="ne-row"><span class="ne-l">A</span>${NOTE_COLORS.map(([c, n])=>`<button type="button" class="ne-dot" data-fg="${c}" title="${n}" style="background:${c};"></button>`).join('')}<span class="ne-l ne-l2">🖍</span>${NOTE_HL.map(([c, n])=>`<button type="button" class="ne-dot" data-bg="${c}" title="${n}" style="background:${c};"></button>`).join('')}</div>
       <div id="noteEd" class="note-ed" contenteditable="true" role="textbox" aria-multiline="true" data-ph="${L({rur:'Yahan likhein…', en:'Write here…'})}"></div>
-      <div class="ne-row"><span class="ne-l ne-card">${L({rur:'Card ka rang', en:'Card colour'})}</span><button type="button" class="ne-dot ne-none ${tint ? '' : 'on'}" data-tint="" title="Koi nahi">∅</button>${NOTE_TINT.map(([c, n])=>`<button type="button" class="ne-dot ${tint === c ? 'on' : ''}" data-tint="${c}" title="${n}" style="background:${c};"></button>`).join('')}</div>
+      <div class="ne-row"><span class="ne-l ne-card">${L({rur:'Card ka rang', en:'Card colour'})}</span><button type="button" class="ne-dot ${tint === defT ? 'on' : ''}" data-tint="${defT}" title="Theme ka rang" style="background:${defT};">◉</button><button type="button" class="ne-dot ne-none ${tint ? '' : 'on'}" data-tint="" title="Koi nahi">∅</button>${NOTE_TINT.map(([c, n])=>`<button type="button" class="ne-dot ${tint === c ? 'on' : ''}" data-tint="${c}" title="${n}" style="background:${c};"></button>`).join('')}</div>
       <div class="note-btns"><button type="button" class="note-save" id="noteSave">${editId ? L({rur:'Note update karein', en:'Update note'}) : L({rur:'Note save karein', en:'Save note'})}</button>${editId ? `<button type="button" id="noteCancel">${L({rur:'Rehne dein', en:'Cancel'})}</button>` : ''}</div>
     </div>`;
     const ed = w.querySelector('#noteEd'); if(cur){ ed.innerHTML = noteBody(cur); }
@@ -84,14 +91,16 @@ function openNoteBox(ctx, onClose){
     w.querySelectorAll('[data-fg]').forEach(b=>{ b.onmousedown = keep; b.onclick = ()=> fmt('foreColor', b.dataset.fg); });
     w.querySelectorAll('[data-bg]').forEach(b=>{ b.onmousedown = keep; b.onclick = ()=> fmt('hiliteColor', b.dataset.bg); });
     w.querySelectorAll('[data-tint]').forEach(b=>{ b.onclick = ()=>{ tint = b.dataset.tint; w.querySelectorAll('[data-tint]').forEach(x=> x.classList.toggle('on', x === b)); ed.style.background = tint || ''; ed.style.color = tint ? '#1d1d1d' : ''; }; });
+    if(!cur && tint){ ed.style.background = tint; ed.style.color = '#1d1d1d'; }
+    if(cur){ tint = cur.c || ''; if(!tint){ ed.style.background = ''; ed.style.color = ''; } }
     if(cur && cur.c){ tint = cur.c; w.querySelectorAll('[data-tint]').forEach(x=> x.classList.toggle('on', x.dataset.tint === tint)); ed.style.background = tint; ed.style.color = '#1d1d1d'; }
-    const cancel = w.querySelector('#noteCancel'); if(cancel) cancel.onclick = ()=>{ editId = null; tint = ''; draw(); };
+    const cancel = w.querySelector('#noteCancel'); if(cancel) cancel.onclick = ()=>{ editId = null; tint = defT; draw(); };
     w.querySelector('#noteSave').onclick = ()=>{
       const html = noteClean(ed.innerHTML), t = noteHtmlToText(html); if(!t){ ed.focus(); return; }
       const plain = !/<(b|i|u|s|ul|ol|li)\b|style=/i.test(html);
       if(editId){ const n = notesList().find(x=>x.id === editId); if(n){ n.text = t; n.ts = Date.now(); if(plain) delete n.html; else n.html = html; if(tint) n.c = tint; else delete n.c; } editId = null; }
       else{ const n = { id:'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text:t, ts:Date.now() }; if(!plain) n.html = html; if(tint) n.c = tint; if(ctx.page){ n.page = ctx.page; if(ctx.sec) n.sec = ctx.sec; if(ctx.ayah) n.ayah = ctx.ayah; } if(ctx.bm) n.bm = ctx.bm; if(ctx.ref){ n.ref = ctx.ref; n.rt = ctx.title || ''; } notesList().unshift(n); }
-      tint = ''; saveState(); showToast(L({rur:'Note save ho gaya', en:'Note saved'})); draw();
+      tint = defT; saveState(); showToast(L({rur:'Note save ho gaya', en:'Note saved'})); draw();
     };
     w.querySelectorAll('[data-edit]').forEach(b=>{ b.onclick = ()=>{ editId = b.dataset.edit; draw(); w.querySelector('#noteEd').focus(); }; });
     w.querySelectorAll('[data-del]').forEach(b=>{ b.onclick = async ()=>{ if(!(await appConfirm(L({rur:'Yeh note hata dein?', en:'Delete this note?'})))) return; state.notes = notesList().filter(x=>x.id !== b.dataset.del); saveState(); draw(); }; });

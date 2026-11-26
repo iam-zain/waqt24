@@ -3030,3 +3030,20 @@ body.qp-on .to-top{ bottom:150px; }
 
 .nt-row{ display:flex; justify-content:flex-start; margin-top:10px; }
 .hec-act{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:10px; } .hec .hec-body .hec-act .he-share{ margin:0; }
+
+/* note editor: compact single-row toolbar, taller writing area */
+.note-sheet{ max-height:94vh; }
+.note-sheet .note-list{ max-height:20vh; overflow:auto; }
+.ne-bar{ flex-wrap:nowrap !important; gap:4px !important; overflow-x:auto; align-items:center; scrollbar-width:none; padding-bottom:2px; } .ne-bar::-webkit-scrollbar{ display:none; }
+.ne-bar button:not(.ne-dot){ flex:0 0 auto; min-width:28px !important; height:30px !important; padding:0 4px !important; font-size:13px !important; border-radius:8px !important; min-height:0 !important; }
+.ne-bar .ne-dot{ flex:0 0 auto; width:20px; height:20px; border-width:1.5px; min-height:0 !important; }
+.ne-bar .ne-dot.ne-a{ border-radius:6px; }
+.ne-sep{ flex:0 0 1px; align-self:stretch; background:var(--line); margin:3px 3px; }
+.note-ed{ min-height:30vh !important; max-height:48vh !important; }
+.ne-row .ne-dot{ width:22px; height:22px; font-size:10px; } .ne-row{ margin:6px 0 !important; }
+.zk-seg.zk-seg2{ flex-wrap:nowrap; } .zk-seg.zk-seg2 button{ flex:1 1 0; min-width:0; }
+.ne-bar .ne-dot{ width:19px !important; min-width:0 !important; max-width:19px; height:19px !important; padding:0 !important; }
+.ne-bar{ gap:3px !important; } .ne-bar button:not(.ne-dot){ min-width:27px !important; }
+.ne-bar .ne-dot{ width:16px !important; max-width:16px; height:16px !important; border-width:1.5px; }
+.ne-bar button:not(.ne-dot){ min-width:23px !important; width:23px; padding:0 !important; font-size:12.5px !important; }
+.ne-sep{ margin:3px 1px !important; }

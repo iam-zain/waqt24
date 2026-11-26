@@ -937,7 +937,7 @@ function renderAzaan(){
   document.getElementById('detailBody').innerHTML = `
     <div class="backup-note">${L({rur:'Azaan ke alfaaz, unka talaffuz aur maana, aur duniya bhar ki masjidon se Azaan suniye.', en:'The words of the Azaan with pronunciation and meaning, and Azaan recordings from mosques around the world.'})}</div>
     <button class="backup-btn" id="azaanSetBtn">⚙️ ${L({rur:'Namaz ke waqt Azaan', en:'Azaan at prayer times'})}: ${a.on ? L({rur:'On', en:'On'}) : L({rur:'Off', en:'Off'})}</button>
-    <div class="zk-seg" id="azTabs"><button data-t="words">📜 ${L({rur:'Alfaaz', en:'Words'})}</button><button data-t="dua">🤲 ${L({rur:'Dua', en:'Dua'})}</button><button data-t="listen">🎧 ${L({rur:'Suniye', en:'Listen'})}</button></div>
+    <div class="zk-seg zk-seg2" id="azTabs"><button data-t="words">📜 ${L({rur:'Alfaaz', en:'Words'})}</button><button data-t="dua">🤲 ${L({rur:'Dua', en:'Dua'})}</button><button data-t="listen">🎧 ${L({rur:'Suniye', en:'Listen'})}</button></div>
     <div class="az-sec" data-t="words"><div class="section-title">${L({rur:'Azaan ke Alfaaz', en:'Words of the Azaan'})}</div>
     <div class="az-text">${AZAAN_TEXT.map(x=>`<div class="az-line ${x.fajr?'fajr':''}">
       <div class="az-ar ar-font">${x.ar}</div>
