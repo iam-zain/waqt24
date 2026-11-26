@@ -302,7 +302,7 @@ const QUIZ_CAT_ICON = {
     const wrongs = shuffleArr(wrongPool).slice(0,3).map(x=>x.m);
     const options = shuffleArr([w.m, ...wrongs]);
     const correctIdx = options.indexOf(w.m);
-    QUIZ_BANK.push([`"${w.tr}" (${w.ar}) ka matlab kya hai?`, options, correctIdx, "Khaas Shabd"]);
+    QUIZ_BANK.push([`"${w.tr}" (${w.ar}) ka matlab kya hai?`, options, correctIdx, "Khaas Shabd", undefined, { u:`${w.tr}: ${w.m}. ${w.ex}`, e:`${w.tr}: ${w.en || w.m}. ${w.exen || ""}` }]);
   });
 })();
 
@@ -1014,6 +1014,9 @@ function renderQuizCountSelect(cat){
       <div class="qz-lv-lbl">${L({rur:'Kaun se sawal?', en:'Which questions?'})}</div>
       <div class="qz-lv">${LV.map(([k,ic,n])=>`<button type="button" data-lv="${k}" class="${quizLevel===k?'on':''}" ${lv[k].length ? '' : 'disabled'}><span>${ic}</span><b>${n}</b><em>${lv[k].length}</em></button>`).join('')}</div>
       <div class="qz-lv-note">${L({rur:'Naye: abhi tak nahi khele. Kamzor: galat hue, abhi 2 baar lagataar sahi nahi. Pakke: 2 baar lagataar sahi. Ye aapke apne jawabon se banta hai.', en:'New: not played yet. Weak: missed and not yet right twice in a row. Solid: right twice in a row. Based on your own answers.'})}</div>
+      <label class="qz-opt-row"><input type="checkbox" id="quizTimerChk" ${state.quizTimer?'checked':''}><span class="qz-sw"></span><span class="qz-opt-txt">⏱️ ${L({rur:'Timer: har sawal ke liye 20 second', en:'Timer: 20 seconds per question'})}</span></label>
+      <div class="qz-auto"><span class="qz-opt-txt">⏭️ ${L({rur:'Agla sawal khud khule', en:'Next question opens by itself'})}</span><div class="qz-seg" id="quizAutoSeg">${QZ_AUTO.map(n=>`<button type="button" data-s="${n}" class="${(QZ_AUTO.includes(state.quizAutoSecs) ? state.quizAutoSecs : 0)===n?'on':''}">${n ? n + L({rur:' sec', en:' s'}) : L({rur:'Band', en:'Off'})}</button>`).join('')}</div></div>
+      <div class="qz-lv-note" style="margin-top:6px;">💡 ${L({rur:'50-50 Hint: 5 sawal mein 1 baar, 10 sawal mein 2 baar. Hint se sahi jawab dene par wo sawal "Pakke" mein nahi ginta.', en:'50-50 Hint: once in 5 questions, twice in 10. A correct answer that used the hint does not count towards "Solid".'})}</div>
       <div style="font-size:13px; color:var(--sub); margin:18px 0 14px;">${L({rur:'Kitne sawal khelna chahte hain?', en:'How many questions?'})}</div>
       <div style="display:flex; gap:12px; justify-content:center;">
         <button id="quiz5" class="quiz-count-btn c5">5 ${L({rur:'Sawal', en:'Questions'})}</button>
@@ -1023,6 +1026,8 @@ function renderQuizCountSelect(cat){
     </div>
   `;
   body.querySelectorAll('[data-lv]').forEach(b=>{ b.onclick = ()=>{ quizLevel = b.dataset.lv; renderQuizCountSelect(cat); }; });
+  document.getElementById('quizTimerChk').onchange = e=>{ state.quizTimer = e.target.checked; saveState(); };
+  document.querySelectorAll('#quizAutoSeg button').forEach(b=>{ b.onclick = ()=>{ state.quizAutoSecs = +b.dataset.s; saveState(); document.querySelectorAll('#quizAutoSeg button').forEach(x=>x.classList.toggle('on', x===b)); }; });
   document.getElementById('quiz5').onclick = ()=> startQuiz(pool, Math.min(5, pool.length), label);
   document.getElementById('quiz10').onclick = ()=> startQuiz(pool, Math.min(10, pool.length), label);
   document.getElementById('quizBackToCats').onclick = renderMoreQuiz;
@@ -1036,7 +1041,9 @@ function logQuizResult(cat, score, total){
 }
 function startQuiz(pool, n, cat, hooks){
   const picked = shuffleArr(pool).slice(0, n);
-  quizState = { questions: picked, idx: 0, score: 0, answered: false, cat: cat || 'Mix', wrong: [], hooks: hooks || {} };
+  const hints = quizHintsFor(picked.length);
+  quizTimerStop();
+  quizState = { questions: picked, idx: 0, score: 0, answered: false, cat: cat || 'Mix', wrong: [], hooks: hooks || {}, timer: !!state.quizTimer, auto: QZ_AUTO.includes(state.quizAutoSecs) ? state.quizAutoSecs : 0, hints, hintsLeft: hints, results: [], streak: 0, best: 0 };
   renderQuizQuestion();
 }
 
@@ -1049,13 +1056,57 @@ function quizQHtml(q){
     <div class="quiz-q-ar">${parts[2]}</div>
     ${parts[3] ? `<div class="quiz-q-ref">${parts[3]}</div>` : ''}`;
 }
+/* "Wajah": a short explanation shown after each answer, only where the data has one.
+   Generated questions carry it (item[5] = {u, e}); Du'a and Qur'ani Alfaaz questions are looked up from DUAS / QURAN_WORDS.
+   The hand-written questions have none yet, so they show only "Sahi Jawab". */
+const QZ_AR_NORM = s=> String(s).replace(/[ً-ٰٟـۖ-ۭ]/g,'').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[أإآٱ]/g,'ا').replace(/\s+/g,'');
+let __qzWordMap = null;
+function qzWordMap(){
+  if(__qzWordMap) return __qzWordMap;
+  const m = new Map(), dup = new Set();
+  QURAN_WORDS.forEach(w=>{ const k = QZ_AR_NORM(w.ar); if(m.has(k)) dup.add(k); else m.set(k, w); });
+  dup.forEach(k=>m.delete(k));   /* same spelling, different words: do not guess */
+  return (__qzWordMap = m);
+}
+function quizWhy(item){
+  try{
+    if(item[5]) return isEn() ? item[5].e : item[5].u;
+    const cat = item[3], q = String(item[0]);
+    if(cat === 'Duain'){
+      const t = q.split('\n\n')[1], d = DUAS.find(x=>x.translit === t);
+      if(!d) return '';
+      const info = d.info && d.info.length <= 240 ? ' ' + dInfo(d) : '';
+      return `${dTitle(d)}. ${L({rur:'Hawala', en:'Source'})}: ${d.ref}.${info}`;
+    }
+    if(cat === 'Qur’ani Alfaaz'){
+      const m = q.match(/^"(.+)" ka Roman Urdu matlab/), w = m && qzWordMap().get(QZ_AR_NORM(m[1]));
+      if(!w) return '';
+      return isEn()
+        ? `${w.tr}: ${w.en || w.m}. Used ${w.occ} times in the Qur'an. Example: ${w.exen || w.exm}`
+        : `${w.tr}: ${w.m}. Qur'an mein ${w.occ} baar aaya hai. Misaal: ${w.exm}`;
+    }
+  }catch(e){}
+  return '';
+}
+const QZ_AUTO = [0, 1, 3, 5];   /* seconds before the next question opens by itself (0 = off) */
+/* Quiz timer (optional, chosen on the start screen) and 50-50 hint (1 per 5 questions) */
+const QUIZ_SECS = 20;
+function quizHintsFor(n){ return n >= 10 ? 2 : n >= 3 ? 1 : 0; }
+function quizTimerStop(){ if(quizState && quizState.tmr){ clearInterval(quizState.tmr); quizState.tmr = null; } }
 function renderQuizQuestion(){
   const qs = quizState;
+  quizTimerStop();
   const [q, opts, correct] = quizLocal(qs.questions[qs.idx]);
+  qs.hinted = false;
   document.getElementById('detailTitle').textContent = `Sawal ${qs.idx+1}/${qs.questions.length}`;
   const body = document.getElementById('detailBody');
+  const canHint = qs.hintsLeft > 0 && opts.length > 2;
   body.innerHTML = `
-    <div class="quiz-progress"><div class="quiz-progress-fill" style="width:${(qs.idx/qs.questions.length)*100}%"></div></div>
+    <div class="quiz-dots-row"><div class="quiz-dots" role="img" aria-label="${qs.idx+1} / ${qs.questions.length}">${qs.questions.map((_,k)=>`<i class="${k<qs.idx ? (qs.results[k] ? 'ok' : 'no') : k===qs.idx ? 'cur' : ''}"></i>`).join('')}</div>${qs.streak >= 2 ? `<span class="quiz-streak">🔥 ${qs.streak} ${L({rur:'sahi lagataar', en:'in a row'})}</span>` : ''}</div>
+    <div class="quiz-tools">
+      ${qs.timer ? `<div class="quiz-timer" id="quizTimer"><span class="qt-ic">⏱️</span><span class="qt-n" id="quizTimerN">${QUIZ_SECS}</span><div class="qt-bar"><div class="qt-fill" id="quizTimerFill"></div></div></div>` : '<div></div>'}
+      ${qs.hints ? `<button type="button" class="quiz-hint" id="quizHintBtn" ${canHint ? '' : 'disabled'}>💡 ${L({rur:'50-50 Hint', en:'50-50 Hint'})} <em>${qs.hintsLeft}/${qs.hints}</em></button>` : ''}
+    </div>
     <div class="quiz-card">
       ${quizQHtml(q)}
     </div>
@@ -1065,32 +1116,68 @@ function renderQuizQuestion(){
     <div id="quizRevealWrap"></div>
     <div id="quizNextWrap" style="margin-top:16px; text-align:center;"></div>
   `;
-  body.querySelectorAll('.quiz-opt').forEach(btn=>{
-    btn.onclick = ()=>{
-      if(qs.answered) return;
-      qs.answered = true;
-      const chosen = parseInt(btn.dataset.i);
-      body.querySelectorAll('.quiz-opt').forEach(b=>{
-        const bi = parseInt(b.dataset.i);
-        if(bi===correct) b.classList.add('correct');
-        else if(bi===chosen) b.classList.add('wrong');
-      });
-      const item = qs.questions[qs.idx];
-      try{ qzRecord(item, chosen===correct); saveState(); }catch(e){}
-      if(chosen===correct){
-        qs.score++;
-      } else {
-        qs.wrong.push({ q, chosenText: opts[chosen], correctText: opts[correct], item });
-        document.getElementById('quizRevealWrap').innerHTML = `<div class="quiz-reveal">Sahi Jawab: <b>${opts[correct]}</b></div>`;
-      }
-      if(qs.hooks.onAnswer) qs.hooks.onAnswer(item, chosen===correct);
-      const isLast = qs.idx===qs.questions.length-1;
-      document.getElementById('quizNextWrap').innerHTML = `<button id="quizNextBtn" style="padding:12px 28px; border-radius:12px; border:none; background:var(--accent); color:var(--fardText); font-size:14px; font-weight:700; cursor:pointer;">${isLast?'Result Dekhiye':'Agla Sawal'}</button>`;
-      document.getElementById('quizNextBtn').onclick = ()=>{
-        if(isLast){ renderQuizResult(); } else { qs.idx++; qs.answered=false; renderQuizQuestion(); }
-      };
-    };
-  });
+  /* chosen = option index, or -1 when the time ran out */
+  const finish = (chosen)=>{
+    if(qs.answered) return;
+    qs.answered = true;
+    quizTimerStop();
+    const ok = chosen === correct;
+    body.querySelectorAll('.quiz-opt').forEach(b=>{
+      const bi = parseInt(b.dataset.i);
+      if(bi===correct) b.classList.add('correct');
+      else if(bi===chosen) b.classList.add('wrong');
+    });
+    const hb = document.getElementById('quizHintBtn'); if(hb) hb.disabled = true;
+    qs.results[qs.idx] = ok;
+    qs.streak = ok ? qs.streak + 1 : 0; if(qs.streak > qs.best) qs.best = qs.streak;
+    buzz(ok ? 15 : [30, 40, 30]);
+    const item = qs.questions[qs.idx];
+    /* a correct answer that needed the hint is not counted towards mastery */
+    try{ if(!(ok && qs.hinted)){ qzRecord(item, ok); saveState(); } }catch(e){}
+    if(ok){
+      qs.score++;
+    } else {
+      qs.wrong.push({ q, chosenText: chosen < 0 ? L({rur:'Jawab nahi diya (waqt khatam)', en:'No answer (time ran out)'}) : opts[chosen], correctText: opts[correct], item });
+    }
+    const why = quizWhy(item);
+    if(!ok || why){
+      document.getElementById('quizRevealWrap').innerHTML = `<div class="quiz-reveal">${ok ? '' : `${chosen < 0 ? L({rur:'Waqt khatam. ', en:'Time is up. '}) : ''}${L({rur:'Sahi Jawab', en:'Correct answer'})}: <b>${opts[correct]}</b>`}${why ? `<div class="quiz-why"><span>💡 ${L({rur:'Wajah / jaankari', en:'Why / more info'})}</span>${why}</div>` : ''}</div>`;
+    }
+    if(qs.hooks.onAnswer) qs.hooks.onAnswer(item, ok);
+    const isLast = qs.idx===qs.questions.length-1;
+    document.getElementById('quizNextWrap').innerHTML = `<button id="quizNextBtn" class="quiz-next"><span class="qn-fill" id="quizNextFill"></span><span class="qn-txt">${isLast?'Result Dekhiye':'Agla Sawal'} ›</span></button>`;
+    const goNext = ()=>{ if(isLast){ renderQuizResult(); } else { qs.idx++; qs.answered=false; renderQuizQuestion(); } };
+    document.getElementById('quizNextBtn').onclick = goNext;
+    /* optional: open the next question by itself after 1 / 3 / 5 seconds; the button fills up while it waits and a tap goes at once */
+    if(qs.auto > 0){
+      const at = qs.idx, fill = document.getElementById('quizNextFill');
+      if(fill){ fill.style.transition = `width ${qs.auto}s linear`; requestAnimationFrame(()=>requestAnimationFrame(()=>{ fill.style.width = '100%'; })); }
+      setTimeout(()=>{ if(quizState === qs && qs.idx === at && qs.answered && document.getElementById('quizNextBtn')) goNext(); }, qs.auto * 1000);
+    }
+  };
+  body.querySelectorAll('.quiz-opt').forEach(btn=>{ btn.onclick = ()=> finish(parseInt(btn.dataset.i)); });
+  const hintBtn = document.getElementById('quizHintBtn');
+  if(hintBtn && canHint) hintBtn.onclick = ()=>{
+    if(qs.answered || qs.hinted || qs.hintsLeft < 1) return;
+    qs.hinted = true; qs.hintsLeft--;
+    const wrong = opts.map((_,i)=>i).filter(i=>i!==correct);
+    shuffleArr(wrong).slice(0,2).forEach(i=>{ const b = body.querySelector(`.quiz-opt[data-i="${i}"]`); if(b){ b.disabled = true; b.classList.add('struck'); } });
+    hintBtn.disabled = true;
+    hintBtn.querySelector('em').textContent = qs.hintsLeft + '/' + qs.hints;
+  };
+  if(qs.timer){
+    const t0 = Date.now(), idx = qs.idx;
+    const fill = document.getElementById('quizTimerFill'), num = document.getElementById('quizTimerN'), box = document.getElementById('quizTimer');
+    qs.tmr = setInterval(()=>{
+      /* stop by itself if the screen changed or the quiz was left */
+      if(quizState !== qs || qs.idx !== idx || qs.answered || !document.getElementById('quizTimer')){ clearInterval(qs.tmr); qs.tmr = null; return; }
+      const left = Math.max(0, QUIZ_SECS - (Date.now()-t0)/1000);
+      num.textContent = Math.ceil(left);
+      fill.style.width = (left/QUIZ_SECS*100) + '%';
+      box.classList.toggle('low', left <= 5);
+      if(left <= 0) finish(-1);
+    }, 200);
+  }
 }
 
 function renderQuizResult(){
@@ -1105,6 +1192,7 @@ function renderQuizResult(){
       <div style="font-size:26px; font-weight:800; margin-bottom:4px;">${qs.score} / ${qs.questions.length}</div>
       <div style="font-size:13px; color:var(--sub); margin-bottom:6px;">${pct}% Sahi Jawab</div>
       <div style="font-size:13.5px; margin-bottom:18px;">${msg}</div>
+      ${qs.best >= 2 ? `<div style="font-size:13px; font-weight:700; margin-bottom:14px;">🔥 ${L({rur:'Sabse lambi streak', en:'Longest streak'})}: ${qs.best}</div>` : ''}
       ${qs.hooks.summary ? qs.hooks.summary() : ''}
       ${qs.wrong.length ? `<button id="quizReviewBtn" class="res-btn">❌ Galat Jawabon ka Jaiza (${qs.wrong.length})</button>
       <button id="quizRedoWrongBtn" class="res-btn">🔁 Sirf Galat Sawal Dobara</button>` : ''}

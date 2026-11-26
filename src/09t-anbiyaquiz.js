@@ -10,7 +10,7 @@
   const mk = (head, x, key)=>{
     const wrong = shuffleArr(list.filter(y=> y[key] !== x[key])).slice(0, 3).map(y=> y[key]);
     const opts = shuffleArr([x[key], ...wrong]);
-    QUIZ_BANK.push([body(head, x.d), opts, opts.indexOf(x[key]), CAT]);
+    QUIZ_BANK.push([body(head, x.d), opts, opts.indexOf(x[key]), CAT, undefined, { u:`${x.who}: ${x.when}. Hawala: ${x.d.ref}`, e:`${x.who}: ${x.d.ent || x.when}. Source: ${x.d.ref}` }]);
   };
   /* "Ye dua kis Nabi ki hai?" (the Hasbunallah verse is left out: it is also reported from Hazrat Ibrahim AS in the fire) */
   list.filter(x=> !/Muhammad/.test(x.who)).forEach(x=> mk('Ye dua kis Nabi ki hai?', x, 'who'));

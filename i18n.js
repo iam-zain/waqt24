@@ -871,3 +871,7 @@ Object.assign(I18N_EN, { "Khawateen":"Women" });
 Object.assign(I18N_EN, { "Samaaj":"Society", "Jannat":"Paradise", "Parivaar":"Family" });
 
 Object.assign(I18N_EN, { "Isi topic par aur":"More on this topic" });
+
+Object.assign(I18N_EN, { "Jawab nahi diya (waqt khatam)":"No answer (time ran out)" });
+
+Object.assign(I18N_EN, { "Agla sawal khud khule":"Next question opens by itself", "Wajah / jaankari":"Why / more info" });
