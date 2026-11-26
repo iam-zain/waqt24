@@ -3015,3 +3015,4 @@ body.qp-on .to-top{ bottom:150px; }
 .hd-i.on{ background:var(--accent); border-color:var(--accent); color:var(--fardText, #fff); }
 .hd-info{ margin:0 0 10px; padding:9px 11px; border-radius:11px; background:color-mix(in srgb, var(--accent) 9%, var(--card)); border:1px solid color-mix(in srgb, var(--accent) 24%, var(--line)); font-size:12px; line-height:1.55; color:var(--text); }
 .hd-card .wk-hc{ margin-left:auto; min-width:26px; text-align:right; }
+.hd-card .wk-head .goal-arrow{ margin-left:8px; }
