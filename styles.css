@@ -3203,3 +3203,7 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .quiz-clue{ background:color-mix(in srgb, var(--accent) 12%, var(--card)); border-color:color-mix(in srgb, var(--accent) 50%, transparent); }
 .quiz-hint-toggle[aria-expanded="true"]{ box-shadow:inset 0 0 0 1.5px var(--special); }
 .quiz-hiding .quiz-card, .quiz-hiding .quiz-opts, .quiz-hiding #quizClueBox{ visibility:hidden; }
+
+/* Same breathing room at the top of every tab as at the bottom */
+#tab-home{ padding-top:14px; }
+#tab-calendar, #tab-explore, #tab-more{ padding-top:14px; }
