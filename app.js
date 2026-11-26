@@ -4584,6 +4584,7 @@ const qzIsSolid = item=>{ const st = qzStat(item); return !!st && st.c >= 2; };
 function qzWeakAll(){ return QUIZ_BANK.filter(qzIsWeak); }
 function renderMoreQuiz(){
   quizState = null;
+  document.getElementById('detailBody').classList.remove('quiz-hiding');
   document.getElementById('detailTitle').textContent = "Quiz";
   const body = document.getElementById('detailBody');
   const catRows = [...QUIZ_CATEGORIES].sort((a,b)=> a.localeCompare(b)).map(cat=>{
@@ -4761,6 +4762,7 @@ function renderQuizQuestion(){
   const [q, opts, correct] = quizLocal(qs.questions[qs.idx]);
   quizSave();
   qs.hinted = false; qs.extra = 0; qs.second = false; qs.secondUsed = false;
+  document.getElementById('detailBody').classList.remove('quiz-hiding');
   document.getElementById('detailTitle').textContent = `Sawal ${qs.idx+1}/${qs.questions.length}`;
   const body = document.getElementById('detailBody');
   const canHint = qs.hintsLeft > 0 && opts.length > 2;
@@ -4844,15 +4846,25 @@ function renderQuizQuestion(){
     shuffleArr(wrong).slice(0,2).forEach(i=>{ const b = body.querySelector(`.quiz-opt[data-i="${i}"]`); if(b){ b.disabled = true; b.classList.add('struck'); } });
     body.querySelectorAll('.quiz-hint').forEach(b=>{ b.disabled = true; });
     document.getElementById('quizHintN').textContent = qs.hintsLeft + '/' + qs.hints;
-    document.getElementById('quizHintPanel').hidden = true;
+    hintView(false);
   };
   const tg = document.getElementById('quizHintToggle'), pnl = document.getElementById('quizHintPanel');
-  if(tg && pnl) tg.onclick = ()=>{ const open = pnl.hidden; pnl.hidden = !open; tg.setAttribute('aria-expanded', open); };
+  /* opening the hint list hides the question and options and holds the timer; closing it (or choosing a hint) shows them again */
+  const hintView = (open)=>{
+    if(pnl) pnl.hidden = !open;
+    if(tg) tg.setAttribute('aria-expanded', open);
+    body.classList.toggle('quiz-hiding', open);
+    if(qs.timer && !qs.answered){
+      if(open){ if(!qs.pauseAt) qs.pauseAt = Date.now(); }
+      else if(qs.pauseAt){ qs.t0 += Date.now() - qs.pauseAt; qs.pauseAt = null; }
+    }
+  };
+  if(tg && pnl) tg.onclick = ()=> hintView(pnl.hidden);
   const useHint = (fn)=>{
     if(qs.answered || qs.hinted || qs.hintsLeft < 1) return false;
     qs.hinted = true; qs.hintsLeft--;
     body.querySelectorAll('.quiz-hint').forEach(b=>{ b.disabled = true; });
-    if(pnl) pnl.hidden = true;
+    hintView(false);
     const hn = document.getElementById('quizHintN'); if(hn) hn.textContent = qs.hintsLeft + '/' + qs.hints;
     return true;
   };
@@ -4879,15 +4891,16 @@ function renderQuizQuestion(){
     document.getElementById('quizClueBox').innerHTML = `<div class="quiz-clue">🧭 ${clue}</div>`;
     body.querySelectorAll('.quiz-hint').forEach(b=>{ b.disabled = true; });
     document.getElementById('quizHintN').textContent = qs.hintsLeft + '/' + qs.hints;
-    document.getElementById('quizHintPanel').hidden = true;
+    hintView(false);
   };
   if(qs.timer){
-    const t0 = Date.now(), idx = qs.idx;
+    qs.t0 = Date.now(); qs.pauseAt = null; const idx = qs.idx;
     const fill = document.getElementById('quizTimerFill'), num = document.getElementById('quizTimerN'), box = document.getElementById('quizTimer');
     qs.tmr = setInterval(()=>{
       /* stop by itself if the screen changed or the quiz was left */
       if(quizState !== qs || qs.idx !== idx || qs.answered || !document.getElementById('quizTimer')){ clearInterval(qs.tmr); qs.tmr = null; return; }
-      const tot = qs.secs + qs.extra, left = Math.max(0, tot - (Date.now()-t0)/1000);
+      if(qs.pauseAt) return;   /* hint list is open: the clock is held */
+      const tot = qs.secs + qs.extra, left = Math.max(0, tot - (Date.now()-qs.t0)/1000);
       num.textContent = Math.ceil(left);
       fill.style.width = (left/tot*100) + '%';
       box.classList.toggle('low', left <= 5);
@@ -4899,6 +4912,7 @@ function renderQuizQuestion(){
 function renderQuizResult(){
   const qs = quizState;
   quizSaveClear();
+  document.getElementById('detailBody').classList.remove('quiz-hiding');
   if(!qs.logged){ qs.logged = true; logQuizResult(qs.cat, qs.score, qs.questions.length); }
   const pct = Math.round((qs.score/qs.questions.length)*100);
   const msg = pct>=80 ? 'Zabardast! Mashallah.' : pct>=50 ? 'Achha kiya, aur mehnat kijiye.' : 'Koi baat nahi, dobara koshish kijiye.';
