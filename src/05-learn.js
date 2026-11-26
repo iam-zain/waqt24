@@ -1020,7 +1020,7 @@ function renderQuizCountSelect(cat){
       <div class="qz-lv-note">${L({rur:'Naye: abhi tak nahi khele. Kamzor: galat hue, abhi 2 baar lagataar sahi nahi. Pakke: 2 baar lagataar sahi. Ye aapke apne jawabon se banta hai.', en:'New: not played yet. Weak: missed and not yet right twice in a row. Solid: right twice in a row. Based on your own answers.'})}</div>
       <div class="qz-auto"><span class="qz-opt-txt">⏱️ ${L({rur:'Timer (har sawal)', en:'Timer (per question)'})}</span><div class="qz-seg" id="quizTimerSeg">${QZ_TIMER.map(n=>`<button type="button" data-s="${n}" class="${quizSecsPref()===n?'on':''}">${n ? n + L({rur:' sec', en:' s'}) : L({rur:'Band', en:'Off'})}</button>`).join('')}</div></div>
       <div class="qz-auto"><span class="qz-opt-txt">⏭️ ${L({rur:'Agla sawal khud khule', en:'Next question opens by itself'})}</span><div class="qz-seg" id="quizAutoSeg">${QZ_AUTO.map(n=>`<button type="button" data-s="${n}" class="${(QZ_AUTO.includes(state.quizAutoSecs) ? state.quizAutoSecs : 0)===n?'on':''}">${n ? n + L({rur:' sec', en:' s'}) : L({rur:'Band', en:'Off'})}</button>`).join('')}</div></div>
-      <div class="qz-lv-note" style="margin-top:6px;">💡 ${L({rur:'Hint: 5 sawal mein 2, 10 sawal mein 4 (50-50, Sandarbh, Skip, +10s, Do baar). Ek sawal par ek hi hint. Hint se sahi jawab dene par wo sawal "Pakke" mein nahi ginta.', en:'Hints: 2 in 5 questions, 4 in 10 (50-50, Clue, Skip, +10s, 2 tries). One hint per question. A correct answer that used a hint does not count towards "Solid".'})}</div>
+      <div class="qz-lv-note" style="margin-top:6px;">💡 ${L({rur:'Hint: 5 sawal mein 2, 10 sawal mein 4 (50-50, Sandarbh, Skip, +10s, Do mauka). Ek sawal par ek hi hint. Hint se sahi jawab dene par wo sawal "Pakke" mein nahi ginta.', en:'Hints: 2 in 5 questions, 4 in 10 (50-50, Clue, Skip, +10s, 2 chances). One hint per question. A correct answer that used a hint does not count towards "Solid".'})}</div>
       <div style="font-size:13px; color:var(--sub); margin:18px 0 14px;">${L({rur:'Kitne sawal khelna chahte hain?', en:'How many questions?'})}</div>
       <div style="display:flex; gap:12px; justify-content:center;">
         <button id="quiz5" class="quiz-count-btn c5" ${pool.length ? '' : 'disabled'}>${Math.min(5, pool.length)} ${L({rur:'Sawal', en:'Questions'})}</button>
@@ -1156,7 +1156,7 @@ function renderQuizQuestion(){
       ${qs.timer ? `<div class="quiz-timer" id="quizTimer"><span class="qt-ic">⏱️</span><span class="qt-n" id="quizTimerN">${qs.secs}</span><div class="qt-bar"><div class="qt-fill" id="quizTimerFill"></div></div></div>` : '<div></div>'}
       ${qs.hints ? `<button type="button" class="quiz-hint quiz-hint-toggle" id="quizHintToggle" aria-expanded="false" ${qs.hintsLeft > 0 ? '' : 'disabled'}>💡 ${L({rur:'Hint', en:'Hint'})} <em class="quiz-hint-n" id="quizHintN">${qs.hintsLeft}/${qs.hints}</em></button>` : ''}
     </div>
-    ${qs.hints ? `<div class="quiz-hint-panel" id="quizHintPanel" hidden><button type="button" class="quiz-hint" id="quizHintBtn" ${canHint ? '' : 'disabled'}>💡 50-50</button>${clue ? `<button type="button" class="quiz-hint" id="quizClueBtn" ${canClue ? '' : 'disabled'}>🧭 ${L({rur:'Sandarbh', en:'Clue'})}</button>` : ''}<button type="button" class="quiz-hint" id="quizSkipBtn" ${canSkip ? '' : 'disabled'}>⏭️ ${L({rur:'Sawal badlein', en:'Change question'})}</button>${qs.timer ? `<button type="button" class="quiz-hint" id="quizTimeBtn" ${canTime ? '' : 'disabled'}>⏱️ +10s</button>` : ''}<button type="button" class="quiz-hint" id="quizSecondBtn" ${canSecond ? '' : 'disabled'}>🔁 ${L({rur:'Do baar', en:'2 tries'})}</button></div>` : ''}
+    ${qs.hints ? `<div class="quiz-hint-panel" id="quizHintPanel" hidden><button type="button" class="quiz-hint" id="quizHintBtn" ${canHint ? '' : 'disabled'}>💡 50-50</button>${clue ? `<button type="button" class="quiz-hint" id="quizClueBtn" ${canClue ? '' : 'disabled'}>🧭 ${L({rur:'Sandarbh', en:'Clue'})}</button>` : ''}<button type="button" class="quiz-hint" id="quizSkipBtn" ${canSkip ? '' : 'disabled'}>⏭️ ${L({rur:'Sawal badlein', en:'Change question'})}</button>${qs.timer ? `<button type="button" class="quiz-hint" id="quizTimeBtn" ${canTime ? '' : 'disabled'}>⏱️ +10s</button>` : ''}<button type="button" class="quiz-hint" id="quizSecondBtn" ${canSecond ? '' : 'disabled'}>🔁 ${L({rur:'Do mauka', en:'2 chances'})}</button></div>` : ''}
     <div class="quiz-card">
       ${quizQHtml(q)}
     </div>
@@ -1176,7 +1176,7 @@ function renderQuizQuestion(){
       const wb = body.querySelector(`.quiz-opt[data-i="${chosen}"]`);
       if(wb){ wb.disabled = true; wb.classList.add('struck'); }
       buzz(30);
-      document.getElementById('quizClueBox').innerHTML = `<div class="quiz-clue">🔁 ${L({rur:'Ye galat hai, ek aur koshish karein.', en:'Not that one, try once more.'})}</div>`;
+      document.getElementById('quizClueBox').innerHTML = `<div class="quiz-clue">🔁 ${L({rur:'Ye galat hai, ek mauka aur hai.', en:'Not that one, one more chance.'})}</div>`;
       return;
     }
     qs.answered = true;
@@ -1261,7 +1261,7 @@ function renderQuizQuestion(){
   if(secondBtn && canSecond) secondBtn.onclick = ()=>{
     if(!useHint()) return;
     qs.second = true;
-    document.getElementById('quizClueBox').innerHTML = `<div class="quiz-clue">🔁 ${L({rur:'Ek galti maaf: pehla galat option sirf kat jayega.', en:'One mistake forgiven: a wrong first tap is just crossed out.'})}</div>`;
+    document.getElementById('quizClueBox').innerHTML = `<div class="quiz-clue">🔁 ${L({rur:'Do mauke: pehla galat option sirf kat jayega, dobara chunein.', en:'Two chances: a wrong first tap is just crossed out, pick again.'})}</div>`;
   };
   const clueBtn = document.getElementById('quizClueBtn');
   if(clueBtn && canClue) clueBtn.onclick = ()=>{
