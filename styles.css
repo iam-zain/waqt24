@@ -3189,3 +3189,16 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .quiz-hint-panel .quiz-hint{padding:6px 10px;font-size:12.5px}
 .quiz-hint-toggle[aria-expanded="true"]{box-shadow:inset 0 0 0 1.5px #f0a93b}
 .quiz-count-btn:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.4)}
+
+/* Quiz colours follow the chosen theme (accent / fard / nafil / special / meal come from the active theme) */
+.quiz-card{ border-top-color:var(--accent); }
+.quiz-q-tr{ color:var(--accentInk, var(--fard)); }
+.quiz-q-ar{ color:var(--special); }
+.quiz-progress-fill{ background:linear-gradient(90deg,var(--accent),var(--nafil)); }
+.quiz-opt.qopt-A{ --qc:var(--fard); } .quiz-opt.qopt-B{ --qc:var(--nafil); } .quiz-opt.qopt-C{ --qc:var(--special); } .quiz-opt.qopt-D{ --qc:var(--meal); }
+.quiz-opt[class*="qopt-"] .opt-letter{ background:color-mix(in srgb, var(--qc) 24%, var(--card)); border-color:var(--qc); color:var(--text); }
+.quiz-count-btn.c5{ --c:var(--accent); } .quiz-count-btn.c10{ --c:var(--nafil); }
+.quiz-count-btn.c5, .quiz-count-btn.c10{ background:color-mix(in srgb, var(--c) 24%, var(--card)); border:1.5px solid var(--c); color:var(--text); }
+.quiz-streak{ background:color-mix(in srgb, var(--special) 20%, var(--card)); }
+.quiz-clue{ background:color-mix(in srgb, var(--accent) 12%, var(--card)); border-color:color-mix(in srgb, var(--accent) 50%, transparent); }
+.quiz-hint-toggle[aria-expanded="true"]{ box-shadow:inset 0 0 0 1.5px var(--special); }

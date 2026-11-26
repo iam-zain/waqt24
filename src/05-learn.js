@@ -999,7 +999,7 @@ function renderMoreQuiz(){
 }
 
 /* Colours for quiz categories, in alphabetical order; green is left out on purpose */
-const QUIZ_PALETTE = ['#3f8fe0','#e0709f','#e0893f','#9b6fd6','#2fb6b0','#c79a2e','#d6708f','#5c7cfa','#c0563f','#3a4d8f'];
+const QUIZ_PALETTE = ['var(--fard)','var(--nafil)','var(--special)','var(--meal)','var(--roza)','color-mix(in srgb, var(--fard) 55%, var(--special))','color-mix(in srgb, var(--nafil) 55%, var(--special))','color-mix(in srgb, var(--meal) 55%, var(--fard))','color-mix(in srgb, var(--roza) 55%, var(--meal))','color-mix(in srgb, var(--special) 55%, var(--meal))'];
 let quizLevel = 'all';
 function renderQuizCountSelect(cat){
   const base = cat==='__all__' ? QUIZ_BANK : QUIZ_BANK.filter(q=>q[3]===cat);
