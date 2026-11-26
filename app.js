@@ -2570,7 +2570,7 @@ function renderAzaan(){
     <button class="backup-btn" id="azaanSetBtn">⚙️ ${L({rur:'Namaz ke waqt Azaan', en:'Azaan at prayer times'})}: ${a.on ? L({rur:'On', en:'On'}) : L({rur:'Off', en:'Off'})}</button>
     <div class="zk-seg zk-seg2" id="azTabs"><button data-t="words">📜 ${L({rur:'Alfaaz', en:'Words'})}</button><button data-t="dua">🤲 ${L({rur:'Dua aur Hadees', en:'Dua and Hadith'})}</button><button data-t="listen">🎧 ${L({rur:'Suniye', en:'Listen'})}</button></div>
     <div class="az-sec" data-t="words"><div class="section-title">${L({rur:'Azaan ke Alfaaz', en:'Words of the Azaan'})}</div>
-    <div class="zk-seg zk-seg2 az-vw" id="azView"><button data-v="lines">${L({rur:'Line-by-line', en:'Line by line'})}</button><button data-v="ar">${L({rur:'Arabic', en:'Arabic'})}</button><button data-v="tr">${L({rur:'Transliteration', en:'Transliteration'})}</button><button data-v="m">${L({rur:'Matlab', en:'Meaning'})}</button></div>
+    <div class="zk-seg zk-seg2 az-vw" id="azView"><button data-v="lines">${L({rur:'Line-by-line', en:'Line by line'})}</button><button data-v="all">${L({rur:'Sab ek saath', en:'All together'})}</button></div>
     <div class="az-all" id="azAll" style="display:none;"></div>
     <div class="az-text" id="azLines">${AZAAN_TEXT.map(x=>`<div class="az-line ${x.fajr?'fajr':''}">
       <div class="az-ar ar-font">${x.ar}</div>
@@ -2601,14 +2601,12 @@ function renderAzaan(){
     if(v === 'lines'){ all.style.display = 'none'; lines.style.display = ''; return; }
     lines.style.display = 'none'; all.style.display = '';
     const fj = ' <small class="az-fj">(' + L({rur:'sirf Fajr', en:'Fajr only'}) + ')</small>';
-    all.innerHTML = '<div class="az-text"><div class="az-line">' + AZAAN_TEXT.map(x=>{
-      if(v === 'ar') return `<div class="az-ar ar-font">${x.ar}</div>`;
-      if(v === 'tr') return `<div class="az-tr">${x.tr} <b>×${x.n}</b>${x.fajr ? fj : ''}</div>`;
-      return `<div class="az-m az-mrow">${L(x.m)} <b>×${x.n}</b>${x.fajr ? fj : ''}</div>`;
-    }).join('') + '</div></div>';
+    all.innerHTML = `<div class="az-card c-ar"><div class="az-cl">${L({rur:'Arabic', en:'Arabic'})}</div>${AZAAN_TEXT.map(x=>`<div class="az-ar ar-font" style="text-align:center;">${x.ar}</div>`).join('')}</div>
+      <div class="az-card c-tr"><div class="az-cl">${L({rur:'Talaffuz (Transliteration)', en:'Transliteration'})}</div>${AZAAN_TEXT.map(x=>`<div class="az-trl">${x.tr} <b>×${x.n}</b>${x.fajr ? fj : ''}</div>`).join('')}</div>
+      <div class="az-card c-m"><div class="az-cl">${L({rur:'Matlab', en:'Meaning'})}</div>${AZAAN_TEXT.map(x=>`<div class="az-mrow">${L(x.m)} <b>×${x.n}</b>${x.fajr ? fj : ''}</div>`).join('')}</div>`;
   };
   document.querySelectorAll('#azView button').forEach(b=> b.onclick = ()=> azAllDraw(b.dataset.v));
-  azAllDraw(['lines','ar','tr','m'].includes(state.azView) ? state.azView : 'lines');
+  azAllDraw(state.azView === 'all' ? 'all' : 'lines');
   const azShow = t=>{
     state.azTab = t; saveState();
     document.querySelectorAll('#detailBody .az-sec').forEach(x=> x.style.display = x.dataset.t === t ? '' : 'none');
@@ -9572,7 +9570,7 @@ function openNoteBox(ctx, onClose){
       <div class="note-head"><b>${title}</b><button type="button" class="note-x" aria-label="Band karein">✕</button></div>
       <div class="note-list">${list.length ? list.map(n=>`<div class="note-item" data-id="${n.id}" ${n.c ? `style="background:${n.c};color:#1d1d1d;border-color:transparent;"` : ''}><div class="note-text">${n.ayah ? `<span class="note-ay">📌 ${L({rur:'Ayat', en:'Ayah'})} ${qaSurahAyah(n.ayah).s}:${qaSurahAyah(n.ayah).a}</span> ` : ''}${noteBody(n)}</div><div class="note-meta"><span>${noteWhen(n.ts)}</span><span><button type="button" data-edit="${n.id}">✎ ${L({rur:'Badlein', en:'Edit'})}</button><button type="button" data-del="${n.id}">🗑</button></span></div></div>`).join('') : `<div class="note-empty">${L({rur:'Abhi koi note nahi. Neeche kuch bhi likhein.', en:'No notes yet. Write anything below.'})}</div>`}</div>
       <div class="ne-bar" id="neBar">
-        <button type="button" data-c="bold" title="Bold"><b>B</b></button><button type="button" data-c="italic" title="Italic"><i>I</i></button><button type="button" data-c="underline" title="Underline"><u>U</u></button><button type="button" data-c="strikeThrough" title="Strike"><s>S</s></button><button type="button" data-c="insertUnorderedList" title="List">≡</button><button type="button" data-c="removeFormat" title="Saaf karein">⌫</button><span class="ne-sep"></span>${NOTE_COLORS.map(([c, n])=>`<button type="button" class="ne-dot ne-a" data-fg="${c}" title="${n}" style="background:${c};"></button>`).join('')}<span class="ne-sep"></span>${NOTE_HL.map(([c, n])=>`<button type="button" class="ne-dot" data-bg="${c}" title="${n}" style="background:${c};"></button>`).join('')}
+        <button type="button" data-c="bold" title="Bold"><b>B</b></button><button type="button" data-c="italic" title="Italic"><i>I</i></button><button type="button" data-c="underline" title="Underline"><u>U</u></button><button type="button" data-c="strikeThrough" title="Strike"><s>S</s></button><button type="button" data-c="list" title="List: bullet, phir number, phir band">•</button><button type="button" data-c="clear" title="Rang, bold aur list hatayein (select kiya hua, ya poora note)">Tx</button><span class="ne-sep"></span>${NOTE_COLORS.map(([c, n])=>`<button type="button" class="ne-dot ne-a" data-fg="${c}" title="${n}" style="background:${c};"></button>`).join('')}<span class="ne-sep"></span>${NOTE_HL.map(([c, n])=>`<button type="button" class="ne-dot" data-bg="${c}" title="${n}" style="background:${c};"></button>`).join('')}
       </div>
       <div id="noteEd" class="note-ed" contenteditable="true" role="textbox" aria-multiline="true" data-ph="${L({rur:'Yahan likhein…', en:'Write here…'})}"></div>
       <div class="ne-row"><span class="ne-l ne-card">${L({rur:'Card ka rang', en:'Card colour'})}</span><button type="button" class="ne-dot ${tint === defT ? 'on' : ''}" data-tint="${defT}" title="Theme ka rang" style="background:${defT};">◉</button><button type="button" class="ne-dot ne-none ${tint ? '' : 'on'}" data-tint="" title="Koi nahi">∅</button>${NOTE_TINT.map(([c, n])=>`<button type="button" class="ne-dot ${tint === c ? 'on' : ''}" data-tint="${c}" title="${n}" style="background:${c};"></button>`).join('')}</div>
@@ -9583,7 +9581,27 @@ function openNoteBox(ctx, onClose){
     ed.addEventListener('paste', e=>{ e.preventDefault(); const tx = (e.clipboardData || window.clipboardData).getData('text/plain'); document.execCommand('insertText', false, tx); }); /* paste as plain text only */
     const keep = e=> e.preventDefault();
     const fmt = (cmd, val)=>{ ed.focus(); try{ document.execCommand('styleWithCSS', false, true); }catch(_){} document.execCommand(cmd, false, val); };
-    w.querySelectorAll('#neBar [data-c]').forEach(b=>{ b.onmousedown = keep; b.onclick = ()=> fmt(b.dataset.c); });
+    const listBtn = w.querySelector('#neBar [data-c=list]');
+    const listIc = ()=>{ try{ listBtn.textContent = document.queryCommandState('insertOrderedList') ? '1.' : '•'; }catch(_){} };
+    const doList = ()=>{
+      ed.focus();
+      if(document.queryCommandState('insertUnorderedList')){ document.execCommand('insertOrderedList'); }
+      else if(document.queryCommandState('insertOrderedList')){ document.execCommand('insertOrderedList'); }
+      else document.execCommand('insertUnorderedList');
+      listIc();
+    };
+    const doClear = ()=>{
+      ed.focus(); const sel = window.getSelection();
+      if(!sel.rangeCount || sel.isCollapsed || !ed.contains(sel.anchorNode)){ document.execCommand('selectAll'); }
+      ['insertUnorderedList', 'insertOrderedList'].forEach(c=>{ if(document.queryCommandState(c)) document.execCommand(c); });
+      document.execCommand('removeFormat');
+      ed.querySelectorAll('[style]').forEach(x=> x.removeAttribute('style'));
+      ed.querySelectorAll('b,i,u,s,strike,font').forEach(x=>{ while(x.firstChild) x.parentNode.insertBefore(x.firstChild, x); x.remove(); });
+      ed.style.background = tint || ''; ed.style.color = tint ? '#1d1d1d' : '';
+      sel.collapseToEnd && sel.collapseToEnd(); listIc();
+    };
+    w.querySelectorAll('#neBar [data-c]').forEach(b=>{ b.onmousedown = keep; b.onclick = ()=> b.dataset.c === 'list' ? doList() : b.dataset.c === 'clear' ? doClear() : fmt(b.dataset.c); });
+    ed.addEventListener('keyup', listIc); ed.addEventListener('mouseup', listIc);
     w.querySelectorAll('[data-fg]').forEach(b=>{ b.onmousedown = keep; b.onclick = ()=> fmt('foreColor', b.dataset.fg); });
     w.querySelectorAll('[data-bg]').forEach(b=>{ b.onmousedown = keep; b.onclick = ()=> fmt('hiliteColor', b.dataset.bg); });
     w.querySelectorAll('[data-tint]').forEach(b=>{ b.onclick = ()=>{ tint = b.dataset.tint; w.querySelectorAll('[data-tint]').forEach(x=> x.classList.toggle('on', x === b)); ed.style.background = tint || ''; ed.style.color = tint ? '#1d1d1d' : ''; }; });
