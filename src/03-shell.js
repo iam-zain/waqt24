@@ -16,7 +16,7 @@ function toggleBookmark(k){
 }
 function bmBtn(k, extra){
   const on = isBookmarked(k);
-  return `<button class="bm-btn ${on?'on':''}" data-bm="${k.replace(/"/g,'&quot;')}" ${extra||''} title="Pasandeeda">${on?'★':'☆'}</button>`;
+  return `<button class="bm-btn ${on?'on':''}" data-bm="${k.replace(/"/g,'&quot;')}" ${extra||''} title="Pasandeeda">${on?'★':'☆'}</button>` + (/data-refresh/.test(extra || '') ? '' : noteBtnBm(k));
 }
 
 /* Generic Prev/Next nav for "list -> detail" screens. Whatever renders the

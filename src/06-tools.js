@@ -1267,7 +1267,7 @@ function renderIslamicEvents(){
       <div class="heGreg">📅 ${fmtG(e.greg)}</div>
       ${e.note ? `<div class="heBadge">⚠️ ${e.note}</div>` : ''}
       ${e.tag === 'waqia' && /^(Paidaish|Wafat)/.test(e.yr || '') ? `<div class="heLearn">ℹ️ Seekhne aur yaad rakhne ke liye, jashn ya khaas amal ke liye nahi</div>` : ''}`}
-      <button class="he-share" data-i="${i}" title="Share karein">${SHARE_SVG}</button></div>
+      <div class="hec-act">${noteBtn('kd:' + e.name, e.name.replace(/<[^>]*>/g, ''))}<button class="he-share" data-i="${i}" title="Share karein">${SHARE_SVG}</button></div></div>
     </div>`).join('')}
   `;
   document.querySelectorAll('#heTabs [data-tab]').forEach(el=>{

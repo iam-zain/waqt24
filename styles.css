@@ -3016,3 +3016,17 @@ body.qp-on .to-top{ bottom:150px; }
 .hd-info{ margin:0 0 10px; padding:9px 11px; border-radius:11px; background:color-mix(in srgb, var(--accent) 9%, var(--card)); border:1px solid color-mix(in srgb, var(--accent) 24%, var(--line)); font-size:12px; line-height:1.55; color:var(--text); }
 .hd-card .wk-hc{ margin-left:auto; min-width:26px; text-align:right; }
 .hd-card .wk-head .goal-arrow{ margin-left:8px; }
+
+/* Notes: rich editor and note buttons */
+.ne-bar{ display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; } .ne-bar button{ min-width:36px; height:34px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:14px; cursor:pointer; padding:0 8px; }
+.ne-row{ display:flex; align-items:center; gap:7px; margin:8px 0; flex-wrap:wrap; } .ne-l{ font-size:13px; font-weight:800; color:var(--sub); min-width:16px; } .ne-l2{ margin-left:8px; } .ne-card{ font-size:11.5px; margin-right:2px; }
+.ne-dot{ width:26px; height:26px; border-radius:50%; border:2px solid var(--line); cursor:pointer; padding:0; font-size:11px; color:var(--sub); background:var(--card2); } .ne-dot.on{ border-color:var(--text); box-shadow:0 0 0 2px var(--bg2), 0 0 0 4px var(--accent); }
+.note-ed{ min-height:96px; max-height:34vh; overflow:auto; padding:10px 12px; border-radius:12px; border:1.5px solid var(--line); background:var(--card); color:var(--text); font-size:14.5px; line-height:1.55; outline:none; word-break:break-word; } .note-ed:focus{ border-color:var(--accent); }
+.note-ed:empty::before{ content:attr(data-ph); color:var(--sub); } .note-ed ul, .note-text ul, .note-prev ul{ margin:4px 0; padding-left:20px; }
+.note-prev{ max-height:4.6em; overflow:hidden; line-height:1.5; white-space:normal !important; }
+.nt-btn{ display:inline-flex; align-items:center; gap:4px; height:30px; padding:0 10px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; }
+.nt-btn.has{ border-color:var(--accent); } .nt-c{ display:inline-block; min-width:16px; padding:0 4px; border-radius:8px; background:var(--accent); color:var(--fardText,#fff); font-size:10.5px; line-height:16px; text-align:center; }
+.nt-btn.nt-ico{ height:38px; min-width:38px; justify-content:center; padding:0 10px; font-size:17px; border-radius:10px; margin-left:6px; position:relative; } .nt-ico .nt-c{ position:absolute; top:-5px; right:-5px; }
+
+.nt-row{ display:flex; justify-content:flex-start; margin-top:10px; }
+.hec-act{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:10px; } .hec .hec-body .hec-act .he-share{ margin:0; }

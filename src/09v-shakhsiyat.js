@@ -230,6 +230,7 @@ function shkCardHtml(x, n){
       <p>${x.p}</p>
       ${x.pts.length ? `<ul class="shk-pts">${x.pts.map(t=>`<li>${t}</li>`).join('')}</ul>` : ''}
       <div class="zr-tags">${shkTags(x).map(t=>`<button type="button" class="zr-tag ${shkTag === t ? 'on' : ''}" data-t="${t}">#${t}</button>`).join('')}</div>
+      <div class="nt-row">${noteBtn('shk:' + x.n, shkName(x).replace(/<[^>]*>/g, ''))}</div>
     </div>
   </div>`;
 }
