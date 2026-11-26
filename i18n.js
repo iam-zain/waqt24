@@ -876,3 +876,4 @@ Object.assign(I18N_EN, { "Jawab nahi diya (waqt khatam)":"No answer (time ran ou
 
 Object.assign(I18N_EN, { "Agla sawal khud khule":"Next question opens by itself", "Wajah / jaankari":"Why / more info" });
 Object.assign(I18N_EN, {"Sandarbh":"Clue"});
+Object.assign(I18N_EN, {"Quiz jaari rakhein":"Continue quiz"});

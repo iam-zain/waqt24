@@ -979,6 +979,7 @@ function renderMoreQuiz(){
       <div style="font-size:15px; font-weight:700; margin-bottom:4px;">Islami Malumat Ka Quiz</div>
       <div style="font-size:13px; color:var(--sub); margin-bottom:14px;">Category chuniye</div>
     </div>
+    ${(()=>{ const d = quizSaved(); return d ? `<button class="quiz-cat-btn" id="quizResumeBtn" style="border-color:#2e9e5b;"><span class="quiz-cat-ic">▶️</span><span class="quiz-cat-name">${L({rur:'Quiz jaari rakhein', en:'Continue quiz'})}</span><span class="quiz-cat-count">${d.cat} · ${d.idx+1}/${d.questions.length}</span></button>` : ''; })()}
     ${quizProfileHtml()}
     ${(()=>{ const w = qzWeakAll().length; return w ? `<button class="quiz-cat-btn" id="quizWeakBtn" style="border-color:#e0893f;"><span class="quiz-cat-ic">🔁</span><span class="quiz-cat-name">${L({rur:'Galat sawal ki practice', en:'Practise missed questions'})}</span><span class="quiz-cat-count">${w} ${L({rur:'sawal', en:'questions'})}</span></button>` : ''; })()}
     <button class="quiz-cat-btn" data-cat="__all__" style="border-color:var(--accent);">
@@ -991,6 +992,8 @@ function renderMoreQuiz(){
   body.querySelectorAll('.quiz-cat-btn[data-cat]').forEach(btn=>{
     btn.onclick = ()=> renderQuizCountSelect(btn.dataset.cat);
   });
+  const rb = document.getElementById('quizResumeBtn');
+  if(rb) rb.onclick = quizResume;
   const wb = document.getElementById('quizWeakBtn');
   if(wb) wb.onclick = ()=>{ const w = qzWeakAll(); startQuiz(w, Math.min(10, w.length), L({rur:'Galat sawal ki practice', en:'Missed questions'})); };
 }
@@ -1019,8 +1022,8 @@ function renderQuizCountSelect(cat){
       <div class="qz-lv-note" style="margin-top:6px;">💡 ${L({rur:'Hint: 5 sawal mein 2, 10 sawal mein 4 (50-50, Sandarbh, Skip, +10s, Do baar). Ek sawal par ek hi hint. Hint se sahi jawab dene par wo sawal "Pakke" mein nahi ginta.', en:'Hints: 2 in 5 questions, 4 in 10 (50-50, Clue, Skip, +10s, 2 tries). One hint per question. A correct answer that used a hint does not count towards "Solid".'})}</div>
       <div style="font-size:13px; color:var(--sub); margin:18px 0 14px;">${L({rur:'Kitne sawal khelna chahte hain?', en:'How many questions?'})}</div>
       <div style="display:flex; gap:12px; justify-content:center;">
-        <button id="quiz5" class="quiz-count-btn c5">5 ${L({rur:'Sawal', en:'Questions'})}</button>
-        <button id="quiz10" class="quiz-count-btn c10">10 ${L({rur:'Sawal', en:'Questions'})}</button>
+        <button id="quiz5" class="quiz-count-btn c5" ${pool.length ? '' : 'disabled'}>${Math.min(5, pool.length)} ${L({rur:'Sawal', en:'Questions'})}</button>
+        <button id="quiz10" class="quiz-count-btn c10" ${pool.length >= 10 ? '' : 'disabled'}>10 ${L({rur:'Sawal', en:'Questions'})}</button>
       </div>
       <button id="quizBackToCats" style="margin-top:22px; background:none; border:none; color:var(--sub); font-size:12.5px; text-decoration:underline; cursor:pointer;">‹ ${L({rur:'Category Badlein', en:'Change category'})}</button>
     </div>
@@ -1029,7 +1032,7 @@ function renderQuizCountSelect(cat){
   document.querySelectorAll('#quizTimerSeg button').forEach(b=>{ b.onclick = ()=>{ state.quizTimerSecs = +b.dataset.s; state.quizTimer = !!state.quizTimerSecs; saveState(); document.querySelectorAll('#quizTimerSeg button').forEach(x=>x.classList.toggle('on', x===b)); }; });
   document.querySelectorAll('#quizAutoSeg button').forEach(b=>{ b.onclick = ()=>{ state.quizAutoSecs = +b.dataset.s; saveState(); document.querySelectorAll('#quizAutoSeg button').forEach(x=>x.classList.toggle('on', x===b)); }; });
   document.getElementById('quiz5').onclick = ()=> startQuiz(pool, Math.min(5, pool.length), label);
-  document.getElementById('quiz10').onclick = ()=> startQuiz(pool, Math.min(10, pool.length), label);
+  document.getElementById('quiz10').onclick = ()=> pool.length >= 10 && startQuiz(pool, Math.min(10, pool.length), label);
   document.getElementById('quizBackToCats').onclick = renderMoreQuiz;
 }
 
@@ -1038,6 +1041,28 @@ function logQuizResult(cat, score, total){
   state.quizLog.push({ t: Date.now(), cat, score, total });
   if(state.quizLog.length > 1000) state.quizLog.shift();
   saveState();
+}
+/* Resume: the running quiz is kept in localStorage so the player can carry on where they left (not for quizzes that use hooks, e.g. Lafz review) */
+const QZ_SAVE_KEY = 'waqt24_quiz_resume';
+function quizSave(){
+  try{
+    const qs = quizState;
+    if(!qs || (qs.hooks && Object.keys(qs.hooks).length)) return;
+    const idx = qs.answered ? qs.idx + 1 : qs.idx;
+    if(idx >= qs.questions.length){ localStorage.removeItem(QZ_SAVE_KEY); return; }
+    const { questions, score, cat, wrong, timer, secs, auto, hints, hintsLeft, spare, results, streak, best, logged } = qs;
+    localStorage.setItem(QZ_SAVE_KEY, JSON.stringify({ questions, idx, score, cat, wrong, timer, secs, auto, hints, hintsLeft, spare, results, streak, best, logged, at: Date.now() }));
+  }catch(e){}
+}
+function quizSaved(){
+  try{ const d = JSON.parse(localStorage.getItem(QZ_SAVE_KEY) || 'null'); return d && Array.isArray(d.questions) && d.idx < d.questions.length ? d : null; }catch(e){ return null; }
+}
+function quizSaveClear(){ try{ localStorage.removeItem(QZ_SAVE_KEY); }catch(e){} }
+function quizResume(){
+  const d = quizSaved(); if(!d) return;
+  quizTimerStop();
+  quizState = Object.assign({}, d, { answered: false, hooks: {}, extra: 0 });
+  renderQuizQuestion();
 }
 function startQuiz(pool, n, cat, hooks){
   const shuf = shuffleArr(pool), picked = shuf.slice(0, n), spare = shuf.slice(n);
@@ -1113,6 +1138,7 @@ function renderQuizQuestion(){
   const qs = quizState;
   quizTimerStop();
   const [q, opts, correct] = quizLocal(qs.questions[qs.idx]);
+  quizSave();
   qs.hinted = false; qs.extra = 0; qs.second = false; qs.secondUsed = false;
   document.getElementById('detailTitle').textContent = `Sawal ${qs.idx+1}/${qs.questions.length}`;
   const body = document.getElementById('detailBody');
@@ -1176,6 +1202,7 @@ function renderQuizQuestion(){
       document.getElementById('quizRevealWrap').innerHTML = `<div class="quiz-reveal">${ok ? '' : `${chosen < 0 ? L({rur:'Waqt khatam. ', en:'Time is up. '}) : ''}${L({rur:'Sahi Jawab', en:'Correct answer'})}: <b>${opts[correct]}</b>`}${why ? `<div class="quiz-why"><span>💡 ${L({rur:'Wajah / jaankari', en:'Why / more info'})}</span>${why}</div>` : ''}</div>`;
     }
     if(qs.hooks.onAnswer) qs.hooks.onAnswer(item, ok);
+    quizSave();
     const isLast = qs.idx===qs.questions.length-1;
     document.getElementById('quizNextWrap').innerHTML = `<button id="quizNextBtn" class="quiz-next"><span class="qn-fill" id="quizNextFill"></span><span class="qn-txt">${isLast?'Result Dekhiye':'Agla Sawal'} ›</span></button>`;
     const goNext = ()=>{ if(isLast){ renderQuizResult(); } else { qs.idx++; qs.answered=false; renderQuizQuestion(); } };
@@ -1250,6 +1277,7 @@ function renderQuizQuestion(){
 
 function renderQuizResult(){
   const qs = quizState;
+  quizSaveClear();
   if(!qs.logged){ qs.logged = true; logQuizResult(qs.cat, qs.score, qs.questions.length); }
   const pct = Math.round((qs.score/qs.questions.length)*100);
   const msg = pct>=80 ? 'Zabardast! Mashallah.' : pct>=50 ? 'Achha kiya, aur mehnat kijiye.' : 'Koi baat nahi, dobara koshish kijiye.';
