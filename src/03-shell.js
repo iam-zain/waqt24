@@ -939,7 +939,9 @@ function renderAzaan(){
     <button class="backup-btn" id="azaanSetBtn">⚙️ ${L({rur:'Namaz ke waqt Azaan', en:'Azaan at prayer times'})}: ${a.on ? L({rur:'On', en:'On'}) : L({rur:'Off', en:'Off'})}</button>
     <div class="zk-seg zk-seg2" id="azTabs"><button data-t="words">📜 ${L({rur:'Alfaaz', en:'Words'})}</button><button data-t="dua">🤲 ${L({rur:'Dua aur Hadees', en:'Dua and Hadith'})}</button><button data-t="listen">🎧 ${L({rur:'Suniye', en:'Listen'})}</button></div>
     <div class="az-sec" data-t="words"><div class="section-title">${L({rur:'Azaan ke Alfaaz', en:'Words of the Azaan'})}</div>
-    <div class="az-text">${AZAAN_TEXT.map(x=>`<div class="az-line ${x.fajr?'fajr':''}">
+    <div class="zk-seg zk-seg2 az-vw" id="azView"><button data-v="lines">${L({rur:'Line-by-line', en:'Line by line'})}</button><button data-v="ar">${L({rur:'Arabic', en:'Arabic'})}</button><button data-v="tr">${L({rur:'Transliteration', en:'Transliteration'})}</button><button data-v="m">${L({rur:'Matlab', en:'Meaning'})}</button></div>
+    <div class="az-all" id="azAll" style="display:none;"></div>
+    <div class="az-text" id="azLines">${AZAAN_TEXT.map(x=>`<div class="az-line ${x.fajr?'fajr':''}">
       <div class="az-ar ar-font">${x.ar}</div>
       <div class="az-tr">${x.tr} <b>×${x.n}</b></div>
       <div class="az-m">${L(x.m)}</div>
@@ -961,6 +963,21 @@ function renderAzaan(){
     <div class="backup-note">${L({rur:'Recordings Wikimedia Commons se hain, free license (CC0, Public domain, CC BY, CC BY-SA) ke saath. Har recording ke saath uske banane wale aur license ka zikr hai.', en:'Recordings are from Wikimedia Commons under free licences (CC0, public domain, CC BY, CC BY-SA). Each recording lists its author and licence.'})}</div></div>
   `;
   document.getElementById('azaanSetBtn').onclick = renderAzaanSettings;
+  const azAllDraw = v=>{
+    state.azView = v; saveState();
+    const all = document.getElementById('azAll'), lines = document.getElementById('azLines');
+    document.querySelectorAll('#azView button').forEach(b=> b.classList.toggle('on', b.dataset.v === v));
+    if(v === 'lines'){ all.style.display = 'none'; lines.style.display = ''; return; }
+    lines.style.display = 'none'; all.style.display = '';
+    const fj = ' <small class="az-fj">(' + L({rur:'sirf Fajr', en:'Fajr only'}) + ')</small>';
+    all.innerHTML = '<div class="az-text"><div class="az-line">' + AZAAN_TEXT.map(x=>{
+      if(v === 'ar') return `<div class="az-ar ar-font">${x.ar}</div>`;
+      if(v === 'tr') return `<div class="az-tr">${x.tr} <b>×${x.n}</b>${x.fajr ? fj : ''}</div>`;
+      return `<div class="az-m az-mrow">${L(x.m)} <b>×${x.n}</b>${x.fajr ? fj : ''}</div>`;
+    }).join('') + '</div></div>';
+  };
+  document.querySelectorAll('#azView button').forEach(b=> b.onclick = ()=> azAllDraw(b.dataset.v));
+  azAllDraw(['lines','ar','tr','m'].includes(state.azView) ? state.azView : 'lines');
   const azShow = t=>{
     state.azTab = t; saveState();
     document.querySelectorAll('#detailBody .az-sec').forEach(x=> x.style.display = x.dataset.t === t ? '' : 'none');

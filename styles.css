@@ -3047,3 +3047,4 @@ body.qp-on .to-top{ bottom:150px; }
 .ne-bar .ne-dot{ width:16px !important; max-width:16px; height:16px !important; border-width:1.5px; }
 .ne-bar button:not(.ne-dot){ min-width:23px !important; width:23px; padding:0 !important; font-size:12.5px !important; }
 .ne-sep{ margin:3px 1px !important; }
+.az-vw{ margin:0 0 10px; } .az-vw button{ font-size:11.5px !important; padding:8px 2px !important; } .az-mrow{ margin:0 0 8px; } .az-fj{ color:var(--sub); font-weight:600; } .az-all .az-ar{ margin-bottom:2px; }
