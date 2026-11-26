@@ -1040,10 +1040,10 @@ function logQuizResult(cat, score, total){
   saveState();
 }
 function startQuiz(pool, n, cat, hooks){
-  const picked = shuffleArr(pool).slice(0, n);
+  const shuf = shuffleArr(pool), picked = shuf.slice(0, n), spare = shuf.slice(n);
   const hints = quizHintsFor(picked.length);
   quizTimerStop();
-  quizState = { questions: picked, idx: 0, score: 0, answered: false, cat: cat || 'Mix', wrong: [], hooks: hooks || {}, timer: !!state.quizTimer, auto: QZ_AUTO.includes(state.quizAutoSecs) ? state.quizAutoSecs : 0, hints, hintsLeft: hints, results: [], streak: 0, best: 0 };
+  quizState = { questions: picked, idx: 0, score: 0, answered: false, cat: cat || 'Mix', wrong: [], hooks: hooks || {}, timer: !!state.quizTimer, auto: QZ_AUTO.includes(state.quizAutoSecs) ? state.quizAutoSecs : 0, hints, hintsLeft: hints, spare, extra: 0, results: [], streak: 0, best: 0 };
   renderQuizQuestion();
 }
 
@@ -1106,23 +1106,26 @@ function quizWhy(item){
 const QZ_AUTO = [0, 1, 3, 5];   /* seconds before the next question opens by itself (0 = off) */
 /* Quiz timer (optional, chosen on the start screen) and 50-50 hint (1 per 5 questions) */
 const QUIZ_SECS = 20;
-function quizHintsFor(n){ return n >= 10 ? 2 : n >= 3 ? 1 : 0; }
+function quizHintsFor(n){ return n >= 10 ? 4 : n >= 5 ? 2 : n >= 3 ? 1 : 0; }   /* 2 hints per 5 sawal, 4 per 10 (shared by all hint types) */
 function quizTimerStop(){ if(quizState && quizState.tmr){ clearInterval(quizState.tmr); quizState.tmr = null; } }
 function renderQuizQuestion(){
   const qs = quizState;
   quizTimerStop();
   const [q, opts, correct] = quizLocal(qs.questions[qs.idx]);
-  qs.hinted = false;
+  qs.hinted = false; qs.extra = 0; qs.second = false; qs.secondUsed = false;
   document.getElementById('detailTitle').textContent = `Sawal ${qs.idx+1}/${qs.questions.length}`;
   const body = document.getElementById('detailBody');
   const canHint = qs.hintsLeft > 0 && opts.length > 2;
   const clue = quizClue(qs.questions[qs.idx]);
   const canClue = qs.hintsLeft > 0 && !!clue;
+  const canSkip = qs.hintsLeft > 0 && qs.spare.length > 0;
+  const canTime = qs.hintsLeft > 0 && qs.timer;
+  const canSecond = qs.hintsLeft > 0;
   body.innerHTML = `
     <div class="quiz-dots-row"><div class="quiz-dots" role="img" aria-label="${qs.idx+1} / ${qs.questions.length}">${qs.questions.map((_,k)=>`<i class="${k<qs.idx ? (qs.results[k] ? 'ok' : 'no') : k===qs.idx ? 'cur' : ''}"></i>`).join('')}</div>${qs.streak >= 2 ? `<span class="quiz-streak">🔥 ${qs.streak} ${L({rur:'sahi lagataar', en:'in a row'})}</span>` : ''}</div>
     <div class="quiz-tools">
       ${qs.timer ? `<div class="quiz-timer" id="quizTimer"><span class="qt-ic">⏱️</span><span class="qt-n" id="quizTimerN">${QUIZ_SECS}</span><div class="qt-bar"><div class="qt-fill" id="quizTimerFill"></div></div></div>` : '<div></div>'}
-      ${qs.hints ? `<div class="quiz-hints"><button type="button" class="quiz-hint" id="quizHintBtn" ${canHint ? '' : 'disabled'}>💡 50-50</button>${clue ? `<button type="button" class="quiz-hint" id="quizClueBtn" ${canClue ? '' : 'disabled'}>🧭 ${L({rur:'Sandarbh', en:'Clue'})}</button>` : ''}<em class="quiz-hint-n" id="quizHintN">${qs.hintsLeft}/${qs.hints}</em></div>` : ''}
+      ${qs.hints ? `<div class="quiz-hints"><button type="button" class="quiz-hint" id="quizHintBtn" ${canHint ? '' : 'disabled'}>💡 50-50</button>${clue ? `<button type="button" class="quiz-hint" id="quizClueBtn" ${canClue ? '' : 'disabled'}>🧭 ${L({rur:'Sandarbh', en:'Clue'})}</button>` : ''}<button type="button" class="quiz-hint" id="quizSkipBtn" ${canSkip ? '' : 'disabled'}>⏭️ ${L({rur:'Skip', en:'Skip'})}</button>${qs.timer ? `<button type="button" class="quiz-hint" id="quizTimeBtn" ${canTime ? '' : 'disabled'}>⏱️ +10s</button>` : ''}<button type="button" class="quiz-hint" id="quizSecondBtn" ${canSecond ? '' : 'disabled'}>🔁 ${L({rur:'Do baar', en:'2 tries'})}</button><em class="quiz-hint-n" id="quizHintN">${qs.hintsLeft}/${qs.hints}</em></div>` : ''}
     </div>
     <div class="quiz-card">
       ${quizQHtml(q)}
@@ -1137,6 +1140,15 @@ function renderQuizQuestion(){
   /* chosen = option index, or -1 when the time ran out */
   const finish = (chosen)=>{
     if(qs.answered) return;
+    /* "2 tries" hint: the first wrong tap only crosses that option out */
+    if(qs.second && !qs.secondUsed && chosen >= 0 && chosen !== correct){
+      qs.secondUsed = true;
+      const wb = body.querySelector(`.quiz-opt[data-i="${chosen}"]`);
+      if(wb){ wb.disabled = true; wb.classList.add('struck'); }
+      buzz(30);
+      document.getElementById('quizClueBox').innerHTML = `<div class="quiz-clue">🔁 ${L({rur:'Ye galat hai, ek aur koshish karein.', en:'Not that one, try once more.'})}</div>`;
+      return;
+    }
     qs.answered = true;
     quizTimerStop();
     const ok = chosen === correct;
@@ -1183,6 +1195,29 @@ function renderQuizQuestion(){
     body.querySelectorAll('.quiz-hint').forEach(b=>{ b.disabled = true; });
     document.getElementById('quizHintN').textContent = qs.hintsLeft + '/' + qs.hints;
   };
+  const useHint = (fn)=>{
+    if(qs.answered || qs.hinted || qs.hintsLeft < 1) return false;
+    qs.hinted = true; qs.hintsLeft--;
+    body.querySelectorAll('.quiz-hint').forEach(b=>{ b.disabled = true; });
+    const hn = document.getElementById('quizHintN'); if(hn) hn.textContent = qs.hintsLeft + '/' + qs.hints;
+    return true;
+  };
+  const skipBtn = document.getElementById('quizSkipBtn');
+  if(skipBtn && canSkip) skipBtn.onclick = ()=>{
+    /* swaps in a fresh question; the skipped one is not counted either way */
+    if(qs.answered || qs.hintsLeft < 1 || !qs.spare.length) return;
+    qs.hintsLeft--;
+    qs.questions[qs.idx] = qs.spare.shift();
+    renderQuizQuestion();
+  };
+  const timeBtn = document.getElementById('quizTimeBtn');
+  if(timeBtn && canTime) timeBtn.onclick = ()=>{ if(useHint()) qs.extra = 10; };
+  const secondBtn = document.getElementById('quizSecondBtn');
+  if(secondBtn && canSecond) secondBtn.onclick = ()=>{
+    if(!useHint()) return;
+    qs.second = true;
+    document.getElementById('quizClueBox').innerHTML = `<div class="quiz-clue">🔁 ${L({rur:'Ek galti maaf: pehla galat option sirf kat jayega.', en:'One mistake forgiven: a wrong first tap is just crossed out.'})}</div>`;
+  };
   const clueBtn = document.getElementById('quizClueBtn');
   if(clueBtn && canClue) clueBtn.onclick = ()=>{
     if(qs.answered || qs.hinted || qs.hintsLeft < 1) return;
@@ -1197,9 +1232,9 @@ function renderQuizQuestion(){
     qs.tmr = setInterval(()=>{
       /* stop by itself if the screen changed or the quiz was left */
       if(quizState !== qs || qs.idx !== idx || qs.answered || !document.getElementById('quizTimer')){ clearInterval(qs.tmr); qs.tmr = null; return; }
-      const left = Math.max(0, QUIZ_SECS - (Date.now()-t0)/1000);
+      const tot = QUIZ_SECS + qs.extra, left = Math.max(0, tot - (Date.now()-t0)/1000);
       num.textContent = Math.ceil(left);
-      fill.style.width = (left/QUIZ_SECS*100) + '%';
+      fill.style.width = (left/tot*100) + '%';
       box.classList.toggle('low', left <= 5);
       if(left <= 0) finish(-1);
     }, 200);

@@ -3183,3 +3183,4 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .quiz-hints{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .quiz-hint-n{font-style:normal;font-size:12px;opacity:.7}
 .quiz-clue{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:rgba(80,160,255,.10);border:1px dashed rgba(80,160,255,.45);font-size:14px;line-height:1.5}
+.quiz-hints{gap:5px}.quiz-hints .quiz-hint{padding:6px 9px;font-size:12.5px}
