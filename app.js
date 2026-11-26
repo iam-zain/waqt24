@@ -4747,8 +4747,9 @@ function renderQuizQuestion(){
     <div class="quiz-dots-row"><div class="quiz-dots" role="img" aria-label="${qs.idx+1} / ${qs.questions.length}">${qs.questions.map((_,k)=>`<i class="${k<qs.idx ? (qs.results[k] ? 'ok' : 'no') : k===qs.idx ? 'cur' : ''}"></i>`).join('')}</div>${qs.streak >= 2 ? `<span class="quiz-streak">🔥 ${qs.streak} ${L({rur:'sahi lagataar', en:'in a row'})}</span>` : ''}</div>
     <div class="quiz-tools">
       ${qs.timer ? `<div class="quiz-timer" id="quizTimer"><span class="qt-ic">⏱️</span><span class="qt-n" id="quizTimerN">${qs.secs}</span><div class="qt-bar"><div class="qt-fill" id="quizTimerFill"></div></div></div>` : '<div></div>'}
-      ${qs.hints ? `<div class="quiz-hints"><button type="button" class="quiz-hint" id="quizHintBtn" ${canHint ? '' : 'disabled'}>💡 50-50</button>${clue ? `<button type="button" class="quiz-hint" id="quizClueBtn" ${canClue ? '' : 'disabled'}>🧭 ${L({rur:'Sandarbh', en:'Clue'})}</button>` : ''}<button type="button" class="quiz-hint" id="quizSkipBtn" ${canSkip ? '' : 'disabled'}>⏭️ ${L({rur:'Skip', en:'Skip'})}</button>${qs.timer ? `<button type="button" class="quiz-hint" id="quizTimeBtn" ${canTime ? '' : 'disabled'}>⏱️ +10s</button>` : ''}<button type="button" class="quiz-hint" id="quizSecondBtn" ${canSecond ? '' : 'disabled'}>🔁 ${L({rur:'Do baar', en:'2 tries'})}</button><em class="quiz-hint-n" id="quizHintN">${qs.hintsLeft}/${qs.hints}</em></div>` : ''}
+      ${qs.hints ? `<button type="button" class="quiz-hint quiz-hint-toggle" id="quizHintToggle" aria-expanded="false" ${qs.hintsLeft > 0 ? '' : 'disabled'}>💡 ${L({rur:'Hint', en:'Hint'})} <em class="quiz-hint-n" id="quizHintN">${qs.hintsLeft}/${qs.hints}</em></button>` : ''}
     </div>
+    ${qs.hints ? `<div class="quiz-hint-panel" id="quizHintPanel" hidden><button type="button" class="quiz-hint" id="quizHintBtn" ${canHint ? '' : 'disabled'}>💡 50-50</button>${clue ? `<button type="button" class="quiz-hint" id="quizClueBtn" ${canClue ? '' : 'disabled'}>🧭 ${L({rur:'Sandarbh', en:'Clue'})}</button>` : ''}<button type="button" class="quiz-hint" id="quizSkipBtn" ${canSkip ? '' : 'disabled'}>⏭️ ${L({rur:'Sawal badlein', en:'Change question'})}</button>${qs.timer ? `<button type="button" class="quiz-hint" id="quizTimeBtn" ${canTime ? '' : 'disabled'}>⏱️ +10s</button>` : ''}<button type="button" class="quiz-hint" id="quizSecondBtn" ${canSecond ? '' : 'disabled'}>🔁 ${L({rur:'Do baar', en:'2 tries'})}</button></div>` : ''}
     <div class="quiz-card">
       ${quizQHtml(q)}
     </div>
@@ -4816,11 +4817,15 @@ function renderQuizQuestion(){
     shuffleArr(wrong).slice(0,2).forEach(i=>{ const b = body.querySelector(`.quiz-opt[data-i="${i}"]`); if(b){ b.disabled = true; b.classList.add('struck'); } });
     body.querySelectorAll('.quiz-hint').forEach(b=>{ b.disabled = true; });
     document.getElementById('quizHintN').textContent = qs.hintsLeft + '/' + qs.hints;
+    document.getElementById('quizHintPanel').hidden = true;
   };
+  const tg = document.getElementById('quizHintToggle'), pnl = document.getElementById('quizHintPanel');
+  if(tg && pnl) tg.onclick = ()=>{ const open = pnl.hidden; pnl.hidden = !open; tg.setAttribute('aria-expanded', open); };
   const useHint = (fn)=>{
     if(qs.answered || qs.hinted || qs.hintsLeft < 1) return false;
     qs.hinted = true; qs.hintsLeft--;
     body.querySelectorAll('.quiz-hint').forEach(b=>{ b.disabled = true; });
+    if(pnl) pnl.hidden = true;
     const hn = document.getElementById('quizHintN'); if(hn) hn.textContent = qs.hintsLeft + '/' + qs.hints;
     return true;
   };
@@ -4847,6 +4852,7 @@ function renderQuizQuestion(){
     document.getElementById('quizClueBox').innerHTML = `<div class="quiz-clue">🧭 ${clue}</div>`;
     body.querySelectorAll('.quiz-hint').forEach(b=>{ b.disabled = true; });
     document.getElementById('quizHintN').textContent = qs.hintsLeft + '/' + qs.hints;
+    document.getElementById('quizHintPanel').hidden = true;
   };
   if(qs.timer){
     const t0 = Date.now(), idx = qs.idx;

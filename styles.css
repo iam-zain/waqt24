@@ -3184,3 +3184,7 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .quiz-hint-n{font-style:normal;font-size:12px;opacity:.7}
 .quiz-clue{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:rgba(80,160,255,.10);border:1px dashed rgba(80,160,255,.45);font-size:14px;line-height:1.5}
 .quiz-hints{gap:5px}.quiz-hints .quiz-hint{padding:6px 9px;font-size:12.5px}
+.quiz-hint-panel{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;margin:6px 0 0}
+.quiz-hint-panel[hidden]{display:none}
+.quiz-hint-panel .quiz-hint{padding:6px 10px;font-size:12.5px}
+.quiz-hint-toggle[aria-expanded="true"]{box-shadow:inset 0 0 0 1.5px #f0a93b}
