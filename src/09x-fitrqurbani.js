@@ -32,7 +32,7 @@ const fqDateStr = g => g ? g.toLocaleDateString('en-IN', { weekday:'short', day:
 function renderFitrQurbani(){
   const f = fqState();
     document.getElementById('detailBody').innerHTML = `
-    <div class="zk-hero fq-hero"><div class="zk-hero-ic">🐑</div><div><div class="zk-hero-t">Fitrah aur Qurbani</div><div class="zk-hero-s">Hanafi fiqh ke mutabiq · Eid ke do hisaab</div></div></div>
+    <div class="zk-hero fq-hero"><div class="zk-hero-ic">${f.tab === 'qurbani' ? '🐑' : '🌾'}</div><div><div class="zk-hero-t">${f.tab === 'qurbani' ? 'Qurbani' : 'Sadaqa-e-Fitr'}</div><div class="zk-hero-s">${f.tab === 'qurbani' ? 'Eid-ul-Azha ka hisaab · Hanafi fiqh ke mutabiq' : 'Eid-ul-Fitr se pehle ada hota hai · Hanafi fiqh ke mutabiq'}</div></div></div></div>
     <div id="fqBody"></div>
     <div class="backup-note">Ye hisaab Hanafi fiqh ki aam maloomat par mabni hai. Wazan aur rakam ke baare mein apne masjid ke imam ya mufti ke elaan ko dekh lein. Ye mashwara nahi, sirf madad hai.</div>
     <div class="tab-end"></div>`;

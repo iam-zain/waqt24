@@ -91,7 +91,7 @@ function openAadaabDetail(t0){
       { sc:1, n:'①', ic:'🎬', lbl:'Aaj Hum Kya Karte Hain?', txt:t.scene },
       { sc:2, n:'②', ic:'❗', lbl:'Masla Kahan Hai?', txt:t.masla },
       { sc:3, n:'③', ic:'📖', lbl:'Islam Humein Kya Sikhata Hai?', txt:t.islam },
-      { sc:4, n:'④', ic:'🌙', lbl:'Nabi ﷺ Ka Amal', txt:t.nabi },
+      { sc:4, n:'④', ic:'🌹', lbl:'Nabi ﷺ Ka Amal', txt:t.nabi },
       { sc:5, n:'⑤', ic:'🪞', lbl:'Hum Kahan Galti Karte Hain?', txt:t.galti },
       { sc:6, n:'⑥', ic:'✅', lbl:'Aaj Se Ek Chhoti Tabdeeli', txt:t.tabdeeli },
     ].filter(s=>s.txt);
@@ -260,7 +260,7 @@ function shuffleArr(arr){
 
 const QUIZ_CAT_ICON = {
   "Namaz":"🕌", "Akhlaq aur Muashira":"🤝", "Qur’an aur Ibadaat":"📖",
-  "Seerat-un-Nabi ﷺ":"🌙", "Ambiya-e-Kiram AS":"⭐", "Ahadees aur Sunnat":"📜", "Duain":"🤲",
+  "Seerat-un-Nabi ﷺ":"🌹", "Ambiya-e-Kiram AS":"⭐", "Ahadees aur Sunnat":"📜", "Duain":"🤲",
   "Sahaba-e-Kiram RA":"👥", "Akhirat":"🌌", "Khaas Shabd":"📚",
   "Asma-ul-Husna":"💚", "Qur’ani Alfaaz":"📗"
 };
@@ -427,7 +427,7 @@ function renderNameDetail(which, idx){
    ============================================================ */
 let shabdSearch = '';
 const SHABD_CAT_ICON = {
-  "Allah, Imaan aur Aqeeda":"🕋", "Allah ke Naam aur Sifaat":"💚", "Nabi, Rasool aur Ambiya":"🌙",
+  "Allah, Imaan aur Aqeeda":"🕋", "Allah ke Naam aur Sifaat":"💚", "Nabi, Rasool aur Ambiya":"🌟",
   "Quran, Wahi aur Asmani Kitabein":"📖", "Farishte aur Ghaibi Makhlooq":"👼", "Sahaba aur Ahl-e-Bait":"👥",
   "Ibadat aur Namaz":"🙏", "Roza aur Ramzan":"🍽️", "Nekiyan, Gunah aur Akhlaaq":"⚖️",
   "Sadqah, Khairat aur Maali Ibadat":"💰", "Hajj, Umrah aur Qurbani":"🐪", "Jannat aur Aakhirat":"🌌",

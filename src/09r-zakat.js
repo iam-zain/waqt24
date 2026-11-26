@@ -43,7 +43,7 @@ const ZK_RECALL = [
   { ic:'🏞️', t:'Walid se zameen / wirasat', d:'Wirasat mein jis din hissa aapka hua, wo din dekhein. Dhyan rahe: rehne ya khet ke liye zameen par Zakat nahi. Bechne ki niyyat se hai to wo tijarat ka maal hai, aur bechne ke baad ki raqam nakdi ban jati hai. Is mein aalim se poochh lein.' },
   { ic:'🥇', t:'Sona / chandi khareeda', d:'Sone ya chandi ki raseed ya bill par likhi tareekh dekhein.' },
   { ic:'🏪', t:'Karobaar shuru kiya', d:'Jis din dukaan ya karobaar ka maal nisab ke barabar hua, wo din chunein.' },
-  { ic:'🌙', t:'Koi khaas din', d:'Bahut se log kisi yaad rehne wali Hijri tareekh, jaise 1 Ramzan, ko hawl ki date rakh lete hain. Ye saal bhar ek hi tareekh par hisaab karne ka aasan tareeqa hai, lekin sahi tareekh pata ho to wohi rakhein.' }
+  { ic:'📅', t:'Koi khaas din', d:'Bahut se log kisi yaad rehne wali Hijri tareekh, jaise 1 Ramzan, ko hawl ki date rakh lete hain. Ye saal bhar ek hi tareekh par hisaab karne ka aasan tareeqa hai, lekin sahi tareekh pata ho to wohi rakhein.' }
 ];
 const zkNum = v => { const n = parseFloat(String(v == null ? '' : v).replace(/,/g, '')); return isFinite(n) && n > 0 ? n : 0; };
 const zkFmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
@@ -139,7 +139,7 @@ function renderZakatCalc(keep){
   const sel = (key, opts)=> `<select class="zk-sel" data-k="${key}">${opts.map(o=>`<option value="${o[0]}"${String(f[key] || opts[0][0]) === String(o[0]) ? ' selected' : ''}>${o[1]}</option>`).join('')}</select>`;
   const money = (key, ic, label, hint)=> `<div class="zk-row"><div class="zk-lbl"><span>${ic}</span><div><b>${label}</b>${hint ? `<small>${hint}</small>` : ''}</div></div><div class="zk-field"><i>₹</i><input class="zk-in zk-money" inputmode="decimal" data-k="${key}" placeholder="0" value="${zkComma(f[key])}"></div><div class="zk-words" data-w="${key}">${zkWordsLbl(f[key])}</div></div>`;
   document.getElementById('detailBody').innerHTML = `
-    <div class="zk-hero"><div class="zk-hero-ic">🌙</div><div><div class="zk-hero-t">Zakat Calculator</div><div class="zk-hero-s">Hanafi fiqh ke mutabiq · 2.5% · nisab ke saath</div></div></div>
+    <div class="zk-hero"><div class="zk-hero-ic">💰</div><div><div class="zk-hero-t">Zakat Calculator</div><div class="zk-hero-s">Hanafi fiqh ke mutabiq · 2.5% · nisab ke saath</div></div></div>
 
     <div class="zk-card">
       <div class="zk-h"><span>1</span> Sone aur chandi ka bhaav (₹ per gram)</div>
@@ -274,7 +274,7 @@ function renderZakatCalc(keep){
       zkBusy.k = ''; if(!document.getElementById('zkGoldP')) return; if(zz.mode === 'hawl') showPrices(); save(); drawNote(); paint();
     }
   };
-  const hijNote = ()=>{ const z2 = zkState(), el = document.getElementById('zkHij'); el.innerHTML = z2.nisabDate ? `🌙 Hijri: <b>${zkHijri(new Date(z2.nisabDate + 'T00:00:00'))}</b>` : ''; };
+  const hijNote = ()=>{ const z2 = zkState(), el = document.getElementById('zkHij'); el.innerHTML = z2.nisabDate ? `📅 Hijri: <b>${zkHijri(new Date(z2.nisabDate + 'T00:00:00'))}</b>` : ''; };
   document.querySelectorAll('[data-rc]').forEach(b=> b.onclick = ()=>{
     const tip = document.getElementById('zkRcTip'), on = b.classList.contains('on');
     document.querySelectorAll('[data-rc]').forEach(x=> x.classList.remove('on'));
@@ -316,7 +316,7 @@ function renderZakatCalc(keep){
     };
   });
   fetchBtn.onclick = ()=> loadPrices(true);
-  const anyHij = ()=>{ const zz = zkState(), el = document.getElementById('zkAnyHij'); el.innerHTML = zz.anyDate ? `🌙 Hijri: <b>${zkHijri(new Date(zz.anyDate + 'T00:00:00'))}</b>` : ''; };
+  const anyHij = ()=>{ const zz = zkState(), el = document.getElementById('zkAnyHij'); el.innerHTML = zz.anyDate ? `📅 Hijri: <b>${zkHijri(new Date(zz.anyDate + 'T00:00:00'))}</b>` : ''; };
   const onAny = e=>{ const zz = zkState(); if(zz.anyDate === e.target.value) return; zz.anyDate = e.target.value; save(); anyHij(); drawNote(); if(zz.anyDate) loadPrices(false); };
   ['input', 'change'].forEach(ev=> document.getElementById('zkAnyDate').addEventListener(ev, onAny));
   anyHij();
@@ -575,7 +575,7 @@ function zakatReminders(day){
   const dd = new Date(day.getFullYear(), day.getMonth(), day.getDate()), diff = Math.round((due - dd) / 86400000);
   const txt = { 30:'Zakat ka saal 30 din mein poora hoga. Hisaab ki taiyari shuru karein.', 7:'Zakat ka saal 7 din mein poora hoga. Maal ka hisaab kar lein.', 1:'Kal aapki Zakat ka saal poora ho raha hai. Hisaab karke Zakat ada karne ki taiyari kar lein.', 0:'Aaj aapki Zakat ka saal poora hua. Hisaab karke Zakat ada kar dein.' }[diff];
   if(!txt) return [];
-  return [{ at:new Date(day.getFullYear(), day.getMonth(), day.getDate(), 9, 0, 0), title:'🌙 ' + (diff === 0 ? 'Zakat ka din' : diff === 1 ? 'Zakat kal farz hogi' : 'Zakat ki yaad-dahani'), body:txt, key:'zakat' + zkISO(dd) }];
+  return [{ at:new Date(day.getFullYear(), day.getMonth(), day.getDate(), 9, 0, 0), title:'💰 ' + (diff === 0 ? 'Zakat ka din' : diff === 1 ? 'Zakat kal farz hogi' : 'Zakat ki yaad-dahani'), body:txt, key:'zakat' + zkISO(dd) }];
 }
 
 function zkShareCard(cfg){
@@ -585,7 +585,7 @@ function zkShareCard(cfg){
 /* One screen, three tabs: Zakat | Fitrah | Qurbani */
 function zkTopBar(){
   const t = (state.zkTab === 'fitr' || state.zkTab === 'qurbani') ? state.zkTab : 'zakat';
-  return `<div class="zk-seg zk-top" id="zkTop"><button data-t="zakat" class="${t === 'zakat' ? 'on' : ''}">🌙 Zakat</button><button data-t="fitr" class="${t === 'fitr' ? 'on' : ''}">🌾 Fitrah</button><button data-t="qurbani" class="${t === 'qurbani' ? 'on' : ''}">🐑 Qurbani</button></div>`;
+  return `<div class="zk-seg zk-top" id="zkTop"><button data-t="zakat" class="${t === 'zakat' ? 'on' : ''}">💰 Zakat</button><button data-t="fitr" class="${t === 'fitr' ? 'on' : ''}">🌾 Fitrah</button><button data-t="qurbani" class="${t === 'qurbani' ? 'on' : ''}">🐑 Qurbani</button></div>`;
 }
 function renderZakat(keep){
   if(state.zkTab === 'fitr' || state.zkTab === 'qurbani') renderFitrQurbani();

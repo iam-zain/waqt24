@@ -449,7 +449,7 @@ function renderMoreDua(){
 function istighfarBenefitsHtml(){
   const li = (r, e)=>`<li>${L({ rur:r, en:e })}</li>`;
   return `<div class="ist-ben">
-    <div class="ist-ben-h">🌙 ${L({ rur:'Istighfar ke fawaid aur behtareen auqaat', en:'Benefits and best times of Istighfar' })}</div>
+    <div class="ist-ben-h">✨ ${L({ rur:'Istighfar ke fawaid aur behtareen auqaat', en:'Benefits and best times of Istighfar' })}</div>
     <p>${L({
       rur:'Nabi ﷺ gunahon se paak thay, phir bhi din mein sattar (70) se zyada baar istighfar karte thay (Sahih Bukhari 6307), aur ek riwayat mein sau (100) baar ka zikr hai (Sahih Muslim 2702). To hum sab ko iski aur bhi zyada zaroorat hai. Aam tor par ulama kam az kam ek tasbeeh, yaani roz 100 baar, padhne ka mashwara dete hain.',
       en:'The Prophet ﷺ was free of sins, yet he sought forgiveness more than seventy times a day (Sahih Bukhari 6307), and another report mentions a hundred times (Sahih Muslim 2702). We need it even more. Scholars generally advise at least one tasbeeh, 100 times, every day.' })}</p>
@@ -654,7 +654,7 @@ function drawGlobalSearch(){
     { k:'qword', t:L({rur:"Qur'ani Alfaaz", en:'Quranic Words'}), ic:'📗', items:QURAN_WORDS.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'shabd', t:L({rur:'Khaas Shabd', en:'Special Words'}), ic:'📚', items:KHAAS_SHABD.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'asma', t:'Asma-ul-Husna', ic:'💚', items:ASMA_UL_HUSNA.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
-    { k:'prophet', t:'Asma-ul-Nabi', ic:'🌙', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
+    { k:'prophet', t:'Asma-ul-Nabi', ic:'🌹', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
   ].filter(g=> gsFilter === 'all' || GS_BUCKET_OF[g.k] === gsFilter);
   const BK = {
     dua:i=>'dua:'+DUAS[i].title, hadees:i=>'hadees:'+HADEES[i].txt.slice(0,40), aadaab:i=>'aadaab:'+AADAAB_TOPICS[i].id, ibadat:i=>'ibadat:'+IBADAT_GUIDES[i].id,

@@ -264,7 +264,7 @@ function renderShakhsiyat(){
   document.getElementById('detailTitle').textContent = 'Mashhoor Shakhsiyaat';
   const total = shkAll().length;
   document.getElementById('detailBody').innerHTML = `
-    <div class="zr-hero shk-hero"><div class="zr-hero-ic">🌙</div><div><div class="zr-hero-t">Mashhoor Shakhsiyaat</div><div class="zr-hero-s">Anbiya se le kar aaj tak, shuru se aakhir · ${total} naam</div></div></div>
+    <div class="zr-hero shk-hero"><div class="zr-hero-ic">👥</div><div><div class="zr-hero-t">Mashhoor Shakhsiyaat</div><div class="zr-hero-s">Anbiya se le kar aaj tak, shuru se aakhir · ${total} naam</div></div></div>
     <div class="shk-search"><input id="shkQ" type="search" placeholder="🔎 Naam likh kar dhoondein" value="${shkSearch.replace(/"/g, '&quot;')}" autocomplete="off"></div>
     <div id="shkBody"></div>
     <div class="backup-note">Ye maloomat mukhtasar hai aur umooman maroof tareekhi kitabon par mabni hai. Tareekhein kuch jagah taqreebi hain (~). Deeni masail aur tafseeli maloomat ke liye mustanad kitabein aur ulema dekhein.</div>

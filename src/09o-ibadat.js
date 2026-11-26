@@ -113,7 +113,7 @@ const IBADAT_GUIDES = [
         { t:'Asr', d:'4 Sunnat (ghair muakkada), 4 Farz.<br><b>Kul: 8 rakaat</b>' },
         { t:'Maghrib', d:'3 Farz, 2 Sunnat-e-Muakkada, 2 Nafl.<br><b>Kul: 7 rakaat</b>' },
         { t:'Isha', d:'4 Sunnat (ghair muakkada), 4 Farz, 2 Sunnat-e-Muakkada, 2 Nafl, 3 Witr (Wajib), 2 Nafl.<br><b>Kul: 17 rakaat</b>' } ] },
-      { h:'Juma ki Namaz', ic:'🌙', steps:[
+      { h:'Juma ki Namaz', ic:'🕌', steps:[
         { t:'Juma', d:'4 Sunnat-e-Muakkada, khutba, 2 Farz, 4 Sunnat-e-Muakkada, 2 Sunnat-e-Muakkada, 2 Nafl.<br><b>Kul: 14 (khutba ke alawa) rakaat</b>' } ] },
       { h:'Witr ki 3 Rakat (Wajib)', ic:'🌌', steps:[
         { t:'Pehli aur doosri rakat', d:'Doosri rakat ke baad qa’da mein sirf Attahiyyat padhkar teesri rakat ke liye khade ho jayein.' },

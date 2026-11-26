@@ -1448,7 +1448,7 @@ function showDayDetail(date){
   });
   if(nafilOn()){
     const fullSched = buildSchedule(date);
-    html += `<div class="cal-sec-title">🌙 ${L({rur:'Nafil Namaz', en:'Nafl Prayers'})}</div>`;
+    html += `<div class="cal-sec-title">✨ ${L({rur:'Nafil Namaz', en:'Nafl Prayers'})}</div>`;
     NAFIL_KEYS.forEach(k=>{
       const st = getStatus(date, k);
       const ps = fullSched.find(x=>x.key===k);
@@ -2080,7 +2080,7 @@ function renderMoreDua(){
 function istighfarBenefitsHtml(){
   const li = (r, e)=>`<li>${L({ rur:r, en:e })}</li>`;
   return `<div class="ist-ben">
-    <div class="ist-ben-h">🌙 ${L({ rur:'Istighfar ke fawaid aur behtareen auqaat', en:'Benefits and best times of Istighfar' })}</div>
+    <div class="ist-ben-h">✨ ${L({ rur:'Istighfar ke fawaid aur behtareen auqaat', en:'Benefits and best times of Istighfar' })}</div>
     <p>${L({
       rur:'Nabi ﷺ gunahon se paak thay, phir bhi din mein sattar (70) se zyada baar istighfar karte thay (Sahih Bukhari 6307), aur ek riwayat mein sau (100) baar ka zikr hai (Sahih Muslim 2702). To hum sab ko iski aur bhi zyada zaroorat hai. Aam tor par ulama kam az kam ek tasbeeh, yaani roz 100 baar, padhne ka mashwara dete hain.',
       en:'The Prophet ﷺ was free of sins, yet he sought forgiveness more than seventy times a day (Sahih Bukhari 6307), and another report mentions a hundred times (Sahih Muslim 2702). We need it even more. Scholars generally advise at least one tasbeeh, 100 times, every day.' })}</p>
@@ -2285,7 +2285,7 @@ function drawGlobalSearch(){
     { k:'qword', t:L({rur:"Qur'ani Alfaaz", en:'Quranic Words'}), ic:'📗', items:QURAN_WORDS.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'shabd', t:L({rur:'Khaas Shabd', en:'Special Words'}), ic:'📚', items:KHAAS_SHABD.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
     { k:'asma', t:'Asma-ul-Husna', ic:'💚', items:ASMA_UL_HUSNA.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
-    { k:'prophet', t:'Asma-ul-Nabi', ic:'🌙', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
+    { k:'prophet', t:'Asma-ul-Nabi', ic:'🌹', items:PROPHET_NAMES.map((w,i)=>({w,i})).filter(({w})=>has(w.tr, w.m, w.en)).map(({w,i})=>({ i, t:w.tr, s:(isEn() && w.en) || w.m })) },
   ].filter(g=> gsFilter === 'all' || GS_BUCKET_OF[g.k] === gsFilter);
   const BK = {
     dua:i=>'dua:'+DUAS[i].title, hadees:i=>'hadees:'+HADEES[i].txt.slice(0,40), aadaab:i=>'aadaab:'+AADAAB_TOPICS[i].id, ibadat:i=>'ibadat:'+IBADAT_GUIDES[i].id,
@@ -3619,7 +3619,7 @@ function openAadaabDetail(t0){
       { sc:1, n:'①', ic:'🎬', lbl:'Aaj Hum Kya Karte Hain?', txt:t.scene },
       { sc:2, n:'②', ic:'❗', lbl:'Masla Kahan Hai?', txt:t.masla },
       { sc:3, n:'③', ic:'📖', lbl:'Islam Humein Kya Sikhata Hai?', txt:t.islam },
-      { sc:4, n:'④', ic:'🌙', lbl:'Nabi ﷺ Ka Amal', txt:t.nabi },
+      { sc:4, n:'④', ic:'🌹', lbl:'Nabi ﷺ Ka Amal', txt:t.nabi },
       { sc:5, n:'⑤', ic:'🪞', lbl:'Hum Kahan Galti Karte Hain?', txt:t.galti },
       { sc:6, n:'⑥', ic:'✅', lbl:'Aaj Se Ek Chhoti Tabdeeli', txt:t.tabdeeli },
     ].filter(s=>s.txt);
@@ -3788,7 +3788,7 @@ function shuffleArr(arr){
 
 const QUIZ_CAT_ICON = {
   "Namaz":"🕌", "Akhlaq aur Muashira":"🤝", "Qur’an aur Ibadaat":"📖",
-  "Seerat-un-Nabi ﷺ":"🌙", "Ambiya-e-Kiram AS":"⭐", "Ahadees aur Sunnat":"📜", "Duain":"🤲",
+  "Seerat-un-Nabi ﷺ":"🌹", "Ambiya-e-Kiram AS":"⭐", "Ahadees aur Sunnat":"📜", "Duain":"🤲",
   "Sahaba-e-Kiram RA":"👥", "Akhirat":"🌌", "Khaas Shabd":"📚",
   "Asma-ul-Husna":"💚", "Qur’ani Alfaaz":"📗"
 };
@@ -3955,7 +3955,7 @@ function renderNameDetail(which, idx){
    ============================================================ */
 let shabdSearch = '';
 const SHABD_CAT_ICON = {
-  "Allah, Imaan aur Aqeeda":"🕋", "Allah ke Naam aur Sifaat":"💚", "Nabi, Rasool aur Ambiya":"🌙",
+  "Allah, Imaan aur Aqeeda":"🕋", "Allah ke Naam aur Sifaat":"💚", "Nabi, Rasool aur Ambiya":"🌟",
   "Quran, Wahi aur Asmani Kitabein":"📖", "Farishte aur Ghaibi Makhlooq":"👼", "Sahaba aur Ahl-e-Bait":"👥",
   "Ibadat aur Namaz":"🙏", "Roza aur Ramzan":"🍽️", "Nekiyan, Gunah aur Akhlaaq":"⚖️",
   "Sadqah, Khairat aur Maali Ibadat":"💰", "Hajj, Umrah aur Qurbani":"🐪", "Jannat aur Aakhirat":"🌌",
@@ -10702,7 +10702,7 @@ const IBADAT_GUIDES = [
         { t:'Asr', d:'4 Sunnat (ghair muakkada), 4 Farz.<br><b>Kul: 8 rakaat</b>' },
         { t:'Maghrib', d:'3 Farz, 2 Sunnat-e-Muakkada, 2 Nafl.<br><b>Kul: 7 rakaat</b>' },
         { t:'Isha', d:'4 Sunnat (ghair muakkada), 4 Farz, 2 Sunnat-e-Muakkada, 2 Nafl, 3 Witr (Wajib), 2 Nafl.<br><b>Kul: 17 rakaat</b>' } ] },
-      { h:'Juma ki Namaz', ic:'🌙', steps:[
+      { h:'Juma ki Namaz', ic:'🕌', steps:[
         { t:'Juma', d:'4 Sunnat-e-Muakkada, khutba, 2 Farz, 4 Sunnat-e-Muakkada, 2 Sunnat-e-Muakkada, 2 Nafl.<br><b>Kul: 14 (khutba ke alawa) rakaat</b>' } ] },
       { h:'Witr ki 3 Rakat (Wajib)', ic:'🌌', steps:[
         { t:'Pehli aur doosri rakat', d:'Doosri rakat ke baad qa’da mein sirf Attahiyyat padhkar teesri rakat ke liye khade ho jayein.' },
@@ -11225,7 +11225,7 @@ const ZK_RECALL = [
   { ic:'🏞️', t:'Walid se zameen / wirasat', d:'Wirasat mein jis din hissa aapka hua, wo din dekhein. Dhyan rahe: rehne ya khet ke liye zameen par Zakat nahi. Bechne ki niyyat se hai to wo tijarat ka maal hai, aur bechne ke baad ki raqam nakdi ban jati hai. Is mein aalim se poochh lein.' },
   { ic:'🥇', t:'Sona / chandi khareeda', d:'Sone ya chandi ki raseed ya bill par likhi tareekh dekhein.' },
   { ic:'🏪', t:'Karobaar shuru kiya', d:'Jis din dukaan ya karobaar ka maal nisab ke barabar hua, wo din chunein.' },
-  { ic:'🌙', t:'Koi khaas din', d:'Bahut se log kisi yaad rehne wali Hijri tareekh, jaise 1 Ramzan, ko hawl ki date rakh lete hain. Ye saal bhar ek hi tareekh par hisaab karne ka aasan tareeqa hai, lekin sahi tareekh pata ho to wohi rakhein.' }
+  { ic:'📅', t:'Koi khaas din', d:'Bahut se log kisi yaad rehne wali Hijri tareekh, jaise 1 Ramzan, ko hawl ki date rakh lete hain. Ye saal bhar ek hi tareekh par hisaab karne ka aasan tareeqa hai, lekin sahi tareekh pata ho to wohi rakhein.' }
 ];
 const zkNum = v => { const n = parseFloat(String(v == null ? '' : v).replace(/,/g, '')); return isFinite(n) && n > 0 ? n : 0; };
 const zkFmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
@@ -11321,7 +11321,7 @@ function renderZakatCalc(keep){
   const sel = (key, opts)=> `<select class="zk-sel" data-k="${key}">${opts.map(o=>`<option value="${o[0]}"${String(f[key] || opts[0][0]) === String(o[0]) ? ' selected' : ''}>${o[1]}</option>`).join('')}</select>`;
   const money = (key, ic, label, hint)=> `<div class="zk-row"><div class="zk-lbl"><span>${ic}</span><div><b>${label}</b>${hint ? `<small>${hint}</small>` : ''}</div></div><div class="zk-field"><i>₹</i><input class="zk-in zk-money" inputmode="decimal" data-k="${key}" placeholder="0" value="${zkComma(f[key])}"></div><div class="zk-words" data-w="${key}">${zkWordsLbl(f[key])}</div></div>`;
   document.getElementById('detailBody').innerHTML = `
-    <div class="zk-hero"><div class="zk-hero-ic">🌙</div><div><div class="zk-hero-t">Zakat Calculator</div><div class="zk-hero-s">Hanafi fiqh ke mutabiq · 2.5% · nisab ke saath</div></div></div>
+    <div class="zk-hero"><div class="zk-hero-ic">💰</div><div><div class="zk-hero-t">Zakat Calculator</div><div class="zk-hero-s">Hanafi fiqh ke mutabiq · 2.5% · nisab ke saath</div></div></div>
 
     <div class="zk-card">
       <div class="zk-h"><span>1</span> Sone aur chandi ka bhaav (₹ per gram)</div>
@@ -11456,7 +11456,7 @@ function renderZakatCalc(keep){
       zkBusy.k = ''; if(!document.getElementById('zkGoldP')) return; if(zz.mode === 'hawl') showPrices(); save(); drawNote(); paint();
     }
   };
-  const hijNote = ()=>{ const z2 = zkState(), el = document.getElementById('zkHij'); el.innerHTML = z2.nisabDate ? `🌙 Hijri: <b>${zkHijri(new Date(z2.nisabDate + 'T00:00:00'))}</b>` : ''; };
+  const hijNote = ()=>{ const z2 = zkState(), el = document.getElementById('zkHij'); el.innerHTML = z2.nisabDate ? `📅 Hijri: <b>${zkHijri(new Date(z2.nisabDate + 'T00:00:00'))}</b>` : ''; };
   document.querySelectorAll('[data-rc]').forEach(b=> b.onclick = ()=>{
     const tip = document.getElementById('zkRcTip'), on = b.classList.contains('on');
     document.querySelectorAll('[data-rc]').forEach(x=> x.classList.remove('on'));
@@ -11498,7 +11498,7 @@ function renderZakatCalc(keep){
     };
   });
   fetchBtn.onclick = ()=> loadPrices(true);
-  const anyHij = ()=>{ const zz = zkState(), el = document.getElementById('zkAnyHij'); el.innerHTML = zz.anyDate ? `🌙 Hijri: <b>${zkHijri(new Date(zz.anyDate + 'T00:00:00'))}</b>` : ''; };
+  const anyHij = ()=>{ const zz = zkState(), el = document.getElementById('zkAnyHij'); el.innerHTML = zz.anyDate ? `📅 Hijri: <b>${zkHijri(new Date(zz.anyDate + 'T00:00:00'))}</b>` : ''; };
   const onAny = e=>{ const zz = zkState(); if(zz.anyDate === e.target.value) return; zz.anyDate = e.target.value; save(); anyHij(); drawNote(); if(zz.anyDate) loadPrices(false); };
   ['input', 'change'].forEach(ev=> document.getElementById('zkAnyDate').addEventListener(ev, onAny));
   anyHij();
@@ -11757,7 +11757,7 @@ function zakatReminders(day){
   const dd = new Date(day.getFullYear(), day.getMonth(), day.getDate()), diff = Math.round((due - dd) / 86400000);
   const txt = { 30:'Zakat ka saal 30 din mein poora hoga. Hisaab ki taiyari shuru karein.', 7:'Zakat ka saal 7 din mein poora hoga. Maal ka hisaab kar lein.', 1:'Kal aapki Zakat ka saal poora ho raha hai. Hisaab karke Zakat ada karne ki taiyari kar lein.', 0:'Aaj aapki Zakat ka saal poora hua. Hisaab karke Zakat ada kar dein.' }[diff];
   if(!txt) return [];
-  return [{ at:new Date(day.getFullYear(), day.getMonth(), day.getDate(), 9, 0, 0), title:'🌙 ' + (diff === 0 ? 'Zakat ka din' : diff === 1 ? 'Zakat kal farz hogi' : 'Zakat ki yaad-dahani'), body:txt, key:'zakat' + zkISO(dd) }];
+  return [{ at:new Date(day.getFullYear(), day.getMonth(), day.getDate(), 9, 0, 0), title:'💰 ' + (diff === 0 ? 'Zakat ka din' : diff === 1 ? 'Zakat kal farz hogi' : 'Zakat ki yaad-dahani'), body:txt, key:'zakat' + zkISO(dd) }];
 }
 
 function zkShareCard(cfg){
@@ -11767,7 +11767,7 @@ function zkShareCard(cfg){
 /* One screen, three tabs: Zakat | Fitrah | Qurbani */
 function zkTopBar(){
   const t = (state.zkTab === 'fitr' || state.zkTab === 'qurbani') ? state.zkTab : 'zakat';
-  return `<div class="zk-seg zk-top" id="zkTop"><button data-t="zakat" class="${t === 'zakat' ? 'on' : ''}">🌙 Zakat</button><button data-t="fitr" class="${t === 'fitr' ? 'on' : ''}">🌾 Fitrah</button><button data-t="qurbani" class="${t === 'qurbani' ? 'on' : ''}">🐑 Qurbani</button></div>`;
+  return `<div class="zk-seg zk-top" id="zkTop"><button data-t="zakat" class="${t === 'zakat' ? 'on' : ''}">💰 Zakat</button><button data-t="fitr" class="${t === 'fitr' ? 'on' : ''}">🌾 Fitrah</button><button data-t="qurbani" class="${t === 'qurbani' ? 'on' : ''}">🐑 Qurbani</button></div>`;
 }
 function renderZakat(keep){
   if(state.zkTab === 'fitr' || state.zkTab === 'qurbani') renderFitrQurbani();
@@ -11781,7 +11781,7 @@ function renderZakat(keep){
    BOOKMARK FOLDERS: group Pasandeeda items into folders (state.bmFolders = [{id,name,ic}], state.bmMap = { bookmarkKey: folderId }).
    An item sits in at most one folder; no folder = "Bina folder". Removing a bookmark also clears its folder.
    ============================================================ */
-const BMF_ICONS = ['📁','⭐','🌙','🕌','📖','🤲','💚','🎓','🌿','🕋'];
+const BMF_ICONS = ['📁','⭐','🌟','🕌','📖','🤲','💚','🎓','🌿','🕋'];
 let bmfSel = 'all';          /* 'all' | 'none' | folder id */
 function bmfList(){ if(!Array.isArray(state.bmFolders)) state.bmFolders = []; return state.bmFolders; }
 function bmfMap(){ if(!state.bmMap || typeof state.bmMap !== 'object' || Array.isArray(state.bmMap)) state.bmMap = {}; return state.bmMap; }
@@ -12584,7 +12584,7 @@ function renderShakhsiyat(){
   document.getElementById('detailTitle').textContent = 'Mashhoor Shakhsiyaat';
   const total = shkAll().length;
   document.getElementById('detailBody').innerHTML = `
-    <div class="zr-hero shk-hero"><div class="zr-hero-ic">🌙</div><div><div class="zr-hero-t">Mashhoor Shakhsiyaat</div><div class="zr-hero-s">Anbiya se le kar aaj tak, shuru se aakhir · ${total} naam</div></div></div>
+    <div class="zr-hero shk-hero"><div class="zr-hero-ic">👥</div><div><div class="zr-hero-t">Mashhoor Shakhsiyaat</div><div class="zr-hero-s">Anbiya se le kar aaj tak, shuru se aakhir · ${total} naam</div></div></div>
     <div class="shk-search"><input id="shkQ" type="search" placeholder="🔎 Naam likh kar dhoondein" value="${shkSearch.replace(/"/g, '&quot;')}" autocomplete="off"></div>
     <div id="shkBody"></div>
     <div class="backup-note">Ye maloomat mukhtasar hai aur umooman maroof tareekhi kitabon par mabni hai. Tareekhein kuch jagah taqreebi hain (~). Deeni masail aur tafseeli maloomat ke liye mustanad kitabein aur ulema dekhein.</div>
@@ -12686,7 +12686,7 @@ const fqDateStr = g => g ? g.toLocaleDateString('en-IN', { weekday:'short', day:
 function renderFitrQurbani(){
   const f = fqState();
     document.getElementById('detailBody').innerHTML = `
-    <div class="zk-hero fq-hero"><div class="zk-hero-ic">🐑</div><div><div class="zk-hero-t">Fitrah aur Qurbani</div><div class="zk-hero-s">Hanafi fiqh ke mutabiq · Eid ke do hisaab</div></div></div>
+    <div class="zk-hero fq-hero"><div class="zk-hero-ic">${f.tab === 'qurbani' ? '🐑' : '🌾'}</div><div><div class="zk-hero-t">${f.tab === 'qurbani' ? 'Qurbani' : 'Sadaqa-e-Fitr'}</div><div class="zk-hero-s">${f.tab === 'qurbani' ? 'Eid-ul-Azha ka hisaab · Hanafi fiqh ke mutabiq' : 'Eid-ul-Fitr se pehle ada hota hai · Hanafi fiqh ke mutabiq'}</div></div></div></div>
     <div id="fqBody"></div>
     <div class="backup-note">Ye hisaab Hanafi fiqh ki aam maloomat par mabni hai. Wazan aur rakam ke baare mein apne masjid ke imam ya mufti ke elaan ko dekh lein. Ye mashwara nahi, sirf madad hai.</div>
     <div class="tab-end"></div>`;

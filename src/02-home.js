@@ -696,7 +696,7 @@ function showDayDetail(date){
   });
   if(nafilOn()){
     const fullSched = buildSchedule(date);
-    html += `<div class="cal-sec-title">🌙 ${L({rur:'Nafil Namaz', en:'Nafl Prayers'})}</div>`;
+    html += `<div class="cal-sec-title">✨ ${L({rur:'Nafil Namaz', en:'Nafl Prayers'})}</div>`;
     NAFIL_KEYS.forEach(k=>{
       const st = getStatus(date, k);
       const ps = fullSched.find(x=>x.key===k);

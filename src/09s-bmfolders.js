@@ -2,7 +2,7 @@
    BOOKMARK FOLDERS: group Pasandeeda items into folders (state.bmFolders = [{id,name,ic}], state.bmMap = { bookmarkKey: folderId }).
    An item sits in at most one folder; no folder = "Bina folder". Removing a bookmark also clears its folder.
    ============================================================ */
-const BMF_ICONS = ['📁','⭐','🌙','🕌','📖','🤲','💚','🎓','🌿','🕋'];
+const BMF_ICONS = ['📁','⭐','🌟','🕌','📖','🤲','💚','🎓','🌿','🕋'];
 let bmfSel = 'all';          /* 'all' | 'none' | folder id */
 function bmfList(){ if(!Array.isArray(state.bmFolders)) state.bmFolders = []; return state.bmFolders; }
 function bmfMap(){ if(!state.bmMap || typeof state.bmMap !== 'object' || Array.isArray(state.bmMap)) state.bmMap = {}; return state.bmMap; }
