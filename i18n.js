@@ -865,3 +865,5 @@ I18N_PATTERNS.push(
   [/^(🥇|🥈) Chandi \((.+)\)$/, m=>m[1] + ' Silver (' + m[2] + ')'],
   [/^Nisab: chandi (.+) \((.+) tola\) ≈ (.+)$/, m=>'Nisab: silver ' + m[1] + ' (' + m[2] + ' tola) ≈ ' + m[3]]
 );
+
+Object.assign(I18N_EN, { "Khawateen":"Women" });
