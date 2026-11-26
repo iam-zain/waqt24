@@ -3053,3 +3053,10 @@ body.qp-on .to-top{ bottom:150px; }
 .az-card.c-tr{ --cc:#5b8def; } .az-card.c-m{ --cc:#e0709f; }
 .az-cl{ font-size:12.5px; font-weight:800; color:var(--cc); margin-bottom:6px; }
 .az-trl{ font-style:italic; color:var(--sub); font-size:14px; line-height:1.7; } .az-card .az-mrow{ color:#e0709f; font-size:14px; line-height:1.6; margin:0 0 6px; } .az-card .az-trl b, .az-card .az-mrow b{ font-style:normal; font-size:12px; color:var(--sub); }
+
+.az-fs{ display:flex; justify-content:flex-end; gap:6px; margin:-2px 0 8px; } .az-fs button{ min-width:40px; height:30px; border-radius:9px; border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; font-size:13px; font-weight:800; cursor:pointer; }
+#detailBody{ --azs:1; }
+.az-sec[data-t=words] .az-ar{ font-size:calc(24px * var(--azs)); } .az-sec[data-t=words] .az-tr, .az-sec[data-t=words] .az-trl{ font-size:calc(13.5px * var(--azs)); } .az-sec[data-t=words] .az-m, .az-sec[data-t=words] .az-mrow{ font-size:calc(13.5px * var(--azs)); }
+.az-xn{ font-size:.55em; color:var(--sub); font-weight:700; white-space:nowrap; }
+.az-sync .az-sr{ transition:background .25s, border-color .25s, transform .25s; } .az-sync .az-sr.now{ background:color-mix(in srgb, var(--accent) 18%, var(--card)); border-color:var(--accent); transform:scale(1.015); }
+#azSyncPlay{ margin:0 0 10px; }

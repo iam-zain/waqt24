@@ -2562,6 +2562,28 @@ function wireAzaanPlay(){
     b.onclick = ()=>{ if(azaanPlayingId===b.dataset.id) stopAzaan(); else playAzaan(b.dataset.id); };
   });
 }
+const AR_DIG = '٠١٢٣٤٥٦٧٨٩';
+function arN(n){ return '×' + String(n).replace(/\d/g, d=>AR_DIG[d]); }
+/* Phrase timings (seconds) of azan/madinah.mp3, from the pauses in the recording: 12 calls = 2+2+2+2+2+1+1 */
+const AZ_SYNC = { id:'madinah', rows:[[0,36.7],[36.7,71.3],[71.3,105.8],[105.8,133.3],[133.3,160.3],[160.3,176],[176,200]] };
+let azSyncTimer = null;
+function azSyncRows(){ return AZAAN_TEXT.filter(x=>!x.fajr); }
+function azSyncStop(){ if(azSyncTimer){ clearInterval(azSyncTimer); azSyncTimer = null; } document.querySelectorAll('.az-sync .az-sr.now').forEach(e=>e.classList.remove('now')); const b = document.getElementById('azSyncPlay'); if(b) b.textContent = '▶ ' + L({rur:'Sunein aur padhein', en:'Listen and read'}); }
+function azSyncTick(){
+  const a = azaanAudio;
+  if(!a || azaanPlayingId !== AZ_SYNC.id){ azSyncStop(); return; }
+  const c = a.currentTime, idx = AZ_SYNC.rows.findIndex(r=> c >= r[0] && c < r[1]);
+  document.querySelectorAll('.az-sync .az-sr').forEach((e, i)=>{
+    const on = i === idx && !a.paused; const was = e.classList.contains('now');
+    e.classList.toggle('now', on);
+    if(on && !was) e.scrollIntoView({ block:'center', behavior:'smooth' });
+  });
+}
+function azSyncHtml(){
+  return `<button class="backup-btn" id="azSyncPlay">▶ ${L({rur:'Sunein aur padhein', en:'Listen and read'})}</button>
+    <div class="az-sync">${azSyncRows().map((x, i)=>`<div class="az-sr az-line" data-i="${i}"><div class="az-ar ar-font" style="text-align:center;">${x.ar} <small class="az-xn">${arN(x.n)}</small></div><div class="az-trl">${x.tr}</div><div class="az-mrow">${L(x.m)}</div></div>`).join('')}</div>
+    <div class="az-credit">${L({rur:'Recording', en:'Recording'})}: ${azaanRec(AZ_SYNC.id).artist} · ${azaanRec(AZ_SYNC.id).license} · ${L({rur:'Highlight recording ki khamoshiyon se andaaza kiya gaya hai. Fajr ki Azaan ka izafa (As-Salatu khairum minan-nawm) isme nahi hai.', en:'Highlighting is estimated from the pauses in the recording. The added Fajr phrase is not in this recording.'})}</div>`;
+}
 function renderAzaan(){
   document.getElementById('detailTitle').textContent = 'Azaan';
   const a = azaanState();
@@ -2570,10 +2592,11 @@ function renderAzaan(){
     <button class="backup-btn" id="azaanSetBtn">⚙️ ${L({rur:'Namaz ke waqt Azaan', en:'Azaan at prayer times'})}: ${a.on ? L({rur:'On', en:'On'}) : L({rur:'Off', en:'Off'})}</button>
     <div class="zk-seg zk-seg2" id="azTabs"><button data-t="words">📜 ${L({rur:'Alfaaz', en:'Words'})}</button><button data-t="dua">🤲 ${L({rur:'Dua aur Hadees', en:'Dua and Hadith'})}</button><button data-t="listen">🎧 ${L({rur:'Suniye', en:'Listen'})}</button></div>
     <div class="az-sec" data-t="words"><div class="section-title">${L({rur:'Azaan ke Alfaaz', en:'Words of the Azaan'})}</div>
-    <div class="zk-seg zk-seg2 az-vw" id="azView"><button data-v="lines">${L({rur:'Line-by-line', en:'Line by line'})}</button><button data-v="all">${L({rur:'Sab ek saath', en:'All together'})}</button></div>
+    <div class="zk-seg zk-seg2 az-vw" id="azView"><button data-v="lines">${L({rur:'Line-by-line', en:'Line by line'})}</button><button data-v="all">${L({rur:'Sab ek saath', en:'All together'})}</button><button data-v="sync">🎧 ${L({rur:'Sunte hue', en:'Listen'})}</button></div>
+    <div class="az-fs"><button id="azFsMinus" aria-label="A-">A−</button><button id="azFsPlus" aria-label="A+">A+</button></div>
     <div class="az-all" id="azAll" style="display:none;"></div>
     <div class="az-text" id="azLines">${AZAAN_TEXT.map(x=>`<div class="az-line ${x.fajr?'fajr':''}">
-      <div class="az-ar ar-font">${x.ar}</div>
+      <div class="az-ar ar-font">${x.ar} <small class="az-xn">${arN(x.n)}</small></div>
       <div class="az-tr">${x.tr} <b>×${x.n}</b></div>
       <div class="az-m">${L(x.m)}</div>
       ${x.fajr ? `<div class="az-fajr">${L({rur:'Sirf Fajr ki Azaan mein, Hayya alal-Falah ke baad', en:'Only in the Fajr Azaan, after Hayya alal-Falah'})}</div>` : ''}
@@ -2599,14 +2622,21 @@ function renderAzaan(){
     const all = document.getElementById('azAll'), lines = document.getElementById('azLines');
     document.querySelectorAll('#azView button').forEach(b=> b.classList.toggle('on', b.dataset.v === v));
     if(v === 'lines'){ all.style.display = 'none'; lines.style.display = ''; return; }
+    azSyncStop();
+    if(v === 'sync'){ lines.style.display = 'none'; all.style.display = ''; all.innerHTML = azSyncHtml();
+      document.getElementById('azSyncPlay').onclick = ()=>{ if(azaanPlayingId === AZ_SYNC.id){ stopAzaan(); azSyncStop(); return; } playAzaan(AZ_SYNC.id); azSyncStop(); document.getElementById('azSyncPlay').textContent = '■ ' + L({rur:'Rokein', en:'Stop'}); azSyncTimer = setInterval(azSyncTick, 150); };
+      all.querySelectorAll('.az-sr').forEach(r=> r.onclick = ()=>{ if(azaanAudio && azaanPlayingId === AZ_SYNC.id){ azaanAudio.currentTime = AZ_SYNC.rows[+r.dataset.i][0] + 0.2; azSyncTick(); } });
+      return; }
     lines.style.display = 'none'; all.style.display = '';
     const fj = ' <small class="az-fj">(' + L({rur:'sirf Fajr', en:'Fajr only'}) + ')</small>';
-    all.innerHTML = `<div class="az-card c-ar"><div class="az-cl">${L({rur:'Arabic', en:'Arabic'})}</div>${AZAAN_TEXT.map(x=>`<div class="az-ar ar-font" style="text-align:center;">${x.ar}</div>`).join('')}</div>
+    all.innerHTML = `<div class="az-card c-ar"><div class="az-cl">${L({rur:'Arabic', en:'Arabic'})}</div>${AZAAN_TEXT.map(x=>`<div class="az-ar ar-font" style="text-align:center;">${x.ar} <small class="az-xn">${arN(x.n)}</small></div>`).join('')}</div>
       <div class="az-card c-tr"><div class="az-cl">${L({rur:'Talaffuz (Transliteration)', en:'Transliteration'})}</div>${AZAAN_TEXT.map(x=>`<div class="az-trl">${x.tr} <b>×${x.n}</b>${x.fajr ? fj : ''}</div>`).join('')}</div>
       <div class="az-card c-m"><div class="az-cl">${L({rur:'Matlab', en:'Meaning'})}</div>${AZAAN_TEXT.map(x=>`<div class="az-mrow">${L(x.m)} <b>×${x.n}</b>${x.fajr ? fj : ''}</div>`).join('')}</div>`;
   };
   document.querySelectorAll('#azView button').forEach(b=> b.onclick = ()=> azAllDraw(b.dataset.v));
   azAllDraw(state.azView === 'all' ? 'all' : 'lines');
+  const azFs = d=>{ const n = Math.max(0, Math.min(5, (d === undefined ? (state.azFs ?? 2) : (state.azFs ?? 2) + d))); state.azFs = n; saveState(); const sc = [0.8, 0.9, 1, 1.15, 1.3, 1.5][n]; document.querySelector('#detailBody').style.setProperty('--azs', sc); };
+  document.getElementById('azFsMinus').onclick = ()=> azFs(-1); document.getElementById('azFsPlus').onclick = ()=> azFs(1); azFs();
   const azShow = t=>{
     state.azTab = t; saveState();
     document.querySelectorAll('#detailBody .az-sec').forEach(x=> x.style.display = x.dataset.t === t ? '' : 'none');
