@@ -7740,7 +7740,7 @@ function goTask(go){
   if(tab) tab.click();
   if(go.open){ const el = document.querySelector(`#tab-${go.tab} [data-open="${go.open}"]`); if(el) el.click(); }
 }
-let goalOpenCard = false;
+let goalOpenCard = false, goalInfoOpen = false;
 function renderGoalCard(){
   const el = document.getElementById('goalCard');
   if(!el) return;
@@ -7748,7 +7748,8 @@ function renderGoalCard(){
   const n = tasks.filter(t=>t.done).length;
   const week = goalWeek();
   el.innerHTML = `<div class="hd-card ${goalOpenCard ? 'open' : ''}">
-    <button class="wk-head" id="goalHead" aria-expanded="${goalOpenCard}"><span class="wk-hi">🎯</span><span class="wk-ht">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</span><span class="wk-hc">${n}/${tasks.length}</span><b class="goal-arrow wk-car">›</b></button>
+    <button class="wk-head" id="goalHead" aria-expanded="${goalOpenCard}"><span class="wk-hi">🎯</span><span class="wk-ht">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</span><span class="hd-i ${goalInfoOpen ? 'on' : ''}" id="goalInfoBtn" role="button" tabindex="0" aria-label="Jaankari">i</span><span class="wk-hc">${n}/${tasks.length}</span><b class="goal-arrow wk-car">›</b></button>
+    ${goalInfoOpen ? `<div class="hd-info">Roz ke chhote chhote kaam, jo aap ko deen ki aadat par rakhte hain: panchon namaz mark karna, ek khaas shabd (lafz) seekhna, ek qaza ada karna, aur aaj ki Du'a aur Hadees padhna. Kaam karke circle par tick karein. Koi kaam na ho paye to 🔄 se doosra chun lein. Neeche ke 7 dot pichhle 7 din ka hisaab dikhate hain.</div>` : ''}
     <div class="wk-body">
       ${tasks.map((t,i)=>`<div class="goal-row"><button class="goal-item ${t.done?'done':''}" data-go="${i}"><span class="gi-check">${t.done?'✓':''}</span><span class="gi-txt">${L(t.label)}</span><b class="goal-arrow">›</b></button><button class="wk-sm" data-sw="${i}" aria-label="Badlein">${uiIcon('refresh')}</button></div>`).join('')}
       <button class="goal-item goal-daily" id="goalDailyBtn"><span class="gi-check gi-ic">${uiIcon('quran')}</span><span class="gi-txt">${L({rur:'Aaj ki Du\'a aur Hadees', en:'Today\'s Du\'a & Hadees'})}</span><b class="goal-arrow">›</b></button>
@@ -7757,6 +7758,7 @@ function renderGoalCard(){
     </div>
   </div>`;
   document.getElementById('goalHead').onclick = ()=>{ goalOpenCard = !goalOpenCard; renderGoalCard(); };
+  { const ib = document.getElementById('goalInfoBtn'), tg = e=>{ e.stopPropagation(); e.preventDefault(); goalInfoOpen = !goalInfoOpen; renderGoalCard(); }; ib.onclick = tg; ib.onkeydown = e=>{ if(e.key === 'Enter' || e.key === ' ') tg(e); }; }
   el.querySelectorAll('[data-go]').forEach(btn=>{ btn.onclick = ()=> goTask(tasks[+btn.dataset.go].go); });
   el.querySelectorAll('[data-sw]').forEach(b=> b.onclick = ()=> swapGoalTask(+b.dataset.sw));
   const gd = document.getElementById('goalDailyBtn'); if(gd) gd.onclick = ()=> openOverlay(()=>renderDailyCatchup());
@@ -12873,12 +12875,13 @@ function wkOpen(x){
   else if(x.t === 'surah'){ const s = QURAN_SURAHS[(+x.id || 1) - 1]; state.quranPage = s.page; saveState(); goTask({ tab:'more', open:'quran' }); }
 }
 function wkEsc(s){ return String(s).replace(/[&<>"]/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c])); }
-let wkAdding = null, wkOpenCard = false;
+let wkAdding = null, wkOpenCard = false, wkInfoOpen = false;
 function renderWeekGoal(){
   const el = document.getElementById('weekGoalCard'); if(!el) return;
   const w = wkState(), n = w.items.filter(x=> x.done).length, tot = w.items.length, dayN = ((new Date().getDay() + 6) % 7) + 1;
   el.innerHTML = `<div class="hd-card wk-card ${wkOpenCard ? 'open' : ''}">
-    <button class="wk-head" id="wkHead" aria-expanded="${wkOpenCard}"><span class="wk-hi">📅</span><span class="wk-ht">Haftawar Hadaf</span><span class="wk-left">${dayN === 7 ? 'Aakhri din' : (7 - dayN) + ' din baaqi'}</span><span class="wk-hc">${tot ? `${n}/${tot}` : '0'}</span><b class="goal-arrow wk-car">›</b></button>
+    <button class="wk-head" id="wkHead" aria-expanded="${wkOpenCard}"><span class="wk-hi">📅</span><span class="wk-ht">Haftawar Hadaf</span><span class="hd-i ${wkInfoOpen ? 'on' : ''}" id="wkInfoBtn" role="button" tabindex="0" aria-label="Jaankari">i</span><span class="wk-left">${dayN === 7 ? 'Aakhri din' : (7 - dayN) + ' din baaqi'}</span><span class="wk-hc">${tot ? `${n}/${tot}` : '0'}</span><b class="goal-arrow wk-car">›</b></button>
+    ${wkInfoOpen ? `<div class="hd-info">Ek hafte (Monday se Sunday) ka hadaf: koi dua, hadees ya surah padhna ya yaad karna. Naam dabane par wo khulta hai. Yaad karne ke liye chhote hisse mein baant kar roz dohraein, aur yaad hone par tick karein. 🔄 se doosra chunein, ✕ se hatayein, ＋ se apna hadaf likhein, 🎲 se random jodein. Header mein bache hue din dikhte hain.</div>` : ''}
     <div class="wk-body">
     ${tot ? w.items.map((x, i)=>{ const l = wkLabel(x), m = WK_TYPES[x.t]; return `<div class="wk-item goal-item ${x.done ? 'done' : ''}" data-i="${i}">
       <button class="gi-check wk-chk" data-a="tick" aria-label="Mukammal">${x.done ? '✓' : ''}</button>
@@ -12895,6 +12898,7 @@ function renderWeekGoal(){
     </div>
   </div>`;
   document.getElementById('wkHead').onclick = ()=>{ wkOpenCard = !wkOpenCard; renderWeekGoal(); };
+  { const ib = document.getElementById('wkInfoBtn'), tg = e=>{ e.stopPropagation(); e.preventDefault(); wkInfoOpen = !wkInfoOpen; renderWeekGoal(); }; ib.onclick = tg; ib.onkeydown = e=>{ if(e.key === 'Enter' || e.key === ' ') tg(e); }; }
   el.querySelectorAll('.wk-item').forEach(row=>{
     const i = +row.dataset.i;
     row.querySelectorAll('[data-a]').forEach(b=> b.onclick = ()=>{

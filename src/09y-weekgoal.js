@@ -31,12 +31,13 @@ function wkOpen(x){
   else if(x.t === 'surah'){ const s = QURAN_SURAHS[(+x.id || 1) - 1]; state.quranPage = s.page; saveState(); goTask({ tab:'more', open:'quran' }); }
 }
 function wkEsc(s){ return String(s).replace(/[&<>"]/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c])); }
-let wkAdding = null, wkOpenCard = false;
+let wkAdding = null, wkOpenCard = false, wkInfoOpen = false;
 function renderWeekGoal(){
   const el = document.getElementById('weekGoalCard'); if(!el) return;
   const w = wkState(), n = w.items.filter(x=> x.done).length, tot = w.items.length, dayN = ((new Date().getDay() + 6) % 7) + 1;
   el.innerHTML = `<div class="hd-card wk-card ${wkOpenCard ? 'open' : ''}">
-    <button class="wk-head" id="wkHead" aria-expanded="${wkOpenCard}"><span class="wk-hi">📅</span><span class="wk-ht">Haftawar Hadaf</span><span class="wk-left">${dayN === 7 ? 'Aakhri din' : (7 - dayN) + ' din baaqi'}</span><span class="wk-hc">${tot ? `${n}/${tot}` : '0'}</span><b class="goal-arrow wk-car">›</b></button>
+    <button class="wk-head" id="wkHead" aria-expanded="${wkOpenCard}"><span class="wk-hi">📅</span><span class="wk-ht">Haftawar Hadaf</span><span class="hd-i ${wkInfoOpen ? 'on' : ''}" id="wkInfoBtn" role="button" tabindex="0" aria-label="Jaankari">i</span><span class="wk-left">${dayN === 7 ? 'Aakhri din' : (7 - dayN) + ' din baaqi'}</span><span class="wk-hc">${tot ? `${n}/${tot}` : '0'}</span><b class="goal-arrow wk-car">›</b></button>
+    ${wkInfoOpen ? `<div class="hd-info">Ek hafte (Monday se Sunday) ka hadaf: koi dua, hadees ya surah padhna ya yaad karna. Naam dabane par wo khulta hai. Yaad karne ke liye chhote hisse mein baant kar roz dohraein, aur yaad hone par tick karein. 🔄 se doosra chunein, ✕ se hatayein, ＋ se apna hadaf likhein, 🎲 se random jodein. Header mein bache hue din dikhte hain.</div>` : ''}
     <div class="wk-body">
     ${tot ? w.items.map((x, i)=>{ const l = wkLabel(x), m = WK_TYPES[x.t]; return `<div class="wk-item goal-item ${x.done ? 'done' : ''}" data-i="${i}">
       <button class="gi-check wk-chk" data-a="tick" aria-label="Mukammal">${x.done ? '✓' : ''}</button>
@@ -53,6 +54,7 @@ function renderWeekGoal(){
     </div>
   </div>`;
   document.getElementById('wkHead').onclick = ()=>{ wkOpenCard = !wkOpenCard; renderWeekGoal(); };
+  { const ib = document.getElementById('wkInfoBtn'), tg = e=>{ e.stopPropagation(); e.preventDefault(); wkInfoOpen = !wkInfoOpen; renderWeekGoal(); }; ib.onclick = tg; ib.onkeydown = e=>{ if(e.key === 'Enter' || e.key === ' ') tg(e); }; }
   el.querySelectorAll('.wk-item').forEach(row=>{
     const i = +row.dataset.i;
     row.querySelectorAll('[data-a]').forEach(b=> b.onclick = ()=>{
