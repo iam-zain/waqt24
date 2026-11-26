@@ -3830,7 +3830,7 @@ function relatedItems(self, pool, topicsFn, max){
 }
 function relatedHtml(items, titleFn, subFn, iconFn, colorFn){
   if(!items.length) return '';
-  return `<div class="rel-sec"><div class="rel-head">${L({rur:'Isi topic par aur', en:'More on this topic'})}</div>${items.map((x,i)=>`<div class="aad-card rel-card" data-ri="${i}" style="--aad-c:${colorFn(x)};"><div class="aad-ic">${iconFn(x)}</div><div class="aad-info"><div class="aad-title">${titleFn(x)}</div><div class="aad-cat-lbl">${subFn(x)}</div></div><div class="chev">›</div></div>`).join('')}</div>`;
+  return `<details class="rel-sec"><summary class="rel-head"><span>${L({rur:'Isi topic par aur', en:'More on this topic'})}</span><span class="rel-n">${items.length}</span><span class="rel-chev">›</span></summary><div class="rel-list">${items.map((x,i)=>`<div class="aad-card rel-card" data-ri="${i}" style="--aad-c:${colorFn(x)};"><div class="aad-ic">${iconFn(x)}</div><div class="aad-info"><div class="aad-title">${titleFn(x)}</div><div class="aad-cat-lbl">${subFn(x)}</div></div><div class="chev">›</div></div>`).join('')}</div></details>`;
 }
 function wireRelated(items, openFn, navCat){
   document.querySelectorAll('#detailBody .rel-card').forEach(el=>{

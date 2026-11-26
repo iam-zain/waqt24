@@ -3118,8 +3118,14 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .zk-seg button, .chip, .zr-lang{ min-height:34px; }
 .cal-toggle button{ min-height:34px; }
 
-/* Isi topic par aur (related hadees / dua) */
-.rel-sec{margin:18px 0 6px;}
-.rel-head{font-size:13px;font-weight:800;color:var(--sub);margin:0 4px 8px;letter-spacing:.2px;}
+/* Isi topic par aur (related hadees / dua): one closed row, opens on tap */
+.rel-sec{margin:14px 0 6px;}
+.rel-head{display:flex;align-items:center;gap:8px;list-style:none;cursor:pointer;padding:11px 14px;border:1px solid var(--border,rgba(0,0,0,.1));border-radius:14px;background:var(--card,#fff);font-size:13.5px;font-weight:800;color:var(--sub);-webkit-tap-highlight-color:transparent;}
+.rel-head::-webkit-details-marker{display:none;}
+.rel-head>span:first-child{flex:1;}
+.rel-n{font-size:11.5px;font-weight:800;min-width:20px;height:20px;line-height:20px;text-align:center;border-radius:10px;background:rgba(0,0,0,.07);padding:0 6px;}
+.rel-chev{font-size:20px;line-height:1;transition:transform .2s ease;}
+.rel-sec[open] .rel-chev{transform:rotate(90deg);}
+.rel-list{padding-top:8px;}
 .rel-card{cursor:pointer;margin-bottom:8px;}
 .rel-card .aad-title{font-size:14px;line-height:1.4;}
