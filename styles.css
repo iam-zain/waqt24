@@ -3179,3 +3179,7 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .quiz-next .qn-fill{ position:absolute; left:0; top:0; bottom:0; width:0; background:rgba(255,255,255,.28); pointer-events:none; }
 .quiz-next .qn-txt{ position:relative; }
 .quiz-reveal > .quiz-why:first-child{ margin-top:0; padding-top:0; border-top:none; }
+
+.quiz-hints{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.quiz-hint-n{font-style:normal;font-size:12px;opacity:.7}
+.quiz-clue{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:rgba(80,160,255,.10);border:1px dashed rgba(80,160,255,.45);font-size:14px;line-height:1.5}
