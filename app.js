@@ -4635,9 +4635,9 @@ function renderQuizCountSelect(cat){
       <div class="qz-lv-lbl">${L({rur:'Kaun se sawal?', en:'Which questions?'})}</div>
       <div class="qz-lv">${LV.map(([k,ic,n])=>`<button type="button" data-lv="${k}" class="${quizLevel===k?'on':''}" ${lv[k].length ? '' : 'disabled'}><span>${ic}</span><b>${n}</b><em>${lv[k].length}</em></button>`).join('')}</div>
       <div class="qz-lv-note">${L({rur:'Naye: abhi tak nahi khele. Kamzor: galat hue, abhi 2 baar lagataar sahi nahi. Pakke: 2 baar lagataar sahi. Ye aapke apne jawabon se banta hai.', en:'New: not played yet. Weak: missed and not yet right twice in a row. Solid: right twice in a row. Based on your own answers.'})}</div>
-      <label class="qz-opt-row"><input type="checkbox" id="quizTimerChk" ${state.quizTimer?'checked':''}><span class="qz-sw"></span><span class="qz-opt-txt">⏱️ ${L({rur:'Timer: har sawal ke liye 20 second', en:'Timer: 20 seconds per question'})}</span></label>
+      <div class="qz-auto"><span class="qz-opt-txt">⏱️ ${L({rur:'Timer (har sawal)', en:'Timer (per question)'})}</span><div class="qz-seg" id="quizTimerSeg">${QZ_TIMER.map(n=>`<button type="button" data-s="${n}" class="${quizSecsPref()===n?'on':''}">${n ? n + L({rur:' sec', en:' s'}) : L({rur:'Band', en:'Off'})}</button>`).join('')}</div></div>
       <div class="qz-auto"><span class="qz-opt-txt">⏭️ ${L({rur:'Agla sawal khud khule', en:'Next question opens by itself'})}</span><div class="qz-seg" id="quizAutoSeg">${QZ_AUTO.map(n=>`<button type="button" data-s="${n}" class="${(QZ_AUTO.includes(state.quizAutoSecs) ? state.quizAutoSecs : 0)===n?'on':''}">${n ? n + L({rur:' sec', en:' s'}) : L({rur:'Band', en:'Off'})}</button>`).join('')}</div></div>
-      <div class="qz-lv-note" style="margin-top:6px;">💡 ${L({rur:'50-50 Hint: 5 sawal mein 1 baar, 10 sawal mein 2 baar. Hint se sahi jawab dene par wo sawal "Pakke" mein nahi ginta.', en:'50-50 Hint: once in 5 questions, twice in 10. A correct answer that used the hint does not count towards "Solid".'})}</div>
+      <div class="qz-lv-note" style="margin-top:6px;">💡 ${L({rur:'Hint: 5 sawal mein 2, 10 sawal mein 4 (50-50, Sandarbh, Skip, +10s, Do baar). Ek sawal par ek hi hint. Hint se sahi jawab dene par wo sawal "Pakke" mein nahi ginta.', en:'Hints: 2 in 5 questions, 4 in 10 (50-50, Clue, Skip, +10s, 2 tries). One hint per question. A correct answer that used a hint does not count towards "Solid".'})}</div>
       <div style="font-size:13px; color:var(--sub); margin:18px 0 14px;">${L({rur:'Kitne sawal khelna chahte hain?', en:'How many questions?'})}</div>
       <div style="display:flex; gap:12px; justify-content:center;">
         <button id="quiz5" class="quiz-count-btn c5">5 ${L({rur:'Sawal', en:'Questions'})}</button>
@@ -4647,7 +4647,7 @@ function renderQuizCountSelect(cat){
     </div>
   `;
   body.querySelectorAll('[data-lv]').forEach(b=>{ b.onclick = ()=>{ quizLevel = b.dataset.lv; renderQuizCountSelect(cat); }; });
-  document.getElementById('quizTimerChk').onchange = e=>{ state.quizTimer = e.target.checked; saveState(); };
+  document.querySelectorAll('#quizTimerSeg button').forEach(b=>{ b.onclick = ()=>{ state.quizTimerSecs = +b.dataset.s; state.quizTimer = !!state.quizTimerSecs; saveState(); document.querySelectorAll('#quizTimerSeg button').forEach(x=>x.classList.toggle('on', x===b)); }; });
   document.querySelectorAll('#quizAutoSeg button').forEach(b=>{ b.onclick = ()=>{ state.quizAutoSecs = +b.dataset.s; saveState(); document.querySelectorAll('#quizAutoSeg button').forEach(x=>x.classList.toggle('on', x===b)); }; });
   document.getElementById('quiz5').onclick = ()=> startQuiz(pool, Math.min(5, pool.length), label);
   document.getElementById('quiz10').onclick = ()=> startQuiz(pool, Math.min(10, pool.length), label);
@@ -4664,7 +4664,7 @@ function startQuiz(pool, n, cat, hooks){
   const shuf = shuffleArr(pool), picked = shuf.slice(0, n), spare = shuf.slice(n);
   const hints = quizHintsFor(picked.length);
   quizTimerStop();
-  quizState = { questions: picked, idx: 0, score: 0, answered: false, cat: cat || 'Mix', wrong: [], hooks: hooks || {}, timer: !!state.quizTimer, auto: QZ_AUTO.includes(state.quizAutoSecs) ? state.quizAutoSecs : 0, hints, hintsLeft: hints, spare, extra: 0, results: [], streak: 0, best: 0 };
+  quizState = { questions: picked, idx: 0, score: 0, answered: false, cat: cat || 'Mix', wrong: [], hooks: hooks || {}, timer: quizSecsPref() > 0, secs: quizSecsPref(), auto: QZ_AUTO.includes(state.quizAutoSecs) ? state.quizAutoSecs : 0, hints, hintsLeft: hints, spare, extra: 0, results: [], streak: 0, best: 0 };
   renderQuizQuestion();
 }
 
@@ -4726,7 +4726,8 @@ function quizWhy(item){
 }
 const QZ_AUTO = [0, 1, 3, 5];   /* seconds before the next question opens by itself (0 = off) */
 /* Quiz timer (optional, chosen on the start screen) and 50-50 hint (1 per 5 questions) */
-const QUIZ_SECS = 20;
+const QZ_TIMER = [0, 10, 15, 20];   /* seconds per question (0 = no timer) */
+function quizSecsPref(){ return QZ_TIMER.includes(state.quizTimerSecs) ? state.quizTimerSecs : (state.quizTimer ? 20 : 0); }
 function quizHintsFor(n){ return n >= 10 ? 4 : n >= 5 ? 2 : n >= 3 ? 1 : 0; }   /* 2 hints per 5 sawal, 4 per 10 (shared by all hint types) */
 function quizTimerStop(){ if(quizState && quizState.tmr){ clearInterval(quizState.tmr); quizState.tmr = null; } }
 function renderQuizQuestion(){
@@ -4745,7 +4746,7 @@ function renderQuizQuestion(){
   body.innerHTML = `
     <div class="quiz-dots-row"><div class="quiz-dots" role="img" aria-label="${qs.idx+1} / ${qs.questions.length}">${qs.questions.map((_,k)=>`<i class="${k<qs.idx ? (qs.results[k] ? 'ok' : 'no') : k===qs.idx ? 'cur' : ''}"></i>`).join('')}</div>${qs.streak >= 2 ? `<span class="quiz-streak">🔥 ${qs.streak} ${L({rur:'sahi lagataar', en:'in a row'})}</span>` : ''}</div>
     <div class="quiz-tools">
-      ${qs.timer ? `<div class="quiz-timer" id="quizTimer"><span class="qt-ic">⏱️</span><span class="qt-n" id="quizTimerN">${QUIZ_SECS}</span><div class="qt-bar"><div class="qt-fill" id="quizTimerFill"></div></div></div>` : '<div></div>'}
+      ${qs.timer ? `<div class="quiz-timer" id="quizTimer"><span class="qt-ic">⏱️</span><span class="qt-n" id="quizTimerN">${qs.secs}</span><div class="qt-bar"><div class="qt-fill" id="quizTimerFill"></div></div></div>` : '<div></div>'}
       ${qs.hints ? `<div class="quiz-hints"><button type="button" class="quiz-hint" id="quizHintBtn" ${canHint ? '' : 'disabled'}>💡 50-50</button>${clue ? `<button type="button" class="quiz-hint" id="quizClueBtn" ${canClue ? '' : 'disabled'}>🧭 ${L({rur:'Sandarbh', en:'Clue'})}</button>` : ''}<button type="button" class="quiz-hint" id="quizSkipBtn" ${canSkip ? '' : 'disabled'}>⏭️ ${L({rur:'Skip', en:'Skip'})}</button>${qs.timer ? `<button type="button" class="quiz-hint" id="quizTimeBtn" ${canTime ? '' : 'disabled'}>⏱️ +10s</button>` : ''}<button type="button" class="quiz-hint" id="quizSecondBtn" ${canSecond ? '' : 'disabled'}>🔁 ${L({rur:'Do baar', en:'2 tries'})}</button><em class="quiz-hint-n" id="quizHintN">${qs.hintsLeft}/${qs.hints}</em></div>` : ''}
     </div>
     <div class="quiz-card">
@@ -4853,7 +4854,7 @@ function renderQuizQuestion(){
     qs.tmr = setInterval(()=>{
       /* stop by itself if the screen changed or the quiz was left */
       if(quizState !== qs || qs.idx !== idx || qs.answered || !document.getElementById('quizTimer')){ clearInterval(qs.tmr); qs.tmr = null; return; }
-      const tot = QUIZ_SECS + qs.extra, left = Math.max(0, tot - (Date.now()-t0)/1000);
+      const tot = qs.secs + qs.extra, left = Math.max(0, tot - (Date.now()-t0)/1000);
       num.textContent = Math.ceil(left);
       fill.style.width = (left/tot*100) + '%';
       box.classList.toggle('low', left <= 5);
