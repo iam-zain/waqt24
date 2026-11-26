@@ -1303,9 +1303,10 @@ function renderMoreSettings(){
       cityListEl.appendChild(divider);
       OTHER_CITIES.forEach(c=> cityListEl.appendChild(renderCityRow(c)));
     } else {
-      CITIES.filter(c=>c.name.toLowerCase().includes(citySearch.toLowerCase())).forEach(c=>{
-        cityListEl.appendChild(renderCityRow(c));
-      });
+      const cm = cityMatch(citySearch, 60);
+      if(!cm.list.length){ cityListEl.innerHTML = sgEmpty(citySearch, CITIES.map(c=>c.name), 'citySearchInput', 'Yeh shehar list mein nahi mila. GPS ya saved jagah istemaal karein.'); return; }
+      if(cm.fuzzy) cityListEl.insertAdjacentHTML('beforeend', cityFuzzyNote());
+      cm.list.forEach(c=>{ cityListEl.appendChild(renderCityRow(c)); });
     }
   }
   renderCityList();

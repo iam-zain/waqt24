@@ -754,10 +754,10 @@ function showSetup(step){
   if(step==='city'){
     const pick = c=>{ state.location = { name:c.name, lat:c.lat, lon:c.lon, state:c.state, source:'manual' }; saveState(); renderHome(); renderCalendar(); showSetup('lang'); };
     const draw = ()=>{
-      const q = gsNorm(setupCityQuery.trim());
-      const list = (q ? CITIES.filter(c=> gsNorm(c.name+' '+(c.state||'')).includes(q)) : CITIES).slice(0, 40);
+      const cm = setupCityQuery.trim() ? cityMatch(setupCityQuery) : { list:CITIES.slice(0, 40), fuzzy:false }, list = cm.list;
       const el = document.getElementById('suCityList');
-      el.innerHTML = list.map((c,i)=>`<div class="more-item" data-ci="${i}"><div class="lbl">${c.name}${c.state?`<span class="lblSub">${c.state}</span>`:''}</div><div class="chev">›</div></div>`).join('');
+      if(!list.length){ el.innerHTML = sgEmpty(setupCityQuery, CITIES.map(c=>c.name), 'suCity', L({rur:'Yeh shehar list mein nahi mila.', en:'City not found in the list.'}) + ' ' + L({rur:'GPS se location le sakte hain.', en:'You can use GPS instead.'})); return; }
+      el.innerHTML = (cm.fuzzy ? cityFuzzyNote() : '') + list.map((c,i)=>`<div class="more-item" data-ci="${i}"><div class="lbl">${c.name}${c.state?`<span class="lblSub">${c.state}</span>`:''}</div><div class="chev">›</div></div>`).join('');
       el.querySelectorAll('[data-ci]').forEach(r=>{ r.onclick = ()=> pick(list[+r.dataset.ci]); });
     };
     const inp = document.getElementById('suCity');

@@ -2385,10 +2385,10 @@ function showSetup(step){
   if(step==='city'){
     const pick = c=>{ state.location = { name:c.name, lat:c.lat, lon:c.lon, state:c.state, source:'manual' }; saveState(); renderHome(); renderCalendar(); showSetup('lang'); };
     const draw = ()=>{
-      const q = gsNorm(setupCityQuery.trim());
-      const list = (q ? CITIES.filter(c=> gsNorm(c.name+' '+(c.state||'')).includes(q)) : CITIES).slice(0, 40);
+      const cm = setupCityQuery.trim() ? cityMatch(setupCityQuery) : { list:CITIES.slice(0, 40), fuzzy:false }, list = cm.list;
       const el = document.getElementById('suCityList');
-      el.innerHTML = list.map((c,i)=>`<div class="more-item" data-ci="${i}"><div class="lbl">${c.name}${c.state?`<span class="lblSub">${c.state}</span>`:''}</div><div class="chev">›</div></div>`).join('');
+      if(!list.length){ el.innerHTML = sgEmpty(setupCityQuery, CITIES.map(c=>c.name), 'suCity', L({rur:'Yeh shehar list mein nahi mila.', en:'City not found in the list.'}) + ' ' + L({rur:'GPS se location le sakte hain.', en:'You can use GPS instead.'})); return; }
+      el.innerHTML = (cm.fuzzy ? cityFuzzyNote() : '') + list.map((c,i)=>`<div class="more-item" data-ci="${i}"><div class="lbl">${c.name}${c.state?`<span class="lblSub">${c.state}</span>`:''}</div><div class="chev">›</div></div>`).join('');
       el.querySelectorAll('[data-ci]').forEach(r=>{ r.onclick = ()=> pick(list[+r.dataset.ci]); });
     };
     const inp = document.getElementById('suCity');
@@ -4888,9 +4888,10 @@ function renderMoreSettings(){
       cityListEl.appendChild(divider);
       OTHER_CITIES.forEach(c=> cityListEl.appendChild(renderCityRow(c)));
     } else {
-      CITIES.filter(c=>c.name.toLowerCase().includes(citySearch.toLowerCase())).forEach(c=>{
-        cityListEl.appendChild(renderCityRow(c));
-      });
+      const cm = cityMatch(citySearch, 60);
+      if(!cm.list.length){ cityListEl.innerHTML = sgEmpty(citySearch, CITIES.map(c=>c.name), 'citySearchInput', 'Yeh shehar list mein nahi mila. GPS ya saved jagah istemaal karein.'); return; }
+      if(cm.fuzzy) cityListEl.insertAdjacentHTML('beforeend', cityFuzzyNote());
+      cm.list.forEach(c=>{ cityListEl.appendChild(renderCityRow(c)); });
     }
   }
   renderCityList();
@@ -12805,6 +12806,18 @@ document.addEventListener('click', e=>{
   e.preventDefault(); e.stopPropagation();
   inp.value = b.dataset.v; inp.dispatchEvent(new Event('input', { bubbles:true })); inp.dispatchEvent(new Event('change', { bubbles:true })); try{ inp.focus(); }catch(_){}
 }, true);
+
+/* City search: names starting with the text first, then the rest of the name or the state, then close spellings */
+function cityMatch(raw, max){
+  const q = gsNorm(String(raw || '').trim()); if(!q) return { list:[], fuzzy:false };
+  const sc = c=>{ const n = gsNorm(c.name), s = gsNorm(c.state || ''); return n.startsWith(q) ? 0 : n.includes(q) ? 1 : s.startsWith(q) ? 2 : (n + s).includes(q) ? 3 : 9; };
+  let list = CITIES.map(c=>[sc(c), c]).filter(x=>x[0] < 9).sort((a, b)=> a[0] - b[0] || a[1].name.localeCompare(b[1].name)).map(x=>x[1]);
+  if(list.length || q.length < 3) return { list:list.slice(0, max || 40), fuzzy:false };
+  const ed = (a, b)=>{ const d = Array.from({length:a.length + 1}, (_, i)=>[i]); for(let j = 1; j <= b.length; j++) d[0][j] = j; for(let i = 1; i <= a.length; i++) for(let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1)); return d[a.length][b.length]; };
+  list = CITIES.map(c=>[ed(q, gsNorm(c.name).slice(0, q.length + 1)), c]).filter(x=>x[0] <= (q.length > 5 ? 2 : 1)).sort((a, b)=> a[0] - b[0]).map(x=>x[1]);
+  return { list:list.slice(0, 8), fuzzy:true };
+}
+function cityFuzzyNote(){ return '<div class="sg-lbl" style="margin:4px 0 8px;">Kya aap yeh dhoondh rahe the?</div>'; }
 /* ===== Sadaqa-e-Fitr aur Qurbani calculator (Hanafi) ===== */
 const FQ_ITEMS = [
   ['wheat',  '🌾 Aata (gehun)',     1, 'Hanafi mein aadha saa’'],
