@@ -194,7 +194,7 @@ async function shareText(text){
   }catch(e){ showToast('Share/Copy nahi ho saka'); }
 }
 /* Colour and icon per hadees category */
-const HADEES_CAT_META = { 'Akhlaq':['🤝','#3f8fe0'], 'Ilm':['📚','#9b6fd6'], 'Namaz':['🕌','#2fb6b0'], 'Ramzan':['🌙','#c79a2e'], 'Sadqa':['💝','#e0893f'], 'Zikr':['📿','#2fb6b0'], 'Imaan':['💎','#5c7cfa'], 'Ibadat':['🕋','#b5832b'], 'Tauba':['💧','#4a8fd0'], 'Aadaab':['🪴','#d6708f'] };
+const HADEES_CAT_META = { 'Azaan':['🔊','#2fb6b0'], 'Akhlaq':['🤝','#3f8fe0'], 'Ilm':['📚','#9b6fd6'], 'Namaz':['🕌','#2fb6b0'], 'Ramzan':['🌙','#c79a2e'], 'Sadqa':['💝','#e0893f'], 'Zikr':['📿','#2fb6b0'], 'Imaan':['💎','#5c7cfa'], 'Ibadat':['🕋','#b5832b'], 'Tauba':['💧','#4a8fd0'], 'Aadaab':['🪴','#d6708f'] };
 function hadeesMeta(cat){ return HADEES_CAT_META[cat] || ['📜','#5c7cfa']; }
 /* Yaad status key for a hadees (hadees have no title, so the start of the text identifies it) */
 function hadeesKey(h){ return 'hadees:' + h.txt.slice(0,60); }

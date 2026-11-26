@@ -937,7 +937,7 @@ function renderAzaan(){
   document.getElementById('detailBody').innerHTML = `
     <div class="backup-note">${L({rur:'Azaan ke alfaaz, unka talaffuz aur maana, aur duniya bhar ki masjidon se Azaan suniye.', en:'The words of the Azaan with pronunciation and meaning, and Azaan recordings from mosques around the world.'})}</div>
     <button class="backup-btn" id="azaanSetBtn">⚙️ ${L({rur:'Namaz ke waqt Azaan', en:'Azaan at prayer times'})}: ${a.on ? L({rur:'On', en:'On'}) : L({rur:'Off', en:'Off'})}</button>
-    <div class="zk-seg zk-seg2" id="azTabs"><button data-t="words">📜 ${L({rur:'Alfaaz', en:'Words'})}</button><button data-t="dua">🤲 ${L({rur:'Dua', en:'Dua'})}</button><button data-t="listen">🎧 ${L({rur:'Suniye', en:'Listen'})}</button></div>
+    <div class="zk-seg zk-seg2" id="azTabs"><button data-t="words">📜 ${L({rur:'Alfaaz', en:'Words'})}</button><button data-t="dua">🤲 ${L({rur:'Dua aur Hadees', en:'Dua and Hadith'})}</button><button data-t="listen">🎧 ${L({rur:'Suniye', en:'Listen'})}</button></div>
     <div class="az-sec" data-t="words"><div class="section-title">${L({rur:'Azaan ke Alfaaz', en:'Words of the Azaan'})}</div>
     <div class="az-text">${AZAAN_TEXT.map(x=>`<div class="az-line ${x.fajr?'fajr':''}">
       <div class="az-ar ar-font">${x.ar}</div>
@@ -951,7 +951,11 @@ function renderAzaan(){
       <div class="az-tr">${AZAAN_DUA.tr}</div>
       <div class="az-m">${L(AZAAN_DUA.m)}</div>
       <div class="az-fajr">${L({rur:'Hawala', en:'Reference'})}: ${AZAAN_DUA.ref}</div>
-    </div></div></div>
+    </div>
+    <div class="section-title">${L({rur:'Azaan ke baare mein Hadees', en:'Hadith about the Azaan'})}</div>
+    ${HADEES.filter(h=>h.cat==='Azaan').map(h=>`<div class="az-line"><div class="az-m">${hTxt(h)}</div><div class="az-fajr">${L({rur:'Hawala', en:'Reference'})}: ${h.src}</div></div>`).join('')}
+    <div class="backup-note">${L({rur:'Hadees ka matlab sunnah.com ke hawalon se aasaan alfaaz mein likha gaya hai, lafzi tarjuma nahi. Tafseel aur amal ke liye ulema se mashwara karein. Poori hadeesein:', en:'Hadith meanings are summarised in simple words from sunnah.com references, not literal translations. Please consult scholars for details and practice. Full texts:'})} <a href="https://sunnah.com/nasai/7" target="_blank" rel="noopener">Sunan an-Nasa'i, Book of Adhan</a> · <a href="https://sunnah.com/bukhari:614" target="_blank" rel="noopener">Bukhari 614</a></div>
+    </div></div>
     <div class="az-sec" data-t="listen"><div class="section-title">${L({rur:'Duniya bhar ki Azaan', en:'Azaan from around the world'})}</div>
     <div class="az-list">${AZAAN_RECS.map(azaanRecRow).join('')}</div>
     <div class="backup-note">${L({rur:'Recordings Wikimedia Commons se hain, free license (CC0, Public domain, CC BY, CC BY-SA) ke saath. Har recording ke saath uske banane wale aur license ka zikr hai.', en:'Recordings are from Wikimedia Commons under free licences (CC0, public domain, CC BY, CC BY-SA). Each recording lists its author and licence.'})}</div></div>
