@@ -2568,25 +2568,33 @@ function renderAzaan(){
   document.getElementById('detailBody').innerHTML = `
     <div class="backup-note">${L({rur:'Azaan ke alfaaz, unka talaffuz aur maana, aur duniya bhar ki masjidon se Azaan suniye.', en:'The words of the Azaan with pronunciation and meaning, and Azaan recordings from mosques around the world.'})}</div>
     <button class="backup-btn" id="azaanSetBtn">⚙️ ${L({rur:'Namaz ke waqt Azaan', en:'Azaan at prayer times'})}: ${a.on ? L({rur:'On', en:'On'}) : L({rur:'Off', en:'Off'})}</button>
-    <div class="section-title">${L({rur:'Azaan ke Alfaaz', en:'Words of the Azaan'})}</div>
+    <div class="zk-seg" id="azTabs"><button data-t="words">📜 ${L({rur:'Alfaaz', en:'Words'})}</button><button data-t="dua">🤲 ${L({rur:'Dua', en:'Dua'})}</button><button data-t="listen">🎧 ${L({rur:'Suniye', en:'Listen'})}</button></div>
+    <div class="az-sec" data-t="words"><div class="section-title">${L({rur:'Azaan ke Alfaaz', en:'Words of the Azaan'})}</div>
     <div class="az-text">${AZAAN_TEXT.map(x=>`<div class="az-line ${x.fajr?'fajr':''}">
       <div class="az-ar ar-font">${x.ar}</div>
       <div class="az-tr">${x.tr} <b>×${x.n}</b></div>
       <div class="az-m">${L(x.m)}</div>
       ${x.fajr ? `<div class="az-fajr">${L({rur:'Sirf Fajr ki Azaan mein, Hayya alal-Falah ke baad', en:'Only in the Fajr Azaan, after Hayya alal-Falah'})}</div>` : ''}
-    </div>`).join('')}</div>
-    <div class="section-title">${L({rur:'Azaan ke baad ki Dua', en:'Dua after the Azaan'})}</div>
+    </div>`).join('')}</div></div>
+    <div class="az-sec" data-t="dua"><div class="section-title">${L({rur:'Azaan ke baad ki Dua', en:'Dua after the Azaan'})}</div>
     <div class="az-text"><div class="az-line">
       <div class="az-ar ar-font">${AZAAN_DUA.ar}</div>
       <div class="az-tr">${AZAAN_DUA.tr}</div>
       <div class="az-m">${L(AZAAN_DUA.m)}</div>
       <div class="az-fajr">${L({rur:'Hawala', en:'Reference'})}: ${AZAAN_DUA.ref}</div>
-    </div></div>
-    <div class="section-title">${L({rur:'Duniya bhar ki Azaan', en:'Azaan from around the world'})}</div>
+    </div></div></div>
+    <div class="az-sec" data-t="listen"><div class="section-title">${L({rur:'Duniya bhar ki Azaan', en:'Azaan from around the world'})}</div>
     <div class="az-list">${AZAAN_RECS.map(azaanRecRow).join('')}</div>
-    <div class="backup-note">${L({rur:'Recordings Wikimedia Commons se hain, free license (CC0, Public domain, CC BY, CC BY-SA) ke saath. Har recording ke saath uske banane wale aur license ka zikr hai.', en:'Recordings are from Wikimedia Commons under free licences (CC0, public domain, CC BY, CC BY-SA). Each recording lists its author and licence.'})}</div>
+    <div class="backup-note">${L({rur:'Recordings Wikimedia Commons se hain, free license (CC0, Public domain, CC BY, CC BY-SA) ke saath. Har recording ke saath uske banane wale aur license ka zikr hai.', en:'Recordings are from Wikimedia Commons under free licences (CC0, public domain, CC BY, CC BY-SA). Each recording lists its author and licence.'})}</div></div>
   `;
   document.getElementById('azaanSetBtn').onclick = renderAzaanSettings;
+  const azShow = t=>{
+    state.azTab = t; saveState();
+    document.querySelectorAll('#detailBody .az-sec').forEach(x=> x.style.display = x.dataset.t === t ? '' : 'none');
+    document.querySelectorAll('#azTabs button').forEach(b=> b.classList.toggle('on', b.dataset.t === t));
+  };
+  document.querySelectorAll('#azTabs button').forEach(b=> b.onclick = ()=> azShow(b.dataset.t));
+  azShow(['words','dua','listen'].includes(state.azTab) ? state.azTab : 'words');
   wireAzaanPlay();
 }
 
@@ -7741,6 +7749,13 @@ function goTask(go){
   if(go.open){ const el = document.querySelector(`#tab-${go.tab} [data-open="${go.open}"]`); if(el) el.click(); }
 }
 let goalOpenCard = false, goalInfoOpen = false;
+function goalLeftTxt(){
+  const now = new Date(), end = new Date(now); end.setHours(24,0,0,0);
+  const mins = Math.max(1, Math.round((end - now) / 60000));
+  if (mins < 60) return mins + ' minute baaqi';
+  return Math.round(mins / 60) + ' ghante baaqi';
+}
+setInterval(()=>{ const e = document.getElementById('goalLeft'); if (e) e.textContent = goalLeftTxt(); }, 60000);
 function renderGoalCard(){
   const el = document.getElementById('goalCard');
   if(!el) return;
@@ -7748,7 +7763,7 @@ function renderGoalCard(){
   const n = tasks.filter(t=>t.done).length;
   const week = goalWeek();
   el.innerHTML = `<div class="hd-card ${goalOpenCard ? 'open' : ''}">
-    <button class="wk-head" id="goalHead" aria-expanded="${goalOpenCard}"><span class="wk-hi">🎯</span><span class="wk-ht">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</span><span class="hd-i ${goalInfoOpen ? 'on' : ''}" id="goalInfoBtn" role="button" tabindex="0" aria-label="Jaankari">i</span><span class="wk-hc">${n}/${tasks.length}</span><b class="goal-arrow wk-car">›</b></button>
+    <button class="wk-head" id="goalHead" aria-expanded="${goalOpenCard}"><span class="wk-hi">🎯</span><span class="wk-ht">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</span><span class="hd-i ${goalInfoOpen ? 'on' : ''}" id="goalInfoBtn" role="button" tabindex="0" aria-label="Jaankari">i</span><span class="wk-left" id="goalLeft">${goalLeftTxt()}</span><span class="wk-hc">${n}/${tasks.length}</span><b class="goal-arrow wk-car">›</b></button>
     ${goalInfoOpen ? `<div class="hd-info">Roz ke chhote chhote kaam, jo aap ko deen ki aadat par rakhte hain: panchon namaz mark karna, ek khaas shabd (lafz) seekhna, ek qaza ada karna, aur aaj ki Du'a aur Hadees padhna. Kaam karke circle par tick karein. Koi kaam na ho paye to 🔄 se doosra chun lein. Neeche ke 7 dot pichhle 7 din ka hisaab dikhate hain.</div>` : ''}
     <div class="wk-body">
       ${tasks.map((t,i)=>`<div class="goal-row"><button class="goal-item ${t.done?'done':''}" data-go="${i}"><span class="gi-check">${t.done?'✓':''}</span><span class="gi-txt">${L(t.label)}</span><b class="goal-arrow">›</b></button><button class="wk-sm" data-sw="${i}" aria-label="Badlein">${uiIcon('refresh')}</button></div>`).join('')}

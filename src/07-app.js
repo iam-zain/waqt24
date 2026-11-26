@@ -425,6 +425,13 @@ function goTask(go){
   if(go.open){ const el = document.querySelector(`#tab-${go.tab} [data-open="${go.open}"]`); if(el) el.click(); }
 }
 let goalOpenCard = false, goalInfoOpen = false;
+function goalLeftTxt(){
+  const now = new Date(), end = new Date(now); end.setHours(24,0,0,0);
+  const mins = Math.max(1, Math.round((end - now) / 60000));
+  if (mins < 60) return mins + ' minute baaqi';
+  return Math.round(mins / 60) + ' ghante baaqi';
+}
+setInterval(()=>{ const e = document.getElementById('goalLeft'); if (e) e.textContent = goalLeftTxt(); }, 60000);
 function renderGoalCard(){
   const el = document.getElementById('goalCard');
   if(!el) return;
@@ -432,7 +439,7 @@ function renderGoalCard(){
   const n = tasks.filter(t=>t.done).length;
   const week = goalWeek();
   el.innerHTML = `<div class="hd-card ${goalOpenCard ? 'open' : ''}">
-    <button class="wk-head" id="goalHead" aria-expanded="${goalOpenCard}"><span class="wk-hi">🎯</span><span class="wk-ht">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</span><span class="hd-i ${goalInfoOpen ? 'on' : ''}" id="goalInfoBtn" role="button" tabindex="0" aria-label="Jaankari">i</span><span class="wk-hc">${n}/${tasks.length}</span><b class="goal-arrow wk-car">›</b></button>
+    <button class="wk-head" id="goalHead" aria-expanded="${goalOpenCard}"><span class="wk-hi">🎯</span><span class="wk-ht">${L({rur:'Rozana Hadaf', en:'Daily Goal'})}</span><span class="hd-i ${goalInfoOpen ? 'on' : ''}" id="goalInfoBtn" role="button" tabindex="0" aria-label="Jaankari">i</span><span class="wk-left" id="goalLeft">${goalLeftTxt()}</span><span class="wk-hc">${n}/${tasks.length}</span><b class="goal-arrow wk-car">›</b></button>
     ${goalInfoOpen ? `<div class="hd-info">Roz ke chhote chhote kaam, jo aap ko deen ki aadat par rakhte hain: panchon namaz mark karna, ek khaas shabd (lafz) seekhna, ek qaza ada karna, aur aaj ki Du'a aur Hadees padhna. Kaam karke circle par tick karein. Koi kaam na ho paye to 🔄 se doosra chun lein. Neeche ke 7 dot pichhle 7 din ka hisaab dikhate hain.</div>` : ''}
     <div class="wk-body">
       ${tasks.map((t,i)=>`<div class="goal-row"><button class="goal-item ${t.done?'done':''}" data-go="${i}"><span class="gi-check">${t.done?'✓':''}</span><span class="gi-txt">${L(t.label)}</span><b class="goal-arrow">›</b></button><button class="wk-sm" data-sw="${i}" aria-label="Badlein">${uiIcon('refresh')}</button></div>`).join('')}
