@@ -1069,6 +1069,18 @@ function renderIslamicMonths(){
     el.onclick = ()=> renderMonthDetail(parseInt(el.dataset.m));
   });
 }
+/* "Is mahine ke khaas din": the Khaas Din events that fall in this Hijri month (Hijri-dated ones; events fixed by English date move between months, so they stay in Khaas Din only) */
+function monthKhaasDinHtml(i){
+  let list = [];
+  try{ list = islamicEventsList().filter(e=> !e.fixedG && gregorianToHijri(e.greg).month === i + 1); }catch(_){}
+  if(!list.length) return '';
+  const fmtG = g=> `${g.getDate()} ${MON[g.getMonth()]} ${g.getFullYear()}`;
+  const day = e=> e.nights ? e.nights.map(n=>n.day).join(', ') : gregorianToHijri(e.greg).day;
+  list.sort((a, b)=> (e=>e.nights ? e.nights[0].day : gregorianToHijri(e.greg).day)(a) - (e=>e.nights ? e.nights[0].day : gregorianToHijri(e.greg).day)(b));
+  return `<div class="section-title">📅 ${L({rur:'Is mahine ke khaas din', en:'Special days this month'})}</div>
+    <div class="mkd">${list.map(e=>`<div class="mkd-row"><span class="mkd-d">${day(e)}</span><span class="mkd-n">${e.ic} ${e.name}${e.note ? ' <small>⚠️</small>' : ''}<small>${fmtG(e.nights ? e.nights[0].greg : e.greg)}${e.nights ? ' …' : ''}</small></span></div>`).join('')}
+    <button type="button" class="mkd-all" id="mkdAll">${L({rur:'Sab khaas din dekhein', en:'See all special days'})} ›</button></div>`;
+}
 function renderMonthDetail(i){
   const info = HIJRI_MONTH_INFO[i], meta = HIJRI_MONTH_META[i];
   const c = state.lang==='en' ? info.en : info.rur;
@@ -1085,6 +1097,7 @@ function renderMonthDetail(i){
         ${curH.month===i+1 ? `<span class="mbadge now">${L({rur:'Abhi chal raha hai',en:'Current month'})}</span>` : ''}
       </div>
     </div>
+    ${monthKhaasDinHtml(i)}
     <div class="section-title">${L({rur:'Ahem Baatein',en:'Key Points'})}</div>
     ${c.points.map(t=>`<div class="minfo-card">${t}</div>`).join('')}
     ${c.events && c.events.length ? `<div class="section-title">${L({rur:'Ahem Waqiat',en:'Notable Events'})}</div>${c.events.map(t=>`<div class="minfo-card ev">${t}</div>`).join('')}` : ''}
@@ -1093,6 +1106,7 @@ function renderMonthDetail(i){
   `;
   document.getElementById('pnPrevBtn').onclick = ()=> i>0 && renderMonthDetail(i-1);
   document.getElementById('pnNextBtn').onclick = ()=> i<11 && renderMonthDetail(i+1);
+  { const a = document.getElementById('mkdAll'); if(a) a.onclick = ()=>{ khaasDinTab = 'all'; renderIslamicEvents(); }; }
 }
 
 /* ============================================================
@@ -1228,7 +1242,7 @@ function islamicEventsList(){
     }
     const g = e.gd ? (()=>{ const t = new Date(); t.setHours(0,0,0,0); let x = new Date(t.getFullYear(), e.gd[0] - 1, e.gd[1]); if(x < t) x = new Date(t.getFullYear() + 1, e.gd[0] - 1, e.gd[1]); return x; })() : nextOccurrence(e.h);
     const hd = gregorianToHijri(g);
-    return { name:e.name, greg:g, hijri:`${hd.day} ${hd.monthName} ${hd.year} AH`, ic:e.ic, tag:e.tag, yr:e.yr, note:e.note };
+    return { name:e.name, greg:g, hijri:`${hd.day} ${hd.monthName} ${hd.year} AH`, hd, fixedG:!!e.gd, ic:e.ic, tag:e.tag, yr:e.yr, note:e.note };
   }).sort((a,b)=> a.greg - b.greg);
 }
 let khaasDinTab = 'all';

@@ -918,6 +918,21 @@ function renderReviewList(items, backFn){
   `;
   document.getElementById('reviewBackBtn').onclick = backFn;
 }
+/* Personal practice: each question the player has met is remembered (short hash, not the text).
+   c = right answers in a row, w = times missed. "Kamzor" (weak) = missed at least once and not yet right twice in a row. */
+function qzKey(item){ const t = String(item[0] || ''); let h = 5381; for(let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+function qzStat(item){ return (state.quizStat || {})[qzKey(item)]; }
+function qzRecord(item, ok){
+  if(!state.quizStat) state.quizStat = {};
+  const k = qzKey(item), st = state.quizStat[k] || { c:0, w:0 };
+  if(ok){ st.c = Math.min(9, st.c + 1); } else { st.c = 0; st.w = Math.min(99, st.w + 1); }
+  st.t = Math.floor(Date.now() / 86400000);
+  state.quizStat[k] = st;
+}
+const qzIsWeak = item=>{ const st = qzStat(item); return !!st && st.w > 0 && st.c < 2; };
+const qzIsNew = item=> !qzStat(item);
+const qzIsSolid = item=>{ const st = qzStat(item); return !!st && st.c >= 2; };
+function qzWeakAll(){ return QUIZ_BANK.filter(qzIsWeak); }
 function renderMoreQuiz(){
   quizState = null;
   document.getElementById('detailTitle').textContent = "Quiz";
@@ -937,6 +952,7 @@ function renderMoreQuiz(){
       <div style="font-size:13px; color:var(--sub); margin-bottom:14px;">Category chuniye</div>
     </div>
     ${quizProfileHtml()}
+    ${(()=>{ const w = qzWeakAll().length; return w ? `<button class="quiz-cat-btn" id="quizWeakBtn" style="border-color:#e0893f;"><span class="quiz-cat-ic">🔁</span><span class="quiz-cat-name">${L({rur:'Galat sawal ki practice', en:'Practise missed questions'})}</span><span class="quiz-cat-count">${w} ${L({rur:'sawal', en:'questions'})}</span></button>` : ''; })()}
     <button class="quiz-cat-btn" data-cat="__all__" style="border-color:var(--accent);">
       <span class="quiz-cat-ic">🌐</span>
       <span class="quiz-cat-name">Sab Categories (Mix)</span>
@@ -944,30 +960,41 @@ function renderMoreQuiz(){
     </button>
     ${catRows}
   `;
-  body.querySelectorAll('.quiz-cat-btn').forEach(btn=>{
+  body.querySelectorAll('.quiz-cat-btn[data-cat]').forEach(btn=>{
     btn.onclick = ()=> renderQuizCountSelect(btn.dataset.cat);
   });
+  const wb = document.getElementById('quizWeakBtn');
+  if(wb) wb.onclick = ()=>{ const w = qzWeakAll(); startQuiz(w, Math.min(10, w.length), L({rur:'Galat sawal ki practice', en:'Missed questions'})); };
 }
 
 /* Colours for quiz categories, in alphabetical order; green is left out on purpose */
 const QUIZ_PALETTE = ['#3f8fe0','#e0709f','#e0893f','#9b6fd6','#2fb6b0','#c79a2e','#d6708f','#5c7cfa','#c0563f','#3a4d8f'];
+let quizLevel = 'all';
 function renderQuizCountSelect(cat){
-  const pool = cat==='__all__' ? QUIZ_BANK : QUIZ_BANK.filter(q=>q[3]===cat);
+  const base = cat==='__all__' ? QUIZ_BANK : QUIZ_BANK.filter(q=>q[3]===cat);
+  const lv = { all:base, new:base.filter(qzIsNew), weak:base.filter(qzIsWeak), solid:base.filter(qzIsSolid) };
+  if(!lv[quizLevel] || (quizLevel !== 'all' && !lv[quizLevel].length)) quizLevel = 'all';
+  const pool = lv[quizLevel];
   document.getElementById('detailTitle').textContent = "Quiz";
   const body = document.getElementById('detailBody');
-  const label = cat==='__all__' ? 'Sab Categories' : cat;
+  const label = cat==='__all__' ? L({rur:'Sab Categories', en:'All categories'}) : cat;
+  const LV = [['all','🎲',L({rur:'Sab', en:'All'})],['new','✨',L({rur:'Naye', en:'New'})],['weak','🎯',L({rur:'Kamzor', en:'Weak'})],['solid','💪',L({rur:'Pakke', en:'Solid'})]];
   body.innerHTML = `
-    <div style="text-align:center; padding:30px 10px;">
+    <div style="text-align:center; padding:26px 10px;">
       <div style="font-size:40px; margin-bottom:10px;">${cat==='__all__'?'🌐':(QUIZ_CAT_ICON[cat]||'❓')}</div>
       <div style="font-size:15px; font-weight:700; margin-bottom:6px;">${label}</div>
-      <div style="font-size:13px; color:var(--sub); margin-bottom:24px;">Kitne sawal khelna chahte hain?</div>
+      <div class="qz-lv-lbl">${L({rur:'Kaun se sawal?', en:'Which questions?'})}</div>
+      <div class="qz-lv">${LV.map(([k,ic,n])=>`<button type="button" data-lv="${k}" class="${quizLevel===k?'on':''}" ${lv[k].length ? '' : 'disabled'}><span>${ic}</span><b>${n}</b><em>${lv[k].length}</em></button>`).join('')}</div>
+      <div class="qz-lv-note">${L({rur:'Naye: abhi tak nahi khele. Kamzor: galat hue, abhi 2 baar lagataar sahi nahi. Pakke: 2 baar lagataar sahi. Ye aapke apne jawabon se banta hai.', en:'New: not played yet. Weak: missed and not yet right twice in a row. Solid: right twice in a row. Based on your own answers.'})}</div>
+      <div style="font-size:13px; color:var(--sub); margin:18px 0 14px;">${L({rur:'Kitne sawal khelna chahte hain?', en:'How many questions?'})}</div>
       <div style="display:flex; gap:12px; justify-content:center;">
-        <button id="quiz5" class="quiz-count-btn c5">5 Sawal</button>
-        <button id="quiz10" class="quiz-count-btn c10">10 Sawal</button>
+        <button id="quiz5" class="quiz-count-btn c5">5 ${L({rur:'Sawal', en:'Questions'})}</button>
+        <button id="quiz10" class="quiz-count-btn c10">10 ${L({rur:'Sawal', en:'Questions'})}</button>
       </div>
-      <button id="quizBackToCats" style="margin-top:22px; background:none; border:none; color:var(--sub); font-size:12.5px; text-decoration:underline; cursor:pointer;">‹ Category Badlein</button>
+      <button id="quizBackToCats" style="margin-top:22px; background:none; border:none; color:var(--sub); font-size:12.5px; text-decoration:underline; cursor:pointer;">‹ ${L({rur:'Category Badlein', en:'Change category'})}</button>
     </div>
   `;
+  body.querySelectorAll('[data-lv]').forEach(b=>{ b.onclick = ()=>{ quizLevel = b.dataset.lv; renderQuizCountSelect(cat); }; });
   document.getElementById('quiz5').onclick = ()=> startQuiz(pool, Math.min(5, pool.length), label);
   document.getElementById('quiz10').onclick = ()=> startQuiz(pool, Math.min(10, pool.length), label);
   document.getElementById('quizBackToCats').onclick = renderMoreQuiz;
@@ -1021,6 +1048,7 @@ function renderQuizQuestion(){
         else if(bi===chosen) b.classList.add('wrong');
       });
       const item = qs.questions[qs.idx];
+      try{ qzRecord(item, chosen===correct); saveState(); }catch(e){}
       if(chosen===correct){
         qs.score++;
       } else {

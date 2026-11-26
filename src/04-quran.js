@@ -152,11 +152,39 @@ function khatmPlanHtml(){
     <div class="tl-sub">${L({rur:'Aakhri din', en:'Finish date'})}: ${pi.end.getDate()} ${MON[pi.end.getMonth()]} ${pi.end.getFullYear()}</div>
     ${chips}<button type="button" class="kp-clear" id="kpClear">${L({rur:'Plan hatayein', en:'Remove plan'})}</button></div>`;
 }
+/* "Aaj ka hissa": the exact pages to read today (from the Khatm plan, or the next pages after where you stopped), with Surah/Para names and a streak */
+function qPageSurah(pg){ let r = QURAN_SURAHS[0]; for(const x of QURAN_SURAHS){ if(x.page <= pg) r = x; else break; } return r; }
+function qPagePara(pg){ let r = QURAN_PARAS[0]; for(const x of QURAN_PARAS){ if(x.page <= pg) r = x; else break; } return r; }
+function qTodayPortion(){
+  const pi = khatmPlanInfo(), t = tilawatTarget();
+  let from, to;
+  if(pi && pi.left > 0){ from = KHATM_FIRST + Math.min(pi.read, KHATM_PAGES - 1); to = KHATM_FIRST + Math.max(pi.expected, pi.read + 1) - 1; if(to - from + 1 < t && !pi.behind) to = Math.min(KHATM_LAST, from + t - 1); }
+  else { const last = Math.max(KHATM_FIRST, Math.min(KHATM_LAST, state.quranPage || KHATM_FIRST)); from = last; to = Math.min(KHATM_LAST, last + t - 1); }
+  to = Math.min(KHATM_LAST, Math.max(from, to));
+  const names = []; for(let q = from; q <= to; q++){ const n = qPageSurah(q).name; if(names[names.length - 1] !== n) names.push(n); }
+  return { from, to, count: to - from + 1, para: qPagePara(from), surahs: names, plan: !!pi };
+}
+function qTilawatStreak(){
+  const t = tilawatTarget(); let n = 0, d = new Date();
+  if(tilawatCount(d) < t) d.setDate(d.getDate() - 1); // today may still be in progress
+  for(let i = 0; i < 400; i++){ if(tilawatCount(d) >= t){ n++; d.setDate(d.getDate() - 1); } else break; }
+  return n;
+}
+function qTodayHtml(){
+  const q = qTodayPortion(), t = tilawatTarget(), n = tilawatCount(), st = qTilawatStreak(), done = n >= t;
+  const sn = q.surahs.length > 2 ? q.surahs[0] + ' … ' + q.surahs[q.surahs.length - 1] : q.surahs.join(' → ');
+  return `<div class="ramzan-card tl-card tl-today" style="margin:0 14px 10px;">
+      <div class="tl-head"><b>📌 ${L({rur:'Aaj ka hissa', en:'Today\u2019s portion'})}</b><span class="tl-count ${done?'ok':''}">${done ? '✓ ' + L({rur:'Poora', en:'Done'}) : q.count + ' ' + L({rur:'page', en:'pages'})}</span></div>
+      <div class="tl-sub">${L({rur:'Page', en:'Pages'})} <b>${q.from}${q.to > q.from ? '–' + q.to : ''}</b> · ${L({rur:'Para', en:'Juz'})} ${q.para.n} · ${sn}</div>
+      <div class="tl-sub">${q.plan ? L({rur:'Aapke Khatm plan ke hisaab se.', en:'According to your Khatm plan.'}) : L({rur:'Jahan chhoda wahin se, rozana target ke barabar. Khatm ka plan banayenge to yeh hissa plan se aayega.', en:'From where you stopped, as much as your daily target. With a Khatm plan, this follows the plan.'})}</div>
+      <div class="tl-today-row"><button class="quran-tool" id="tlTodayGo">📖 ${L({rur:'Aaj ka hissa padhein', en:'Read today\u2019s portion'})}</button><span class="tl-streak ${st ? 'on' : ''}" title="${L({rur:'Lagataar din jab target poora hua', en:'Days in a row you met the target'})}">🔥 ${st} ${L({rur:'din', en:st === 1 ? 'day' : 'days'})}</span></div>
+    </div>`;
+}
 function tilawatCardsHtml(){
   const n = tilawatCount(), t = tilawatTarget(), kh = khatmInfo();
   const etaTxt = kh.left <= 0 ? L({rur:'Khatm mukammal! Mashallah', en:'Khatm complete! Mashallah'})
     : kh.eta ? `${L({rur:'Is raftaar se mukammal', en:'At this pace, done by'})}: ${kh.eta.getDate()} ${MON[kh.eta.getMonth()]} ${kh.eta.getFullYear()}` : L({rur:'Padhna shuru karein to andaaza dikhega', en:'Start reading to see an estimate'});
-  return `<div class="ramzan-card tl-card" style="margin:0 14px 10px;">
+  return qTodayHtml() + `<div class="ramzan-card tl-card" style="margin:0 14px 10px;">
       <div class="tl-head"><b>📖 ${L({rur:'Aaj ki Tilawat', en:'Today\u2019s Reading'})}</b><span class="tl-count ${n>=t?'ok':''}">${n} / ${t} ${L({rur:'page', en:'pages'})}</span></div>
       <div class="tl-bar"><i style="width:${Math.min(100, n/t*100)}%"></i></div>
       <div class="tl-target"><span>${L({rur:'Rozana target', en:'Daily target'})}</span><button id="tlMinus">−</button><b>${t}</b><button id="tlPlus">+</button></div>
@@ -173,6 +201,7 @@ function tilawatCardsHtml(){
 }
 function wireTilawatCards(rerender){
   const t = tilawatTarget();
+  { const g = document.getElementById('tlTodayGo'); if(g) g.onclick = ()=> renderQuranReader(qTodayPortion().from); }
   document.getElementById('tlMinus').onclick = ()=>{ state.tilawatTarget = Math.max(1, t-1); saveState(); rerender(); };
   document.getElementById('tlPlus').onclick = ()=>{ state.tilawatTarget = Math.min(120, t+1); saveState(); rerender(); };
   document.getElementById('tlManPlus').onclick = ()=>{ addManualPages(1); rerender(); };

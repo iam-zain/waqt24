@@ -2935,11 +2935,39 @@ function khatmPlanHtml(){
     <div class="tl-sub">${L({rur:'Aakhri din', en:'Finish date'})}: ${pi.end.getDate()} ${MON[pi.end.getMonth()]} ${pi.end.getFullYear()}</div>
     ${chips}<button type="button" class="kp-clear" id="kpClear">${L({rur:'Plan hatayein', en:'Remove plan'})}</button></div>`;
 }
+/* "Aaj ka hissa": the exact pages to read today (from the Khatm plan, or the next pages after where you stopped), with Surah/Para names and a streak */
+function qPageSurah(pg){ let r = QURAN_SURAHS[0]; for(const x of QURAN_SURAHS){ if(x.page <= pg) r = x; else break; } return r; }
+function qPagePara(pg){ let r = QURAN_PARAS[0]; for(const x of QURAN_PARAS){ if(x.page <= pg) r = x; else break; } return r; }
+function qTodayPortion(){
+  const pi = khatmPlanInfo(), t = tilawatTarget();
+  let from, to;
+  if(pi && pi.left > 0){ from = KHATM_FIRST + Math.min(pi.read, KHATM_PAGES - 1); to = KHATM_FIRST + Math.max(pi.expected, pi.read + 1) - 1; if(to - from + 1 < t && !pi.behind) to = Math.min(KHATM_LAST, from + t - 1); }
+  else { const last = Math.max(KHATM_FIRST, Math.min(KHATM_LAST, state.quranPage || KHATM_FIRST)); from = last; to = Math.min(KHATM_LAST, last + t - 1); }
+  to = Math.min(KHATM_LAST, Math.max(from, to));
+  const names = []; for(let q = from; q <= to; q++){ const n = qPageSurah(q).name; if(names[names.length - 1] !== n) names.push(n); }
+  return { from, to, count: to - from + 1, para: qPagePara(from), surahs: names, plan: !!pi };
+}
+function qTilawatStreak(){
+  const t = tilawatTarget(); let n = 0, d = new Date();
+  if(tilawatCount(d) < t) d.setDate(d.getDate() - 1); // today may still be in progress
+  for(let i = 0; i < 400; i++){ if(tilawatCount(d) >= t){ n++; d.setDate(d.getDate() - 1); } else break; }
+  return n;
+}
+function qTodayHtml(){
+  const q = qTodayPortion(), t = tilawatTarget(), n = tilawatCount(), st = qTilawatStreak(), done = n >= t;
+  const sn = q.surahs.length > 2 ? q.surahs[0] + ' … ' + q.surahs[q.surahs.length - 1] : q.surahs.join(' → ');
+  return `<div class="ramzan-card tl-card tl-today" style="margin:0 14px 10px;">
+      <div class="tl-head"><b>📌 ${L({rur:'Aaj ka hissa', en:'Today\u2019s portion'})}</b><span class="tl-count ${done?'ok':''}">${done ? '✓ ' + L({rur:'Poora', en:'Done'}) : q.count + ' ' + L({rur:'page', en:'pages'})}</span></div>
+      <div class="tl-sub">${L({rur:'Page', en:'Pages'})} <b>${q.from}${q.to > q.from ? '–' + q.to : ''}</b> · ${L({rur:'Para', en:'Juz'})} ${q.para.n} · ${sn}</div>
+      <div class="tl-sub">${q.plan ? L({rur:'Aapke Khatm plan ke hisaab se.', en:'According to your Khatm plan.'}) : L({rur:'Jahan chhoda wahin se, rozana target ke barabar. Khatm ka plan banayenge to yeh hissa plan se aayega.', en:'From where you stopped, as much as your daily target. With a Khatm plan, this follows the plan.'})}</div>
+      <div class="tl-today-row"><button class="quran-tool" id="tlTodayGo">📖 ${L({rur:'Aaj ka hissa padhein', en:'Read today\u2019s portion'})}</button><span class="tl-streak ${st ? 'on' : ''}" title="${L({rur:'Lagataar din jab target poora hua', en:'Days in a row you met the target'})}">🔥 ${st} ${L({rur:'din', en:st === 1 ? 'day' : 'days'})}</span></div>
+    </div>`;
+}
 function tilawatCardsHtml(){
   const n = tilawatCount(), t = tilawatTarget(), kh = khatmInfo();
   const etaTxt = kh.left <= 0 ? L({rur:'Khatm mukammal! Mashallah', en:'Khatm complete! Mashallah'})
     : kh.eta ? `${L({rur:'Is raftaar se mukammal', en:'At this pace, done by'})}: ${kh.eta.getDate()} ${MON[kh.eta.getMonth()]} ${kh.eta.getFullYear()}` : L({rur:'Padhna shuru karein to andaaza dikhega', en:'Start reading to see an estimate'});
-  return `<div class="ramzan-card tl-card" style="margin:0 14px 10px;">
+  return qTodayHtml() + `<div class="ramzan-card tl-card" style="margin:0 14px 10px;">
       <div class="tl-head"><b>📖 ${L({rur:'Aaj ki Tilawat', en:'Today\u2019s Reading'})}</b><span class="tl-count ${n>=t?'ok':''}">${n} / ${t} ${L({rur:'page', en:'pages'})}</span></div>
       <div class="tl-bar"><i style="width:${Math.min(100, n/t*100)}%"></i></div>
       <div class="tl-target"><span>${L({rur:'Rozana target', en:'Daily target'})}</span><button id="tlMinus">−</button><b>${t}</b><button id="tlPlus">+</button></div>
@@ -2956,6 +2984,7 @@ function tilawatCardsHtml(){
 }
 function wireTilawatCards(rerender){
   const t = tilawatTarget();
+  { const g = document.getElementById('tlTodayGo'); if(g) g.onclick = ()=> renderQuranReader(qTodayPortion().from); }
   document.getElementById('tlMinus').onclick = ()=>{ state.tilawatTarget = Math.max(1, t-1); saveState(); rerender(); };
   document.getElementById('tlPlus').onclick = ()=>{ state.tilawatTarget = Math.min(120, t+1); saveState(); rerender(); };
   document.getElementById('tlManPlus').onclick = ()=>{ addManualPages(1); rerender(); };
@@ -4503,6 +4532,21 @@ function renderReviewList(items, backFn){
   `;
   document.getElementById('reviewBackBtn').onclick = backFn;
 }
+/* Personal practice: each question the player has met is remembered (short hash, not the text).
+   c = right answers in a row, w = times missed. "Kamzor" (weak) = missed at least once and not yet right twice in a row. */
+function qzKey(item){ const t = String(item[0] || ''); let h = 5381; for(let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+function qzStat(item){ return (state.quizStat || {})[qzKey(item)]; }
+function qzRecord(item, ok){
+  if(!state.quizStat) state.quizStat = {};
+  const k = qzKey(item), st = state.quizStat[k] || { c:0, w:0 };
+  if(ok){ st.c = Math.min(9, st.c + 1); } else { st.c = 0; st.w = Math.min(99, st.w + 1); }
+  st.t = Math.floor(Date.now() / 86400000);
+  state.quizStat[k] = st;
+}
+const qzIsWeak = item=>{ const st = qzStat(item); return !!st && st.w > 0 && st.c < 2; };
+const qzIsNew = item=> !qzStat(item);
+const qzIsSolid = item=>{ const st = qzStat(item); return !!st && st.c >= 2; };
+function qzWeakAll(){ return QUIZ_BANK.filter(qzIsWeak); }
 function renderMoreQuiz(){
   quizState = null;
   document.getElementById('detailTitle').textContent = "Quiz";
@@ -4522,6 +4566,7 @@ function renderMoreQuiz(){
       <div style="font-size:13px; color:var(--sub); margin-bottom:14px;">Category chuniye</div>
     </div>
     ${quizProfileHtml()}
+    ${(()=>{ const w = qzWeakAll().length; return w ? `<button class="quiz-cat-btn" id="quizWeakBtn" style="border-color:#e0893f;"><span class="quiz-cat-ic">🔁</span><span class="quiz-cat-name">${L({rur:'Galat sawal ki practice', en:'Practise missed questions'})}</span><span class="quiz-cat-count">${w} ${L({rur:'sawal', en:'questions'})}</span></button>` : ''; })()}
     <button class="quiz-cat-btn" data-cat="__all__" style="border-color:var(--accent);">
       <span class="quiz-cat-ic">🌐</span>
       <span class="quiz-cat-name">Sab Categories (Mix)</span>
@@ -4529,30 +4574,41 @@ function renderMoreQuiz(){
     </button>
     ${catRows}
   `;
-  body.querySelectorAll('.quiz-cat-btn').forEach(btn=>{
+  body.querySelectorAll('.quiz-cat-btn[data-cat]').forEach(btn=>{
     btn.onclick = ()=> renderQuizCountSelect(btn.dataset.cat);
   });
+  const wb = document.getElementById('quizWeakBtn');
+  if(wb) wb.onclick = ()=>{ const w = qzWeakAll(); startQuiz(w, Math.min(10, w.length), L({rur:'Galat sawal ki practice', en:'Missed questions'})); };
 }
 
 /* Colours for quiz categories, in alphabetical order; green is left out on purpose */
 const QUIZ_PALETTE = ['#3f8fe0','#e0709f','#e0893f','#9b6fd6','#2fb6b0','#c79a2e','#d6708f','#5c7cfa','#c0563f','#3a4d8f'];
+let quizLevel = 'all';
 function renderQuizCountSelect(cat){
-  const pool = cat==='__all__' ? QUIZ_BANK : QUIZ_BANK.filter(q=>q[3]===cat);
+  const base = cat==='__all__' ? QUIZ_BANK : QUIZ_BANK.filter(q=>q[3]===cat);
+  const lv = { all:base, new:base.filter(qzIsNew), weak:base.filter(qzIsWeak), solid:base.filter(qzIsSolid) };
+  if(!lv[quizLevel] || (quizLevel !== 'all' && !lv[quizLevel].length)) quizLevel = 'all';
+  const pool = lv[quizLevel];
   document.getElementById('detailTitle').textContent = "Quiz";
   const body = document.getElementById('detailBody');
-  const label = cat==='__all__' ? 'Sab Categories' : cat;
+  const label = cat==='__all__' ? L({rur:'Sab Categories', en:'All categories'}) : cat;
+  const LV = [['all','🎲',L({rur:'Sab', en:'All'})],['new','✨',L({rur:'Naye', en:'New'})],['weak','🎯',L({rur:'Kamzor', en:'Weak'})],['solid','💪',L({rur:'Pakke', en:'Solid'})]];
   body.innerHTML = `
-    <div style="text-align:center; padding:30px 10px;">
+    <div style="text-align:center; padding:26px 10px;">
       <div style="font-size:40px; margin-bottom:10px;">${cat==='__all__'?'🌐':(QUIZ_CAT_ICON[cat]||'❓')}</div>
       <div style="font-size:15px; font-weight:700; margin-bottom:6px;">${label}</div>
-      <div style="font-size:13px; color:var(--sub); margin-bottom:24px;">Kitne sawal khelna chahte hain?</div>
+      <div class="qz-lv-lbl">${L({rur:'Kaun se sawal?', en:'Which questions?'})}</div>
+      <div class="qz-lv">${LV.map(([k,ic,n])=>`<button type="button" data-lv="${k}" class="${quizLevel===k?'on':''}" ${lv[k].length ? '' : 'disabled'}><span>${ic}</span><b>${n}</b><em>${lv[k].length}</em></button>`).join('')}</div>
+      <div class="qz-lv-note">${L({rur:'Naye: abhi tak nahi khele. Kamzor: galat hue, abhi 2 baar lagataar sahi nahi. Pakke: 2 baar lagataar sahi. Ye aapke apne jawabon se banta hai.', en:'New: not played yet. Weak: missed and not yet right twice in a row. Solid: right twice in a row. Based on your own answers.'})}</div>
+      <div style="font-size:13px; color:var(--sub); margin:18px 0 14px;">${L({rur:'Kitne sawal khelna chahte hain?', en:'How many questions?'})}</div>
       <div style="display:flex; gap:12px; justify-content:center;">
-        <button id="quiz5" class="quiz-count-btn c5">5 Sawal</button>
-        <button id="quiz10" class="quiz-count-btn c10">10 Sawal</button>
+        <button id="quiz5" class="quiz-count-btn c5">5 ${L({rur:'Sawal', en:'Questions'})}</button>
+        <button id="quiz10" class="quiz-count-btn c10">10 ${L({rur:'Sawal', en:'Questions'})}</button>
       </div>
-      <button id="quizBackToCats" style="margin-top:22px; background:none; border:none; color:var(--sub); font-size:12.5px; text-decoration:underline; cursor:pointer;">‹ Category Badlein</button>
+      <button id="quizBackToCats" style="margin-top:22px; background:none; border:none; color:var(--sub); font-size:12.5px; text-decoration:underline; cursor:pointer;">‹ ${L({rur:'Category Badlein', en:'Change category'})}</button>
     </div>
   `;
+  body.querySelectorAll('[data-lv]').forEach(b=>{ b.onclick = ()=>{ quizLevel = b.dataset.lv; renderQuizCountSelect(cat); }; });
   document.getElementById('quiz5').onclick = ()=> startQuiz(pool, Math.min(5, pool.length), label);
   document.getElementById('quiz10').onclick = ()=> startQuiz(pool, Math.min(10, pool.length), label);
   document.getElementById('quizBackToCats').onclick = renderMoreQuiz;
@@ -4606,6 +4662,7 @@ function renderQuizQuestion(){
         else if(bi===chosen) b.classList.add('wrong');
       });
       const item = qs.questions[qs.idx];
+      try{ qzRecord(item, chosen===correct); saveState(); }catch(e){}
       if(chosen===correct){
         qs.score++;
       } else {
@@ -6141,6 +6198,18 @@ function renderIslamicMonths(){
     el.onclick = ()=> renderMonthDetail(parseInt(el.dataset.m));
   });
 }
+/* "Is mahine ke khaas din": the Khaas Din events that fall in this Hijri month (Hijri-dated ones; events fixed by English date move between months, so they stay in Khaas Din only) */
+function monthKhaasDinHtml(i){
+  let list = [];
+  try{ list = islamicEventsList().filter(e=> !e.fixedG && gregorianToHijri(e.greg).month === i + 1); }catch(_){}
+  if(!list.length) return '';
+  const fmtG = g=> `${g.getDate()} ${MON[g.getMonth()]} ${g.getFullYear()}`;
+  const day = e=> e.nights ? e.nights.map(n=>n.day).join(', ') : gregorianToHijri(e.greg).day;
+  list.sort((a, b)=> (e=>e.nights ? e.nights[0].day : gregorianToHijri(e.greg).day)(a) - (e=>e.nights ? e.nights[0].day : gregorianToHijri(e.greg).day)(b));
+  return `<div class="section-title">📅 ${L({rur:'Is mahine ke khaas din', en:'Special days this month'})}</div>
+    <div class="mkd">${list.map(e=>`<div class="mkd-row"><span class="mkd-d">${day(e)}</span><span class="mkd-n">${e.ic} ${e.name}${e.note ? ' <small>⚠️</small>' : ''}<small>${fmtG(e.nights ? e.nights[0].greg : e.greg)}${e.nights ? ' …' : ''}</small></span></div>`).join('')}
+    <button type="button" class="mkd-all" id="mkdAll">${L({rur:'Sab khaas din dekhein', en:'See all special days'})} ›</button></div>`;
+}
 function renderMonthDetail(i){
   const info = HIJRI_MONTH_INFO[i], meta = HIJRI_MONTH_META[i];
   const c = state.lang==='en' ? info.en : info.rur;
@@ -6157,6 +6226,7 @@ function renderMonthDetail(i){
         ${curH.month===i+1 ? `<span class="mbadge now">${L({rur:'Abhi chal raha hai',en:'Current month'})}</span>` : ''}
       </div>
     </div>
+    ${monthKhaasDinHtml(i)}
     <div class="section-title">${L({rur:'Ahem Baatein',en:'Key Points'})}</div>
     ${c.points.map(t=>`<div class="minfo-card">${t}</div>`).join('')}
     ${c.events && c.events.length ? `<div class="section-title">${L({rur:'Ahem Waqiat',en:'Notable Events'})}</div>${c.events.map(t=>`<div class="minfo-card ev">${t}</div>`).join('')}` : ''}
@@ -6165,6 +6235,7 @@ function renderMonthDetail(i){
   `;
   document.getElementById('pnPrevBtn').onclick = ()=> i>0 && renderMonthDetail(i-1);
   document.getElementById('pnNextBtn').onclick = ()=> i<11 && renderMonthDetail(i+1);
+  { const a = document.getElementById('mkdAll'); if(a) a.onclick = ()=>{ khaasDinTab = 'all'; renderIslamicEvents(); }; }
 }
 
 /* ============================================================
@@ -6300,7 +6371,7 @@ function islamicEventsList(){
     }
     const g = e.gd ? (()=>{ const t = new Date(); t.setHours(0,0,0,0); let x = new Date(t.getFullYear(), e.gd[0] - 1, e.gd[1]); if(x < t) x = new Date(t.getFullYear() + 1, e.gd[0] - 1, e.gd[1]); return x; })() : nextOccurrence(e.h);
     const hd = gregorianToHijri(g);
-    return { name:e.name, greg:g, hijri:`${hd.day} ${hd.monthName} ${hd.year} AH`, ic:e.ic, tag:e.tag, yr:e.yr, note:e.note };
+    return { name:e.name, greg:g, hijri:`${hd.day} ${hd.monthName} ${hd.year} AH`, hd, fixedG:!!e.gd, ic:e.ic, tag:e.tag, yr:e.yr, note:e.note };
   }).sort((a,b)=> a.greg - b.greg);
 }
 let khaasDinTab = 'all';
