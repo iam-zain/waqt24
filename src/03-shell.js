@@ -527,6 +527,11 @@ function setDuaStatus(title, val){
   else{ state.duaStatus[title] = val; }
   saveState();
 }
+function duaTopics(d){ return [d.cat, ...(d.tags||[])]; }
+function duaRelated(d){ return relatedItems(d, DUAS, duaTopics, 4); }
+function duaRelatedHtml(d){
+  return relatedHtml(duaRelated(d), x=>dTitle(x), x=>x.cat, x=>duaIcon(x), x=>duaMeta(x.cat)[1]);
+}
 function openDuaDetail(d){
   /* Opened from Tasbeeh, search, Continue or a bookmark? Then there is no list yet: use this dua's own category so Pichla / Agla always show */
   if(!__navCtx || __navCtx.openFn !== openDuaDetail || !__navCtx.list.includes(d)){
@@ -568,12 +573,14 @@ function openDuaDetail(d){
       </div>` : ''}
       <div class="dua-amen">آمیــــــــــــــــــــــــــــــــــــــــن یارب العالمیــــــــــــــــــــــــــــــــــــــــن</div>
     </div>
+    ${duaRelatedHtml(d)}
     <div class="aad-status-row">
       <button class="aad-status-btn soch ${duaStatus(d.title)==='soch'?'on':''}" id="duaSochBtn">⏳ Yaad karna baaqi hai</button>
       <button class="aad-status-btn amal ${duaStatus(d.title)==='amal'?'on':''}" id="duaAmalBtn">✅ Yaad ho chuka hai</button>
     </div>
     ${pnBarHtml()}
   `;
+  wireRelated(duaRelated(d), openDuaDetail, duaNavCat);
   document.getElementById('duaTasbeehBtn').onclick = ()=> malaStartWith({ n:d.title, ar:d.arabic, tr:d.translit, m:d.meaning, en:d.enm, t:d.rep || 3 }, ()=>openDuaDetail(d), dTitle(d));
   { const lb = document.getElementById('duaListenBtn'); if(lb) lb.onclick = ()=> qaListenRef(d.ref); }
   document.getElementById('duaSochBtn').onclick = ()=>{ setDuaStatus(d.title, 'soch'); openDuaDetail(d); };

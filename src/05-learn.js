@@ -197,6 +197,29 @@ async function shareText(text){
 const HADEES_CAT_META = { 'Samaaj':['🏘️','#3f9d6b'], 'Jannat':['🌿','#2f9e6b'], 'Parivaar':['🏠','#d28a3c'], 'Khawateen':['🌷','#d6708f'], 'Azaan':['🔊','#2fb6b0'], 'Akhlaq':['🤝','#3f8fe0'], 'Ilm':['📚','#9b6fd6'], 'Namaz':['🕌','#2fb6b0'], 'Ramzan':['🌙','#c79a2e'], 'Sadqa':['💝','#e0893f'], 'Zikr':['📿','#2fb6b0'], 'Imaan':['💎','#5c7cfa'], 'Ibadat':['🕋','#b5832b'], 'Tauba':['💧','#4a8fd0'], 'Aadaab':['🪴','#d6708f'] };
 /* a hadees has one main category and may carry extra topics (h.tags), e.g. Khawateen + Samaaj */
 function hadeesCats(h){ return [h.cat, ...(h.tags||[])]; }
+/* "Isi topic par aur": up to 4 related hadees / duas, ranked by how many topics they share (the very broad Quranic and Rabbana tags are ignored) */
+const REL_SKIP = ['Quranic','Rabbana'];
+function relatedItems(self, pool, topicsFn, max){
+  const mine = topicsFn(self).filter(t=>!REL_SKIP.includes(t));
+  return pool.filter(x=>x!==self)
+    .map(x=>({ x, n: topicsFn(x).filter(t=>mine.includes(t)).length }))
+    .filter(o=>o.n>0)
+    .sort((a,b)=> b.n-a.n || String(a.x.title||a.x.txt).localeCompare(String(b.x.title||b.x.txt)))
+    .slice(0, max||4).map(o=>o.x);
+}
+function relatedHtml(items, titleFn, subFn, iconFn, colorFn){
+  if(!items.length) return '';
+  return `<div class="rel-sec"><div class="rel-head">${L({rur:'Isi topic par aur', en:'More on this topic'})}</div>${items.map((x,i)=>`<div class="aad-card rel-card" data-ri="${i}" style="--aad-c:${colorFn(x)};"><div class="aad-ic">${iconFn(x)}</div><div class="aad-info"><div class="aad-title">${titleFn(x)}</div><div class="aad-cat-lbl">${subFn(x)}</div></div><div class="chev">›</div></div>`).join('')}</div>`;
+}
+function wireRelated(items, openFn, navCat){
+  document.querySelectorAll('#detailBody .rel-card').forEach(el=>{
+    el.onclick = ()=>{ const i = +el.dataset.ri; setNavCtx(items, i, openFn, navCat()); openFn(items[i]); const b = document.getElementById('detailBody'); if(b) b.scrollTop = 0; };
+  });
+}
+function hadeesRelated(h){ return relatedItems(h, HADEES, hadeesCats, 4); }
+function hadeesRelatedHtml(h){
+  return relatedHtml(hadeesRelated(h), x=>{ const t = hTxt(x); return t.length>90 ? t.slice(0,90).trimEnd()+'...' : t; }, x=>hadeesCats(x).join(' · '), x=>hadeesMeta(x.cat)[0], x=>hadeesMeta(x.cat)[1]);
+}
 function hadeesMeta(cat){ return HADEES_CAT_META[cat] || ['📜','#5c7cfa']; }
 /* Yaad status key for a hadees (hadees have no title, so the start of the text identifies it) */
 function hadeesKey(h){ return 'hadees:' + h.txt.slice(0,60); }
@@ -230,6 +253,7 @@ function openHadeesDetail(h){
         <div class="meaning dua-info">${isEn() && h.enexp ? h.enexp : h.exp}</div>
       </div>` : ''}
     </div>
+    ${hadeesRelatedHtml(h)}
     <div class="aad-status-row">
       <button class="aad-status-btn soch ${st==='soch'?'on':''}" id="hadeesSochBtn">⏳ Yaad karna baaqi hai</button>
       <button class="aad-status-btn amal ${st==='amal'?'on':''}" id="hadeesAmalBtn">✅ Yaad ho chuka hai</button>
@@ -237,6 +261,7 @@ function openHadeesDetail(h){
     ${pnBarHtml()}
   `;
   { const lb = document.getElementById('hadeesListenBtn'); if(lb) lb.onclick = ()=> qaListenRef(h.src); }
+  wireRelated(hadeesRelated(h), openHadeesDetail, hadeesNavCat);
   document.getElementById('hadeesSochBtn').onclick = ()=>{ setDuaStatus(key, 'soch'); openHadeesDetail(h); };
   document.getElementById('hadeesAmalBtn').onclick = ()=>{ setDuaStatus(key, 'amal'); openHadeesDetail(h); };
   document.getElementById('hadeesImgBtn').onclick = ()=> openCardShareChooser({ scene:hadeesSceneSvg(h), kind:'Hadees', title:h.cat, body:hTxt(h), foot:'Hawala: '+h.src });

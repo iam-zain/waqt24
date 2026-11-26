@@ -3117,3 +3117,9 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .az-fs button, .nt-btn:not(.nt-ico), .zk-chip, .zk-quick button, .view-toggle button{ min-height:34px; }
 .zk-seg button, .chip, .zr-lang{ min-height:34px; }
 .cal-toggle button{ min-height:34px; }
+
+/* Isi topic par aur (related hadees / dua) */
+.rel-sec{margin:18px 0 6px;}
+.rel-head{font-size:13px;font-weight:800;color:var(--sub);margin:0 4px 8px;letter-spacing:.2px;}
+.rel-card{cursor:pointer;margin-bottom:8px;}
+.rel-card .aad-title{font-size:14px;line-height:1.4;}
