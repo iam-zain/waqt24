@@ -69,33 +69,7 @@ function geoQs(n){
     if(k === 'city'){ q = L({ rur: `${p.n} kis shehar mein hai?`, en: `In which city is ${p.n}?` }); a = p.city; o = geoOpts(a, GEO_CITIES); }
     else if(k === 'country'){ q = L({ rur: `${p.n} kis mulk mein hai?`, en: `In which country is ${p.n}?` }); a = p.co; o = geoOpts(a, GEO_COUNTRIES); }
     else { q = L({ rur: `Pehchaniye: ${p.c}`, en: `Identify: ${p.c}` }); a = p.n; o = geoOpts(a, pool); }
-    out.push({ p, q, o, a, img: p.img && p.img.length ? p.img[lzRand(p.img.length)] : '', art: p.v });
+    out.push({ p, q, o, a, img: '', art: p.v });
   }
   return out;
-}
-let khG = null;
-function khGeoStart(){
-  khTitle(L({ rur: 'Islami Maqamat', en: 'Islamic Places' })); khClear();
-  khG = { i: 0, ok: 0, streak: 0, qs: geoQs(khRounds()), log: [], lock: false }; khGeoShow();
-}
-function khGeoShow(){
-  const G = khG, q = G.qs[G.i]; G.lock = false;
-  khBody().innerHTML = `<div class="lz">${khHead(`${G.i + 1}/${G.qs.length}`, `<span class="kh-mist">✔ <b>${G.ok}</b></span>`)}
-    <div class="quiz-card">${q.img ? `<img class="kh-geoimg" src="${q.img}" alt="" loading="lazy">` : GA.svg(q.art)}<div class="quiz-q">${q.q}</div></div>
-    <div class="quiz-opts">${q.o.map((o, i)=> `<button type="button" class="quiz-opt qopt-${'ABCD'[i]}" data-o="${o.replace(/"/g, '&quot;')}"><span class="opt-letter">${'ABCD'[i]}</span><span class="quiz-opt-txt">${o}</span></button>`).join('')}</div>
-    <div id="khNextWrap"></div><div class="lz-toast" id="lzToast"></div></div>`;
-  document.querySelectorAll('.quiz-opt').forEach(b=>{ b.onclick = ()=>{
-    if(G.lock) return; G.lock = true; const ok = b.dataset.o === q.a;
-    document.querySelectorAll('.quiz-opt').forEach(x=>{ x.disabled = true; if(x.dataset.o === q.a) x.classList.add('correct'); });
-    const why = `${q.p.n}: ${q.p.city ? q.p.city + ', ' : ''}${q.p.co}. ${q.p.c}`;
-    if(ok){ G.ok++; G.streak++; lzOk(); lzVib(20); } else { G.streak = 0; b.classList.add('wrong'); khShake(b); lzBad(); lzVib([40, 40, 40]); }
-    G.log.push({ ok, q: q.q, a: q.a, why });
-    const wait = (khAnsSecs() + (ok ? 0 : 1)) * 1000;
-    lzToast(why, ok ? 'ok' : 'bad', khAutoOn() ? wait : 600000);
-    khNext(wait, G.i + 1 >= G.qs.length, ()=>{ G.i++; G.i >= G.qs.length ? khGeoEnd() : khGeoShow(); });
-  }; });
-}
-function khGeoEnd(){
-  const G = khG, pct = G.ok / G.qs.length;
-  khResult('geo', pct >= .8 ? L({ rur: 'MashaAllah!', en: 'MashaAllah!' }) : L({ rur: 'Shabaash!', en: 'Well done!' }), G.ok, G.qs.length, khStarsFor(pct), '', khGeoStart, G.log.map(x=> ({ ok: x.ok, q: x.q, a: x.a, why: x.why })));
 }

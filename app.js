@@ -7852,7 +7852,7 @@ document.getElementById('detailHome').onclick = ()=>{
   homeBtnSync();
 };
 ['renderIbadat','renderZariye','renderShakhsiyat','renderFitrQurbani','renderZakat','renderKids','renderMubarak','renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderKhel','renderKhelMore','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
-['renderLafz','khJodiStart','khTarteebStart','khScrStart','khSurahStart','khSahiStart','khClueHome','khGeoStart'].forEach(n=>navWrap(n,1));
+['renderLafz','khJodiStart','khTarteebStart','khScrStart','khSurahStart','khSahiStart','khClueHome','khChitraHome'].forEach(n=>navWrap(n,1));
 ['openIbadatDetail','renderZariyeList','renderShakhsiyatList','openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla',].forEach(n=>navWrap(n,1));
 navWrap('renderQuranHome',0);
 navWrap('renderTajweedMenu',1);
@@ -13863,7 +13863,7 @@ const KH_GAMES = [
   { id:'jodi',    ic:'🧩', rur:'Jodi Milao',     en:'Match Pairs',    dr:'Lafz aur uska matlab milayein',        de:'Match words with their meanings', go:()=> khJodiStart() },
   { id:'tarteeb', ic:'🔢', rur:'Tarteeb Lagao',  en:'Order It',       dr:'Sahi tarteeb se lagayein',             de:'Put things in the right order',   go:()=> khTarteebStart() },
   { id:'jodo',    ic:'🔀', rur:'Lafz Jodo',      en:'Word Scramble',  dr:'Bikhre harf jod kar lafz banayein',    de:'Unscramble the letters',          go:()=> khScrStart() },
-  { id:'geo', q:1, ic:'🗺️', rur:'Islami Maqamat', en:'Islamic Places', dr:'Maqamat, shehar aur mulk pehchaniye', de:'Identify places, cities and countries', go:()=> khGeoStart() },
+  { id:'chitra', q:1, ic:'🖼️', rur:'Chitra Quiz', en:'Picture Quiz', dr:'Tasveer dekh kar pehchaniye (14 categories)', de:'Identify from pictures (14 categories)', go:()=> khChitraHome() },
   { id:'surah', q:1, ic:'📖', rur:'Surah Pehchaan', en:'Surah Quiz',     dr:'Surah aur para ki tarteeb',            de:'Order and numbers of surahs',     go:()=> khSurahStart() },
   { id:'sahi', q:1, ic:'⚡', rur:'Sahi ya Ghalat', en:'True or False',  dr:'60 second, 3 jaan, tez jawab',         de:'60 seconds, 3 lives, fast',       go:()=> khSahiStart() }
 ];
@@ -14571,35 +14571,9 @@ function geoQs(n){
     if(k === 'city'){ q = L({ rur: `${p.n} kis shehar mein hai?`, en: `In which city is ${p.n}?` }); a = p.city; o = geoOpts(a, GEO_CITIES); }
     else if(k === 'country'){ q = L({ rur: `${p.n} kis mulk mein hai?`, en: `In which country is ${p.n}?` }); a = p.co; o = geoOpts(a, GEO_COUNTRIES); }
     else { q = L({ rur: `Pehchaniye: ${p.c}`, en: `Identify: ${p.c}` }); a = p.n; o = geoOpts(a, pool); }
-    out.push({ p, q, o, a, img: p.img && p.img.length ? p.img[lzRand(p.img.length)] : '', art: p.v });
+    out.push({ p, q, o, a, img: '', art: p.v });
   }
   return out;
-}
-let khG = null;
-function khGeoStart(){
-  khTitle(L({ rur: 'Islami Maqamat', en: 'Islamic Places' })); khClear();
-  khG = { i: 0, ok: 0, streak: 0, qs: geoQs(khRounds()), log: [], lock: false }; khGeoShow();
-}
-function khGeoShow(){
-  const G = khG, q = G.qs[G.i]; G.lock = false;
-  khBody().innerHTML = `<div class="lz">${khHead(`${G.i + 1}/${G.qs.length}`, `<span class="kh-mist">✔ <b>${G.ok}</b></span>`)}
-    <div class="quiz-card">${q.img ? `<img class="kh-geoimg" src="${q.img}" alt="" loading="lazy">` : GA.svg(q.art)}<div class="quiz-q">${q.q}</div></div>
-    <div class="quiz-opts">${q.o.map((o, i)=> `<button type="button" class="quiz-opt qopt-${'ABCD'[i]}" data-o="${o.replace(/"/g, '&quot;')}"><span class="opt-letter">${'ABCD'[i]}</span><span class="quiz-opt-txt">${o}</span></button>`).join('')}</div>
-    <div id="khNextWrap"></div><div class="lz-toast" id="lzToast"></div></div>`;
-  document.querySelectorAll('.quiz-opt').forEach(b=>{ b.onclick = ()=>{
-    if(G.lock) return; G.lock = true; const ok = b.dataset.o === q.a;
-    document.querySelectorAll('.quiz-opt').forEach(x=>{ x.disabled = true; if(x.dataset.o === q.a) x.classList.add('correct'); });
-    const why = `${q.p.n}: ${q.p.city ? q.p.city + ', ' : ''}${q.p.co}. ${q.p.c}`;
-    if(ok){ G.ok++; G.streak++; lzOk(); lzVib(20); } else { G.streak = 0; b.classList.add('wrong'); khShake(b); lzBad(); lzVib([40, 40, 40]); }
-    G.log.push({ ok, q: q.q, a: q.a, why });
-    const wait = (khAnsSecs() + (ok ? 0 : 1)) * 1000;
-    lzToast(why, ok ? 'ok' : 'bad', khAutoOn() ? wait : 600000);
-    khNext(wait, G.i + 1 >= G.qs.length, ()=>{ G.i++; G.i >= G.qs.length ? khGeoEnd() : khGeoShow(); });
-  }; });
-}
-function khGeoEnd(){
-  const G = khG, pct = G.ok / G.qs.length;
-  khResult('geo', pct >= .8 ? L({ rur: 'MashaAllah!', en: 'MashaAllah!' }) : L({ rur: 'Shabaash!', en: 'Well done!' }), G.ok, G.qs.length, khStarsFor(pct), '', khGeoStart, G.log.map(x=> ({ ok: x.ok, q: x.q, a: x.a, why: x.why })));
 }
 /* ===== Islami Maqamat: small original SVG illustrations (stylised, not photos). ~300-700 bytes each, built from shared pieces. ===== */
 const GA = (()=>{
@@ -14668,6 +14642,367 @@ const GA = (()=>{
     kinds: Object.keys(K)
   };
 })();
+/* ===== Chitra Quiz: every picture-based quiz in one place, split into categories =====
+   Pictures are small original SVG illustrations (no photos, no faces). Facts are limited to well-known, sourced points; for rulings consult your ulema. */
+/* every picture is shown with a random variation (mirror and light tint), so it looks a little different each time */
+function chVary(svg){
+  const tint = [null, ['#ffb347', .13], ['#5f86d6', .12], ['#ffffff', .22], ['#8bc48a', .10]][Math.floor(Math.random() * 5)], flip = Math.random() < .5;
+  return svg.replace('<svg class="kh-geosvg"', `<svg class="kh-geosvg"${flip ? ' style="transform:scaleX(-1)"' : ''}`).replace('</svg>', `${tint ? `<rect width="200" height="110" fill="${tint[0]}" fill-opacity="${tint[1]}"/>` : ''}</svg>`);
+}
+const CI = (()=>{
+  const e = (cx, cy, rx, ry, f, x)=> `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${f}"${x || ''}/>`;
+  const c = (cx, cy, r, f)=> `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}"/>`;
+  const r = (x, y, w, h, f, rx)=> `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"${rx ? ` rx="${rx}"` : ''}/>`;
+  const p = (d, f, x)=> `<path d="${d}" fill="${f}"${x || ''}/>`;
+  const l = (d, s, w)=> `<path d="${d}" stroke="${s}" stroke-width="${w || 2}" fill="none" stroke-linecap="round"/>`;
+  const star = (cx, cy, n, R, ri)=> Array.from({ length: n * 2 }, (_, i)=> { const a = -Math.PI / 2 + i * Math.PI / n, rr = i % 2 ? ri : R; return `${(cx + rr * Math.cos(a)).toFixed(1)},${(cy + rr * Math.sin(a)).toFixed(1)}`; }).join(' ');
+  const leaf = (x, y, a, f)=> e(x, y, 11, 4.5, f, ` transform="rotate(${a} ${x} ${y})"`);
+  const S = {
+    /* ---------- objects ---------- */
+    miswak: ['#e9f1e4', l('M52 84L142 36', '#a8733a', 8) + l('M142 36l8-5M143 38l9-2M141 34l7-8M144 40l9 0', '#d9b585', 2) + l('M52 84L90 63', '#8d5e2b', 8) + leaf(60, 40, -30, '#5aa05a') + leaf(48, 52, 20, '#6bb06b')],
+    tasbih: ['#e6f1f0', Array.from({ length: 22 }, (_, i)=> { const a = i / 22 * Math.PI * 2; return c(100 + 40 * Math.cos(a), 46 + 30 * Math.sin(a), 5.2, i % 11 === 0 ? '#c9a227' : '#2f8f8a'); }).join('') + l('M100 78v14', '#2f8f8a', 1.6) + c(100, 78, 6, '#c9a227') + l('M96 84l-3 16M100 84v18M104 84l3 16', '#c9a227', 2)],
+    ihram: ['#e8eef5', p('M52 28h84v58q-14-8-28 0t-28 0-28 0z', '#fdfdfb', ' stroke="#cfd6dd" stroke-width="1.5"') + l('M70 32v50M96 30v52M118 32v50', '#e2e6ea', 1.5) + p('M110 22l30 8-6 40q-10-6-20 0z', '#f2f4f6', ' stroke="#cfd6dd" stroke-width="1.5"') + r(48, 56, 90, 5, '#8a6b3f', 2)],
+    janamaz: ['#f0ece2', r(54, 12, 92, 86, '#2f6f6a', 4) + r(60, 18, 80, 74, '#3f8f86', 3) + p('M76 92V50a24 24 0 0 1 48 0v42z', '#e9d9a6') + p('M84 92V52a16 16 0 0 1 32 0v40z', '#f6ecc8') + l('M100 18v14', '#c9a227', 1.6) + e(100, 38, 4, 6, '#c9a227') + l('M58 98v6M66 98v6M74 98v6M126 98v6M134 98v6M142 98v6', '#2f6f6a', 2)],
+    kiswa: ['#d8d2c4', r(54, 14, 92, 84, '#1b1b1b', 3) + r(54, 34, 92, 14, '#c9a227') + Array.from({ length: 8 }, (_, i)=> r(60 + i * 11, 38, 6, 6, '#7a5d10')).join('') + r(86, 62, 28, 36, '#c9a227', 2) + r(90, 66, 20, 32, '#8a6c12', 2)],
+    zamzam: ['#e3eef7', r(84, 10, 32, 14, '#2f5f9e', 3) + r(90, 24, 20, 8, '#cfe3f5') + p('M82 36h36l6 16v40a6 6 0 0 1-6 6H82a6 6 0 0 1-6-6V52z', '#cfe6f7', ' stroke="#8fb5d6" stroke-width="1.5"') + r(80, 56, 40, 26, '#fff', 2) + p('M100 60q-8 10 0 16q8-6 0-16z', '#2f8fd0') + r(80, 70, 40, 18, '#9fd0ee', 2).replace('/>', ' fill-opacity=".5"/>')],
+    ittar: ['#f1e9f3', e(100, 70, 26, 24, '#c98a2b') + e(100, 70, 20, 18, '#e3a845') + r(94, 30, 12, 20, '#c98a2b') + p('M100 8q10 12 0 22q-10-10 0-22z', '#c9a227') + r(90, 44, 20, 5, '#c9a227') + e(92, 62, 5, 8, '#fff', ' fill-opacity=".45"')],
+    mabkhara: ['#efe8dd', p('M60 78q40 30 80 0z', '#8d5b2e') + r(92, 78, 16, 14, '#6f4720') + r(76, 90, 48, 6, '#6f4720', 3) + r(62, 74, 76, 6, '#c9a227', 3) + l('M96 66q-12-12 0-22t0-22M106 68q12-12 0-22t0-22', '#9aa3ad', 3)],
+    rehal: ['#efe9dd', l('M70 92L130 38M130 92L70 38', '#8d5b2e', 8) + p('M52 36q24-10 46 4v38q-22-14-46-4z', '#fffdf6', ' stroke="#bdb59f" stroke-width="1.5"') + p('M148 36q-24-10-46 4v38q22-14 46-4z', '#fffdf6', ' stroke="#bdb59f" stroke-width="1.5"') + l('M58 46q16-6 32 2M58 56q16-6 32 2M58 66q16-6 32 2M142 46q-16-6-32 2M142 56q-16-6-32 2M142 66q-16-6-32 2', '#2f6f6a', 1.6)],
+    /* ---------- fruits & plants ---------- */
+    khajoor: ['#eef1e2', l('M100 12q-2 16-6 26', '#7a5a37', 3) + l('M100 12q30-14 60-4M100 12q-30-14-62-4M100 12q26-4 54 14M100 12q-26-4-52 14', '#3b8a4a', 4) + [[84, 50], [96, 58], [108, 52], [92, 74], [106, 74]].map(a=> e(a[0], a[1], 7, 12, '#7a3f1d')).join('') + l('M94 38q-6 6-10 6M94 38q4 8 2 12M96 38q10 8 12 8', '#7a5a37', 2)],
+    zaitoon: ['#eaf1e2', l('M30 90Q100 70 176 30', '#7a5a37', 4) + [[56, 82, -25], [76, 74, 30], [96, 66, -25], [116, 58, 30], [136, 48, -25], [156, 40, 30], [70, 64, -60], [112, 82, 40]].map(a=> leaf(a[0], a[1] - (a[2] > 0 ? 10 : -6), a[2], '#6d9a4a')).join('') + e(92, 78, 6, 8, '#3d3f2a') + e(124, 66, 6, 8, '#4a5a2e')],
+    anjeer: ['#f1ecf1', l('M100 22q0 10-2 16', '#6a8f3a', 4) + p('M98 36q-30 6-30 36q0 16 32 16q32 0 32-16q0-30-34-36z', '#7a3b6a') + p('M100 40q-20 6-20 32q0 10 20 10', '#9a5a8a', ' fill-opacity=".45"') + leaf(138, 34, 30, '#5aa05a') + leaf(60, 36, -30, '#5aa05a')],
+    anar: ['#f5ebe6', c(80, 60, 28, '#c0302f') + p('M68 36l6 8 6-10 6 10 6-8-4 12h-20z', '#a82424') + e(138, 66, 24, 22, '#e8c9bf') + e(138, 66, 19, 17, '#c0302f') + [[130, 62], [140, 60], [146, 70], [134, 72], [140, 78], [128, 70]].map(a=> c(a[0], a[1], 3.4, '#f2a0a0')).join('')],
+    angoor: ['#eef0e6', l('M100 14v12', '#7a5a37', 4) + leaf(122, 22, 30, '#5aa05a') + leaf(78, 24, -30, '#5aa05a') + [[100, 38], [88, 46], [112, 46], [78, 56], [100, 56], [122, 56], [90, 68], [112, 68], [100, 80]].map(a=> c(a[0], a[1], 9, '#6a3f9a')).join('') + c(97, 36, 2.5, '#fff').replace('/>', ' fill-opacity=".5"/>')],
+    sidr: ['#e9f1e6', r(94, 52, 12, 40, '#7a5a37') + c(100, 40, 30, '#4f9a4f') + c(76, 54, 18, '#5aa85a') + c(124, 54, 18, '#5aa85a') + [[84, 36], [110, 30], [118, 52], [92, 56], [70, 58], [104, 46]].map(a=> c(a[0], a[1], 3, '#e8c34a')).join('') + l('M100 70l-8-4M100 76l9-4', '#5a3f20', 2)],
+    kheera: ['#eaf2e4', p('M40 74q-4-14 14-24L132 28q16-4 22 10t-12 26L62 88q-18 6-22-14z', '#4f9a4f') + l('M58 62l70-22M62 72l70-20', '#2f7a3f', 2) + c(150, 78, 14, '#e8f2d8') + c(150, 78, 11, '#bfe0a0') + c(150, 78, 3, '#e8f2d8')],
+    pyaz: ['#f1ecf1', p('M100 20q10 20 6 36M100 20q-10 20-6 36', '#5aa05a', ' stroke="#5aa05a" stroke-width="3"') + p('M100 40q-38 8-34 36q4 16 34 16t34-16q4-28-34-36z', '#b0508a') + l('M100 44q-14 14-12 46M100 44q14 14 12 46', '#d78bb8', 2) + l('M94 92l-4 8M100 92v9M106 92l4 8', '#d9c9a0', 2)],
+    masoor: ['#f2eadf', p('M54 62q46 44 92 0z', '#9b6b3c') + r(50, 58, 100, 8, '#b98550', 4) + Array.from({ length: 26 }, (_, i)=> e(66 + (i % 9) * 8.5 + (Math.floor(i / 9) % 2) * 4, 50 - Math.floor(i / 9) * 5 + (i * 7 % 5), 4, 3, i % 3 ? '#d9772b' : '#e8924a')).join('')],
+    /* ---------- animals (silhouettes, no faces) ---------- */
+    oont: ['#f3ead3', e(100, 62, 38, 18, '#a8793f') + p('M82 46q8-22 18-6q10-16 22 6z', '#a8793f') + p('M136 56q14-18 22-34l10-2q2 8-8 14q-8 12-14 30z', '#a8793f') + e(168, 18, 9, 5, '#a8793f') + [[72, 76], [84, 78], [118, 78], [130, 76]].map(a=> r(a[0], a[1], 5, 22, '#8d6232', 2)).join('') + p('M62 56l-10 12q6 2 12-4z', '#8d6232')],
+    makkhi: ['#f7f0d6', e(86, 54, 14, 10, '#d9a21b', ' transform="rotate(-30 86 54)"') + e(118, 66, 28, 15, '#e8b923') + l('M100 58q-2 8 0 16M118 54q-2 12 0 24M134 58q-1 8 0 14', '#2b2b2b', 5) + e(104, 42, 18, 9, '#cfe6f7', ' transform="rotate(-25 104 42)" fill-opacity=".8"') + e(128, 40, 18, 9, '#cfe6f7', ' transform="rotate(20 128 40)" fill-opacity=".8"') + p('M146 70l12 6-12 2z', '#2b2b2b') + l('M100 78l-4 10M114 80l-2 10M128 78l3 10', '#2b2b2b', 2)],
+    cheenti: ['#efe6dc', e(66, 56, 14, 10, '#4a2b1b') + e(98, 56, 12, 9, '#5a3622') + e(134, 56, 18, 13, '#4a2b1b') + [[88, 70, -14, 18], [98, 70, 2, 20], [108, 68, 16, 18], [88, 46, -12, -18], [98, 46, 2, -20], [108, 48, 16, -18]].map(a=> l(`M${a[0]} ${a[1]}l${a[2]} ${a[3]}`, '#4a2b1b', 2.4)).join('') + l('M54 50q-8-10-18-8M54 54q-10 0-18 8', '#4a2b1b', 2)],
+    hudhud: ['#f1ead6', e(92, 62, 30, 17, '#d9a066') + p('M118 54q10-22 28-14q2 8-6 14z', '#d9a066') + l('M130 42l-8-16M136 40l-2-18M142 42l6-16', '#2b2b2b', 3) + c(122, 24, 3, '#2b2b2b') + c(134, 22, 3, '#2b2b2b') + c(148, 26, 3, '#2b2b2b') + p('M146 50l32 6-30 4z', '#3a2b1b') + p('M64 60l-34 12 36 4z', '#2b2b2b') + l('M70 56l12 10M84 52l12 14M98 52l12 14', '#fdfdfb', 4) + l('M88 78l-2 14M100 78l2 14', '#6a4a2a', 2)],
+    makdi: ['#eee9ef', l('M100 14v82M100 55L24 20M100 55L176 20M100 55L24 90M100 55L176 90M100 55L16 55M100 55L184 55', '#c4c4cc', 1) + l('M62 34q38 20 76 0M44 46q56 28 112 0M40 66q60 26 120 0', '#c4c4cc', 1) + e(100, 60, 10, 12, '#2b2b2b') + c(100, 44, 6, '#2b2b2b') + l('M92 54l-18-12 -4 -8M92 58l-22-2-6-4M92 62l-20 8-6 8M92 66l-14 14-2 8M108 54l18-12 4-8M108 58l22-2 6-4M108 62l20 8 6 8M108 66l14 14 2 8', '#2b2b2b', 2)],
+    hathi: ['#e9edf2', e(100, 56, 44, 28, '#8a949f') + c(62, 40, 24, '#8a949f') + p('M48 40q-34 0-34 40q0 10 10 8q6-26 30-30z', '#98a2ad') + p('M62 50q-4 40-10 44q-8 0-8-6q8-8 4-30z', '#8a949f') + p('M30 70q-4 4 4 10', '#fdfdfb', ' stroke="#f4f1e8" stroke-width="5" stroke-linecap="round"') + [[80, 76], [96, 78], [118, 78], [134, 74]].map(a=> r(a[0], a[1], 12, 22, '#7a848f', 3)).join('') + l('M142 46q10 2 12 12', '#7a848f', 3)],
+    machhli: ['#e0eef7', p('M30 56q30-34 82-20q30 8 40 20q-10 12-40 20q-52 12-82-20z', '#4a86b8') + p('M150 56l32-24v48z', '#3d74a2') + p('M70 74q22 14 44 2l-12-8z', '#3d74a2') + p('M56 56q30 14 76 6q-30 22-76-6z', '#cfe3f0') + l('M96 34q4-12 0-18M96 34q-6-10-12-12M96 34q10-10 20-8', '#bfe0f5', 3) + l('M12 90q14-6 28 0t28 0 28 0 28 0 28 0', '#8fb5d6', 2)],
+    gaay: ['#eef0e2', r(60, 44, 74, 34, '#f4efe4', 8) + p('M60 52q-22 0-22 16l6 6q10-4 18-10z', '#f4efe4') + p('M44 50l-6-10M52 46l-4-12', '#8a7a5a', ' stroke="#8a7a5a" stroke-width="3"') + e(80, 58, 12, 9, '#8a5a3a') + e(112, 66, 10, 8, '#8a5a3a') + [[66, 76], [78, 76], [112, 76], [124, 76]].map(a=> r(a[0], a[1], 7, 20, '#e0d8c4', 2)).join('') + l('M134 52q14 0 14 16', '#8a7a5a', 3)],
+    kauwa: ['#e4e7ee', e(100, 56, 28, 16, '#1b1b1b') + p('M70 52l-34-8 26 18z', '#1b1b1b') + c(124, 46, 10, '#1b1b1b') + p('M132 44l22 4-22 6z', '#2b2b33') + l('M92 70v18M106 70v18', '#3a3a44', 3) + l('M88 88l-6 4M92 88l0 5M106 88l0 5M110 88l6 4', '#3a3a44', 2) + p('M20 94q40-10 80 0z', '#cdb995')],
+    /* ---------- architecture features ---------- */
+    mihrab: ['#ece7d8', r(30, 12, 140, 86, '#e5dcc4') + p('M66 98V48a34 34 0 0 1 68 0v50z', '#2f6f6a') + p('M74 98V50a26 26 0 0 1 52 0v48z', '#3f8f86') + p('M80 50a20 20 0 0 1 40 0z', '#e9d9a6') + l('M100 30v10', '#c9a227', 1.6) + e(100, 46, 4, 6, '#c9a227') + r(66, 96, 68, 4, '#8d6a3a')],
+    minbar: ['#efe7da', p('M56 94V46l54 14v34z', '#8d5b2e') + [[62, 86], [74, 78], [86, 70], [98, 62]].map(a=> r(a[0], a[1], 40, 6, '#b98550')).join('') + r(110, 34, 6, 60, '#6f4720') + r(144, 34, 6, 60, '#6f4720') + r(110, 30, 40, 6, '#c9a227') + p('M112 30a18 18 0 0 1 36 0z', '#c9a227') + r(110, 54, 40, 40, '#8d5b2e') + l('M114 70h32M114 80h32', '#6f4720', 1.5)],
+    minaret: ['#dbe9f4', r(94, 36, 12, 58, '#f2ecdc') + r(88, 52, 24, 4, '#d9cfb4') + r(90, 36, 20, 4, '#d9cfb4') + p('M92 36l8-22 8 22z', '#2e8b57') + l('M100 14V6', '#c9a227', 2) + p('M97 6a4 4 0 1 0 5 0 3 3 0 1 1-5 0z', '#c9a227') + arcw(100, 94) + r(40, 94, 120, 8, '#d9cdb0')],
+    gumbad: ['#dbe9f4', r(62, 62, 76, 30, '#f2ecdc') + p('M66 62a34 34 0 0 1 68 0z', '#2e8b57') + l('M100 28V18', '#c9a227', 2) + r(86, 62, 28, 6, '#d9cfb4') + [[72, 76], [90, 76], [108, 76], [126, 76]].map(a=> p(`M${a[0]} 92v-10a4 4 0 0 1 8 0v10z`, '#8aa89a')).join('') + r(40, 92, 120, 8, '#d9cdb0')],
+    sahn: ['#e3eef0', r(24, 20, 152, 24, '#f2ecdc') + Array.from({ length: 8 }, (_, i)=> p(`M${34 + i * 19} 44v-10a6 6 0 0 1 12 0v10z`, '#9bb3ad')).join('') + p('M14 98L44 52h112l30 46z', '#d9cdb0') + c(100, 74, 12, '#8fc3d6') + c(100, 74, 6, '#cfe8f2') + l('M100 62v-8', '#8fc3d6', 3) + l('M60 52l-24 46M140 52l24 46M100 52v46', '#c4b898', 1)],
+    wuzu: ['#e3eef7', r(34, 62, 132, 24, '#cfd6dc', 6) + r(40, 70, 120, 8, '#8fc3d6') + [52, 100, 148].map(x=> r(x - 3, 30, 6, 18, '#9aa3ad') + p(`M${x - 8} 30h16v6h-16z`, '#7d868f') + l(`M${x} 48v10`, '#7fb8d6', 2.4) + c(x, 60, 2.6, '#7fb8d6')).join('') + r(30, 86, 140, 6, '#b8c0c6')],
+    mashrabiya: ['#efe6d6', r(46, 12, 108, 86, '#8d5b2e', 3) + r(54, 20, 92, 70, '#d9b98c') + Array.from({ length: 6 }, (_, i)=> l(`M${54 + i * 18.4} 20L${54 + i * 18.4 + 36} 90M${54 + i * 18.4} 90L${54 + i * 18.4 + 36} 20`, '#8d5b2e', 3)).join('') + r(46, 12, 108, 6, '#6f4720') + r(46, 92, 108, 6, '#6f4720')],
+    sleep: ['#1d2c4a', r(36, 64, 128, 24, '#8d5b2e', 4) + r(40, 56, 120, 14, '#f4efe2', 4) + r(46, 50, 30, 12, '#fffdf6', 6) + c(150, 30, 14, '#f6e7a6') + c(158, 26, 12, '#1d2c4a') + '<g fill="#fff"><circle cx="40" cy="22" r="1.3"/><circle cx="90" cy="16" r="1.2"/><circle cx="120" cy="38" r="1.1"/></g>'],
+    wake: ['#fbe9c8', r(0, 76, 200, 34, '#e0c08a') + c(100, 76, 26, '#f6b73a') + l('M100 36v-10M70 46l-7-7M130 46l7-7M54 66h-10M146 66h10', '#f6b73a', 3) + r(56, 78, 88, 14, '#fffdf6', 4)],
+    plate: ['#f4ecdc', e(100, 62, 56, 22, '#fdfdfb', ' stroke="#cfc7b2" stroke-width="2"') + e(100, 62, 38, 14, '#f1ece0') + e(88, 58, 12, 7, '#d9a05a') + e(112, 62, 10, 6, '#7a3f1d') + e(104, 54, 8, 5, '#6aa84f') + l('M164 40v34M160 40v10M168 40v10', '#9aa3ad', 3)],
+    plate2: ['#f4ecdc', e(100, 62, 56, 22, '#fdfdfb', ' stroke="#cfc7b2" stroke-width="2"') + e(100, 62, 38, 14, '#f1ece0') + l('M164 40v34M160 40v10M168 40v10', '#9aa3ad', 3) + p('M32 44q-6 8 4 14l10-14z', '#9aa3ad') + l('M40 56l12 20', '#9aa3ad', 3)],
+    car: ['#dbe9f4', r(0, 80, 200, 30, '#9aa3ad') + p('M34 80V62q0-8 8-10l22-4 14-14h42l16 14 16 4q10 2 10 12v16z', '#2f6fb0') + p('M76 36h30v14H66z', '#cfe6f7') + p('M110 36h12l12 14h-24z', '#cfe6f7') + c(66, 82, 11, '#2b2b2b') + c(66, 82, 5, '#cfd6dd') + c(142, 82, 11, '#2b2b2b') + c(142, 82, 5, '#cfd6dd')],
+    house: ['#e3eef7', r(0, 88, 200, 22, '#9fc79a') + r(56, 52, 88, 40, '#f2ecdc') + p('M46 54L100 18l54 36z', '#b5482f') + r(88, 64, 24, 28, '#8d5b2e', 2) + c(106, 78, 2, '#c9a227') + r(64, 62, 16, 14, '#8fc3d6') + r(120, 62, 16, 14, '#8fc3d6')],
+    /* ---------- more ---------- */
+    topi: ['#e8eef5', p('M52 74q0-34 48-34t48 34v10H52z', '#fbfaf5', ' stroke="#cfd6dd" stroke-width="2"') + r(52, 70, 96, 14, '#2f6f6a') + Array.from({ length: 9 }, (_, i)=> p(`M${60 + i * 10} 77l4-5 4 5-4 5z`, '#e9d9a6')).join('') + p('M62 58q38-16 76 0', 'none', ' stroke="#cfd6dd" stroke-width="2"') + l('M70 50q30-12 60 0', '#e2e6ea', 2)],
+    quran: ['#e9efe6', r(58, 14, 84, 82, '#1f5f4a', 5) + r(64, 20, 72, 70, 'none', ' stroke="#c9a227" stroke-width="2.5"') + c(100, 55, 20, 'none').replace('fill="none"', 'fill="none" stroke="#c9a227" stroke-width="2.5"') + p(`M${star(100, 55, 8, 17, 10)}`.replace(/ /g, 'L'), '#c9a227') + r(52, 14, 8, 82, '#164a39', 3)],
+    astrolabe: ['#efe6d4', c(100, 58, 40, '#c9a227') + c(100, 58, 34, '#e3c25a') + c(100, 58, 22, 'none').replace('fill="none"', 'fill="none" stroke="#8a6c12" stroke-width="1.6"') + l('M100 24v68M66 58h68', '#8a6c12', 1.4) + l('M76 36q24 22 48 44M124 36q-24 22-48 44', '#8a6c12', 1.2) + l('M70 86L130 30', '#6f4f0d', 4) + e(100, 14, 7, 5, 'none', ' stroke="#8a6c12" stroke-width="3"') + c(100, 58, 3, '#6f4f0d')],
+    qibla: ['#e3ecf2', c(100, 56, 42, '#2f4f6a') + c(100, 56, 36, '#eaf1f6') + l('M100 24v6M100 82v6M68 56h6M126 56h6', '#2f4f6a', 2) + p('M100 30l7 26h-14z', '#c0302f') + p('M100 82l7-26h-14z', '#9aa3ad') + c(100, 56, 3.4, '#2f4f6a') + r(94, 8, 12, 12, '#1f1f1f') + r(94, 11, 12, 2.4, '#c9a227')],
+    muqarnas: ['#efe6d4', r(30, 14, 140, 84, '#d9c9a0') + [[0, 6, 14], [1, 5, 14], [2, 4, 14], [3, 3, 14]].map(a=> { const y = 20 + a[0] * 20; return Array.from({ length: a[1] * 2 - 1 + 2 }, (_, i)=> '').length ? Array.from({ length: 8 - a[0] }, (_, i)=> p(`M${44 + i * (112 / (8 - a[0])) } ${y + 18}v-6a${56 / (8 - a[0])} ${56 / (8 - a[0])} 0 0 1 ${112 / (8 - a[0])} 0v6z`, a[0] % 2 ? '#e9dcb8' : '#c9b384', ' stroke="#8d7a4a" stroke-width="1"')).join('') : ''; }).join('')],
+    tawaf: ['#e6edf2', e(100, 62, 76, 30, 'none', ' stroke="#9aa3ad" stroke-width="3" stroke-dasharray="6 5"') + P4(100, 52) + l('M164 56l6 8-10 2', '#2f8f8a', 3) + l('M36 68l-6-8 10-2', '#2f8f8a', 3) + l('M60 88q40 14 80 0', '#2f8f8a', 3)],
+    sai: ['#efe8d6', mtn2(0, 88, 60, 40) + mtn2(140, 88, 200, 40) + p('M60 88h80v6H60z', '#cdb995') + l('M64 84h72', '#2f8f8a', 3) + l('M132 80l6 4-6 4M68 80l-6 4 6 4', '#2f8f8a', 3) + r(30, 94, 140, 6, '#d9cdb0')],
+    rami: ['#efe6da', r(88, 30, 24, 62, '#9aa3ad', 3) + r(84, 24, 32, 8, '#7d868f', 2) + [[40, 40], [52, 56], [62, 70], [70, 48]].map(a=> c(a[0], a[1], 4.6, '#7a6a52')).join('') + l('M44 44q22-14 40-8M56 60q18-12 30-4', '#bfc5cc', 1.6) + p('M20 94q80-14 160 0z', '#cdb995')],
+
+    thobe: ['#e8eef5', l('M100 12v8', '#8d5b2e', 3) + l('M100 20l-40 14M100 20l40 14', '#8d5b2e', 3) + p('M78 32h44l26 18-8 12-14-8v46H74V54l-14 8-8-12z', '#fbfaf5', ' stroke="#cfd6dd" stroke-width="2"') + l('M100 32v22', '#cfd6dd', 2) + c(100, 44, 1.6, '#8a8f95')],
+    abaya: ['#e9e6ef', l('M100 12v8', '#8d5b2e', 3) + l('M100 20l-40 14M100 20l40 14', '#8d5b2e', 3) + p('M76 32h48l30 20-8 12-16-10 8 46H62l8-46-16 10-8-12z', '#2b2b33') + l('M100 34v58', '#3d3d48', 2)],
+    dallah: ['#efe2cf', p('M72 88q-8-30 10-44l6-16h24l6 16q18 14 10 44z', '#c98a2b') + p('M84 28q16-14 32 0z', '#c9a227') + c(100, 14, 4, '#c9a227') + p('M118 50q36-8 40-30l8 2q-4 34-44 40z', '#b8741f') + p('M80 52q-26-4-30 18l6 2q4-14 26-12z', '#b8741f') + r(70, 86, 60, 6, '#8a5a14', 3) + l('M84 66h32', '#e8c37a', 3)],
+    finjan: ['#f1e8da', [[60, 66], [100, 66], [140, 66]].map(a=> p(`M${a[0] - 14} ${a[1] - 14}h28v10q0 16-14 16t-14-16z`, '#fdfdfb', ' stroke="#c9a227" stroke-width="2"') + e(a[0], a[1] + 18, 18, 4, '#e3d9c4') + e(a[0], a[1] - 12, 11, 2.4, '#6b3a1a')).join('')],
+    mashka: ['#efe4d2', p('M100 14q-10 6-10 16q-24 6-32 36q-4 26 42 30q46-4 42-30q-8-30-32-36q0-10-10-16z', '#9a6a3a') + r(92, 8, 16, 10, '#6f4720', 3) + l('M64 62q36 14 72 0', '#7a5228', 2) + l('M70 80q30 8 60 0', '#7a5228', 2) + l('M86 18q14 6 28 0', '#c9a227', 3)],
+    qalam: ['#efe9dd', p('M44 92L128 30l10 12-84 60z', '#c9a066') + p('M128 30l24-18 8 14-22 20z', '#8a6a3a') + p('M44 92l6 10 8-8z', '#3a2f22') + l('M72 78l54-40', '#a8793f', 2)],
+    davaat: ['#efe9e6', p('M56 90V54q0-8 8-10h72q8 2 8 10v36z', '#3a3f55') + r(76, 36, 48, 10, '#2b2f43', 3) + e(100, 36, 14, 4, '#1b1b1b') + r(90, 18, 20, 10, '#2b2f43', 3) + l('M130 18l12 44', '#a8793f', 4) + p('M142 62l-3 12 8-3z', '#1b1b1b') + r(52, 88, 96, 6, '#2b2f43', 3)],
+    eidi: ['#efe6d8', r(48, 28, 104, 62, '#2f8f8a', 4) + p('M48 32l52 34 52-34', 'none', ' stroke="#1f6f6a" stroke-width="3"') + c(100, 66, 12, '#f6e7a6') + c(105, 63, 10, '#2f8f8a') + p(`M${star(124, 58, 5, 6, 2.4)}`.replace(/ /g, 'L'), '#f6e7a6')],
+    coin: ['#efe9dd', c(100, 56, 38, '#c9a227') + c(100, 56, 32, 'none').replace('fill="none"', 'fill="none" stroke="#8a6c12" stroke-width="2"') + [0, 1, 2].map(i=> l(`M${78} ${44 + i * 12}h44`, '#8a6c12', 3)).join('') + p(`M${star(100, 56, 8, 8, 4)}`.replace(/ /g, 'L'), '#8a6c12')],
+    tile: ['#e6eef0', r(44, 10, 112, 92, '#2f6f9a') + [0, 1, 2, 3].map(i=> [0, 1, 2, 3].map(j=> p(`M${52 + i * 25} ${18 + j * 21}h20v18h-20z`, (i + j) % 2 ? '#e9d9a6' : '#3f8f86', ' stroke="#fff" stroke-width="1.2"')).join('')).join('') + [0, 1, 2, 3].map(i=> [0, 1, 2, 3].map(j=> c(62 + i * 25, 27 + j * 21, 3.6, (i + j) % 2 ? '#2f6f9a' : '#e9d9a6')).join('')).join('')],
+    mosaic: ['#efe6d8', r(30, 12, 140, 86, '#d9c9a0') + Array.from({ length: 48 }, (_, i)=> r(34 + (i % 8) * 17, 16 + Math.floor(i / 8) * 13.6, 14, 11, ['#2f8f8a', '#c9a227', '#2f6f9a', '#b5482f', '#e9d9a6'][(i * 7 + Math.floor(i / 8) * 3) % 5], 2)).join('')],
+    door: ['#efe4d2', r(52, 10, 96, 92, '#6f4720', 3) + r(58, 16, 84, 80, '#8d5b2e') + p(`M${star(100, 56, 8, 24, 11)}`.replace(/ /g, 'L'), '#c9a066') + c(100, 56, 7, '#6f4720') + l('M100 16v80M58 56h84', '#6f4720', 2) + c(80, 56, 3, '#c9a227') + c(120, 56, 3, '#c9a227')],
+    tray: ['#f1eadb', e(100, 58, 70, 40, '#c9a227') + e(100, 58, 62, 34, '#e3c25a') + e(100, 58, 44, 24, 'none', ' stroke="#8a6c12" stroke-width="2"') + p(`M${star(100, 58, 12, 26, 14)}`.replace(/ /g, 'L'), '#b8941f') + c(100, 58, 5, '#8a6c12')],
+    zellige: ['#e6eef0', r(40, 10, 120, 92, '#2f8f8a') + [[0, 0], [1, 0], [0, 1], [1, 1]].map(a=> p(`M${star(76 + a[0] * 48, 34 + a[1] * 44, 8, 22, 12)}`.replace(/ /g, 'L'), (a[0] + a[1]) % 2 ? '#e9d9a6' : '#2f6f9a', ' stroke="#fff" stroke-width="1.2"')).join('')],
+    carpet: ['#efe6d8', r(44, 10, 112, 80, '#8f2f2f', 3) + r(52, 18, 96, 64, '#a83a3a') + r(60, 26, 80, 48, '#2f3f6f') + p('M100 30l22 20-22 20-22-20z', '#e9d9a6') + c(100, 50, 6, '#8f2f2f') + [0, 1, 2, 3, 4, 5, 6, 7].map(i=> l(`M${52 + i * 13} 90v8M${52 + i * 13} 10v-6`, '#e9dcc0', 2)).join('')],
+    bowl: ['#e6eef0', p('M44 52h112q-6 40-56 40T44 52z', '#fdfdfb', ' stroke="#2f6f9a" stroke-width="2"') + r(40, 48, 120, 8, '#2f6f9a', 3) + p('M62 62q38 20 76 0', 'none', ' stroke="#b5482f" stroke-width="3"') + c(100, 74, 6, '#2f8f8a') + [78, 100, 122].map(x=> c(x, 66, 3, '#b5482f')).join('') + r(84, 92, 32, 6, '#2f6f9a', 3)],
+    glass: ['#dfe6f0', r(52, 10, 96, 92, '#4a4a55', 4) + p('M60 100V44a40 40 0 0 1 80 0v56z', '#8fc3d6') + [[70, 60, '#c0302f'], [100, 60, '#e8c34a'], [130, 60, '#2f8f5a'], [84, 82, '#2f6f9a'], [116, 82, '#9b6fd6'], [100, 38, '#e0893f']].map(a=> `<circle cx="${a[0]}" cy="${a[1]}" r="12" fill="${a[2]}" fill-opacity=".85"/>`).join('') + l('M100 14v86M60 60h80', '#4a4a55', 3)],
+
+    kalonji: ['#efe9dd', p(`M${star(100, 40, 5, 26, 14)}`.replace(/ /g, 'L'), '#8fa86a', ' stroke="#6f8a4a" stroke-width="2"') + c(100, 40, 12, '#a8c27f') + Array.from({ length: 26 }, (_, i)=> e(52 + (i * 37) % 96, 76 + (i * 13) % 20, 2.6, 1.8, '#1b1b1b', ` transform="rotate(${i * 40} ${52 + (i * 37) % 96} ${76 + (i * 13) % 20})"`)).join('') + l('M100 66v-10', '#6f8a4a', 3)],
+    shahad: ['#f6ecd2', r(66, 38, 68, 56, '#e0a028', 8) + r(70, 44, 60, 44, '#f0b83a', 6) + r(62, 30, 76, 12, '#8d5b2e', 4) + r(76, 56, 48, 22, '#fffdf6', 3) + P6(100, 67, 7) + p('M134 52q10 6 4 16q-6 4-8-4z', '#e0a028') + P6(40, 24, 8) + P6(52, 18, 8) + P6(34, 36, 8)],
+    kaddu: ['#e8f0e2', p('M86 16q14-6 28 0v22q22 14 22 36q0 22-36 22t-36-22q0-22 22-36z', '#9ccf7a') + p('M92 30q-26 20-18 46', 'none', ' stroke="#bfe5a0" stroke-width="4"') + l('M100 16v-6q8-4 14-2', '#6f8a4a', 4)],
+    kamah: ['#efe3cc', e(100, 96, 90, 12, '#dcc79a') + e(70, 68, 22, 18, '#8a6a46') + e(112, 62, 26, 22, '#7a5a38') + e(140, 78, 16, 13, '#8f6f4a') + Array.from({ length: 16 }, (_, i)=> c(56 + (i * 23) % 100, 56 + (i * 11) % 34, 1.5, '#5a4128')).join('')],
+    gehun: ['#f4ecd2', [60, 100, 140].map((x, i)=> l(`M${x} 96V${34 + i % 2 * 6}`, '#b8903a', 3) + Array.from({ length: 6 }, (_, k)=> e(x - 7, 34 + i % 2 * 6 + k * 9, 3.4, 6.4, '#e0b24a', ` transform="rotate(-25 ${x - 7} ${34 + i % 2 * 6 + k * 9})"`) + e(x + 7, 34 + i % 2 * 6 + k * 9, 3.4, 6.4, '#e0b24a', ` transform="rotate(25 ${x + 7} ${34 + i % 2 * 6 + k * 9})"`)).join('') + e(x, 26 + i % 2 * 6, 3.4, 6, '#e0b24a')).join('')],
+    jau: ['#f1ead6', [64, 100, 136].map((x, i)=> l(`M${x} 96V${36 + i % 2 * 6}`, '#a8923a', 3) + Array.from({ length: 6 }, (_, k)=> e(x - 6, 38 + i % 2 * 6 + k * 9, 3, 6, '#d9b85a', ` transform="rotate(-30 ${x - 6} ${38 + i % 2 * 6 + k * 9})"`) + e(x + 6, 38 + i % 2 * 6 + k * 9, 3, 6, '#d9b85a', ` transform="rotate(30 ${x + 6} ${38 + i % 2 * 6 + k * 9})"`) + l(`M${x - 6} ${34 + i % 2 * 6 + k * 9}l-9-16M${x + 6} ${34 + i % 2 * 6 + k * 9}l9-16`, '#c9a548', 1)).join('')).join('')],
+    adrak: ['#f2ead9', p('M40 70q-6-18 12-22l10-14q10-6 18 4l8 6 12-8q12-2 16 10l-2 10 16-2q14 6 8 22q-6 12-22 10l-14 6q-16 2-24-8l-18 2q-14-2-20-16z', '#d7b27a', ' stroke="#b8905a" stroke-width="2"') + l('M64 56q10 4 16 0M96 62q10 4 16 0M120 54q8 4 14 0', '#b8905a', 2) + l('M60 76h12M100 80h14', '#b8905a', 2)],
+    doodh: ['#e9eef4', p('M70 28h40l-4 58q0 8-8 8H82q-8 0-8-8z', '#fdfdfb', ' stroke="#cfd6dd" stroke-width="2"') + p('M74 44h32l-2 40H76z', '#fdfdfb') + r(72, 38, 36, 5, '#e8eef5') + p('M120 52h30q6 0 6 8v26q0 8-8 8h-20q-8 0-8-8z', '#eef2f6', ' stroke="#cfd6dd" stroke-width="2"') + r(124, 46, 28, 8, '#2f8f8a', 3)],
+    moti: ['#e3eef2', p('M44 80q0-40 56-40t56 40q-14 14-56 14T44 80z', '#c9a9b8') + p('M54 78q4-26 46-26t46 26q-14 8-46 8T54 78z', '#e8cfdc') + c(100, 66, 15, '#fdfdfb') + c(95, 61, 5, '#ffffff') + l('M52 78q48 16 96 0', '#a98a98', 2)],
+    sarson: ['#f1ead6', c(100, 54, 38, 'none').replace('fill="none"', 'fill="#fffdf6" stroke="#8d5b2e" stroke-width="5"') + l('M130 82l24 20', '#8d5b2e', 7) + Array.from({ length: 14 }, (_, i)=> c(80 + (i * 17) % 44, 40 + (i * 11) % 30, 3.6, '#c98a2b')).join('')],
+    dog: ['#efe6dc', e(104, 66, 34, 18, '#6b4a2e') + c(70, 46, 14, '#6b4a2e') + p('M62 36l-8-14 14 6z', '#4f3520') + p('M76 34l10-12-2 16z', '#4f3520') + p('M58 52l-14 4 14 6z', '#6b4a2e') + [[84, 78], [96, 80], [118, 80], [130, 78]].map(a=> r(a[0], a[1], 7, 18, '#5a3d24', 3)).join('') + p('M136 60q18-14 24 0q-12-4-18 8z', '#6b4a2e')],
+    wolf: ['#e6ebf0', e(104, 62, 38, 17, '#7d8793') + p('M70 54q-6-14 8-22l10 8q-4 14-12 18z', '#7d8793') + p('M70 40l-18 4 16 8z', '#6d7783') + p('M80 28l6-10 4 14z', '#6d7783') + [[78, 74], [92, 76], [124, 76], [136, 74]].map(a=> r(a[0], a[1], 7, 22, '#6d7783', 3)).join('') + p('M140 54q22-8 30 8q-16-6-30 6z', '#6d7783') + p('M90 50q14 10 28 0', 'none', ' stroke="#a8b1bb" stroke-width="3"')],
+    horse: ['#eee6d6', e(98, 60, 38, 17, '#8a5a34') + p('M128 56l12-30 12 2-4 14q10 4 10 14z', '#8a5a34') + p('M140 26l14-6 4 12z', '#6f4623') + p('M126 44q-8 6-14 0', 'none', ' stroke="#3a2412" stroke-width="5"') + [[66, 72], [78, 74], [112, 74], [124, 72]].map(a=> r(a[0], a[1], 6, 26, '#6f4623', 3)).join('') + p('M62 54q-22 4-22 28q8-12 20-14z', '#3a2412')],
+    donkey: ['#ece6dc', e(98, 62, 36, 17, '#8a8f98') + p('M126 56l8-26 12 2 4 12q8 4 8 12z', '#8a8f98') + p('M134 30l-4-22 8 4zM144 32l8-20 2 18z', '#7a8089') + [[68, 74], [80, 76], [112, 76], [122, 74]].map(a=> r(a[0], a[1], 6, 22, '#6f757e', 3)).join('') + p('M64 58q-12 0-14 16q6-6 14-6z', '#6f757e') + p('M150 50q10 4 8 14q-8-2-12-6z', '#d9d2c4')],
+    quail: ['#eee6d2', e(100, 64, 32, 22, '#a8864f') + c(126, 46, 11, '#8a6a3a') + p('M134 44l12 3-12 4z', '#3a2f22') + p('M120 36l4-10 4 9z', '#3a2f22') + Array.from({ length: 6 }, (_, i)=> l(`M${74 + i * 9} ${54 + (i % 2) * 8}l4 8`, '#5a4128', 2.4)).join('') + l('M92 84l-3 10M108 84l3 10', '#6a4a2a', 2.4) + p('M70 66q-20 4-24 18q18-2 28-12z', '#8a6a3a')],
+    ram: ['#eef0e2', e(100, 62, 34, 22, '#fbf8ee') + [[78, 52], [92, 46], [110, 46], [124, 52], [82, 70], [118, 70]].map(a=> c(a[0], a[1], 12, '#fffdf6')).join('') + c(142, 52, 12, '#4a3a2a') + p('M134 42q-18-16-4-26q12 4 6 18z', 'none', ' stroke="#8a7a5a" stroke-width="5" stroke-linecap="round"') + [[80, 80], [92, 82], [112, 82], [124, 80]].map(a=> r(a[0], a[1], 5, 16, '#4a3a2a', 2)).join('')],
+    pahaad: ['#dbe9f4', P2('10,92 70,34 100,56 135,24 192,92', '#8f8a82') + P2('135,24 150,44 135,40 120,48', '#fdfdfb') + P2('70,34 80,46 70,44 60,50', '#fdfdfb') + r(0, 88, 200, 22, '#a8b890')],
+    baarish: ['#cfdbe6', c(70, 34, 20, '#9fb0c0') + c(96, 28, 24, '#aebfcd') + c(124, 36, 20, '#9fb0c0') + r(70, 36, 56, 18, '#aebfcd') + Array.from({ length: 12 }, (_, i)=> l(`M${60 + i * 9} ${64 + (i % 3) * 8}l-4 12`, '#4f86c0', 2.4)).join('') + r(0, 94, 200, 16, '#8fbf7a')],
+    bijli: ['#2d3446', c(72, 34, 20, '#59627a') + c(100, 28, 26, '#69728a') + c(130, 36, 20, '#59627a') + r(72, 36, 60, 18, '#69728a') + p('M104 50l-18 26h14l-8 28 28-38h-14l10-16z', '#f6e05a', ' stroke="#fff7b0" stroke-width="1.5"')],
+    sitare: ['#16223d', '<g fill="#fff"><circle cx="24" cy="22" r="1.4"/><circle cx="60" cy="50" r="1.2"/><circle cx="150" cy="18" r="1.5"/><circle cx="180" cy="60" r="1.3"/><circle cx="40" cy="84" r="1.2"/><circle cx="134" cy="84" r="1.2"/></g>' + p(`M${star(100, 52, 5, 22, 9)}`.replace(/ /g, 'L'), '#f6e7a6') + p(`M${star(56, 30, 5, 9, 3.8)}`.replace(/ /g, 'L'), '#f6e7a6') + p(`M${star(156, 40, 5, 10, 4)}`.replace(/ /g, 'L'), '#f6e7a6')],
+    suraj: ['#fbe5b8', r(0, 78, 200, 32, '#d9b66a') + c(100, 78, 30, '#f6a933') + Array.from({ length: 9 }, (_, i)=> { const a = Math.PI + i * Math.PI / 8; return l(`M${100 + 36 * Math.cos(a)} ${78 + 36 * Math.sin(a)}L${100 + 50 * Math.cos(a)} ${78 + 50 * Math.sin(a)}`, '#f6a933', 3); }).join('')],
+    baagh: ['#dcecf5', r(0, 66, 200, 44, '#8fbf7a') + p('M0 84q50-10 100 0t100 0v26H0z', '#8fc3d6') + [[34, 60], [160, 58]].map(a=> r(a[0] - 3, a[1] - 4, 6, 30, '#7a5a37') + c(a[0], a[1] - 10, 22, '#4f9a4f') + c(a[0] - 12, a[1], 12, '#5aa85a')).join('') + [[84, 74, '#e0709f'], [100, 70, '#e8c34a'], [118, 74, '#9b6fd6']].map(a=> c(a[0], a[1], 4, a[2])).join('')],
+    nadi: ['#e3eef2', r(0, 0, 200, 110, '#9fc79a') + p('M70 0q50 30 20 60t40 50H96q-40-20-10-50T40 0z', '#8fc3d6') + l('M80 20q20 14 6 28M100 70q16 10 10 24', '#cfe8f2', 2) + [[26, 30], [166, 70], [30, 80]].map(a=> c(a[0], a[1], 10, '#4f9a4f')).join('')],
+    beej: ['#e9f0e0', r(0, 70, 200, 40, '#8a5a34') + l('M100 72V44', '#4f9a4f', 4) + leaf(86, 42, -30, '#6bb06b') + leaf(116, 40, 30, '#6bb06b') + leaf(100, 28, -90, '#5aa05a') + Array.from({ length: 10 }, (_, i)=> c(30 + i * 16, 86 + (i % 3) * 6, 2.4, '#6a3f1a')).join('')],
+    samandar: ['#d6e9f5', r(0, 50, 200, 60, '#4a8fc0') + wave(60) + wave(74) + wave(88) + l('M0 50h200', '#fdfdfb', 2) + c(160, 26, 12, '#f6dc7a')],
+    /* ---------- occasions ---------- */
+    chand: ['#1d2c4a', c(100, 52, 26, '#f6e7a6') + c(112, 46, 24, '#1d2c4a') + p(`M${star(150, 36, 5, 9, 3.6)}`.replace('M', 'M').replace(/ /g, 'L').replace('L', 'L'), '#f6e7a6') + '<g fill="#fff"><circle cx="30" cy="20" r="1.3"/><circle cx="60" cy="70" r="1.2"/><circle cx="170" cy="80" r="1.3"/><circle cx="40" cy="48" r="1"/></g>'],
+    ramzan: ['#1f2d4d', c(100, 54, 36, '#f6c84a').replace('/>', ' fill-opacity=".18"/>') + r(86, 36, 28, 44, '#c9a227', 3) + p('M86 36l14-12 14 12z', '#c9a227') + r(92, 42, 16, 32, '#f6e7a6') + r(82, 80, 36, 6, '#8a6c12', 2) + l('M100 24V14', '#c9a227', 2) + p('M104 8a6 6 0 1 1-8 0 4.5 4.5 0 1 0 8 0z', '#f6e7a6') + l('M100 86v8', '#c9a227', 2)],
+    iftar: ['#f4ecdc', p('M70 36h28l-3 52H73z', '#cfe6f7', ' stroke="#8fb5d6" stroke-width="1.5"') + p('M72 52h24l-2 34H74z', '#8fc3d6') + e(140, 78, 36, 9, '#e8dcc0') + [[124, 70], [138, 68], [152, 70], [131, 74], [146, 74]].map(a=> e(a[0], a[1], 8, 5, '#6a3216')).join('')],
+    qurbani: ['#eef1e2', e(100, 56, 36, 22, '#f6f2e6') + [[74, 46], [90, 40], [108, 40], [124, 46], [76, 62], [124, 62], [100, 70]].map(a=> c(a[0], a[1], 12, '#fbf8ee')).join('') + c(142, 44, 11, '#3a3228') + p('M146 36q14-4 14 8q-4 0-6-4z', '#8a7a5a') + [[78, 74], [90, 76], [112, 76], [124, 74]].map(a=> r(a[0], a[1], 5, 20, '#3a3228', 2)).join('')],
+    qadr: ['#16223d', '<g fill="#fff"><circle cx="22" cy="18" r="1.4"/><circle cx="52" cy="40" r="1.2"/><circle cx="78" cy="14" r="1.5"/><circle cx="150" cy="20" r="1.3"/><circle cx="178" cy="44" r="1.5"/><circle cx="130" cy="50" r="1.1"/></g>' + p(`M${star(100, 30, 5, 12, 4.8)}`.replace(/ /g, 'L'), '#f6e7a6') + p('M50 96q50-18 100 0v-30q-50-14-100 0z', '#2f6f6a') + p('M54 90q46-14 92 0v-22q-46-10-92 0z', '#fffdf6') + l('M100 70v18', '#c9a227', 2) + l('M66 76q14-4 26 0M108 76q14-4 26 0M66 82q14-4 26 0M108 82q14-4 26 0', '#9aa3ad', 1.4)]
+  };
+  function P4(cx, by){ return `<polygon points="${cx - 20},${by - 6} ${cx - 6},${by - 14} ${cx + 28},${by - 4} ${cx + 14},${by + 4}" fill="#2b2b2b"/><polygon points="${cx - 20},${by - 6} ${cx + 14},${by + 4} ${cx + 14},${by + 36} ${cx - 20},${by + 28}" fill="#1f1f1f"/><polygon points="${cx + 14},${by + 4} ${cx + 28},${by - 4} ${cx + 28},${by + 30} ${cx + 14},${by + 36}" fill="#111"/>`; }
+  function mtn2(x1, by, x2, h){ return `<polygon points="${x1},${by} ${(x1 + x2) / 2},${by - h} ${x2},${by}" fill="#a58f69"/>`; }
+  function P6(cx, cy, r){ return `<polygon points="${Array.from({ length: 6 }, (_, i)=> `${(cx + r * Math.cos(i * Math.PI / 3)).toFixed(1)},${(cy + r * Math.sin(i * Math.PI / 3)).toFixed(1)}`).join(' ')}" fill="#f6c84a" stroke="#c98a2b" stroke-width="1"/>`; }
+  function wave(y){ return `<path d="M0 ${y}q12-8 25 0t25 0t25 0t25 0t25 0t25 0t25 0t25 0" fill="none" stroke="#fdfdfb" stroke-width="2" opacity=".8"/>`; }
+  function P2(pts, f){ return `<polygon points="${pts}" fill="${f}"/>`; }
+  function arcw(x, y){ return `<path d="M${x - 5} ${y}v-8a5 5 0 0 1 10 0v8z" fill="#8aa89a"/>`; }
+  return { svg(id){ const k = S[id]; return k ? chVary(`<svg class="kh-geosvg" viewBox="0 0 200 110" role="img" aria-hidden="true"><rect width="200" height="110" fill="${k[0]}"/>${k[1]}</svg>`) : ''; }, ids: Object.keys(S), star(n){ return chVary(`<svg class="kh-geosvg" viewBox="0 0 200 110" role="img" aria-hidden="true"><rect width="200" height="110" fill="#e6f0ee"/><circle cx="100" cy="55" r="46" fill="none" stroke="#c9a227" stroke-width="2"/><polygon points="${star(100, 55, n, 44, n <= 6 ? 22 : n <= 8 ? 28 : 33)}" fill="#2f8f8a" stroke="#1f6f6a" stroke-width="1.5"/><circle cx="100" cy="55" r="7" fill="#e9d9a6"/></svg>`); } };
+})();
+/* ===== Chitra Quiz: categories, questions and play loop ===== */
+const CH_DISC_TXT = { rur: 'Ye tasveerein asli nahi, sirf jankari ke liye banayi gayi nazdeeki (representative) illustrations hain. Asli shakl mein kuch farq ho sakta hai. Asli tasveer internet par ya wahan ja kar dekh sakte hain.', en: 'These are representative illustrations, not real photos, made for information only. The real thing may look somewhat different. You can see real pictures on the internet or by visiting.' };
+/* [svg id, name, use / reference, fact] */
+const CH_DATA = {
+  cheezein: [
+    ['miswak', 'Miswak', 'Daant aur munh saaf karne ke liye', 'Miswak ke baare mein ahadees aati hain; Nabi ﷺ ne ise munh ki safai aur Rab ki raza ka zariya farmaya.'],
+    ['tasbih', 'Tasbih', 'Zikr ginne ke liye', 'Tasbih ke daane SubhanAllah, Alhamdulillah, Allahu Akbar jaise zikr ki ginti yaad rakhne mein madad dete hain.'],
+    ['ihram', 'Ihram', 'Hajj ya Umrah mein mard ka libaas', 'Mard do beselay safed kapde pehente hain.'],
+    ['janamaz', 'Janamaz (Prayer mat)', 'Namaz ada karne ke liye', 'Namaz mein qibla (Ka’be) ki taraf rukh kiya jata hai; janamaz par aksar mihrab ki shakl hoti hai.'],
+    ['kiswa', 'Kiswa', 'Ka’be par dala jane wala ghilaf', 'Kala ghilaf jis par sunehri Qur’ani khattati ki patti hoti hai; ise badla jata rehta hai.'],
+    ['zamzam', 'Zamzam ki bottle', 'Zamzam ka paani rakhne ke liye', 'Zamzam Masjid al-Haram mein Ka’be ke qareeb hai aur Hazrat Hajra AS aur Hazrat Ismail AS ke qisse se judta hai.'],
+    ['ittar', 'Ittar', 'Khushbu lagane ke liye', 'Nabi ﷺ ko khushbu pasand thi; ulema se Juma/Eid ki khushbu ke masail poochh sakte hain.'],
+    ['mabkhara', 'Mabkhara', 'Bakhoor / loban jalane ke liye', 'Masjid aur gharon mein khushbu ke liye bakhoor jalane ka rivaj hai.'],
+    ['quran', 'Qur’an Majeed', 'Allah ki kitab, tilawat aur hidayat ke liye', 'Qur’an Majeed Islam ki muqaddas kitab hai.'],
+    ['ramzan', 'Fanous (lantern)', 'Ramzan ki sajawat ka lantern', 'Fanous Ramzan ki roshni aur khushi ki mashhoor nishani ban gaya hai.'],
+    ['astrolabe', 'Astrolabe', 'Sitaron aur suraj ki position se waqt/rukh maloom karne ke liye', 'Purane Muslim aur doosre falakiyat-daan is saaz ko astronomy aur safar mein istemal karte the.'],
+    ['qibla', 'Qibla numa (compass)', 'Qibla ki simt maloom karne ke liye', 'Namaz mein Ka’be ki taraf rukh karna zaroori hai; qibla numa isme madad deta hai.'],
+    ['rehal', 'Rehal', 'Qur’an rakh kar padhne ke liye', 'Lakdi ka stand jo Qur’an ko zameen se unchi aur saaf jagah par rakhta hai.']
+  ],
+  phal: [
+    ['khajoor', 'Khajoor / Ajwa', 'Qur’an 19:23-25; Bukhari 5445, Muslim 2047', 'Hazrat Maryam AS ko taza khajoor khane ka hukm hua (19:25). Hadees: jo subah 7 Ajwa khajoor khaye, us din zeher aur jadu usko nuqsan nahi dega. Ajwa Madina ki mashhoor kaali khajoor hai.'],
+    ['zaitoon', 'Zaitoon (Olive)', 'Qur’an 95:1, 24:35', 'Allah ne Tin aur Zaitoon ki qasam khayi (95:1). Surah An-Nur mein mubarak zaitoon ke darakht ki misaal hai (24:35).'],
+    ['anjeer', 'Anjeer (Fig)', 'Qur’an 95:1', 'Surah At-Tin ka naam anjeer (Tin) par hai aur Allah ne isi surah mein anjeer ki qasam khayi.'],
+    ['anar', 'Anar (Pomegranate)', 'Qur’an 6:99, 55:68', 'Qur’an mein anar ka zikr Allah ki nematon aur Jannat ke phalon ke saath aata hai.'],
+    ['angoor', 'Angoor (Grapes)', 'Qur’an 2:266, 6:99', 'Qur’an mein angoor ke baghat Allah ki nemat ke taur par aate hain.'],
+    ['sidr', 'Sidr (Ber ka darakht)', 'Qur’an 53:14, 56:28', 'Sidrat-ul-Muntaha ka zikr Miraj ke bayan mein hai; Jannat mein bhi kaante-rahit ber ke darakht ka zikr hai (56:28).'],
+    ['kheera', 'Kheera (Cucumber)', 'Qur’an 2:61; Bukhari 5440, Muslim 2043', 'Bani Israel ne kheera jaisi sabziyan maangi (2:61). Sahabi Abdullah bin Jafar RA ne Nabi ﷺ ko taza khajoor kheere ke saath khate dekha.'],
+    ['pyaz', 'Pyaz aur Lahsun', 'Qur’an 2:61; Bukhari 855, Muslim 564', 'Pyaz ka zikr 2:61 mein hai. Hadees: kachchi pyaz/lahsun khane wale ko masjid se door rehne ko kaha gaya, kyunki uski badbu se namaziyon aur farishton ko takleef hoti hai. Pakane se badbu jaye to hukm ke liye ulema se mashwara karein.'],
+    ['masoor', 'Masoor ki daal (Lentils)', 'Qur’an 2:61', 'Bani Israel ne masoor ki daal bhi maangi thi (2:61).'],
+    ['kalonji', 'Kalonji (Black seed)', 'Bukhari 5688, Muslim 2215', 'Hadees: kalonji mein har bimari ki shifa hai, siwaye maut ke. Ye dawa ya ilaj ka badal nahi; bimari mein doctor se zaroor milein.'],
+    ['shahad', 'Shahad (Honey)', 'Qur’an 16:68-69; Bukhari 5684', 'Qur’an mein shahad ko logon ke liye shifa kaha gaya (16:69). Hadees mein pet ki takleef ke liye shahad pilane ka zikr hai.'],
+    ['kaddu', 'Kaddu (Gourd / Pumpkin)', 'Bukhari 5433, 5436; Muslim 2041', 'Hazrat Anas RA ne Nabi ﷺ ko kaddu pasand karke khate dekha, aur kaha ke tab se mujhe kaddu pasand hai.'],
+    ['kamah', 'Kumbhi (Kam’a / Truffle)', 'Bukhari 4478, Muslim 2049', 'Hadees: Kam’a Manna mein se hai aur iska paani aankh ke liye shifa hai. (Manna Bani Israel par utarne wali nemat hai.)'],
+    ['adrak', 'Adrak (Ginger)', 'Qur’an 76:17', 'Jannat walon ko aise jaam pilaye jayenge jis mein adrak (Zanjabeel) ki milawat hogi.'],
+    ['doodh', 'Doodh (Milk)', 'Qur’an 16:66, 47:15', 'Qur’an mein chaupayon ke pet se saaf, peene walon ke liye khush-guwar doodh nikalne ka zikr hai; Jannat mein doodh ki nehron ka bhi.'],
+    ['jau', 'Jau ki roti aur Talbina', 'Bukhari 5436, 5417', 'Jau ki roti Nabi ﷺ ke daur ki aam ghiza thi. Talbina aate ya chokar aur doodh se bani patli khichdi hai; hadees mein ise dukhi/bimar ke dil ko sukoon dene wali kaha gaya.']
+  ],
+  qudrat: [
+    ['pahaad', 'Pahaad (Mountain)', 'Qur’an 52:1, 95:2', 'Allah ne Toor (pahaad) aur Toor-e-Sinin ki qasam khayi.'],
+    ['baarish', 'Baarish', 'Qur’an 25:48', 'Allah aasman se paak paani utaarta hai; baarish se zameen zinda hoti hai.'],
+    ['bijli', 'Bijli aur kadak', 'Qur’an 13:12-13', 'Bijli dikhana aur badal ki gargarahat Allah ki tasbeeh karna Qur’an mein bayan hua.'],
+    ['sitare', 'Sitare (Stars)', 'Qur’an 53:1, 6:97', 'Allah ne sitare ki qasam khayi (53:1) aur sitare raaston ki rahnumayi ke liye bhi banaye (6:97).'],
+    ['suraj', 'Suraj (Sun)', 'Qur’an 91:1', 'Surah Ash-Shams mein Allah ne suraj aur uski roshni ki qasam khayi.'],
+    ['samandar', 'Samandar (Sea)', 'Qur’an 52:6, 55:19-20', 'Allah ne samandar ki qasam khayi (52:6) aur do samandaron ke darmiyan parde ka zikr hai (55:19-20).'],
+    ['baagh', 'Baagh aur nehrein', 'Qur’an 2:25', 'Jannat ke baghon ke neeche nehrein behti hain; Qur’an Jannat ki aisi tasweer kai jagah pesh karta hai.'],
+    ['beej', 'Beej aur ugta paudha', 'Qur’an 6:95', 'Allah daane aur guthli ko chir kar paudha nikalta hai; ye uski qudrat ki nishani hai.'],
+    ['moti', 'Moti (Pearl)', 'Qur’an 22:23, 55:22, 76:19', 'Jannat walon ke liye moti ke zewar aur bikhre hue moti jaise khidmatgaron ka zikr hai.'],
+    ['sarson', 'Rai ka daana (Mustard seed)', 'Qur’an 21:47, 31:16', 'Qiyamat ke tarazu mein rai ke daane ke barabar amal bhi saamne aayega; ye chhoti si cheez ki misaal hai.']
+  ],
+  janwar: [
+    ['oont', 'Oont (Camel)', 'Surah Al-Ghashiyah (88:17)', 'Qur’an mein oont ki takhleeq par ghaur karne ko kaha gaya.'],
+    ['makkhi', 'Shahad ki makkhi', 'Surah An-Nahl (16:68-69)', 'Allah ne makkhi ko wahi (ilham) farmayi; surah ka naam An-Nahl (makkhi) hai.'],
+    ['cheenti', 'Cheenti', 'Surah An-Naml (27:18)', 'Hazrat Sulaiman AS ke lashkar se bachne ki cheenti ki baat is surah mein aati hai.'],
+    ['hudhud', 'Hudhud (Hoopoe)', 'Surah An-Naml (27:20-22)', 'Hudhud ne Hazrat Sulaiman AS ko Saba ki khabar di.'],
+    ['makdi', 'Makdi', 'Surah Al-Ankabut (29:41)', 'Makdi ke jaale ki misaal di gayi, jo sabse kamzor ghar hai.'],
+    ['hathi', 'Hathi', 'Surah Al-Fil (105)', 'Ashab-ul-Fil ka waqia; surah ka naam Al-Fil (hathi) hai.'],
+    ['machhli', 'Badi machhli (Al-Hut)', 'Hazrat Yunus AS ka qissa (37:139-144)', 'Hazrat Yunus AS ko machhli ne nigal liya aur unhone dua ki (21:87).'],
+    ['gaay', 'Gaay', 'Surah Al-Baqarah (2:67-71)', 'Bani Israel ko gaay zabah karne ka hukm hua; isi se surah ka naam Al-Baqarah (gaay) hai.'],
+    ['kauwa', 'Kauwa', 'Surah Al-Ma’idah (5:31)', 'Allah ne ek kauwa bheja jisne Qabil ko bhai ki laash dafan karna sikhaya.'],
+    ['dog', 'Kutta', 'Surah Al-Kahf (18:18)', 'Ashab-e-Kahf ka kutta ghaar ke darwaze par apne agle panjey phailaye baitha tha.'],
+    ['wolf', 'Bheriya (Wolf)', 'Surah Yusuf (12:13-17)', 'Hazrat Yaqub AS ko darr tha ke bheriya Yusuf AS ko kha jaye; bhaiyon ne isi bahane ko istemal kiya.'],
+    ['horse', 'Ghoda', 'Surah Al-Adiyat (100:1); Aal-e-Imran (3:14)', 'Surah Al-Adiyat mein Allah ne daudte hue ghodon ki qasam khayi.'],
+    ['donkey', 'Gadha', 'Surah Luqman (31:19); An-Nahl (16:8)', 'Gadhe, ghode aur khachchar sawari aur zeenat ke liye hain (16:8); Luqman 31:19 mein aawaz dheemi rakhne ki nasihat hai.'],
+    ['quail', 'Bater (Quail)', 'Surah Al-Baqarah (2:57)', 'Bani Israel par Manna aur Salwa (bater) ki nemat utari.']
+  ],
+  imarat: [
+    ['mihrab', 'Mihrab', 'Qibla ki taraf ishara karne wala taaq', 'Imam aam taur par mihrab ke saamne khada hota hai.'],
+    ['minbar', 'Minbar', 'Juma aur Eid ka khutba dene ki unchi seedhiyan', 'Khatib minbar par se khutba deta hai.'],
+    ['minaret', 'Minar (Minaret)', 'Azaan dene ke liye unchi minar', 'Aaj azaan aam taur par loudspeaker se di jati hai, magar minar masjid ki pehchaan hai.'],
+    ['gumbad', 'Gumbad (Dome)', 'Masjid ki chhat ka gol hissa', 'Gumbad masajid ki mashhoor pehchaan hai.'],
+    ['sahn', 'Sahn (Courtyard)', 'Masjid ka khula aangan', 'Sahn mein namaziyon ke liye jagah hoti hai aur aksar hauz ya fountain bhi.'],
+    ['wuzu', 'Wuzu-khana', 'Namaz se pehle wuzu karne ki jagah', 'Qur’an (5:6) mein wuzu ke arkan bayan hue hain.'],
+    ['muqarnas', 'Muqarnas', 'Gumbad ya mehrab ke andar chhatte jaisi sajawat', 'Muqarnas Islami imarat ki mashhoor sajawat hai.'],
+    ['mashrabiya', 'Mashrabiya', 'Lakdi ki jaali wali khidki', 'Garam ilaqon mein hawa aur roshni ke saath parda bhi deti hai.']
+  ],
+  zindagi: [
+    ['topi', 'Topi (Prayer cap)', 'Sar par pehnne ki topi', 'Bahut se Musalman mard namaz aur aam din mein topi pehente hain.'],
+    ['thobe', 'Thobe', 'Arab mulkon mein mard ka lamba libaas', 'Thobe (dishdasha) Arab ilaqon mein aam libaas hai.'],
+    ['abaya', 'Abaya', 'Auraton ka dhila bahar ka libaas', 'Abaya Khaleeji mulkon mein aam hai; libaas ke masail ke liye ulema se mashwara karein.'],
+    ['dallah', 'Dallah', 'Arabi qahwa banane aur parosne ke liye', 'Dallah mein qahwa tayyar karke finjan mein pesh kiya jata hai.'],
+    ['finjan', 'Finjan (qahwa ke pyale)', 'Arabi qahwa peene ke liye', 'Arabi qahwa mehmaan-nawazi ki nishani samjha jata hai.'],
+    ['mashka', 'Mashkeezah (jild ki mashk)', 'Paani bharne aur le jane ke liye', 'Purane zamane mein safar aur sahra mein paani le jane ke liye istemal hoti thi.'],
+    ['qalam', 'Qalam', 'Likhne ke liye', 'Pehli wahi mein qalam ka zikr hai (96:4) aur Surah Al-Qalam (68) ka naam bhi isi par hai.'],
+    ['davaat', 'Davaat (siyahi daan)', 'Siyahi rakhne ke liye', 'Purane zamane mein qalam ke saath siyahi daan istemal hota tha.']
+  ],
+  fann: [
+    ['tile', 'Seramik tile (kashi)', 'Mitti se bani rangeen chamakdaar tile', 'Masajid aur imaraton ki deewaron par rangeen tile ka kaam mashhoor hai.'],
+    ['mosaic', 'Mosaic', 'Chhote chhote tukdon se naqsh banana', 'Mosaic mein rangeen tukde jod kar naqsh ya tasveer banayi jati hai.'],
+    ['door', 'Lakdi ki naqqashi (Wood carving)', 'Lakdi par naqsh tarashna', 'Darwaze, minbar aur khidkiyon par geometric naqsh ki naqqashi hoti hai.'],
+    ['tray', 'Peetal ki naqshi thali', 'Peetal par naqqashi', 'Peetal par barik naqqashi Islami dastkari ki mashhoor misaal hai.'],
+    ['zellige', 'Zellige', 'Morocco ka hath se kata hua rangeen tile ka kaam', 'Zellige Morocco ki mashhoor Islami tile-kari hai.'],
+    ['carpet', 'Qaleen (Carpet)', 'Dhaage se bun kar bana naqshi farsh', 'Islami duniya mein qaleen bunai purani dastkari hai.'],
+    ['bowl', 'Seramik katora (Iznik)', 'Mitti ka rangeen naqshi katora', 'Iznik seramik Usmani daur mein mashhoor tha.'],
+    ['glass', 'Rangeen shisha (Stained glass)', 'Rangeen shishon wali khidki', 'Rangeen shishe roshni ko rang dete hain.'],
+    ['coin', 'Purana Islami sikka', 'Len-den ka sikka, jis par aksar Arabi ibarat hoti thi', 'Islami hukumaton ke sikkon par aksar Arabi likhai hoti thi.']
+  ],
+  hajj: [
+    ['tawaf', 'Tawaf', 'Ka’be ke gird 7 chakkar', 'Tawaf Ka’be ke gird 7 chakkar lagane ko kehte hain.'],
+    ['sai', 'Sa’i', 'Safa aur Marwa ke darmiyan 7 baar chalna', 'Ye Hazrat Hajra AS ki daud-dhoop ki yaad se judi ibadat hai.'],
+    ['rami', 'Rami al-Jamarat', 'Mina mein Jamarat par kankariyan marna', 'Hajj ke dauraan Mina mein Jamarat par kankariyan maari jati hain.'],
+    ['GA:arafat', 'Wuquf-e-Arafat', '9 Zul-Hijjah ko Arafat mein thehrna', 'Wuquf-e-Arafat Hajj ka sabse ahem rukn hai.'],
+    ['GA:mina', 'Mina', 'Hajj mein raatein guzarne aur Jamarat ka maqam', 'Mina ke khaimon ka shehar Hajj ke dino mein abaad hota hai.'],
+    ['GA:muzdalifah', 'Muzdalifah', 'Arafat ke baad raat guzarne ka maqam', 'Hajj ke dauraan haji Muzdalifah mein raat guzarte hain.']
+  ],
+  mauqe: [
+    ['chand', 'Chand ki ruyat (Hilal)', '', 'Islami (Hijri) mahine chand ki ruyat se shuru hote hain.'],
+    ['ramzan', 'Ramzan', '', 'Qur’an ka nuzool Ramzan mein shuru hua (2:185); fanous Ramzan ki mashhoor sajawat hai.'],
+    ['iftar', 'Iftar', '', 'Nabi ﷺ se khajoor aur paani se iftar karne ki riwayat hai.'],
+    ['qurbani', 'Eid-ul-Adha (Qurbani)', '', 'Hazrat Ibrahim AS ki sunnat; Qurbani ke ahkam ke liye ulema se mashwara karein.'],
+    ['eidi', 'Eidi', '', 'Eid par bachchon ko khushi mein tohfa ya paise dene ka rivaj hai.'],
+    ['hajj', 'Hajj', '', 'Hajj Islam ka rukn hai jo istita‘at hone par zindagi mein ek baar farz hai.', 'GA:kaaba'],
+    ['qadr', 'Laylat-ul-Qadr', '', 'Ye raat hazar mahino se behtar hai (97:3).']
+  ]
+};
+const CH_DUAS = [[0, 'sleep'], [1, 'wake'], [2, 'plate'], [51, 'plate2'], [4, 'car'], [5, 'GA:quba'], [6, 'GA:quba'], [8, 'house']];
+const CH_KHAT = [['ٱللَّه', 'Allah', 'Allah ka zaati naam'], ['مُحَمَّد', 'Muhammad ﷺ', 'Allah ke aakhri Nabi'], ['مُوسَىٰ', 'Musa AS', 'Allah ke Nabi Hazrat Musa AS'], ['عِيسَىٰ', 'Isa AS', 'Allah ke Nabi Hazrat Isa AS'], ['يُوسُف', 'Yusuf AS', 'Allah ke Nabi Hazrat Yusuf AS'], ['إِبْرَاهِيم', 'Ibrahim AS', 'Allah ke Nabi Hazrat Ibrahim AS'], ['بِسْمِ ٱللَّهِ', 'Bismillah', 'Allah ke naam se'], ['ٱلْحَمْدُ لِلَّهِ', 'Alhamdulillah', 'Sab taareef Allah ke liye'], ['سُبْحَانَ ٱللَّهِ', 'SubhanAllah', 'Allah paak hai'], ['ٱللَّهُ أَكْبَرُ', 'Allahu Akbar', 'Allah sabse bada hai'], ['لَا إِلَٰهَ إِلَّا ٱللَّهُ', 'La ilaha illallah', 'Allah ke siwa koi ma‘bood nahi'], ['مَا شَاءَ ٱللَّهُ', 'MashaAllah', 'Jo Allah ne chaha'], ['إِن شَاءَ ٱللَّهُ', 'InshaAllah', 'Agar Allah ne chaha'], ['أَسْتَغْفِرُ ٱللَّهَ', 'Astaghfirullah', 'Main Allah se maafi maangta hoon'], ['جَزَاكَ ٱللَّهُ خَيْرًا', 'JazakAllah khair', 'Allah tumhein behtar badla de']];
+const CH_CATS = [
+  ['maqamat', '🗺️', 'Maqamat (jagahein)', 'Places', ()=> geoQs(4).map(q=> ({ q: q.q, o: q.o, a: q.a, art: GA.svg(q.art), why: `${q.p.n}: ${q.p.city ? q.p.city + ', ' : ''}${q.p.co}. ${q.p.c}` })), 46],
+  ['cheezein', '📿', 'Islami cheezein', 'Objects', m=> chItems('cheezein', m, 'Iska istemal kya hai?', 'What is it used for?'), 14],
+  ['phal', '🌿', 'Phal, ghiza aur shifa (Qur’an/Hadees)', 'Fruits and foods (Qur’an/Hadith)', m=> chItems('phal', m, 'Iska zikr kahan aata hai (Qur’an ya Sahih Hadees)?', 'Where is it mentioned (Qur’an or Sahih Hadith)?'), 16],
+  ['qudrat', '🌄', 'Qudrat ke nishan (Qur’an)', 'Signs in nature (Qur’an)', m=> chItems('qudrat', m, 'Qur’an mein iska zikr kahan aata hai?', 'Where is it mentioned in the Qur’an?'), 10],
+  ['janwar', '🐪', 'Qur’ani janwar', 'Animals', m=> chItems('janwar', m, 'Qur’an mein iska zikr kis surah ya qisse mein aata hai?', 'Which surah or story mentions it?'), 14],
+  ['imarat', '🕌', 'Masjid ke hisse', 'Mosque features', m=> chItems('imarat', m, 'Iska kaam kya hai?', 'What is its purpose?'), 8],
+  ['zindagi', '☕', 'Rozmarra (Arab/Islami)', 'Daily life', m=> chItems('zindagi', m, 'Iska istemal kya hai?', 'What is it used for?'), 8],
+  ['fann', '🧱', 'Islami fann aur dastkari', 'Islamic crafts', m=> chItems('fann', m, 'Ye kya hai / kis cheez ka kaam hai?', 'What is it?'), 9],
+  ['quran', '📖', 'Qur’an aur Arabi ilm', 'Qur’an and Arabic basics', m=> chQuran(m), 34],
+  ['hajj', '🕋', 'Hajj ke arkan', 'Hajj rituals', m=> chItems('hajj', m, 'Ye kya hai / kab hota hai?', 'What is it?'), 6],
+  ['mauqe', '🌙', 'Islami mauqe', 'Occasions', m=> chItems('mauqe', m, '', ''), 6],
+  ['dua', '🤲', 'Dua aur mauqa', 'Dua and situation', m=> chDua(m), 8],
+  ['khat', '✍️', 'Arabi khat', 'Arabic calligraphy', m=> chKhat(m), 15],
+  ['naqsh', '🎨', 'Islami naqsh', 'Patterns', m=> chNaqsh(m), 7]
+];
+const chSvg = id=> id.startsWith('GA:') ? GA.svg(id.slice(3)) : CI.svg(id);
+function chItems(cat, m, qUseR, qUseE){
+  const items = CH_DATA[cat], out = [];
+  for(let r = 0; out.length < m; r++){
+    lzShuffle(items).forEach(it=>{
+      if(out.length >= m) return;
+      const useQ = it[2] && qUseR && lzRand(2) === 0, others = items.filter(x=> x !== it);
+      let o, a, q;
+      if(useQ){ a = it[2]; const pool = [...new Set(others.map(x=> x[2]).filter(x=> x && x !== a))]; if(pool.length < 3){ o = null; } else { o = lzShuffle([a, ...lzShuffle(pool).slice(0, 3)]); q = L({ rur: qUseR, en: qUseE }); } }
+      if(!o){ a = it[1]; o = lzShuffle([a, ...lzShuffle(others.map(x=> x[1])).slice(0, 3)]); q = L({ rur: 'Ye kya hai?', en: 'What is this?' }); }
+      out.push({ q, o, a, art: chSvg(it[4] || it[0]), why: `${it[1]}${it[2] ? ' — ' + it[2] : ''}. ${it[3]}` });
+    });
+  }
+  return out;
+}
+function chDua(m){
+  const out = [];
+  for(let r = 0; out.length < m; r++) lzShuffle(CH_DUAS).forEach(x=>{
+    if(out.length >= m) return;
+    const d = DUAS[x[0]], cut = s=> { s = String(s || ''); return s.length > 70 ? s.slice(0, 68).replace(/\s+\S*$/, '') + '…' : s; };
+    const pool = DUAS.filter((y, i)=> i !== x[0] && y.translit && !/^Surah|Ayat/.test(y.title)).map(y=> cut(y.translit)).filter(t=> t !== cut(d.translit));
+    out.push({ q: L({ rur: 'Is mauqe par kaun si dua padhi jati hai?', en: 'Which dua is recited in this situation?' }), o: lzShuffle([cut(d.translit), ...lzShuffle([...new Set(pool)]).slice(0, 3)]), a: cut(d.translit), art: chSvg(x[1]), why: `${dTitle(d)}: ${d.translit} (${d.meaning})${d.ref ? ' [' + d.ref + ']' : ''}` });
+  });
+  return out;
+}
+function chKhat(m){
+  const out = [];
+  if(m >= 5 && lzRand(3) === 0) out.push({ q: L({ rur: 'Harf ke upar/neeche in nishano (zabar, zer, pesh) ko kya kehte hain?', en: 'What are the marks above/below letters (fatha, kasra, damma) called?' }), ar: 'بَ  بِ  بُ', o: lzShuffle(['Harakat', 'Surah', 'Sajdah', 'Ruku']), a: 'Harakat', art: '', why: L({ rur: 'Zabar, zer aur pesh ko harakat kehte hain; ye harf ki awaaz batate hain.', en: 'Fatha, kasra and damma are called harakat; they show how a letter is voiced.' }) });
+  for(let r = 0; out.length < m; r++) lzShuffle(CH_KHAT).forEach(x=>{
+    if(out.length >= m) return;
+    const byMeaning = lzRand(2) === 0, others = CH_KHAT.filter(y=> y !== x), idx = byMeaning ? 2 : 1;
+    out.push({ q: byMeaning ? L({ rur: 'Is Arabi ka matlab kya hai?', en: 'What does this Arabic mean?' }) : L({ rur: 'Ye kya likha hai?', en: 'What is written here?' }), ar: x[0], o: lzShuffle([x[idx], ...lzShuffle(others.map(y=> y[idx])).slice(0, 3)]), a: x[idx], art: '', why: `${x[0]} = ${x[1]}: ${x[2]}.` });
+  });
+  return out;
+}
+const CH_LET = [['ا', 'Alif'], ['ب', 'Be'], ['ت', 'Te'], ['ث', 'Se'], ['ج', 'Jeem'], ['ح', 'Bari He'], ['خ', 'Khe'], ['د', 'Daal'], ['ذ', 'Zaal'], ['ر', 'Re'], ['ز', 'Ze'], ['س', 'Seen'], ['ش', 'Sheen'], ['ص', 'Suaad'], ['ض', 'Zuaad'], ['ط', 'Toe'], ['ظ', 'Zoe'], ['ع', 'Ain'], ['غ', 'Ghain'], ['ف', 'Fe'], ['ق', 'Qaaf'], ['ك', 'Kaaf'], ['ل', 'Laam'], ['م', 'Meem'], ['ن', 'Noon'], ['و', 'Waaw'], ['ه', 'Chhoti He'], ['ي', 'Ye']];
+const CH_QF = [
+  { ar: '۩', q: ['Qur’an mein ye nishan kya batata hai?', 'What does this mark in the Qur’an show?'], a: 'Sajdah ki aayat', o: ['Sajdah ki aayat', 'Surah ka aaghaz', 'Juz ka khatma', 'Tarjuma'], why: 'Is nishan wali aayat par Sajdah-e-Tilawat ka hukm hai (ahkam ke liye ulema se mashwara karein).' },
+  { ar: '۝', q: ['Ye gol nishan Qur’an mein kahan aata hai?', 'Where does this round mark appear in the Qur’an?'], a: 'Aayat ke khatme par', o: ['Aayat ke khatme par', 'Surah ke aaghaz par', 'Safhe ke upar', 'Sirf Juz ke shuru mein'], why: 'Aayat ke khatme par gol nishan hota hai, aksar uske andar aayat ka number likha hota hai.' },
+  { ar: '', q: ['Qur’an ki ek aayat ko kya kehte hain?', 'What is a single verse of the Qur’an called?'], a: 'Ayah', o: ['Ayah', 'Surah', 'Juz', 'Manzil'], why: 'Ek aayat ko Ayah kehte hain; Ayaat milkar Surah banati hain.' },
+  { ar: '', q: ['Qur’an ke 30 hisson mein se ek hissa kya kehlata hai?', 'What is one of the 30 parts of the Qur’an called?'], a: 'Juz (Para)', o: ['Juz (Para)', 'Ruku', 'Manzil', 'Sajdah'], why: 'Qur’an 30 Juz (Para) mein taqseem hai.' },
+  { ar: '', q: ['Qur’an mein kul kitni surahein hain?', 'How many surahs are in the Qur’an?'], a: '114', o: ['114', '99', '124', '30'], why: 'Qur’an mein 114 surahein hain.' },
+  { ar: '', q: ['Qur’an mein kul kitne Para (Juz) hain?', 'How many Juz are in the Qur’an?'], a: '30', o: ['30', '20', '40', '60'], why: 'Qur’an 30 Para (Juz) mein hai.' }
+];
+function chQuran(m){
+  const out = [];
+  while(out.length < m){
+    if(lzRand(3) === 0){ const x = CH_QF[lzRand(CH_QF.length)]; if(!out.some(y=> y.why === x.why)) out.push({ q: L({ rur: x.q[0], en: x.q[1] }), ar: x.ar, o: lzShuffle(x.o), a: x.a, art: '', why: x.why }); continue; }
+    const t = CH_LET[lzRand(CH_LET.length)]; if(out.some(y=> y.ar === t[0])) continue;
+    out.push({ q: L({ rur: 'Ye Arabi harf kaun sa hai?', en: 'Which Arabic letter is this?' }), ar: t[0], o: lzShuffle([t[1], ...lzShuffle(CH_LET.filter(y=> y !== t).map(y=> y[1])).slice(0, 3)]), a: t[1], art: '', why: `${t[0]} = ${t[1]}` });
+  }
+  return out;
+}
+function chNaqsh(m){
+  const out = [], NS = [5, 6, 7, 8, 9, 10, 12];
+  for(let i = 0; i < m; i++){
+    const n = NS[lzRand(NS.length)], o = lzShuffle([n, ...lzShuffle(NS.filter(x=> x !== n)).slice(0, 3)]).map(String);
+    out.push({ q: L({ rur: 'Is naqsh (sitare) mein kitni nok hain?', en: 'How many points does this star pattern have?' }), o, a: String(n), art: CI.star(n), why: L({ rur: `Is sitare mein ${n} nok hain.`, en: `This star has ${n} points.` }) });
+  }
+  return out;
+}
+function chBuild(cat, n){
+  if(cat === 'mixed'){ const all = []; CH_CATS.forEach(c=> all.push(...c[4](3))); return lzShuffle(all).slice(0, n); }
+  return CH_CATS.find(c=> c[0] === cat)[4](n).slice(0, n);
+}
+let khCh = null;
+function khChitraHome(){
+  khClear(); khTitle(L({ rur: 'Chitra Quiz', en: 'Picture Quiz' }));
+  const S = khS(); S.chBest = S.chBest || {};
+  khBody().innerHTML = `<div class="lz"><p class="lz-sub" style="margin:0 0 8px;">${L({ rur: 'Tasveer dekh kar pehchaniye', en: 'Identify from the picture' })}</p>
+    <div class="kh-disc">ℹ️ ${L(CH_DISC_TXT)}</div>
+    <button type="button" class="kh-card" data-c="mixed"><span class="kh-ic">🎲</span><span class="kh-tx"><b>${L({ rur: 'Sab mila kar (Mixed)', en: 'All mixed' })}</b><small>${L({ rur: 'Har category se thode sawal', en: 'A few from every category' })}</small></span><span class="kh-best">${S.chBest.mixed != null ? L({ rur: 'Behtar', en: 'Best' }) + ': ' + S.chBest.mixed : ''}</span></button>
+    ${CH_CATS.map(c=> `<button type="button" class="kh-card" data-c="${c[0]}"><span class="kh-ic">${c[1]}</span><span class="kh-tx"><b>${isEn() ? c[3] : c[2]}</b><small>${c[5]} ${L({ rur: 'cheezein', en: 'items' })}</small></span><span class="kh-best">${S.chBest[c[0]] != null ? L({ rur: 'Behtar', en: 'Best' }) + ': ' + S.chBest[c[0]] : ''}</span></button>`).join('')}
+    <p class="lz-note">${L({ rur: 'Deeni maslon ke liye ulema se mashwara karein.', en: 'For religious rulings, consult your ulema.' })}</p></div>`;
+  khBody().querySelectorAll('.kh-card[data-c]').forEach(b=>{ b.onclick = ()=> khChitraStart(b.dataset.c); });
+}
+function khChitraStart(cat){
+  khTitle(L({ rur: 'Chitra Quiz', en: 'Picture Quiz' })); khClear();
+  khCh = { cat, i: 0, ok: 0, log: [], lock: false, qs: chBuild(cat, khRounds()) }; khChitraShow();
+}
+function khChitraShow(){
+  const G = khCh, q = G.qs[G.i]; G.lock = false;
+  khBody().innerHTML = `<div class="lz">${khHead(`${G.i + 1}/${G.qs.length}`, `<span class="kh-mist">✔ <b>${G.ok}</b></span>`)}
+    <div class="quiz-card">${q.art ? q.art + `<div class="kh-disc kh-disc-s">ℹ️ ${L({ rur: 'Representative tasveer, asli nahi; farq ho sakta hai.', en: 'Representative picture, not real; it may differ.' })}</div>` : ''}${q.ar ? `<div class="quiz-q-ar kh-bigar">${q.ar}</div>` : ''}<div class="quiz-q">${q.q}</div></div>
+    <div class="quiz-opts">${q.o.map((o, i)=> `<button type="button" class="quiz-opt qopt-${'ABCD'[i]}" data-o="${String(o).replace(/"/g, '&quot;')}"><span class="opt-letter">${'ABCD'[i]}</span><span class="quiz-opt-txt">${o}</span></button>`).join('')}</div>
+    <div id="khNextWrap"></div><div class="lz-toast" id="lzToast"></div></div>`;
+  document.querySelectorAll('.quiz-opt').forEach(b=>{ b.onclick = ()=>{
+    if(G.lock) return; G.lock = true; const ok = b.dataset.o === q.a;
+    document.querySelectorAll('.quiz-opt').forEach(x=>{ x.disabled = true; if(x.dataset.o === q.a) x.classList.add('correct'); });
+    if(ok){ G.ok++; lzOk(); lzVib(20); } else { b.classList.add('wrong'); khShake(b); lzBad(); lzVib([40, 40, 40]); }
+    G.log.push({ ok, q: q.q, a: q.a, why: q.why });
+    const wait = (khAnsSecs() + (ok ? 0 : 1)) * 1000;
+    lzToast(q.why, ok ? 'ok' : 'bad', khAutoOn() ? wait : 600000);
+    khNext(wait, G.i + 1 >= G.qs.length, ()=>{ G.i++; G.i >= G.qs.length ? khChitraEnd() : khChitraShow(); });
+  }; });
+}
+function khChitraEnd(){
+  const G = khCh, S = khS(); S.chBest = S.chBest || {}; const pct = G.ok / G.qs.length;
+  if(S.chBest[G.cat] == null || G.ok > S.chBest[G.cat]) S.chBest[G.cat] = G.ok;
+  khResult('chitra', pct >= .8 ? 'MashaAllah!' : L({ rur: 'Shabaash!', en: 'Well done!' }), G.ok, G.qs.length, khStarsFor(pct), `<div class="kh-disc kh-disc-s">ℹ️ ${L(CH_DISC_TXT)}</div>`, ()=> khChitraStart(G.cat), G.log);
+}
 /* ===== Salutation after the name of Allah: "Allah ﷻ" everywhere =====
    Every text on screen is covered: the names, the Qur'an translations (Hinglish / English, Hindi अल्लाह, Urdu اللہ), the quiz and
    all other screens. It is applied to the text of the page as it appears or changes, so nothing needs editing one by one.
