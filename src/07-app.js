@@ -122,6 +122,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='shakhsiyat') renderShakhsiyat();
     else if(which==='fitrqurbani') renderFitrQurbani();
     else if(which==='quiz') renderMoreQuiz();
+    else if(which==='lafz') renderLafz();
     else if(which==='ramzan') renderMoreRamzan();
     else if(which==='qibla') renderQibla();
     else if(which==='stats') renderStats();
@@ -159,7 +160,7 @@ document.getElementById('detailHome').onclick = ()=>{
   if(k){ suppressPops++; history.go(-k); }
   homeBtnSync();
 };
-['renderIbadat','renderZariye','renderShakhsiyat','renderFitrQurbani','renderZakat','renderKids','renderMubarak','renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
+['renderIbadat','renderZariye','renderShakhsiyat','renderFitrQurbani','renderZakat','renderKids','renderMubarak','renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderLafz','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
 ['openIbadatDetail','renderZariyeList','renderShakhsiyatList','openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla',].forEach(n=>navWrap(n,1));
 navWrap('renderQuranHome',0);
 navWrap('renderTajweedMenu',1);
