@@ -131,15 +131,17 @@ const CH_CATS = [
   ['naqsh', '🎨', 'Islami naqsh', 'Patterns', m=> chNaqsh(m), 7]
 ];
 const chSvg = id=> id.startsWith('GA:') ? GA.svg(id.slice(3)) : CI.svg(id);
+const CH_KIND = { cheezein: 'Ye ek Islami cheez hai', phal: 'Ye ek phal, sabzi ya ghiza hai jiska Qur’an ya Sahih Hadees mein zikr aata hai', qudrat: 'Ye Allah ki qudrat ki nishani hai jiska Qur’an mein zikr aata hai', janwar: 'Ye ek janwar hai jiska Qur’an mein zikr aata hai', imarat: 'Ye masjid ka ek hissa hai', zindagi: 'Ye Arab aur Islami rozmarra ki cheez hai', fann: 'Ye Islami fann ya dastkari ki cheez hai', hajj: 'Ye Hajj ya Umrah se jura hai' };
 function chItems(cat, m, qUseR, qUseE){
+  const kind = CH_KIND[cat] ? CH_KIND[cat] + '. ' : '';
   const items = CH_DATA[cat], out = [];
   for(let r = 0; out.length < m; r++){
     lzShuffle(items).forEach(it=>{
       if(out.length >= m) return;
       const useQ = it[2] && qUseR && lzRand(2) === 0, others = items.filter(x=> x !== it);
       let o, a, q;
-      if(useQ){ a = it[2]; const pool = [...new Set(others.map(x=> x[2]).filter(x=> x && x !== a))]; if(pool.length < 3){ o = null; } else { o = lzShuffle([a, ...lzShuffle(pool).slice(0, 3)]); q = L({ rur: qUseR, en: qUseE }); } }
-      if(!o){ a = it[1]; o = lzShuffle([a, ...lzShuffle(others.map(x=> x[1])).slice(0, 3)]); q = L({ rur: 'Ye kya hai?', en: 'What is this?' }); }
+      if(useQ){ a = it[2]; const pool = [...new Set(others.map(x=> x[2]).filter(x=> x && x !== a))]; if(pool.length < 3){ o = null; } else { o = lzShuffle([a, ...lzShuffle(pool).slice(0, 3)]); q = L({ rur: kind + qUseR, en: qUseE }); } }
+      if(!o){ a = it[1]; o = lzShuffle([a, ...lzShuffle(others.map(x=> x[1])).slice(0, 3)]); const clue = it[2] && it[2].length < 90 && !it[1].toLowerCase().split(/[ (/]/).some(w=> w.length > 3 && it[2].toLowerCase().includes(w)); q = clue && lzRand(2) === 0 ? L({ rur: `${kind}Iska hawala/istemal: ${it[2]}. Tasveer mein kya hai?`, en: 'What is shown?' }) : L({ rur: kind + 'Tasveer mein kya hai?', en: 'What is this?' }); }
       out.push({ q, o, a, art: chSvg(it[4] || it[0]), why: `${it[1]}${it[2] ? ' — ' + it[2] : ''}. ${it[3]}` });
     });
   }

@@ -3325,7 +3325,7 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .kh-primary{ position:static !important; display:block; width:100%; margin:16px 0 0 !important; border-radius:14px; }
 .kh-act{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin:10px 0 0; padding:13px 16px; border-radius:14px; border:1.5px solid var(--line); background:var(--card); color:var(--text); font-size:14.5px; font-weight:800; cursor:pointer; text-decoration:none; }
 .kh-act:active{ transform:scale(.985); }
-.kh-nx{ position:static !important; display:block; width:100%; margin:12px 0 0 !important; border-radius:14px; }
+.kh-nx{ position:relative !important; overflow:hidden; display:block; width:100%; margin:12px 0 0 !important; border-radius:14px; }
 .cl-next{ margin-top:12px; }
 .cl-try{ font-size:12.5px; font-weight:800; opacity:.95; } .cl-try b{ letter-spacing:2px; }
 .lz-done .kh-revbtn{ margin:10px 0 0; }
@@ -3346,3 +3346,5 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .sn-item.on{border-color:#2e9e5b;background:color-mix(in srgb,#2e9e5b 8%,var(--card,#fff))}
 .sn-chk{display:flex;gap:8px;align-items:flex-start;cursor:pointer}.sn-chk input{width:20px;height:20px;margin-top:1px;accent-color:#2e9e5b}
 .sn-d{font-size:13.5px;line-height:1.55;margin:6px 0 4px 28px}.sn-ref{font-size:11.5px;color:var(--sub);margin-left:28px}.sn-ik{color:#c97a12;font-weight:700}
+
+.kh-nx .qn-txt{ position:relative; z-index:1; }
