@@ -3292,3 +3292,31 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .kh-yes{ border-color:var(--green) !important; } .kh-no{ border-color:var(--red) !important; }
 .kh-tf button.good{ background:color-mix(in srgb, var(--green) 28%, var(--card)); } .kh-tf button.bad{ background:color-mix(in srgb, var(--red) 28%, var(--card)); }
 .kh-tf button:disabled{ opacity:.85; }
+
+/* ===== Quiz aur Khel: tabs, review, Deen Detective ===== */
+.kh-tabs{ position:sticky; top:0; z-index:5; display:flex; gap:6px; margin:0 0 12px; padding:6px; border-radius:16px; background:var(--card2, var(--card)); border:1px solid var(--line); }
+.kh-tabs button{ flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 4px; border:none; border-radius:12px; background:transparent; color:var(--sub); font-size:12.5px; font-weight:800; cursor:pointer; }
+.kh-tabs button span{ font-size:18px; }
+.kh-tabs button.on{ background:var(--accent); color:var(--fardText); }
+.kh-h{ margin:16px 0 8px; font-size:14.5px; display:flex; align-items:center; gap:6px; } .kh-h small{ margin-left:auto; font-size:11.5px; color:var(--sub); font-weight:700; }
+.kh-stats{ border:1px solid var(--line); border-radius:14px; background:var(--card); overflow:hidden; }
+.kh-stat{ display:flex; justify-content:space-between; gap:10px; padding:10px 14px; font-size:13.5px; border-top:1px solid var(--line); } .kh-stat:first-child{ border-top:none; } .kh-stat b{ font-weight:800; }
+.kh-badges .ql-b{ cursor:pointer; }
+.kh-revbtn{ display:block; margin:12px auto 0; }
+.kh-rev{ margin-top:12px; text-align:left; }
+.kh-ri{ margin:0 0 8px; padding:10px 12px; border-radius:12px; border:1px solid var(--line); border-left:4px solid var(--red); background:var(--card); font-size:13px; line-height:1.5; }
+.kh-ri.ok{ border-left-color:var(--green); }
+.kh-rq{ display:flex; gap:8px; font-weight:700; } .kh-rq em{ font-style:normal; color:var(--sub); } .kh-rq span{ flex:1; } .kh-rq b{ font-size:12px; white-space:nowrap; }
+.kh-ra{ margin-top:4px; color:var(--text); } .kh-rw{ margin-top:4px; color:var(--sub); font-size:12.5px; }
+.cl-chips{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px; }
+.cl-chips button{ padding:7px 12px; border-radius:18px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:12.5px; font-weight:700; cursor:pointer; }
+.cl-chips button.on{ background:var(--accent); border-color:var(--accent); color:var(--fardText); }
+.cl-clues{ display:flex; flex-direction:column; gap:8px; padding:12px; margin:0 0 12px; border:1px solid var(--line); border-top:none; border-radius:0 0 12px 12px; background:var(--card); }
+.cl-clue{ display:flex; gap:10px; align-items:flex-start; font-size:14.5px; line-height:1.55; }
+.cl-clue em{ flex:0 0 22px; height:22px; border-radius:50%; background:var(--accent); color:var(--fardText); font-style:normal; font-weight:800; font-size:12px; display:flex; align-items:center; justify-content:center; margin-top:1px; }
+.cl-clue.new{ animation:clIn .35s ease both; } @keyframes clIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:none; } }
+.cl-next{ display:block; margin:12px auto 0; }
+.cl-stats{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-top:10px; } .cl-stats div{ padding:8px 4px; border-radius:12px; border:1px solid var(--line); background:var(--card); text-align:center; } .cl-stats b{ display:block; font-size:16px; } .cl-stats small{ font-size:10.5px; color:var(--sub); }
+.kh-mist{ font-size:13px; font-weight:700; }
+@media (prefers-reduced-motion: reduce){ .cl-clue.new{ animation:none; } }
+.kh-qrow{ margin:0 0 4px; padding:0 14px; }

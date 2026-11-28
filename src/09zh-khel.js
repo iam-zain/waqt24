@@ -3,11 +3,12 @@
 
 const KH_GAMES = [
   { id:'lafz',    ic:'🔤', rur:'Lafz Talash',    en:'Word Search',    dr:'Grid mein chhupe lafz dhoondhein',     de:'Find hidden words in a grid',     go:()=> renderLafz() },
+  { id:'clue',    ic:'🕵️', rur:'Deen Detective', en:'Deen Detective', dr:'4 suraag, 1 jawab, jaldi pehchanein',  de:'4 clues, 1 answer, guess early',  go:()=> khClueHome() },
   { id:'jodi',    ic:'🧩', rur:'Jodi Milao',     en:'Match Pairs',    dr:'Lafz aur uska matlab milayein',        de:'Match words with their meanings', go:()=> khJodiStart() },
   { id:'tarteeb', ic:'🔢', rur:'Tarteeb Lagao',  en:'Order It',       dr:'Sahi tarteeb se lagayein',             de:'Put things in the right order',   go:()=> khTarteebStart() },
   { id:'jodo',    ic:'🔀', rur:'Lafz Jodo',      en:'Word Scramble',  dr:'Bikhre harf jod kar lafz banayein',    de:'Unscramble the letters',          go:()=> khScrStart() },
-  { id:'surah',   ic:'📖', rur:'Surah Pehchaan', en:'Surah Quiz',     dr:'Surah aur para ki tarteeb',            de:'Order and numbers of surahs',     go:()=> khSurahStart() },
-  { id:'sahi',    ic:'⚡', rur:'Sahi ya Ghalat', en:'True or False',  dr:'60 second, 3 jaan, tez jawab',         de:'60 seconds, 3 lives, fast',       go:()=> khSahiStart() }
+  { id:'surah', q:1, ic:'📖', rur:'Surah Pehchaan', en:'Surah Quiz',     dr:'Surah aur para ki tarteeb',            de:'Order and numbers of surahs',     go:()=> khSurahStart() },
+  { id:'sahi', q:1, ic:'⚡', rur:'Sahi ya Ghalat', en:'True or False',  dr:'60 second, 3 jaan, tez jawab',         de:'60 seconds, 3 lives, fast',       go:()=> khSahiStart() }
 ];
 const khS = ()=>{ const s = state.khel = state.khel || {}; s.best = s.best || {}; s.plays = s.plays || {}; return s; };
 const khName = g => isEn() ? g.en : g.rur;
@@ -20,19 +21,20 @@ const khClear = ()=>{ clearInterval(khTimer); khTimer = null; };
 
 function renderKhel(){
   quizState = null; if(typeof quizTimerStop === 'function') quizTimerStop(); khClear();
-  khTitle(L({ rur: 'Khel', en: 'Games' }));
+  khTitle(L({ rur: 'Quiz aur Khel', en: 'Quiz and Games' }));
   const S = khS(), Z = lzState();
-  khBody().innerHTML = `<div class="lz"><p class="lz-sub" style="margin:0 0 12px;">${L({ rur: 'Khelte hue seekhein', en: 'Learn while you play' })}</p>
-    ${KH_GAMES.map(g=> {
+  khBody().innerHTML = `${khTabsHtml('games')}<div class="lz"><p class="lz-sub" style="margin:0 0 12px;">${L({ rur: 'Khelte hue seekhein', en: 'Learn while you play' })}</p>
+    ${KH_GAMES.filter(g=> !g.q).map(g=> {
       const best = g.id === 'lafz' ? `${L({ rur: 'Level', en: 'Level' })} ${Z.lvl || 1}` : (S.best[g.id] != null ? `${L({ rur: 'Behtar', en: 'Best' })}: ${S.best[g.id]}` : '');
       return `<button type="button" class="kh-card" data-g="${g.id}"><span class="kh-ic">${g.ic}</span><span class="kh-tx"><b>${isEn() ? g.en : g.rur}</b><small>${isEn() ? g.de : g.dr}</small></span><span class="kh-best">${best}</span></button>`;
     }).join('')}
-    <p class="lz-note">${L({ rur: 'Awaaz, vibration aur effects Lafz Talash ki settings (⚙️) se badalte hain.', en: 'Sound, vibration and effects follow the Word Search settings (⚙️).' })}</p></div>`;
-  khBody().querySelectorAll('.kh-card').forEach(b=>{ b.onclick = ()=> KH_GAMES.find(g=> g.id === b.dataset.g).go(); });
+    <p class="lz-note">${L({ rur: 'Awaaz, vibration aur effects ke liye har game mein ⚙️ hai, ya More tab dekhein.', en: 'Every game has a ⚙️ for sound, vibration and effects, or see the More tab.' })}</p></div>`;
+  khTabsBind();
+  khBody().querySelectorAll('.kh-card[data-g]').forEach(b=>{ b.onclick = ()=> KH_GAMES.find(g=> g.id === b.dataset.g).go(); });
 }
 
 /* shared result screen */
-function khResult(id, headline, score, total, stars, extraHtml, again){
+function khResult(id, headline, score, total, stars, extraHtml, again, review){
   khClear();
   const S = khS(); S.plays[id] = (S.plays[id] || 0) + 1;
   const val = Math.round(score);
@@ -42,13 +44,14 @@ function khResult(id, headline, score, total, stars, extraHtml, again){
   khBody().innerHTML = `<div class="lz lz-done">${conf ? `<div class="lz-conf">${conf}</div>` : ''}
     <div class="lz-banner">${headline}</div>
     <div class="lz-stars">${[1, 2, 3].map(i=> `<span class="${i <= stars ? 'on' : ''}">★</span>`).join('')}</div>
-    <p class="lz-sub">${L({ rur: 'Score', en: 'Score' })}: ${val}${total ? ' / ' + total : ''}</p>${extraHtml || ''}
+    <p class="lz-sub">${L({ rur: 'Score', en: 'Score' })}: ${val}${total ? ' / ' + total : ''}</p>${extraHtml || ''}${khReviewHtml(review)}
     <button type="button" class="quiz-next" id="khAgain" style="position:static;margin-top:14px;">${L({ rur: 'Dobara khelein', en: 'Play again' })} ▶</button>
     <button type="button" class="kh-back" id="khHub">${L({ rur: 'Saare khel', en: 'All games' })}</button></div>`;
+  khReviewBind();
   document.getElementById('khAgain').onclick = again;
   document.getElementById('khHub').onclick = ()=> renderKhel();
 }
-const khHead = (title, right)=> `<div class="lz-top"><span class="lz-lv">${title}</span><span class="lz-grow"></span>${right || ''}</div>`;
+const khHead = (title, right)=> `<div class="lz-top"><span class="lz-lv">${title}</span><span class="lz-grow"></span>${right || ''}<button type="button" class="lz-ic" id="khSet" aria-label="Settings">⚙️</button></div><div class="lz-panel" id="khPanel" hidden></div>`;
 
 /* ---------- 1. Jodi Milao ---------- */
 function khPairSets(){
@@ -253,7 +256,7 @@ let khF = null;
 function khSahiStart(){
   khTitle(L({ rur: 'Sahi ya Ghalat', en: 'True or False' })); khClear();
   const pool = QUIZ_BANK.filter(q=> q[1] && q[1].length >= 2 && typeof q[2] === 'number');
-  khF = { pool: lzShuffle(pool), i: 0, ok: 0, lives: 3, t: 60, streak: 0, lock: false, over: false };
+  khF = { pool: lzShuffle(pool), i: 0, ok: 0, lives: 3, t: 60, streak: 0, lock: false, over: false, log: [] };
   khSahiShow();
   khTimer = setInterval(()=>{
     const el = document.getElementById('khClock');
@@ -278,6 +281,7 @@ function khSahiShow(){
     if(ok){ F.ok++; F.streak++; lzOk(); lzVib(20); b.classList.add('good'); }
     else { F.lives--; F.streak = 0; lzBad(); lzVib([40, 40, 40]); b.classList.add('bad'); khShake(document.querySelector('.quiz-card')); }
     const why = (typeof quizWhy === 'function') ? quizWhy(item) : '';
+    F.log.push({ ok, q: String(q).replace(/\n\n/g, ' '), a: opts[correct], shown: opts[shown], truth: F.cur.truth, why });
     const right = `${L({ rur: 'Sahi jawab', en: 'Correct answer' })}: ${opts[correct]}`;
     lzToast(ok ? (why || '') : (why ? right + '. ' + why : right), ok ? 'ok' : 'bad');
     clearTimeout(khF._n); const wait = ok ? (why ? 1700 : 600) : 2200;
@@ -289,5 +293,5 @@ function khSahiShow(){
 }
 function khSahiEnd(){
   khClear(); const F = khF, stars = F.ok >= 20 ? 3 : F.ok >= 10 ? 2 : 1;
-  khResult('sahi', F.lives <= 0 ? L({ rur: 'Jaan khatam!', en: 'Out of lives!' }) : L({ rur: 'Waqt khatam!', en: 'Time up!' }), F.ok, 0, stars, `<p class="lz-sub">${L({ rur: 'Sahi jawab', en: 'Correct answers' })}: ${F.ok}</p>`, khSahiStart);
+  khResult('sahi', F.lives <= 0 ? L({ rur: 'Jaan khatam!', en: 'Out of lives!' }) : L({ rur: 'Waqt khatam!', en: 'Time up!' }), F.ok, 0, stars, `<p class="lz-sub">${L({ rur: 'Sahi jawab', en: 'Correct answers' })}: ${F.ok}</p>`, khSahiStart, F.log.map(x=> ({ ok: x.ok, q: x.q, a: x.a, why: (x.truth ? '' : L({ rur: 'Dikhaya gaya jawab ghalat tha: ', en: 'The shown answer was wrong: ' }) + x.shown + '. ') + (x.why || ''), tag: x.ok ? '✔' : '✘' })));
 }
