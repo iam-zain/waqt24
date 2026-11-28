@@ -14891,7 +14891,7 @@ const CH_KHAT = [['ٱللَّه', 'Allah', 'Allah ka zaati naam'], ['مُحَم�
 const CH_CATS = [
   ['maqamat', '🗺️', 'Maqamat (jagahein)', 'Places', ()=> geoQs(4).map(q=> ({ q: q.q, o: q.o, a: q.a, art: GA.svg(q.art), why: `${q.p.n}: ${q.p.city ? q.p.city + ', ' : ''}${q.p.co}. ${q.p.c}` })), 46],
   ['cheezein', '📿', 'Islami cheezein', 'Objects', m=> chItems('cheezein', m, 'Iska istemal kya hai?', 'What is it used for?'), 14],
-  ['phal', '🌿', 'Phal, ghiza aur shifa (Qur’an/Hadees)', 'Fruits and foods (Qur’an/Hadith)', m=> chItems('phal', m, 'Iska zikr kahan aata hai (Qur’an ya Sahih Hadees)?', 'Where is it mentioned (Qur’an or Sahih Hadith)?'), 16],
+  ['phal', '🌿', 'Phal, ghiza aur shifa (Qur’an/Hadees)', 'Fruits and foods (Qur’an/Hadith)', m=> chItems('phal', m, 'Iska zikr Qur’an ya Sahih Hadees mein kahan aata hai?', 'Where is it mentioned (Qur’an or Sahih Hadith)?'), 16],
   ['qudrat', '🌄', 'Qudrat ke nishan (Qur’an)', 'Signs in nature (Qur’an)', m=> chItems('qudrat', m, 'Qur’an mein iska zikr kahan aata hai?', 'Where is it mentioned in the Qur’an?'), 10],
   ['janwar', '🐪', 'Qur’ani janwar', 'Animals', m=> chItems('janwar', m, 'Qur’an mein iska zikr kis surah ya qisse mein aata hai?', 'Which surah or story mentions it?'), 14],
   ['imarat', '🕌', 'Masjid ke hisse', 'Mosque features', m=> chItems('imarat', m, 'Iska kaam kya hai?', 'What is its purpose?'), 8],
@@ -14914,7 +14914,7 @@ function chItems(cat, m, qUseR, qUseE){
       if(out.length >= m) return;
       const useQ = it[2] && qUseR && lzRand(2) === 0, others = items.filter(x=> x !== it);
       let o, a, q;
-      if(useQ){ a = it[2]; const pool = [...new Set(others.map(x=> x[2]).filter(x=> x && x !== a))]; if(pool.length < 3){ o = null; } else { o = lzShuffle([a, ...lzShuffle(pool).slice(0, 3)]); q = L({ rur: kind + qUseR, en: qUseE }); } }
+      if(useQ){ a = it[2]; const pool = [...new Set(others.map(x=> x[2]).filter(x=> x && x !== a))]; if(pool.length < 3){ o = null; } else { o = lzShuffle([a, ...lzShuffle(pool).slice(0, 3)]); q = L({ rur: `${kind}Tasveer: ${it[1]}. ${qUseR.replace(/^Iska /, 'Iska ')}`, en: `${it[1]}: ${qUseE}` }); } }
       if(!o){ a = it[1]; o = lzShuffle([a, ...lzShuffle(others.map(x=> x[1])).slice(0, 3)]); const clue = it[2] && it[2].length < 90 && !it[1].toLowerCase().split(/[ (/]/).some(w=> w.length > 3 && it[2].toLowerCase().includes(w)); q = clue && lzRand(2) === 0 ? L({ rur: `${kind}Iska hawala/istemal: ${it[2]}. Tasveer mein kya hai?`, en: 'What is shown?' }) : L({ rur: kind + 'Tasveer mein kya hai?', en: 'What is this?' }); }
       out.push({ q, o, a, art: chSvg(it[4] || it[0]), why: `${it[1]}${it[2] ? ' — ' + it[2] : ''}. ${it[3]}` });
     });
