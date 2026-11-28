@@ -3348,3 +3348,9 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .sn-d{font-size:13.5px;line-height:1.55;margin:6px 0 4px 28px}.sn-ref{font-size:11.5px;color:var(--sub);margin-left:28px}.sn-ik{color:#c97a12;font-weight:700}
 
 .kh-nx .qn-txt{ position:relative; z-index:1; }
+
+/* 4 Tasveer 1 Surah */
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.sp-cell{border-radius:10px;overflow:hidden;background:var(--card,#fff);aspect-ratio:20/11}
+.sp-cell svg{width:100%;height:100%;display:block}.sp-lock{display:flex;align-items:center;justify-content:center;font-size:28px;background:color-mix(in srgb,var(--accent,#2f8f8a) 12%,var(--card,#fff));opacity:.7}
+.sp-info{font-size:12.5px;color:var(--sub);text-align:center;margin:6px 0}.sp-hint{font-size:13px;background:#fff7d6;border:1px solid #ecd77a;border-radius:10px;padding:8px 10px;margin:6px 0;color:#6a5a10}
+.sp-acts{display:flex;gap:8px;margin-top:6px}.sp-acts .kh-act{flex:1;margin:0}
