@@ -17,7 +17,11 @@ const khTitle = t=>{ document.getElementById('detailTitle').textContent = t; };
 const khShake = el=>{ if(el && lzState().fx){ el.classList.remove('lz-shake'); void el.offsetWidth; el.classList.add('lz-shake'); } };
 const khStarsFor = (pct)=> pct >= .9 ? 3 : pct >= .65 ? 2 : 1;
 let khTimer = null;
-const khClear = ()=>{ clearInterval(khTimer); khTimer = null; };
+const khClear = ()=>{ clearInterval(khTimer); khTimer = null; clearTimeout(khNT); };
+let khNT = null;
+const khAnsSecs = ()=>{ const v = khS().ans; return [2, 3, 5, 8].includes(v) ? v : 3; };
+const khRounds = ()=>{ const v = khS().qn; return [5, 10, 15].includes(v) ? v : 5; };
+const khAutoOn = ()=> khS().auto !== false;
 
 function renderKhel(){
   quizState = null; if(typeof quizTimerStop === 'function') quizTimerStop(); khClear();
@@ -25,7 +29,7 @@ function renderKhel(){
   const S = khS(), Z = lzState();
   khBody().innerHTML = `${khTabsHtml('games')}<div class="lz"><p class="lz-sub" style="margin:0 0 12px;">${L({ rur: 'Khelte hue seekhein', en: 'Learn while you play' })}</p>
     ${KH_GAMES.filter(g=> !g.q).map(g=> {
-      const best = g.id === 'lafz' ? `${L({ rur: 'Level', en: 'Level' })} ${Z.lvl || 1}` : (S.best[g.id] != null ? `${L({ rur: 'Behtar', en: 'Best' })}: ${S.best[g.id]}` : '');
+      const best = khBestStr(g);
       return `<button type="button" class="kh-card" data-g="${g.id}"><span class="kh-ic">${g.ic}</span><span class="kh-tx"><b>${isEn() ? g.en : g.rur}</b><small>${isEn() ? g.de : g.dr}</small></span><span class="kh-best">${best}</span></button>`;
     }).join('')}
     <p class="lz-note">${L({ rur: 'Awaaz, vibration aur effects ke liye har game mein ⚙️ hai, ya More tab dekhein.', en: 'Every game has a ⚙️ for sound, vibration and effects, or see the More tab.' })}</p></div>`;
@@ -34,7 +38,7 @@ function renderKhel(){
 }
 
 /* shared result screen */
-function khResult(id, headline, score, total, stars, extraHtml, again, review){
+function khResult(id, headline, score, total, stars, extraHtml, again, review, shareText){
   khClear();
   const S = khS(); S.plays[id] = (S.plays[id] || 0) + 1;
   const val = Math.round(score);
@@ -44,10 +48,13 @@ function khResult(id, headline, score, total, stars, extraHtml, again, review){
   khBody().innerHTML = `<div class="lz lz-done">${conf ? `<div class="lz-conf">${conf}</div>` : ''}
     <div class="lz-banner">${headline}</div>
     <div class="lz-stars">${[1, 2, 3].map(i=> `<span class="${i <= stars ? 'on' : ''}">★</span>`).join('')}</div>
-    <p class="lz-sub">${L({ rur: 'Score', en: 'Score' })}: ${val}${total ? ' / ' + total : ''}</p>${extraHtml || ''}${khReviewHtml(review)}
-    <button type="button" class="quiz-next" id="khAgain" style="position:static;margin-top:14px;">${L({ rur: 'Dobara khelein', en: 'Play again' })} ▶</button>
-    <button type="button" class="kh-back" id="khHub">${L({ rur: 'Saare khel', en: 'All games' })}</button></div>`;
+    <p class="lz-sub">${L({ rur: 'Score', en: 'Score' })}: ${val}${total ? ' / ' + total : ''}</p>${extraHtml || ''}
+    <button type="button" class="quiz-next kh-primary" id="khAgain">${L({ rur: 'Dobara khelein', en: 'Play again' })} ▶</button>
+    ${khReviewHtml(review)}${shareText ? `<button type="button" class="kh-act" id="khShare">📤 ${L({ rur: 'Result share karein', en: 'Share result' })}</button>` : ''}
+    <button type="button" class="kh-act" id="khHub">🎮 ${L({ rur: 'Saare khel', en: 'All games' })}</button>
+    <div class="lz-toast" id="lzToast"></div></div>`;
   khReviewBind();
+  const sh = document.getElementById('khShare'); if(sh) sh.onclick = async ()=>{ try{ if(navigator.share){ await navigator.share({ text: shareText }); } else { await navigator.clipboard.writeText(shareText); lzToast(L({ rur: 'Copy ho gaya.', en: 'Copied.' }), 'ok'); } }catch(e){} };
   document.getElementById('khAgain').onclick = again;
   document.getElementById('khHub').onclick = ()=> renderKhel();
 }
@@ -133,7 +140,7 @@ function khTarteebRound(){
   const T = khT; let k; do{ k = lzRand(T.sets.length); }while(k === T.last && T.sets.length > 1); T.last = k;
   const s = T.sets[k](); T.cur = s; T.pos = 0;
   const order = lzShuffle(s.items.map((t, i)=> ({ t, i }))); if(order.every((x, i)=> x.i === i)) order.reverse();
-  khBody().innerHTML = `<div class="lz">${khHead(`${L({ rur: 'Round', en: 'Round' })} ${T.r + 1}/5`, `<span class="kh-mist">✖ <b id="khMist">${T.mist}</b></span>`)}
+  khBody().innerHTML = `<div class="lz">${khHead(`${L({ rur: 'Round', en: 'Round' })} ${T.r + 1}/${khRounds()}`, `<span class="kh-mist">✖ <b id="khMist">${T.mist}</b></span>`)}
     <div class="lz-cat"><span>${s.ic} ${isEn() ? s.t.en : s.t.rur}</span></div>
     <div class="kh-slots" id="khSlots">${s.items.map((_, i)=> `<div class="kh-slot" data-i="${i}"><em>${i + 1}</em><span></span></div>`).join('')}</div>
     <p class="lz-sub" style="margin:10px 0 6px;">${L({ rur: 'Agla sahi item dabayein', en: 'Tap the next correct item' })}</p>
@@ -147,7 +154,7 @@ function khTarteebRound(){
         b.disabled = true; b.classList.add('ok'); T.pos++; lzOk(); lzVib(15);
         if(T.pos === s.items.length){
           lzToast(isEn() ? s.note.en : s.note.rur, 'ok'); clearTimeout(khT._n);
-          T._n = setTimeout(()=>{ T.r++; T.r >= 5 ? khTarteebEnd() : khTarteebRound(); }, 1700);
+          T._n = setTimeout(()=>{ T.r++; T.r >= khRounds() ? khTarteebEnd() : khTarteebRound(); }, 1700);
         }
       } else {
         T.mist++; document.getElementById('khMist').textContent = T.mist; lzBad(); lzVib([40, 40, 40]);
@@ -157,8 +164,8 @@ function khTarteebRound(){
   });
 }
 function khTarteebEnd(){
-  const m = khT.mist, stars = m <= 3 ? 3 : m <= 8 ? 2 : 1, score = Math.max(0, 20 - m);
-  khResult('tarteeb', L({ rur: 'Shabaash!', en: 'Well done!' }), score, 20, stars, `<p class="lz-sub">${L({ rur: 'Galtiyan', en: 'Mistakes' })}: ${m}</p>`, khTarteebStart);
+  const N = khRounds(), m = khT.mist, stars = m <= Math.round(N * .6) ? 3 : m <= Math.round(N * 1.6) ? 2 : 1, score = Math.max(0, N * 4 - m);
+  khResult('tarteeb', L({ rur: 'Shabaash!', en: 'Well done!' }), score, N * 4, stars, `<p class="lz-sub">${L({ rur: 'Galtiyan', en: 'Mistakes' })}: ${m}</p>`, khTarteebStart);
 }
 
 /* ---------- 4. Lafz Jodo (scramble) ---------- */
@@ -168,14 +175,14 @@ function khScrStart(){
   khTitle(L({ rur: 'Lafz Jodo', en: 'Word Scramble' }));
   const pool = [];
   lzCats().forEach(c=> c.ws.forEach(w=>{ if(w.k.length >= 4 && w.k.length <= 9 && w.m) pool.push({ ...w, cat: c }); }));
-  khC = { r: 0, ok: 0, hints: 3, used: 0, words: lzShuffle(pool).slice(0, 10) };
+  khC = { r: 0, ok: 0, hints: 3, used: 0, words: lzShuffle(pool).slice(0, khRounds()) };
   khScrRound();
 }
 function khScrRound(){
   const C = khC, w = C.words[C.r];
   let letters = lzShuffle(w.k.split('')); if(letters.join('') === w.k) letters.reverse();
   C.cur = w; C.tiles = letters.map((ch, i)=> ({ ch, i, used: false })); C.ans = []; C.locked = false; C.hintUsedHere = false;
-  khBody().innerHTML = `<div class="lz">${khHead(`${C.r + 1}/10`, `<span class="kh-mist">✔ <b>${C.ok}</b></span>`)}
+  khBody().innerHTML = `<div class="lz">${khHead(`${C.r + 1}/${khRounds()}`, `<span class="kh-mist">✔ <b>${C.ok}</b></span>`)}
     <div class="lz-cat"><span>${w.cat.ic} ${lzCatName(w.cat)}</span></div>
     <p class="kh-clue">${khMeaning(w)}</p>
     <div class="kh-ans" id="khAns"></div>
@@ -214,10 +221,10 @@ function khScrCheck(){
     setTimeout(()=>{ C.ans.filter(x=> !x.fixed).forEach(x=>{ C.tiles[x.i].used = false; }); C.ans = C.ans.filter(x=> x.fixed); C.locked = false; khScrDraw(); }, 600);
   }
 }
-function khScrNext(){ khC.r++; khC.r >= 10 ? khScrEnd() : khScrRound(); }
+function khScrNext(){ khC.r++; khC.r >= khRounds() ? khScrEnd() : khScrRound(); }
 function khScrEnd(){
-  const C = khC, stars = C.ok >= 9 && C.used <= 1 ? 3 : C.ok >= 6 ? 2 : 1;
-  khResult('jodo', L({ rur: 'Shabaash!', en: 'Well done!' }), C.ok, 10, stars, '', khScrStart);
+  const C = khC, N = khRounds(), stars = C.ok >= N - 1 && C.used <= 1 ? 3 : C.ok >= Math.ceil(N * .6) ? 2 : 1;
+  khResult('jodo', L({ rur: 'Shabaash!', en: 'Well done!' }), C.ok, N, stars, '', khScrStart);
 }
 
 /* ---------- 5. Surah Pehchaan ---------- */
@@ -226,7 +233,7 @@ function khSurahQs(){
   const S = QURAN_SURAHS, P = QURAN_PARAS, out = [];
   const opts = (right, pool, key)=>{ const o = [right]; lzShuffle(pool).forEach(x=>{ if(o.length < 4 && !o.includes(key(x))) o.push(key(x)); }); return lzShuffle(o); };
   const sn = s=> s.name;
-  for(let t = 0; out.length < 10 && t < 200; t++){
+  for(let t = 0; out.length < khRounds() && t < 400; t++){
     const kind = lzRand(5), s = S[lzRand(S.length)];
     if(kind === 0) out.push({ q: L({ rur: `Surah number ${s.n} ka naam kya hai?`, en: `What is the name of Surah number ${s.n}?` }), ar: s.ar, o: opts(sn(s), S, sn), a: sn(s) });
     else if(kind === 1) out.push({ q: L({ rur: `${s.name} Qur’an ki kitnaveen surah hai?`, en: `Which number surah is ${s.name}?` }), ar: s.ar, o: opts(String(s.n), S, x=> String(x.n)), a: String(s.n) });
@@ -234,7 +241,7 @@ function khSurahQs(){
     else if(kind === 3 && s.n > 1) out.push({ q: L({ rur: `${s.name} se pehle kaun si surah aati hai?`, en: `Which surah comes right before ${s.name}?` }), ar: s.ar, o: opts(sn(S[s.n - 2]), S, sn), a: sn(S[s.n - 2]) });
     else if(kind === 4){ const p = P[lzRand(P.length)]; out.push({ q: L({ rur: `Para number ${p.n} ka naam kya hai?`, en: `What is the name of Para number ${p.n}?` }), ar: '', o: opts(p.name, P, x=> x.name), a: p.name }); }
   }
-  return out.filter(x=> x.o.length === 4).slice(0, 10);
+  return out.filter(x=> x.o.length === 4).slice(0, khRounds());
 }
 function khSurahStart(){ khTitle(L({ rur: 'Surah Pehchaan', en: 'Surah Quiz' })); khQ = { i: 0, ok: 0, streak: 0, qs: khSurahQs() }; khSurahShow(); }
 function khSurahShow(){
@@ -273,7 +280,7 @@ function khSahiShow(){
   khBody().innerHTML = `<div class="lz">${khHead(`⏱️ <b id="khClock">${F.t}s</b>`, `<span class="kh-mist">${'❤️'.repeat(F.lives)}${'🖤'.repeat(3 - F.lives)} · ✔ <b>${F.ok}</b></span>`)}
     <div class="quiz-card"><div class="quiz-q">${String(q).replace(/\n\n/g, '<br>')}</div><div class="kh-ansline">${L({ rur: 'Jawab', en: 'Answer' })}: <b>${opts[shown]}</b></div></div>
     <div class="kh-tf"><button type="button" class="kh-yes" data-v="1">✅ ${L({ rur: 'Sahi', en: 'True' })}</button><button type="button" class="kh-no" data-v="0">❌ ${L({ rur: 'Ghalat', en: 'False' })}</button></div>
-    <div class="lz-toast" id="lzToast"></div></div>`;
+    <div id="khNextWrap"></div><div class="lz-toast" id="lzToast"></div></div>`;
   document.querySelectorAll('.kh-tf button').forEach(b=>{ b.onclick = ()=>{
     if(F.lock || F.over) return; F.lock = true;
     const ok = (b.dataset.v === '1') === F.cur.truth;
@@ -283,12 +290,12 @@ function khSahiShow(){
     const why = (typeof quizWhy === 'function') ? quizWhy(item) : '';
     F.log.push({ ok, q: String(q).replace(/\n\n/g, ' '), a: opts[correct], shown: opts[shown], truth: F.cur.truth, why });
     const right = `${L({ rur: 'Sahi jawab', en: 'Correct answer' })}: ${opts[correct]}`;
-    lzToast(ok ? (why || '') : (why ? right + '. ' + why : right), ok ? 'ok' : 'bad');
-    clearTimeout(khF._n); const wait = ok ? (why ? 1700 : 600) : 2200;
-    khF._n = setTimeout(()=>{
+    const wait = (khAnsSecs() + (ok ? 0 : 1)) * 1000;
+    lzToast(ok ? (why || L({ rur: 'Sahi!', en: 'Correct!' })) : (why ? right + '. ' + why : right), ok ? 'ok' : 'bad', khAutoOn() ? wait : 600000);
+    khNext(wait, F.lives <= 0, ()=>{
       F.lock = false; F.i++;
       if(F.lives <= 0 || F.t <= 0){ if(!F.over){ F.over = true; khSahiEnd(); } } else khSahiShow();
-    }, wait);
+    });
   }; });
 }
 function khSahiEnd(){

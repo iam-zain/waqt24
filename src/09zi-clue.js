@@ -166,14 +166,19 @@ function clQ(){
   const dots = G.qs.map((_, i)=> `<i class="${i < G.res.length ? (G.res[i] > 0 ? 'ok' : 'no') : i === G.i ? 'cur' : ''}"></i>`).join('');
   khBody().innerHTML = `<div class="lz">${khHead(`${G.i + 1}/${G.qs.length}`, `<span class="kh-mist">🏆 <b id="clScore">${G.score}</b></span>`)}
     ${G.qs.length <= 10 ? `<div class="quiz-dots" style="margin:0 0 10px;">${dots}</div>` : ''}
-    <div class="lz-cat"><span>🕵️ ${L({ rur: 'Suraag', en: 'Clue' })} <b id="clN">1</b>/4</span><b id="clPts">${CL_POINTS[0]} ${L({ rur: 'number', en: 'pts' })}</b></div>
+    <div class="lz-cat"><span>🕵️ ${L({ rur: 'Suraag', en: 'Clue' })} <b id="clN">1</b>/4</span><span id="clTry" class="cl-try"></span><b id="clPts">${CL_POINTS[0]} ${L({ rur: 'number', en: 'pts' })}</b></div>
     <div class="cl-clues" id="clClues"></div>
     <div class="quiz-opts" id="clOpts">${q.order.map((o, i)=> `<button type="button" class="quiz-opt qopt-${'ABCD'[i]}" data-o="${o.replace(/"/g, '&quot;')}"><span class="opt-letter">${'ABCD'[i]}</span><span class="quiz-opt-txt">${o}</span></button>`).join('')}</div>
-    <button type="button" class="lz-hint cl-next" id="clMore">🔎 ${L({ rur: 'Agla suraag dikhayein', en: 'Reveal next clue' })}</button>
+    <button type="button" class="kh-act cl-next" id="clMore">🔎 ${L({ rur: 'Agla suraag dikhayein', en: 'Reveal next clue' })}</button>
+    <div id="khNextWrap"></div>
     <div class="lz-toast" id="lzToast"></div></div>`;
-  clDrawClues();
+  clDrawClues(); clTry();
   document.getElementById('clMore').onclick = ()=>{ if(G.lock || G.clue >= 3) return; G.clue++; lzTick(); lzVib(8); clDrawClues(); };
   document.querySelectorAll('#clOpts .quiz-opt').forEach(b=>{ b.onclick = ()=> clGuess(b); });
+}
+function clTry(){
+  const e = document.getElementById('clTry'); if(!e) return; const left = 2 - clG.tries;
+  e.innerHTML = `🎯 ${L({ rur: 'Koshish baaki', en: 'Attempts left' })}: <b>${'●'.repeat(left)}${'○'.repeat(2 - left)}</b> ${left}/2`;
 }
 function clDrawClues(){
   const G = clG, q = G.qs[G.i];
@@ -188,19 +193,19 @@ function clGuess(b){
     G.lock = true; const pts = CL_POINTS[G.clue]; G.score += pts; G.ok++; G.clueSum += G.clue + 1; G.res.push(pts); G.rev.push({ ok: true, q: q.a, why: q.c.join(' → '), tag: pts + ' ' + L({ rur: 'number', en: 'pts' }) });
     b.classList.add('correct'); document.querySelectorAll('#clOpts .quiz-opt').forEach(x=> x.disabled = true);
     document.getElementById('clScore').textContent = G.score; lzOk(); lzVib(25);
-    lzToast(`+${pts} ${L({ rur: 'number', en: 'pts' })}  ·  ${q.c[3]}`, 'ok'); clNext(1900);
+    lzToast(`+${pts} ${L({ rur: 'number', en: 'pts' })}  ·  ${q.c[3]}`, 'ok', khAutoOn() ? khAnsSecs() * 1000 : 600000); clNext(khAnsSecs() * 1000);
   } else {
-    G.tries++; b.disabled = true; b.classList.add('wrong'); khShake(b); lzBad(); lzVib([40, 40, 40]);
+    G.tries++; clTry(); b.disabled = true; b.classList.add('wrong'); khShake(b); lzBad(); lzVib([40, 40, 40]);
     if(G.tries >= 2){
       G.lock = true; G.res.push(0); G.rev.push({ ok: false, q: q.a, why: q.c.join(' → '), tag: '0' }); document.querySelectorAll('#clOpts .quiz-opt').forEach(x=>{ x.disabled = true; if(x.dataset.o === q.a) x.classList.add('correct'); });
       document.getElementById('clClues').innerHTML = q.c.map((t, i)=> `<div class="cl-clue"><em>${i + 1}</em><span>${t}</span></div>`).join('');
-      lzToast(`${L({ rur: 'Sahi jawab', en: 'Correct answer' })}: ${q.a}`, 'bad'); clNext(2800);
-    } else lzToast(L({ rur: 'Ek koshish baaki hai.', en: 'One attempt left.' }), 'bad');
+      lzToast(`${L({ rur: 'Sahi jawab', en: 'Correct answer' })}: ${q.a}`, 'bad', khAutoOn() ? (khAnsSecs() + 2) * 1000 : 600000); clNext((khAnsSecs() + 2) * 1000);
+    } else { clTry(); lzToast(L({ rur: 'Galat. Ab sirf 1 koshish baaki hai.', en: 'Wrong. Only 1 attempt left.' }), 'bad', 1800); }
   }
 }
 function clNext(ms){
-  clearTimeout(clG._t);
-  clG._t = setTimeout(()=>{ clG.i++; clG.i >= clG.qs.length ? clEnd() : clQ(); }, ms);
+  const last = clG.i + 1 >= clG.qs.length, more = document.getElementById('clMore'); if(more) more.style.display = 'none';
+  khNext(ms, last, ()=>{ clG.i++; clG.i >= clG.qs.length ? clEnd() : clQ(); });
 }
 function clEnd(){
   const G = clG, S = clS(), max = G.qs.length * 100, avg = G.ok ? (G.clueSum / G.ok).toFixed(1) : '–', acc = Math.round(G.ok / G.qs.length * 100);
@@ -211,9 +216,5 @@ function clEnd(){
   const msg = pct >= .75 ? L({ rur: 'MashaAllah! Aapka deeni ilm kamaal ka hai.', en: 'MashaAllah! Sharp Islamic knowledge.' }) : pct >= .45 ? L({ rur: 'Achha raha! Thodi aur mashq se aur behtar.', en: 'Good job! A little more practice.' }) : L({ rur: 'Koi baat nahi, seekhte rahein.', en: 'Keep learning, you will get there.' });
   const share = `🕵️ Deen Detective (Waqt24)\n${L({ rur: 'Score', en: 'Score' })}: ${G.score} / ${max}\n${L({ rur: 'Sahi', en: 'Correct' })}: ${G.ok}/${G.qs.length}\n${L({ rur: 'Average suraag', en: 'Average clue' })}: ${avg}\n${G.res.map(p=> p >= 100 ? '🟩' : p >= 50 ? '🟨' : p > 0 ? '🟧' : '🟥').join('')}`;
   saveState(); khClear();
-  khResult('clue', msg, G.score, max, stars, `<div class="cl-stats"><div><b>${G.ok}/${G.qs.length}</b><small>${L({ rur: 'Sahi', en: 'Correct' })}</small></div><div><b>${avg}</b><small>${L({ rur: 'Average suraag', en: 'Avg clue' })}</small></div><div><b>${acc}%</b><small>${L({ rur: 'Durusti', en: 'Accuracy' })}</small></div><div><b>${S.best[key]}</b><small>${L({ rur: 'Behtar', en: 'Best' })}</small></div></div>
-    <button type="button" class="lz-hint" id="clShare" style="margin-top:12px;">📤 ${L({ rur: 'Result share karein', en: 'Share result' })}</button>`, ()=> khClueHome(), G.rev);
-  document.getElementById('clShare').onclick = async ()=>{
-    try{ if(navigator.share){ await navigator.share({ text: share }); } else { await navigator.clipboard.writeText(share); lzToast(L({ rur: 'Copy ho gaya.', en: 'Copied.' }), 'ok'); } }catch(e){}
-  };
+  khResult('clue', msg, G.score, max, stars, `<div class="cl-stats"><div><b>${G.ok}/${G.qs.length}</b><small>${L({ rur: 'Sahi', en: 'Correct' })}</small></div><div><b>${avg}</b><small>${L({ rur: 'Average suraag', en: 'Avg clue' })}</small></div><div><b>${acc}%</b><small>${L({ rur: 'Durusti', en: 'Accuracy' })}</small></div><div><b>${S.best[key]}</b><small>${L({ rur: 'Behtar', en: 'Best' })}</small></div></div>`, ()=> khClueHome(), G.rev, share);
 }

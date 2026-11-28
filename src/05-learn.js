@@ -975,25 +975,25 @@ function renderMoreQuiz(){
     </button>`;
   }).join('');
   body.innerHTML = `${khTabsHtml('quiz')}
-    <div style="text-align:center; padding:16px 10px 6px;">
-      <div style="font-size:40px; margin-bottom:8px;">🧠</div>
-      <div style="font-size:15px; font-weight:700; margin-bottom:4px;">Islami Malumat Ka Quiz</div>
-      <div style="font-size:13px; color:var(--sub); margin-bottom:14px;">Category chuniye</div>
-    </div>
     ${khQuizCardsHtml()}
     ${(()=>{ const d = quizSaved(); return d ? `<button class="quiz-cat-btn" id="quizResumeBtn" style="border-color:#2e9e5b;"><span class="quiz-cat-ic">▶️</span><span class="quiz-cat-name">${L({rur:'Quiz jaari rakhein', en:'Continue quiz'})}</span><span class="quiz-cat-count">${d.cat} · ${d.idx+1}/${d.questions.length}</span></button>` : ''; })()}
     ${(()=>{ const w = qzWeakAll().length; return w ? `<button class="quiz-cat-btn" id="quizWeakBtn" style="border-color:#e0893f;"><span class="quiz-cat-ic">🔁</span><span class="quiz-cat-name">${L({rur:'Galat sawal ki practice', en:'Practise missed questions'})}</span><span class="quiz-cat-count">${w} ${L({rur:'sawal', en:'questions'})}</span></button>` : ''; })()}
+    <button class="quiz-cat-btn" id="qzCatToggle" aria-expanded="false" style="border-color:var(--accent);"><span class="quiz-cat-ic">🧠</span><span class="quiz-cat-name">Islami Malumat Ka Quiz</span><span class="quiz-cat-count">${QUIZ_BANK.length} sawal · <b id="qzCatArrow">▾</b></span></button>
+    <div id="qzCats" hidden>
     <button class="quiz-cat-btn" data-cat="__all__" style="border-color:var(--accent);">
       <span class="quiz-cat-ic">🌐</span>
       <span class="quiz-cat-name">Sab Categories (Mix)</span>
       <span class="quiz-cat-count">${QUIZ_BANK.length} sawal</span>
     </button>
     ${catRows}
+    </div>
   `;
   body.querySelectorAll('.quiz-cat-btn[data-cat]').forEach(btn=>{
     btn.onclick = ()=> renderQuizCountSelect(btn.dataset.cat);
   });
   khTabsBind();
+  const qt = document.getElementById('qzCatToggle');
+  if(qt) qt.onclick = ()=>{ const c = document.getElementById('qzCats'), open = c.hidden; c.hidden = !open; qt.setAttribute('aria-expanded', open); document.getElementById('qzCatArrow').textContent = open ? '▴' : '▾'; if(open) c.scrollIntoView({ behavior:'smooth', block:'nearest' }); };
   const rb = document.getElementById('quizResumeBtn');
   if(rb) rb.onclick = quizResume;
   const wb = document.getElementById('quizWeakBtn');

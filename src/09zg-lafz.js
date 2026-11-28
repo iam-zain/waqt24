@@ -101,6 +101,7 @@ function lzShuffle(a){ a = a.slice(); for(let i = a.length - 1; i > 0; i--){ con
 function lzState(){
   const s = state.lafz = state.lafz || {};
   if(!s.lvl) s.lvl = 1;
+  s.max = Math.max(s.max || 1, s.lvl);
   if(s.snd === undefined) s.snd = true;
   if(s.vib === undefined) s.vib = true;
   if(s.fx === undefined) s.fx = true;
@@ -228,8 +229,8 @@ function renderLafz(){
       <div class="lz-top">
         <span class="lz-lv">${L({ rur: 'Level', en: 'Level' })} ${P.level}</span>
         <span class="lz-grow"></span>
-        <button type="button" class="lz-ic" id="lzSet" aria-label="Settings">⚙️</button>
-        <button type="button" class="lz-ic" id="lzHelp" aria-label="Help">❓</button>
+        <button type="button" class="lz-ic" id="lzSet" aria-label="Settings" title="${L({ rur: 'Settings', en: 'Settings' })}" data-tip="${L({ rur: 'Settings', en: 'Settings' })}">⚙️</button>
+        <button type="button" class="lz-ic" id="lzHelp" aria-label="Help" title="${L({ rur: 'Madad', en: 'Help' })}" data-tip="${L({ rur: 'Madad', en: 'Help' })}">❓</button>
       </div>
       <div class="lz-panel" id="lzPanel" hidden></div>
       <div class="lz-cat"><span>${cat.ic} ${lzCatName(cat)}</span><b id="lzCnt">${found}/${P.words.length}</b></div>
@@ -268,10 +269,10 @@ function lzDrawLines(extra){
   const svg = document.getElementById('lzSvg'); if(!svg) return;
   svg.innerHTML = lzCur.words.filter(w=> w.found).map(w=> lzLine(w.r, w.c, w.dr, w.dc, w.k.length, lzColor(w.i), 'lz-fnd', .5)).join('') + (extra || '');
 }
-function lzToast(txt, kind){
+function lzToast(txt, kind, ms){
   const t = document.getElementById('lzToast'); if(!t) return;
   t.className = 'lz-toast show ' + (kind || ''); t.textContent = txt;
-  clearTimeout(lzToast._t); lzToast._t = setTimeout(()=>{ t.className = 'lz-toast'; }, kind === 'bad' ? 1100 : 3600);
+  clearTimeout(lzToast._t); lzToast._t = setTimeout(()=>{ t.className = 'lz-toast'; }, ms || (kind === 'bad' ? 1100 : 3600));
 }
 function lzCellFromPoint(e){
   const g = document.getElementById('lzGrid'); if(!g) return null;
@@ -374,9 +375,30 @@ function lzSettings(){
   const row = (id, ic, t, on)=> `<button type="button" class="lz-row" data-k="${id}"><span>${ic} ${t}</span><span class="lz-sw${on ? ' on' : ''}"></span></button>`;
   p.innerHTML = row('snd', '🔊', L({ rur: 'Awaaz', en: 'Sound' }), S.snd) + row('vib', '📳', L({ rur: 'Vibration', en: 'Vibration' }), S.vib) + row('fx', '✨', L({ rur: 'Effects (animation)', en: 'Effects (animation)' }), S.fx)
     + `<div class="lz-row2"><span>🎨 ${L({ rur: 'Rang', en: 'Colours' })}</span><div class="qz-seg" id="lzColSeg">${LZ_COL_NAMES.map(([k, r, e])=> `<button type="button" data-k="${k}" class="${S.col === k ? 'on' : ''}">${isEn() ? e : r}</button>`).join('')}</div></div>`;
+  p.insertAdjacentHTML('beforeend', lzProgressHtml(true)); lzProgressBind(p, true);
   p.hidden = false;
-  p.querySelectorAll('.lz-row').forEach(b=>{ b.onclick = ()=>{ S[b.dataset.k] = !S[b.dataset.k]; saveState(); b.querySelector('.lz-sw').classList.toggle('on', S[b.dataset.k]); if(b.dataset.k === 'snd' && S.snd) lzOk(); }; });
+  p.querySelectorAll('.lz-row[data-k]').forEach(b=>{ b.onclick = ()=>{ S[b.dataset.k] = !S[b.dataset.k]; saveState(); b.querySelector('.lz-sw').classList.toggle('on', S[b.dataset.k]); if(b.dataset.k === 'snd' && S.snd) lzOk(); }; });
   p.querySelectorAll('#lzColSeg button').forEach(b=>{ b.onclick = ()=>{ S.col = b.dataset.k; saveState(); p.querySelectorAll('#lzColSeg button').forEach(x=> x.classList.toggle('on', x === b)); lzDrawWords(); lzDrawLines(); }; });
+}
+/* go back to any earlier level, restart the level, or reset progress */
+function lzProgressHtml(inGame){
+  const S = lzState(), max = Math.max(S.max || 1, S.lvl);
+  const opts = Array.from({ length: max }, (_, i)=> { const n = i + 1, st = S.stars[n] || 0; return `<option value="${n}"${n === S.lvl ? ' selected' : ''}>${L({ rur: 'Level', en: 'Level' })} ${n}${st ? ' ' + '★'.repeat(st) : ''}${n === S.lvl ? ' (' + L({ rur: 'abhi', en: 'current' }) + ')' : ''}</option>`; }).join('');
+  return `<div class="lz-row2"><span>📍 ${L({ rur: 'Level chuniye', en: 'Choose level' })} <small>(${L({ rur: 'sabse unchi', en: 'highest' })}: ${max})</small></span><div class="lz-lvpick"><select id="lzLvSel">${opts}</select><button type="button" class="kh-act" id="lzLvGo">${L({ rur: 'Chalo', en: 'Go' })} ▶</button></div></div>
+    ${inGame ? `<button type="button" class="lz-row lz-act" id="lzRestart"><span>🔁 ${L({ rur: 'Is level ko dobara shuru karein', en: 'Restart this level' })}</span></button>` : ''}
+    <button type="button" class="lz-row lz-act" id="lzReset"><span>🗑️ ${L({ rur: 'Level progress reset (Level 1 se)', en: 'Reset level progress (from Level 1)' })}</span></button>`;
+}
+function lzProgressBind(p, inGame){
+  const S = lzState(), go = n=>{ S.lvl = n; S.cur = null; saveState(); renderLafz(); };
+  const g = p.querySelector('#lzLvGo'); if(g) g.onclick = ()=> go(+p.querySelector('#lzLvSel').value);
+  const r = p.querySelector('#lzRestart'); if(r) r.onclick = ()=> go(S.lvl);
+  const x = p.querySelector('#lzReset'); if(!x) return;
+  const label = x.innerHTML;
+  x.onclick = ()=>{
+    if(!x.dataset.sure){ x.dataset.sure = '1'; x.classList.add('danger'); x.innerHTML = `<span>⚠️ ${L({ rur: 'Pakka? Sab levels aur sitare mit jayenge. Dobara dabayein.', en: 'Sure? All levels and stars will be cleared. Tap again.' })}</span>`; setTimeout(()=>{ if(x.dataset.sure){ delete x.dataset.sure; x.classList.remove('danger'); x.innerHTML = label; } }, 5000); return; }
+    S.lvl = 1; S.max = 1; S.stars = {}; S.cur = null; saveState();
+    if(inGame) renderLafz(); else { renderKhelMore(); }
+  };
 }
 function lzHelp(){
   lzToast(L({ rur: 'Grid mein chhupe lafz dhoondhein: pehle harf par ungli rakh kar aakhri harf tak ghumayein (seedhi ya tirchi line). Lafz ke naam par dabane se uska matlab aur hint ka nishana milta hai. Zyada tafseel ke liye ulema se mashwara karein.', en: 'Find the hidden words: press on the first letter and drag to the last (straight or diagonal). Tap a word in the list to see its meaning or to aim a hint at it. Please consult your ulema for more detail.' }), 'info');
@@ -388,7 +410,7 @@ function lzFinish(resumed){
   const stars = lzStars(P);
   if(!resumed){
     S.stars[P.level] = Math.max(S.stars[P.level] || 0, stars); S.done = (S.done || 0) + 1; S.wordsFound = (S.wordsFound || 0) + P.words.length;
-    S.lvl = P.level + 1; S.cur = null; saveState(); lzWin(); lzVib([30, 40, 30, 40, 80]);
+    S.lvl = P.level + 1; S.max = Math.max(S.max || 1, S.lvl); S.cur = null; saveState(); lzWin(); lzVib([30, 40, 30, 40, 80]);
   }
   const cat = lzCatOf(P.cat) || { ic: '🔤', rur: '', en: '' };
   const conf = lzState().fx && !resumed ? Array.from({ length: 18 }, (_, i)=> `<s style="--x:${lzRand(100)}%;--dl:${(i * 60) % 700}ms;--cc:${LZ_COLS.multi[i % 8]}"></s>`).join('') : '';
