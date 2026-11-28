@@ -114,6 +114,7 @@ document.querySelectorAll('.more-item').forEach(item=>{
     else if(which==='hadees') renderMoreHadees();
     else if(which==='quranWords') renderQuranWords();
     else if(which==='aadaab') renderAadaab();
+    else if(which==='sunnah') renderSunnah();
     else if(which==='ibadat') renderIbadat();
     else if(which==='kids') renderKids();
     else if(which==='mubarak') renderMubarak();
@@ -161,9 +162,9 @@ document.getElementById('detailHome').onclick = ()=>{
   if(k){ suppressPops++; history.go(-k); }
   homeBtnSync();
 };
-['renderIbadat','renderZariye','renderShakhsiyat','renderFitrQurbani','renderZakat','renderKids','renderMubarak','renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderKhel','renderKhelMore','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
+['renderIbadat','renderZariye','renderShakhsiyat','renderFitrQurbani','renderZakat','renderKids','renderMubarak','renderMoreDua','renderMoreHadees','renderQuranWords','renderAadaab','renderSunnah','renderNamesList','renderKhaasShabd','renderDailyWord','renderMythBusters','renderMoreQuiz','renderKhel','renderKhelMore','renderBookmarks','renderIslamicMonths','renderSettingsMenu'].forEach(n=>navWrap(n,0));
 ['renderLafz','khJodiStart','khTarteebStart','khScrStart','khSurahStart','khSahiStart','khClueHome','khChitraHome'].forEach(n=>navWrap(n,1));
-['openIbadatDetail','renderZariyeList','renderShakhsiyatList','openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla',].forEach(n=>navWrap(n,1));
+['openIbadatDetail','renderZariyeList','renderShakhsiyatList','openDuaDetail','openHadeesDetail','openQuranWordDetail','openAadaabDetail','openSunnahDetail','renderNameDetail','renderShabdCategory','renderMythCountSelect','renderMythReadList','renderQuizCountSelect','renderMonthDetail','renderMoreSettings','renderBackup','renderMoreAbout','renderHowTo','renderQibla',].forEach(n=>navWrap(n,1));
 navWrap('renderQuranHome',0);
 navWrap('renderTajweedMenu',1);
 navWrap('renderQuranSigns',3);

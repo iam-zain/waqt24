@@ -3339,3 +3339,10 @@ button:active:not(:disabled), .more-item:active, .aad-card:active, .hadees-item:
 .kh-disc{ margin:0 0 12px; padding:10px 12px; border-radius:12px; border:1px dashed var(--line); background:var(--card); color:var(--sub); font-size:12px; line-height:1.5; }
 .kh-disc-s{ margin:-4px 0 10px; padding:6px 10px; font-size:11px; }
 .kh-bigar{ font-size:34px !important; line-height:1.7; text-align:center; margin:4px 0 8px; }
+
+/* Rozmarra Ki Sunnatein */
+.sn-grp{margin:10px 0}.sn-grp-h{font-weight:800;font-size:14px;color:var(--sn-c);padding:6px 2px}
+.sn-list{list-style:none;padding:0;margin:0}.sn-item{padding:10px 12px;margin:8px 0;border-radius:12px;background:var(--card,#fff);border:1px solid var(--border,#e6e6e6)}
+.sn-item.on{border-color:#2e9e5b;background:color-mix(in srgb,#2e9e5b 8%,var(--card,#fff))}
+.sn-chk{display:flex;gap:8px;align-items:flex-start;cursor:pointer}.sn-chk input{width:20px;height:20px;margin-top:1px;accent-color:#2e9e5b}
+.sn-d{font-size:13.5px;line-height:1.55;margin:6px 0 4px 28px}.sn-ref{font-size:11.5px;color:var(--sub);margin-left:28px}.sn-ik{color:#c97a12;font-weight:700}
