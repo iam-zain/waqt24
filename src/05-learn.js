@@ -980,7 +980,7 @@ function renderMoreQuiz(){
       <div style="font-size:15px; font-weight:700; margin-bottom:4px;">Islami Malumat Ka Quiz</div>
       <div style="font-size:13px; color:var(--sub); margin-bottom:14px;">Category chuniye</div>
     </div>
-    <button class="quiz-cat-btn lz-entry" id="lzOpenBtn" style="border-color:var(--accent);"><span class="quiz-cat-ic">🔤</span><span class="quiz-cat-name">${L({rur:'Lafz Talash (Khel)', en:'Word Search (Game)'})}</span><span class="quiz-cat-count">${L({rur:'Level', en:'Level'})} ${(state.lafz && state.lafz.lvl) || 1}</span></button>
+    <button class="quiz-cat-btn lz-entry" id="lzOpenBtn" style="border-color:var(--accent);"><span class="quiz-cat-ic">🔤</span><span class="quiz-cat-name">${L({rur:'Khel (6 games)', en:'Games (6)'})}</span><span class="quiz-cat-count">${L({rur:'Lafz Talash, Jodi Milao ...', en:'Word Search, Match Pairs ...'})}</span></button>
     ${(()=>{ const d = quizSaved(); return d ? `<button class="quiz-cat-btn" id="quizResumeBtn" style="border-color:#2e9e5b;"><span class="quiz-cat-ic">▶️</span><span class="quiz-cat-name">${L({rur:'Quiz jaari rakhein', en:'Continue quiz'})}</span><span class="quiz-cat-count">${d.cat} · ${d.idx+1}/${d.questions.length}</span></button>` : ''; })()}
     ${quizProfileHtml()}
     ${(()=>{ const w = qzWeakAll().length; return w ? `<button class="quiz-cat-btn" id="quizWeakBtn" style="border-color:#e0893f;"><span class="quiz-cat-ic">🔁</span><span class="quiz-cat-name">${L({rur:'Galat sawal ki practice', en:'Practise missed questions'})}</span><span class="quiz-cat-count">${w} ${L({rur:'sawal', en:'questions'})}</span></button>` : ''; })()}
@@ -994,7 +994,7 @@ function renderMoreQuiz(){
   body.querySelectorAll('.quiz-cat-btn[data-cat]').forEach(btn=>{
     btn.onclick = ()=> renderQuizCountSelect(btn.dataset.cat);
   });
-  const lzb = document.getElementById('lzOpenBtn'); if(lzb) lzb.onclick = renderLafz;
+  const lzb = document.getElementById('lzOpenBtn'); if(lzb) lzb.onclick = renderKhel;
   const rb = document.getElementById('quizResumeBtn');
   if(rb) rb.onclick = quizResume;
   const wb = document.getElementById('quizWeakBtn');
